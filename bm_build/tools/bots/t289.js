@@ -27,7 +27,10 @@ const res = [];
              ['emma', 'Emma', 'emma_ribbon', 'cat', 'bm.emmapet', 'bm.emcd', 'emma'], ['kw', 'KillerWatt', 'kw_spark', 'wolf', 'bm.kxpet', 'bm.kxcd', 'killerwatt'],
              ['frog', 'the Frog', 'frog_signet', 'wolf', 'bm.frogpet', 'bm.fgcd', 'frog'],
              ['bender', 'Bender', 'bv_ball', 'wolf', 'bm.bvpet', 'bm.bvcd', 'bender'], ['leo', 'Leo', 'leo_crest', 'wolf', 'bm.leopet', 'bm.lecd', 'leo']];
-  const ASSAULT = ['emma', 'rufus', 'henry', 'nia', 'bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul'];
+  const ASSAULT = ['emma', 'rufus', 'henry', 'nia', 'bender', 'leo', 'bloo', 'bones', 'demo', 'chef', 'tul',
+    // (3.1a) and forty more on screen now (phase226b; t397 tests them all) - only Omega, Cecil, the Glitch, the Stalker, Pistachio, Wilfrey and the Mireling still vanish
+    'celi', 'zib', 'kw', 'apo', 'frog', 'don', 'fishy', 'dennis', 'ashur', 'neighbor', 'ava', 'pearlq', 'lantern', 'capshun', 'sky', 'pxcecil', 'pxleo', 'pxemma',
+    'kettle', 'gem', 'batty', 'eggbert', 'count'];
   if (process.env.ALL) K.push(
     ['celi', 'celi', 'celi_charm', 'wolf', 'bm.celipet', 'bm.cecd', 'celi'],
     ['zib', 'zib', 'donadian_medal', 'wolf', 'bm.zibpet', 'bm.zbcd', 'zib'],

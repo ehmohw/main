@@ -88,9 +88,11 @@ const res = [];
       const on = (await num(`${O}scoreboard players get ${H} bm.ksw`)) === 3 && (await num(`${O}scoreboard players get ${H} bm.ksg`)) >= 1;
       if (on) {
         seen++;
-        const p = await pos(H), t = await gt();
-        if (p && last) { const d = Math.hypot(p[0] - last.p[0], p[1] - last.p[1], p[2] - last.p[2]) / Math.max(1, t - last.t); if (d > jump) jump = d; }
-        last = p ? { p, t } : last;
+        // (the Pos and the game time are two rcon replies, maybe a tick apart: bracket the Pos with the time read before and after it,
+        //  and divide by the most ticks there can have been between two Pos reads - else two dash steps can count as one tick)
+        const tb = await gt(), p = await pos(H), ta = await gt();
+        if (p && last) { const d = Math.hypot(p[0] - last.p[0], p[1] - last.p[1], p[2] - last.p[2]) / Math.max(1, ta - last.tb); if (d > jump) jump = d; }
+        last = p ? { p, tb } : last;
       }
       if (hh < hp - 0.01) { if (seen) drops.push(+(hp - hh).toFixed(2)); hp = hh; }
       const hid = await cnt('@e[type=minecraft:item_display,tag=bm.prhid]'); if (hid > hidMax) hidMax = hid;

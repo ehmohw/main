@@ -343,7 +343,7 @@ def generate(G):
     TL2 = 8100
     pcode = lambda i: TL + 1 + i if i < 7 else (TL2 + i - 7 if i < 13 else (TL2 + i - 6 if i < 16 else (8270 + i - 16 if i < 39 else (3690 + i - 39 if i < 49 else 3900 + i - 49))))      # a follower's page (2.79: past 8106, the Auras page; 2.82: 8270 on; 2.98: past 8292 (8293 on are auras), 3690 on; 2.97: past 3699, 3900 on)
     scode = lambda j: TL + 10 + j if j < 40 else (TL2 + 10 + j - 40 if j < 80 else (TL2 + 64 + j - 80 if j < 112 else (8200 + j - 112 if j < 182 else (3600 + j - 182 if j < 272 else (3820 + j - 272 if j < 352 else 7400 + j - 352)))))   # an outfit (3.1: past the 352nd, 7400 on - 6672 on is the follower settings pages' as they grow) (2.80c: past 8150-8163, the auras; 2.82: 8200 on; 2.94: 3600 on; 2.97: past 3689, 3820 on)
-    assert len(WHO) <= 59                            # (3.00: the 50th on - pcode 3900.., routed one by one below)
+    assert pcode(len(WHO) - 1) <= 3999               # (3.00: the 50th on - pcode 3900.., routed one by one below; 3.1: the 60th on, 3910-3999 - free)
     import shiny as _SH
     stock = []                                       # (who, group, unlock score, k, item, name, colour, price)
     for who, g, cur, un, ks, iid, off, apply in P99.groups():

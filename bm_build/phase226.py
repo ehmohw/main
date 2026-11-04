@@ -468,7 +468,13 @@ def assault(G, w, typ, host, me, col):
     atk.sig(G, pfx, kid=3, tick_fn=tick_fn, state_fn=A.get('state', f'{pfx}/state'), anim_fn=A['anim'], s_obj=A['s_obj'], place_fn=A.get('place', f'{pfx}/place'), col=col,
             trigger='execute if score @s bm.prgo matches 1 unless data entity @s {Sitting:1b}' + free, busy=A['busy'], cd=20, end=A['end'],
             face=A.get('face', 'foe'), st=A.get('st', 21), dash_kw=A['dash'], timeline=tl, each=each, own_place=A.get('own_place', False))
-    if w == 'emma':                          # (the slam's shockwave: what stands round her foe)
+    if free:                                 # (...and once it's due, the follower's own moves yield: none starts while bm.prgo is 1, or one that
+        T = G.FUNCS[tick_fn]                 #  chains its moves back to back - Mr. Capshun - is never free and its blow never comes; t397)
+        b = f'unless score @s {A["busy"]} matches 1.. '
+        for i, l in enumerate(T):
+            if l.startswith('execute unless score @s bm.ksg matches 1.. ') and b in l and 'run function' in l and '/sg/3/go' not in l and 'bm.prgo' not in l:
+                T[i] = 'execute unless score @s bm.prgo matches 1 ' + l[len('execute '):]
+    if w == 'emma':                         # (the slam's shockwave: what stands round her foe)
         fn('p226/a/emma/wave', [f'tag @s add bm.{me}', f'execute at @e[tag=bm.prfoe,limit=1] as @e[type=#bm:hostile,tag=!bm.npc,tag=!bm.prfoe,distance=..3.5] run damage @s 4 bm:rend {by}',
                                 f'tag @s remove bm.{me}', 'execute at @e[tag=bm.prfoe,limit=1] run function bm:p226/a/emma/ring'])
         fn('p226/a/emma/ring', [f'execute rotated {a} 0 positioned ^ ^0.2 ^2 run particle minecraft:cherry_leaves ~ ~ ~ 0.1 0.1 0.1 0 2' for a in range(0, 360, 30)])
