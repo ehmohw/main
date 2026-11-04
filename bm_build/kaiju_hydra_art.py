@@ -43,8 +43,8 @@ HEADS = ('s', 'c', 'h')                         # Squall (middle), Cinder (its r
 NAME = {'s': 'Squall', 'c': 'Cinder', 'h': 'Hush'}
 NECK = {  # root, mid, head joint, head end (snout tip), widths (root, mid, top)
     's': ((0.0, 27.0, -13.0), (0.0, 35.6, -19.4), (0.0, 43.0, -24.0), (5.4, 4.6, 4.0)),
-    'c': ((5.6, 26.0, -12.0), (11.4, 31.6, -17.6), (15.4, 36.8, -21.0), (6.4, 5.8, 5.2)),
-    'h': ((-5.6, 26.0, -12.0), (-11.0, 33.0, -17.0), (-15.0, 40.0, -21.6), (4.4, 3.8, 3.2)),
+    'c': ((5.6, 26.0, -12.0), (13.0, 31.4, -17.4), (19.0, 36.4, -21.0), (6.4, 5.8, 5.2)),
+    'h': ((-5.6, 26.0, -12.0), (-12.6, 33.0, -17.0), (-18.6, 40.0, -21.6), (4.4, 3.8, 3.2)),
 }
 PIVOT = {'body': (0, 22.0, 6.0), 'chest': (0, 23.0, -4.0),
          'tail1': (0, 23.0, 17.0), 'tail2': (0, 19.6, 30.0), 'tail3': (0, 14.2, 44.0),
@@ -202,7 +202,7 @@ def ring_tex(col, a=210):
 
 
 # ---- the eyes: each head its own eye language (4 texels a unit, on a box on each side of its head, turned to look forward)
-EYE_W = {'s': (3.4, 1.8), 'c': (2.6, 2.2), 'h': (3.8, 3.0)}           # (z length, height) of each head's eye box, units
+EYE_W = {'s': (4.0, 2.4), 'c': (3.0, 2.6), 'h': (4.0, 3.0)}           # (z length, height) of each head's eye box, units
 
 
 def eye_s(kind=None):
@@ -416,7 +416,7 @@ def eyes(part, k, face, c, side_yaw=26.0):
         lo, hi = sorted((X, X + sx * 0.04))
         fc = 'east' if sx > 0 else 'west'
         B(part, (lo, y, z - L / 2), (hi, y + Hh, z + L / 2), tex, faces=(fc,), uv={fc: [0, 0, L, Hh] if sx > 0 else [L, 0, 0, Hh]},
-          rot=('y', -side_yaw * sx, (X, y, z)), light=12)
+          rot=('y', side_yaw * sx, (X, y, z)) if side_yaw else None, light=12)
 
 
 def head_s(face=None):
@@ -435,7 +435,7 @@ def head_s(face=None):
         lo, hi = sorted((sx * 1.4, sx * 3.7)); B(p, (lo, y0 + 1.9, z0 - 6.4), (hi, y0 + 2.9, z0 - 2.4), 'sc_s', rot=r)
         if face == 'smug' and sx < 0:                                                 # (one brow up: superior)
             B(p, (min(sx * 1.6, sx * 3.6), y0 + 3.0, z0 - 6.0), (max(sx * 1.6, sx * 3.6), y0 + 3.4, z0 - 3.0), 'blade_s')
-    eyes(p, 's', face, (3.45, y0 + 0.4, z0 - 4.4))
+    eyes(p, 's', face, (3.06, y0 - 0.6, z0 - 5.4), side_yaw=0.0)
     for sx in (1, -1):                                                               # THE CREST: lightning blades, zig-zagged back
         pts = [(sx * 1.6, y0 + 2.4, z0 - 2.6), (sx * 2.6, y0 + 5.0, z0 + 0.2), (sx * 2.0, y0 + 5.6, z0 + 2.0), (sx * 3.4, y0 + 8.6, z0 + 5.4)]
         for a, b, w in zip(pts, pts[1:], (1.3, 1.0, 0.8)):
@@ -463,7 +463,7 @@ def head_c(face=None):
     for sx in (1, -1):                                                                   # (the scowling brow: a heavy basalt plate per eye)
         r = ('z', -tilt * sx, (x0 + sx * 1.0, y0 + 3.0, z0 - 6.0))
         lo, hi = sorted((x0 + sx * 0.6, x0 + sx * 4.4)); B(p, (lo, y0 + 2.4, z0 - 7.4), (hi, y0 + 3.8, z0 - 3.6), 'plate_c', rot=r)
-    eyes(p, 'c', face, (4.25, y0 + 0.8, z0 - 5.2), side_yaw=40.0)
+    eyes(p, 'c', face, (4.26, y0 - 0.6, z0 - 4.8), side_yaw=0.0)
     for sx in (1, -1):                                                                   # THE RAM HORNS: curling back, out, down and forward
         c0 = (x0 + sx * 3.4, y0 + 2.6, z0 + 0.4)
         pts = [c0, (x0 + sx * 5.6, y0 + 5.2, z0 + 2.4), (x0 + sx * 8.2, y0 + 5.4, z0 + 3.6), (x0 + sx * 9.6, y0 + 3.0, z0 + 2.4),
@@ -478,13 +478,13 @@ def head_c(face=None):
 def head_h(face=None):
     """HUSH: a slender eel-like head, frilled fins like chorus fronds, chin barbels, big pale moon eyes"""
     p = 'hh'; x0, y0, z0 = PIVOT[p]
-    zmass(p, [(z0 - 3.6, z0 + 1.4, 2.8, 2.6, y0 + 0.6, x0), (z0 - 7.8, z0 - 3.6, 2.4, 2.1, y0 + 0.3, x0), (z0 - 11.4, z0 - 7.8, 1.7, 1.5, y0 - 0.1, x0)], 'sc_h', under='belly')
+    zmass(p, [(z0 - 3.6, z0 + 1.4, 2.8, 2.6, y0 + 0.6, x0), (z0 - 7.8, z0 - 3.6, 2.6, 2.6, y0 + 0.3, x0), (z0 - 11.4, z0 - 7.8, 1.7, 1.5, y0 - 0.1, x0)], 'sc_h', under='belly')
     B(p, (x0 - 1.1, y0 - 0.9, z0 - 12.4), (x0 + 1.1, y0 + 0.6, z0 - 11.2), 'sc_h')
     B(p, (x0 - 1.4, y0 - 1.65, z0 - 11.6), (x0 + 1.4, y0 - 1.3, z0 - 3.0), 'mouth_h', light=6)
     for i in range(8):                                                                   # (fine needle teeth)
         z = z0 - 11.2 + i * 1.0
         for sx in (1, -1): SEG(p, (x0 + sx * 1.2, y0 - 1.4, z), (x0 + sx * 1.15, y0 - 2.0, z), 0.22, 0.22, 'tooth')
-    eyes(p, 'h', face, (2.75, y0 - 0.6, z0 - 4.2), side_yaw=22.0)
+    eyes(p, 'h', face, (2.66, y0 - 1.2, z0 - 5.7), side_yaw=0.0)
     lid = {None: 0.5, 'sleepy': 0.5, 'smug': 0.5, 'fierce': 0.2, 'snarl': 0.2}.get(face)
     for sx in (1, -1):                                                                   # THE FRILLS: three fan fins each side, and a crest
         for j, (dy, dz, L, a) in enumerate(((1.6, 0.4, 5.6, 30), (0.2, 1.6, 6.4, 0), (-1.4, 0.8, 5.0, -26))):
