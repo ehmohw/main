@@ -546,14 +546,14 @@ def hard_guardians(G, rel):
                      'function bm:h3g/lay/say'])
     # ---- the Mires: their own summon (a puddle that rises for the crew), kept to the hall, never melted by its lamps
     fn('h3g/hb/mire', ['function bm:p246/spawn',
-                       'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.h3gb,distance=..2,limit=1,sort=nearest] run function bm:h3g/hb/set {f:100,c:"red"}',
-                       'execute as @e[type=minecraft:husk,tag=bm.mire,tag=bm.h3gb,distance=..2] run tag @s add bm.muc',
+                       'execute as @e[type=minecraft:husk,tag=bm.mire,tag=!bm.h3gb,distance=..40] if score @s bm.mid = #mid bm.mid run function bm:h3g/hb/set {f:100,c:"red"}',
+                       'execute as @e[type=minecraft:husk,tag=bm.mire,tag=bm.h3gb,distance=..40] if score @s bm.mid = #mid bm.mid run tag @s add bm.muc',
                        hbar('mire', T(P246.NAME, P246.COL, bold=True), 'red'),
                        'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'title', T('A Dread Mire guards the vault', P246.COL, bold=True)),
                        'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the Dread has found its way in', 'gray', italic=True))])
     fn('h3g/hb/brood', ['function bm:p258/spawn',
-                        'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=!bm.h3gb,distance=..2,limit=1,sort=nearest] run function bm:h3g/hb/set {f:100,c:"green"}',
-                        'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=bm.h3gb,distance=..2] run tag @s add bm.bxroam',
+                        'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=!bm.h3gb,distance=..40] if score @s bm.mid = #mid bm.mid run function bm:h3g/hb/set {f:100,c:"green"}',
+                        'execute as @e[type=minecraft:husk,tag=bm.bmire,tag=bm.h3gb,distance=..40] if score @s bm.mid = #mid bm.mid run tag @s add bm.bxroam',
                         hbar('brood', T(P258.NAME, P258.COL, bold=True), 'purple'),
                         'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'title', T('A Brood-Mire guards the vault', P258.COL, bold=True)),
                         'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the Vorn have been here first', 'gray', italic=True))])
@@ -583,21 +583,32 @@ def hard_guardians(G, rel):
                                  'execute as @a[tag=bm.gvp,distance=..40] run ' + title('@s', 'subtitle', T('Hard mode: the stone wakes', 'gray', italic=True))])
     fn('h3g/hb/knight', ['execute store result score #r bm.rng run random value 0..1',
                          'execute if score #r bm.rng matches 0 run function bm:h3g/hb/kn_dread', 'execute if score #r bm.rng matches 1 run function bm:h3g/hb/kn_vorn'])
-    # (its heist: the slot, persistence, health for the tier and the crew - 120 + 56 a tier, +40% for each raider past the first - over its floor)
+    # (its heist: the slot, persistence, health for the tier and the crew - over its floor. 3.0i: the vault's own guardian's health
+    #  (p70/boss/setup: 160 + 90 a tier, Iron Guards half again, the crew's scaling, x1.1-1.6 by tier) and a fifth more - it was
+    #  120 + 56 a tier, under half of theirs at tier V; up to 924 over its floor of 100 (a mob's most is 1024) - and every kind's
+    #  hit cap, 20 a half-second (hitcap.py: the Dread Mire's and now the Brood-Mire's own, the knights' phase245 one))
     fn('h3g/hb/set', ['tag @s add bm.h3gb', 'scoreboard players operation @s bm.gvi = #gi bm.rng', 'data merge entity @s {PersistenceRequired:1b}',
-                      'scoreboard players operation #h bm.rng = #gt bm.rng', 'scoreboard players set #q bm.rng 56', 'scoreboard players operation #h bm.rng *= #q bm.rng',
-                      'scoreboard players add #h bm.rng 120', 'scoreboard players operation #q bm.rng = #np bm.rng', 'scoreboard players remove #q bm.rng 1',
-                      'execute if score #q bm.rng matches 6.. run scoreboard players set #q bm.rng 5',
-                      'scoreboard players operation #q bm.rng *= #h bm.rng', 'scoreboard players operation #q bm.rng *= #4 bm.rng', 'scoreboard players operation #q bm.rng /= #10 bm.rng',
-                      'execute if score #q bm.rng matches 1.. run scoreboard players operation #h bm.rng += #q bm.rng',
-                      'scoreboard players operation @s bm.gvx = #h bm.rng',
+                      'scoreboard players operation #h bm.rng = #gt bm.rng', 'scoreboard players set #q bm.rng 90', 'scoreboard players operation #h bm.rng *= #q bm.rng',
+                      'scoreboard players add #h bm.rng 160',
+                      'execute if function bm:p70/mod8 run scoreboard players operation #h bm.rng *= #3 bm.rng',
+                      'execute if function bm:p70/mod8 run scoreboard players operation #h bm.rng /= #2 bm.rng',
+                      'function bm:p87/hpscale'] +
+                     [f'execute if score #gt bm.rng matches {t} run scoreboard players operation #h bm.rng *= #k{k} bm.rng' for t, k in ((2, 110), (3, 125), (4, 140), (5, 160))] +
+                     ['execute if score #gt bm.rng matches 2.. run scoreboard players operation #h bm.rng /= #k100 bm.rng',
+                      'scoreboard players set #q bm.rng 12', 'scoreboard players operation #h bm.rng *= #q bm.rng', 'scoreboard players operation #h bm.rng /= #10 bm.rng',
+                      'execute if score #h bm.rng matches 925.. run scoreboard players set #h bm.rng 924',
+                      'scoreboard players operation @s bm.gvx = #h bm.rng', 'scoreboard players operation #hb bm.rng = #h bm.rng',
+                      'execute unless entity @s[tag=bm.hcap] run tag @s add bm.hcap', 'execute unless score @s bm.hcc matches 1.. run scoreboard players set @s bm.hcc 200',
+                      'function bm:hitcap/sync',
                       '$scoreboard players add #h bm.rng $(f)',
                       'execute store result storage bm:gv h double 1 run scoreboard players get #h bm.rng', 'function bm:p70/hp with storage bm:gv',
                       'execute store result entity @s Health float 1 run scoreboard players get #h bm.rng'])
     for key, (nm, col) in HBARS.items():      # (one per boss kind: a macro'd bossbar name can't be checked - and needn't be one)
         fn(f'h3g/hb/bar_{key}', [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} name {snbt(nm)}' for s in range(SL)] +
            [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} color {col}' for s in range(SL)] +
-           [f'execute if score #gi bm.rng matches {s + 1} store result bossbar bm:gvb{s} max run scoreboard players get #h bm.rng' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} store result bossbar bm:gvb{s} max run scoreboard players get #hb bm.rng' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} store result bossbar bm:gvb{s} value run scoreboard players get #hb bm.rng' for s in range(SL)] +
+           [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} visible true' for s in range(SL)] +
            [f'execute if score #gi bm.rng matches {s + 1} run bossbar set bm:gvb{s} players @a[tag=bm.gvp,scores={{bm.gvi={s + 1}}}]' for s in range(SL)])
     F_['p70/r/vault/fight'].insert(F_['p70/r/vault/fight'].index('function bm:p70/r/vault/open'),
                                    'execute if entity @e[tag=bm.h3gb,distance=..40] run return 0')

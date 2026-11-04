@@ -75,6 +75,7 @@ class CFG:
     INK, SMOKE, RECOIL_FX, DRIP_BLOCK = 'minecraft:item_slime', 'minecraft:witch', 'minecraft:electric_spark', 'minecraft:purple_concrete'
     GOOP, BUBBLE, LOOT = 'bm:dfx_bgoop', 'bbubble', f'bm:{PFX}/ichor'
     DMG, TOUGH = 'bm:bmire', 8
+    HITCAP = 20                     # (3.0i, as the Dread Mire's: no blow takes more than 20 off it - a heist's tier V kit felled one in ten swings)
     CHASE, SPEED, LEASH, ROAM, LEASHED = 24, 0.22, 10, 32, ('bm.bxroam', 'bm.wm')
     SPIT, LIVE = {'reach': SPIT_REACH}, ('2..5', '8')
     FIGHT_EXTRA = [f'execute if score #g bm.rng matches 10 run function bm:{PFX}/pose/idle_c']          # (between its sways, a writhe)
