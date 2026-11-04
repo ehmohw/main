@@ -252,7 +252,10 @@ for _C, _txt in ((Lightbringer, 'A doll of the Lightbringer - white and gold, wi
     HOLD[f'doll_{_w}'] = f'bm:p141/doll_{_w}/use'
     P141.DOLLS.append((f'doll_{_w}', _C.NAME, _C.COL, _txt, 'minecraft:end_rod', 'minecraft:block.amethyst_block.chime', 'minecraft:poof'))
     P134.FIT[_C.ITEM] = {'lightbringer': (0.071, 1.959, -0.918, 0.918, -0.669, 0.327), 'dryad': (0.000, 1.203, -0.307, 0.285, -0.300, 0.270)}[_w]   # (measured: phase134.measure)
-P141.DOLL_FROM['doll_lightbringer'] = ('herald_feather', {'kh': 1.55, 'kb': 0.82, 'kl': 0.62})
+# (3.0p: her hair - nape to waist, and its locks to the knee - hangs from her body, not her head: guessed 'head' by its name, the
+#  locks' joint at 0.85 blocks became the neck the head grew from, and it floated half a head up; her halo rides on her head)
+P141.DOLL_FROM['doll_lightbringer'] = ('herald_feather', {'kh': 1.55, 'kb': 0.82, 'kl': 0.62,
+                                                          'groups': {'bm:lb_hair': 'body', 'bm:lb_hairlo': 'body', 'bm:lb_halo': 'head'}})
 P141.DOLL_FROM['doll_dryad'] = ('dryad_cap', {'kh': 1.4, 'kb': 0.85, 'kl': 0.7})       # (she's a chibi already: a little less warp)
 
 # ---- their pairs with Bender and Mr. Capshun (Henry's and Nia's: cat_bonds)

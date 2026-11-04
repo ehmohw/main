@@ -192,6 +192,11 @@ def geode_eye(im, cx, cy, w, h, flip=False, kind=None, P=AME, sock='#120a12', gl
     o = 1 if flip else -1
     if kind == 'hurt':
         S = _vee(cx, cy, w - 1, h - 1, flip); stroke(im, S, P['light'], sock, n8=True); return
+    if kind == 'happy':                                                          # (crinkled up from below: two glowing ^ arcs)
+        S = _thick(_curve(cx, round(cy) + 2, w, max(2, h // 3)), 2)
+        for x, y in _rim(S, True): put(im, x, y, sock)
+        for x, y in S: put(im, x, y, P['light'] if abs(x + 0.5 - cx) > w * 0.2 else P['core'])
+        return
     if kind == 'blink':
         S = _curve(cx, round(cy) + 1, w, -1); stroke(im, _thick(S, 2), sock)
         for x, y in S:
@@ -434,21 +439,21 @@ def head_geom(face=None):
     SEG('head', (0, 50.6, -11.0), (0, 51.8, -4.6), 3.0, 2.4, 'fur', up=(0.0, 1.0, 0.0), ext=0.4)       # (the crest, a moss ridge)
     cluster('head', (0.6, 51.4, -6.0), [(0.3, 1.0, 0.6), (-0.7, 1.0, 0.3), (1.0, 0.7, 0.2)], [(4.2, 1.3), (3.2, 1.0), (2.4, 0.8)])
     # the face: a stone mask set in the fur - a recessed band where the eyes sit, under a heavy rounded brow
-    B('head', (-5.0, 40.6, -13.4), (5.0, 48.0, -12.0), 'stone_d')                                      # (the mask's dark recess)
+    B('head', (-5.2, 40.6, -14.0), (5.2, 48.0, -12.0), 'stone_d')                                      # (the mask's dark recess)
     tilt = {None: 4, 'fierce': 15, 'roar': -6, 'blink': 4, 'happy': -5, 'hurt': 11, 'sleepy': 1, 'look': 4}.get(face, 4)
     drop = {'fierce': 0.45, 'hurt': 0.35, 'roar': -0.5, 'sleepy': 0.3}.get(face, 0.0)
     for sx in (1, -1):                                                                                  # THE BROW LEDGE: two rounded halves
         r = ('z', -tilt * sx, (sx * 0.4, 48.4, -13.5))
-        for (y0, y1, z0, z1, x1, tx) in ((47.5, 49.5, -14.7, -11.8, 5.8, 'stone_l'), (49.0, 50.4, -14.2, -11.4, 5.2, 'stone_l'), (50.0, 50.9, -13.6, -10.6, 4.6, 'fur')):
+        for (y0, y1, z0, z1, x1, tx) in ((47.5, 49.5, -15.4, -11.8, 5.9, 'stone_l'), (49.0, 50.4, -14.9, -11.4, 5.3, 'stone_l'), (50.0, 50.9, -14.3, -10.6, 4.7, 'fur')):
             lo, hi = sorted((sx * 0.0, sx * x1))
             B('head', (lo, y0 - drop, z0), (hi, y1 - drop, z1), tx, rot=r)
-    B('head', (-4.6, 44.7, -13.5), (4.6, 47.5, -13.44), 'EYES', faces=('north',), uv={'north': [0, 0, 16, 4.9]}, light=10)
+    B('head', (-4.6, 44.7, -14.12), (4.6, 47.5, -14.06), 'EYES', faces=('north',), uv={'north': [0, 0, 16, 4.9]}, light=10)
     # the muzzle: rounded, jutting, a broad flat nose on it, the nostrils flared
-    zoct('head', -16.6, -12.8, 4.4, 2.2, 'stone_l', c=(0.0, 41.9))
-    zoct('head', -17.2, -15.0, 3.0, 1.1, 'stone_l', c=(0.0, 43.4))                                     # (the nose)
-    B('head', (-1.2, 44.0, -15.0), (1.2, 47.6, -13.2), 'stone')                                        # (the bridge, up to the brow)
+    zoct('head', -17.2, -13.6, 4.4, 2.2, 'stone_l', c=(0.0, 41.9))
+    zoct('head', -17.8, -15.6, 3.0, 1.1, 'stone_l', c=(0.0, 43.4))                                     # (the nose)
+    B('head', (-1.2, 44.0, -15.6), (1.2, 47.6, -13.8), 'stone')                                        # (the bridge, up to the brow)
     for sx in (1, -1):
-        lo, hi = sorted((sx * 0.6, sx * 2.0)); B('head', (lo, 42.8, -17.25), (hi, 43.7, -17.15), 'nail')     # (nostrils)
+        lo, hi = sorted((sx * 0.6, sx * 2.0)); B('head', (lo, 42.8, -17.85), (hi, 43.7, -17.75), 'nail')     # (nostrils)
         lo, hi = sorted((sx * 3.4, sx * 4.8)); B('head', (lo, 40.6, -16.0), (hi, 43.4, -13.0), 'stone')        # (the lip's corners)
     B('head', (-3.4, 39.9, -16.2), (3.4, 40.3, -9.0), 'mouth', light=4)                                 # (the mouth's roof, its glow)
     for i in range(6):                                                                                  # (the upper teeth)
@@ -479,8 +484,8 @@ for i in range(5):
     z = -15.2 + i * 1.1
     for sx in (1, -1): B('jaw', (min(sx * 2.6, sx * 1.7), 40.0, z), (max(sx * 2.6, sx * 1.7), 40.7, z + 0.7), 'tusk')
 for sx in (1, -1):                                                                                   # THE TUSKS
-    SEG('jaw', (sx * 3.0, 39.0, -14.6), (sx * 3.6, 42.2, -15.6), 1.3, 1.3, 'tusk', up=(0.0, 0.0, -1.0), ext=0.2)
-    SEG('jaw', (sx * 3.6, 42.0, -15.6), (sx * 4.4, 44.0, -15.4), 0.8, 0.8, 'tusk', up=(0.0, 0.0, -1.0))
+    SEG('jaw', (sx * 4.0, 38.6, -14.8), (sx * 4.9, 42.6, -16.0), 1.7, 1.7, 'tusk', up=(0.0, 0.0, -1.0), ext=0.25)
+    SEG('jaw', (sx * 4.9, 42.4, -16.0), (sx * 6.0, 45.2, -15.6), 1.0, 1.0, 'tusk', up=(0.0, 0.0, -1.0))
 for k, (x, L) in enumerate(((0.0, 6.0), (-2.0, 5.0), (2.0, 5.2), (-3.4, 3.6), (3.4, 3.8))):        # (the beard: moss)
     lock('jaw', (x, 37.2, -13.6 + abs(x) * 0.6), (x * 0.06, -1.0, -0.12), L, 2.2, droop=0.0, t=0.7)
 
@@ -693,10 +698,10 @@ POSES.update({
     'roar': U(_face='roar', body=T(-8), chest=T(-10), head=T(-14), jaw=T(36), armr=limb(1, 30, 60), forer=limb(1, -20), arml=limb(-1, 30, 60), forel=limb(-1, -20),
               handr=limb(1, 0, -20), handl=limb(-1, 0, -20)),
     # THE WAR-DRUM (the chest-beat): upright, the fists hammering its chest slabs in turn
-    'beat_0': U(_face='roar', _show=('beatfx',), chest=T(-8, 6), head=T(-16, -6), jaw=T(30), armr=limb(1, 70, -6, 30), forer=limb(1, 100), handr=limb(1, 0, 0, 40),
-                arml=limb(-1, 90, 30), forel=limb(-1, 30)),
-    'beat_1': U(_face='roar', _show=('beatfx',), chest=T(-8, -6), head=T(-16, 6), jaw=T(30), arml=limb(-1, 70, -6, 30), forel=limb(-1, 100), handl=limb(-1, 0, 0, 40),
-                armr=limb(1, 90, 30), forer=limb(1, 30)),
+    'beat_0': U(_face='roar', _show=('beatfx',), chest=T(-8, 6), head=T(-16, -6), jaw=T(30), armr=limb(1, 20, 0, 40), forer=limb(1, 100), handr=limb(1, 0, 0, 30),
+                arml=limb(-1, 60, 40), forel=limb(-1, 60)),
+    'beat_1': U(_face='roar', _show=('beatfx',), chest=T(-8, -6), head=T(-16, 6), jaw=T(30), arml=limb(-1, 20, 0, 40), forel=limb(-1, 100), handl=limb(-1, 0, 0, 30),
+                armr=limb(1, 60, 40), forer=limb(1, 60)),
     # THE GROUND POUND: up on its legs, both fists high over its head - then down on the ground before it, crouched
     'pound_0': U(_face='fierce', body=T(-10), chest=T(-14), head=T(-6), jaw=T(14), armr=limb(1, 170, 14), forer=limb(1, 20), arml=limb(-1, 170, 14), forel=limb(-1, 20)),
     'pound_1': K(_face='roar', _show=('quake',), body=T(30), chest=T(36), head=T(-50), jaw=T(30), armr=limb(1, 66, 18), forer=limb(1, -8), arml=limb(-1, 66, 18), forel=limb(-1, -8),

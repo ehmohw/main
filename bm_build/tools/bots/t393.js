@@ -51,7 +51,7 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     await K.home(); await sleep(800);
     const wx = await num(PET, 'Pos[0]'), wz = await num(PET, 'Pos[2]');
     await at(wx + 0.5, Y + 1, wz - 1.8, 0, 30);
-    await run('kill @e[type=minecraft:wolf,tag=bm.pipet]'); await sleep(600); await K.summonAs('p163/pi', -1.5); await sleep(1500);    // (Pistachio called again: the shared steps sent him off)
+    await run('kill @e[type=minecraft:wolf,tag=bm.pipet]'); await run('loot replace entity TestRat inventory.20 loot bm:items/pi_cloche'); await sleep(600); await K.summonAs('p163/pi', -1.5); await sleep(1500);    // (Pistachio called again: the shared steps sent him off)
     await run(`${O}tp @e[type=minecraft:wolf,tag=bm.pipet] ${wx - 1.5} ${Y + 1} ${wz - 1}`); await sleep(400);
     await run('item replace entity TestRat hotbar.8 with minecraft:totem_of_undying'); await run('item replace entity TestRat inventory.5 with minecraft:golden_apple');
     A.slot(8); await sleep(400);
@@ -60,12 +60,12 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     A.chats.length = 0; A.bars.length = 0; if (hb) A.interact(hb.entityId); await sleep(1500);
     const bits = await score('bm.wuknight');
     ok('FREED - a Totem of Undying handed to him, a golden apple in the pack, Pistachio by: both spent, look 1 earned and worn', (bits & 2) === 2 && (await score('bm.coshx')) === 1 &&
-       +(((await run('clear TestRat minecraft:totem_of_undying 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 &&
-       +(((await run('clear TestRat minecraft:golden_apple 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 && A.chats.some(c => /FREED/.test(c)), `bits ${bits} | box ${!!hb} | ${A.chats.slice(-1).join('').slice(0, 120)} | ${A.bars.slice(-1).join('')}`);
+       +(((await run('clear TestRat minecraft:totem_of_undying[!minecraft:custom_data] 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 &&
+       +(((await run('clear TestRat minecraft:golden_apple 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0 && A.chats.some(c => /FREED/.test(c)), `bits ${bits} cos ${await score('bm.coshx')} | ${A.chats.slice(-1).join('').slice(0, 120)} | ${A.bars.slice(-1).join('')}`);
     ok('...his plate in the Freed look (hk_hollow_chest_c1)', await wait(3000, async () => /hk_hollow_chest_c1/.test(await nbt(D('chest'), 'item.components."minecraft:item_model"'))),
        await nbt(D('chest'), 'item.components."minecraft:item_model"'));
     await run('scoreboard players set TestRat bm.coshx 0'); await run(`${O}execute as TestRat run function bm:p99/knight_now`);
-    await run('clear TestRat minecraft:totem_of_undying'); await run('clear TestRat minecraft:golden_apple');
+    await run('clear TestRat minecraft:totem_of_undying[!minecraft:custom_data]'); await run('clear TestRat minecraft:golden_apple');
     await run(`data modify entity ${PET} Sitting set value 0b`);
     const dbg = () => console.log('   chats: ' + A.chats.slice(-4).join(' || ').slice(0, 400) + ' | bars: ' + A.bars.slice(-2).join(' || ').slice(0, 200));
     ok('THE MACE - a foe 2 off: hurt', await K.move('mc', [[0, 2]], 'bm.trpa', async () => (await K.hp('bm.trpa')) < 300, 8000));
