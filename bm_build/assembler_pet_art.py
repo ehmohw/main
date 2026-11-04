@@ -169,20 +169,15 @@ def scatter(t, seed=7, faint=False):
     kids = {b[1] for b in BLOCKS}
     for part, par, c, s, slot, top in BLOCKS:
         if not s: continue
-        a = rr.uniform(0, 6.28); d = rr.uniform(5.0, 11.0)
-        gx, gz = c[0] * 0.4 + d * math.cos(a), c[2] * 0.4 + d * math.sin(a)
+        a = rr.uniform(0, 6.28); d = rr.uniform(7.0, 15.0)
+        gx, gz = c[0] * 0.6 + d * math.cos(a), c[2] * 0.6 + d * math.sin(a)
         off = (gx - c[0], s[1] / 2 + rr.uniform(0, 0.3) - c[1], gz - c[2])
-        lift = 6.0 * math.sin(math.pi * k) * (0.6 + 0.4 * rr.random()) if 0 < t < 1 else 0.0
+        lift = 10.0 * math.sin(math.pi * k) * (0.5 + 0.5 * rr.random()) if 0 < t < 1 else 0.0
         want[part] = tuple(off[i] * (1 - k) + (lift if i == 1 else 0.0) for i in range(3))
         if t < 1 and part not in kids:
             rot[part] = T(rr.uniform(-60, 60) * (1 - k), rr.uniform(-90, 90) * (1 - k), rr.uniform(-60, 60) * (1 - k))
     out = {}
     for part in want:
-        acc = [0.0, 0.0, 0.0]; q = PARENT[part]
-        while q is not None:
-            if q in want:
-                for i in range(3): acc[i] += want[q][i] - (acc_cache[q][i] if False else 0.0)
-            q = PARENT[q]
         own = [want[part][i] for i in range(3)]
         q = PARENT[part]
         if q in want:                                   # (the parent already carries its own target: offset from there)
