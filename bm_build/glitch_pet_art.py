@@ -62,7 +62,7 @@ def _screen(face=None):
         for x in (8, 20):
             r(x, h[0], x + 3, h[1], E); r(x, h[0], x + 1, h[0] + 1, W)
         if face == 'focus':
-            r(7, 9, 12, 10, M); r(19, 10, 24, 9, M); d.line((7, 9, 12, 11), fill=M); d.line((24, 9, 19, 11), fill=M)
+            d.line((7, 9, 12, 11), fill=M); d.line((24, 9, 19, 11), fill=M)
     elif face == 'happy':
         for x in (8, 20):
             d.line((x, 16, x + 2, 12), fill=E, width=2); d.line((x + 2, 12, x + 4, 16), fill=E, width=2)

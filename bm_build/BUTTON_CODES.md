@@ -2920,6 +2920,13 @@ In 1-9999, outside every route of `p28/act` and on no button.
   currency, 5331-5334 1/10/64/All, 5335 another currency, 5340 Send it, 5341 change the amount); a recipient's button is built
   at run time, 10000000 + their pid (routed 10000001..10999999 to `p259/bs/pick`), and a typed amount comes in on its own
   trigger, `/trigger bm.bsam set N` (the amount page's text box; enabled for everyone in loop/fast) - not a bm.act code.
+- 3.0j: phase260 owns 5660-5699 (`p260/act`, each line checking its menu: 5660 the Handbook and its pages 5663-5668, 5661 a
+  follower's ⚙ Settings - from their menu or wardrobe, routed by the menu you're in - 5670-5679 Your settings, 5680 its way back
+  from the Particle Toggler, 5681 the Raid Crew's "Not signed yet") and 6100-6660 (`p260/fs/act`: a follower's Settings page,
+  6100 + 11 i - its menu the block's first code). A settings row that was on a menu or wardrobe is a proxy: it sets that menu and
+  code and calls the old router, so tools/menu_inventory.py still sees the old function reached. The "Stay here" anchor (5662,
+  slot 1 of each settings block) was built and dropped before shipping - the frame gimmick already stations a follower at a
+  spot; those codes are free.
 <!-- /notes -->
 
 ## Revision log

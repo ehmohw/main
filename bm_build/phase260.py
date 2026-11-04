@@ -1,4 +1,4 @@
-"""3.0j: THE HANDBOOK, ONE SETTINGS PAGE PER FOLLOWER, "STAY HERE", YOUR OWN SETTINGS - and the menus tidied without losing a button.
+"""3.0j: THE HANDBOOK, ONE SETTINGS PAGE PER FOLLOWER, YOUR OWN SETTINGS - and the menus tidied without losing a button.
 
 THE BLACK MARKET HANDBOOK (the Fence, 1 Token; given once to everyone on joining; or craft a book with a gold nugget) - right-click:
             a dialog that keeps track by itself, from what the pack already knows about you: FOLLOWERS met (bm:met/*, with the
@@ -6,16 +6,12 @@ THE BLACK MARKET HANDBOOK (the Fence, 1 Token; given once to everyone on joining
             advancements), PLACES found (the Black Market, the Gilded Gutter, the Hollow Throne, the Undercrown, the Vorn
             Armada - noted the first time you're in them - and the Loom Sanctuary, by its Keeper), and CURRENCIES: what each
             is and which traders take it (read from the trades themselves). Sneak + right-click: Your settings.
-FOLLOWER SETTINGS   every follower has one Settings page (code block 6100 + 11 i, its menu the block's first code): Stay here /
-            Come with me, chatter, keep up, back after a faint, their aura - and the switches that used to crowd their menus
-            and wardrobes (forms, elements and giving them back, companion size, Ophanim, joke forms). Each of those runs exactly
-            what its old button ran (a proxy: the old menu and code, through the old router). A "Settings" button (5661) takes
-            the chatter switch's place on every follower's menu and wardrobe; "Stay here" (5662) sits beside "Send home".
-STAY HERE   a follower told to stay guards the spot: tied to a marker where it stood (its Owner moves onto the marker, so the
-            game's own follow and teleport-to-owner stop; it's kept within 6 blocks), it wanders, fights what comes near
-            (wolves are set angry at the nearest monster) and doesn't follow; "couldn't keep up", keep up
-            and your logging off leave it be. It comes back when called: its item, the wheel's Call, Come with me (send home +
-            call), or Send home. The tag (bm.anc on it, bm.an_<w> on you) and the marker persist through relogs and restarts.
+FOLLOWER SETTINGS   every follower has one Settings page (code block 6100 + 11 i, its menu the block's first code): chatter,
+            keep up, back after a faint, their aura - and the switches that used to crowd their menus and wardrobes (forms,
+            elements and giving them back, companion size, Ophanim, joke forms). Each of those runs exactly what its old button
+            ran (a proxy: the old menu and code, through the old router). A "Settings" button (5661) takes the chatter switch's
+            place on every follower's menu and wardrobe. (A "Stay here" anchor was tried and dropped: the frame gimmick - their
+            item in an item frame - already stations a follower at a spot. 5662 and slot 1 of each block are free.)
 YOUR SETTINGS (from the Handbook, the Partner Wheel and the Particle Toggler) - per player, each a tag on you: Music (every track
             of the pack's own - market, ships, bosses, dungeons, the vault), Market music and Ship music on their own (they
             were only the operators' switches), follower chatter (bm.hush - it always was yours alone), screen shake (the
@@ -37,14 +33,13 @@ ITEM = 'bm_handbook'
 COL = '#e8c070'
 PRICE = ('token', 1)
 ECON.DIRECT[ITEM] = (PRICE, None)
-HB, B_SET, B_ANC = 5660, 5661, 5662                          # (the handbook's menu and "« Handbook"; Settings; Stay here)
+HB, B_SET = 5660, 5661                                       # (the handbook's menu and "« Handbook"; Settings)
 B_FOL, B_BOSS, B_DUN, B_PLC, B_CUR, B_PS = 5663, 5664, 5665, 5666, 5667, 5668
 PS = 5670                                                    # (Your settings: its menu; its rows 5671-5679)
 PS_ROWS = {'mus': 5671, 'mkt': 5672, 'shp': 5673, 'chat': 5674, 'shk': 5675, 'keep': 5676, 'np': 5677, 'back': 5679}
 B_NPBACK, B_MORE = 5680, 5681                                # ("« Your settings" on the Particle Toggler; the crew's "Not signed yet")
 FS0, FSN = 6100, 11                                          # (a follower's settings block: 6100 + 11 i .. +10)
-S_BACK, S_ANC, S_KEEP, S_WD, S_PX = 0, 1, 2, 3, 4            # (its slots: back (and the menu), stay here, keep up, wardrobe, proxies 4..10)
-TETHER = 6                                                   # (an anchored follower is kept this near its spot)
+S_BACK, S_KEEP, S_WD, S_PX = 0, 2, 3, 4                      # (its slots: back (and the menu), keep up, wardrobe, proxies 4..10; 1 free)
 TAGS = {'mus': 'bm.nomus', 'mkt': 'bm.nomkm', 'shp': 'bm.noshp', 'shk': 'bm.noshk'}
 
 item(ITEM, TOTEM, 'Black Market Handbook', COL,
@@ -163,7 +158,7 @@ def generate(G):
     click = 'playsound minecraft:ui.button.click player @s ~ ~ ~ 0.6 1.4'
     WHO = P125.WHO
     WS = list(WHO)
-    objs = ['bm.ancw', 'bm.fsb', 'bm.psb']
+    objs = ['bm.fsb', 'bm.psb']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     act = []                                                  # (p260/act: the 5660-5699 block)
@@ -237,9 +232,9 @@ def generate(G):
     cap = lambda s: s[0].upper() + s[1:]
 
 
-    # ================================================================== THE FOLLOWERS' MENUS: settings out, Settings in, Stay here beside Send home
+    # ================================================================== THE FOLLOWERS' MENUS: settings out, Settings in
     b_set = lambda col: snbt(P28.btn([T('⚙ ', col), T('Settings', 'white', bold=True)], B_SET, width=150,
-                                     tooltip=T('Their switches in one place: Stay here, chatter, keep up, forms, aura...', 'gray')))
+                                     tooltip=T('Their switches in one place: chatter, keep up, forms, aura...', 'gray')))
     moved = {w: {} for w in WS}                               # who -> {code: (menu, [button variants])}
     HUSH = '@s[tag=bm.hush]'
     n_lines = 0
@@ -256,7 +251,6 @@ def generate(G):
                     out.append(l); continue
                 items = sp[2]
                 hush = HUSH in l
-                is_out = any(HOME_W.match(words_of(b)) for b in items)
                 keep, home_at = [], None
                 for b in items:
                     c, wd = code_of(b), words_of(b)
@@ -521,7 +515,7 @@ def generate(G):
             sp = actions(l)
             if sp: L[j] = set_actions(l, sp, sp[2] + [npb]); n_np += 1
     assert n_np == 16, n_np
-    G.FUNCS['admin/uninstall'][0:0] = [f'tag @a remove {t}' for t in TAGS.values()] + [f'tag @a remove bm.an_{w}' for w in WS]
+    G.FUNCS['admin/uninstall'][0:0] = [f'tag @a remove {t}' for t in TAGS.values()]
 
     # ================================================================== THE HANDBOOK
     adv_ok = lambda a: os.path.exists(G.path('data', 'bm', 'advancement', *a.split('/')) + '.json')

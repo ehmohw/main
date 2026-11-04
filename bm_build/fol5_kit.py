@@ -160,7 +160,7 @@ class Rig:
 
     # ---- what rigkit / draftkit / phase134 read
     def HIDDEN(self, p, pose):
-        if p in pose.get('_hide', ()): return True
+        if not self._els[p] or p in pose.get('_hide', ()): return True          # (a bare joint - the root of the slices - has no model)
         return p in self.OPT and p not in pose.get('_show', ())
 
     def model_name(self, p, pose=None, suffix=''):

@@ -1,7 +1,7 @@
 // 3.0j: EVERY FOLLOWER'S MENUS, CRAWLED (phase260), as a regular (non-op) player. The list comes from the built pack (p260/fs/open/<who>,
 // and each one's item from p260's Stay here / the wheel's rows), the routes from BUTTON_CODES.md. For each follower: sneak + use their
 // item - their menu (or, for those without one, their wardrobe) renders, has "Settings" and no chatter switch; Settings - their
-// settings page renders (named, "settings", Stay here, Chatter, Keep up); Wardrobe › - the wardrobe renders, with "Settings";
+// settings page renders (named, "settings", Chatter, Keep up); Wardrobe › - the wardrobe renders, with "Settings";
 // « Back - back to where we came from. Every button on every screen seen is routed in the legend. Then the heist crew page (the
 // Fixer's Ledger -> Raid Crew): renders; a met follower without a contract is on "Not signed yet", which opens and goes back.
 //   node t380.js [who ...]
@@ -12,18 +12,10 @@ const FN = path.join(ROOT, 'out_p2/BlackMarket_DP/data/bm/function');
 const ONLY = process.argv.slice(2);
 const legend = fs.readFileSync(path.join(ROOT, 'BUTTON_CODES.md'), 'utf8');
 const routed = new Set(); for (const l of legend.split('\n')) { const m = l.match(/^\| (\d+)(?: \(link\))? \|.*\| ([^|]*) \|$/); if (m && !/not routed/.test(m[2])) routed.add(+m[1]); }
-// who -> item: Stay here names their host's tag; the wheel's row with that tag and its slot's item
+// every follower's item, from the wheel as built (p179/w/use: which item puts whom in which slot)
 const use = fs.readFileSync(path.join(FN, 'p179/w/use.mcfunction'), 'utf8');
-const itemOf = {};
-for (const m of use.matchAll(/weapon\.offhand \*\[minecraft:custom_data~\{bm:"([a-z0-9_]+)"\}\] run return run function bm:p179\/w\/add(\d+)/g)) {
-  const row = fs.readFileSync(path.join(FN, `p179/w/row${m[2]}.mcfunction`), 'utf8');
-  itemOf[row.match(/execute as @e\[type=minecraft:[a-z_]+,tag=([^\],]+)/)[1]] = m[1];
-}
-const W = fs.readdirSync(path.join(FN, 'p260/fs/open')).map(f => f.replace('.mcfunction', '')).map(w => {
-  const st = fs.readFileSync(path.join(FN, `p260/an/stay/${w}.mcfunction`), 'utf8');
-  const tag = st.match(/execute as @e\[type=minecraft:[a-z_]+,tag=([^\],]+)/)[1];
-  return { w, iid: itemOf[tag] };
-});
+const W = [...use.matchAll(/weapon\.offhand \*\[minecraft:custom_data~\{bm:"([a-z0-9_]+)"\}\] run return run function bm:p179\/w\/add(\d+)/g)].map(m => ({ w: m[1], iid: m[1] }));
+const PAGES = fs.readdirSync(path.join(FN, 'p260/fs/open')).length;
 
 (async () => {
   const res = [];
@@ -35,7 +27,7 @@ const W = fs.readdirSync(path.join(FN, 'p260/fs/open')).map(f => f.replace('.mcf
   const A = await bot('TestRat'); await sleep(2500); A.stand(); await sleep(300);
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
-  ok(`${W.length} followers with a settings page, each with an item`, W.length >= 50 && W.every(x => x.iid), W.filter(x => !x.iid).map(x => x.w).join(' '));
+  ok(`${W.length} followers' items on the wheel, ${PAGES} settings pages`, W.length >= 50 && PAGES === W.length);
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run('time set 1000'); await run('weather clear');
   await run('scoreboard players set #hard bm.cfg 1'); await run('effect give TestRat minecraft:resistance infinite 4 true');
   await run(`${O}forceload add ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
@@ -55,8 +47,8 @@ const W = fs.readdirSync(path.join(FN, 'p260/fs/open')).map(f => f.replace('.mcf
        got && b0.some(l => /Settings/.test(l)) && !b0.some(l => /^Chatter/.test(l)) && !u0.length, `${title().slice(0, 50)} ${u0.join(',')}`);
     const p1 = await A.press(/Settings$/);
     const b1 = A.buttons().map(b => b.label), u1 = unrouted();
-    ok(`...Settings: the settings page (Stay here, Chatter, Keep up), every button routed`,
-       p1 && p1.next && /settings/.test(title()) && b1.some(l => /Stay here|Come with me/.test(l)) && b1.some(l => /^Chatter/.test(l)) && b1.some(l => /^Keep up/.test(l)) && !u1.length,
+    ok(`...Settings: the settings page (Chatter, Keep up; no Stay here), every button routed`,
+       p1 && p1.next && /settings/.test(title()) && !b1.some(l => /Stay here|Come with me/.test(l)) && b1.some(l => /^Chatter/.test(l)) && b1.some(l => /^Keep up/.test(l)) && !u1.length,
        `${title().slice(0, 60)} ${u1.join(',')}`);
     const p2 = await A.press(/^Wardrobe/);
     const b2 = A.buttons().map(b => b.label), u2 = unrouted();
