@@ -42,9 +42,9 @@ CODE = 7900                       # (the ledger's: followers 7900+, vault hires 
 
 def ccode(i):
     """(2.87) a called follower's ledger code: the first twenty 7900-7919, the next fifteen 7884-7898 (7920 on are the vault hires),
-    then (2.98) 7986-7999"""
-    assert i < 49, i
-    return CODE + i if i < 20 else 7884 + (i - 20) if i < 35 else 7986 + (i - 35)
+    then (2.98) 7986-7999, then (3.1, the new followers) 7936-7949 (past the hirelings' 7930-7935)"""
+    assert i < 63, i
+    return CODE + i if i < 20 else 7884 + (i - 20) if i < 35 else 7986 + (i - 35) if i < 49 else 7936 + (i - 49)
 VAULT = '#e8b8ff'
 
 

@@ -5,35 +5,37 @@ LORE (kept to phase169's Omega's Book and phase163's Pistachio): the soul is SIR
 on Omega Island, who held the great stair beside his king in the War of Brothers and fell there. Apophiss "went away to make other
 kings - hollow ones": he took the fallen guards' souls and bound them into the Dread's statue armour in the Undercrown - and, as
 his mark on them, bound them IN SERPENT FORM, his own shape, so they would never again stand as men. Sir Aldous has been a soul
-serpent coiled in a hollow suit of armour for three hundred years. He isn't a serpent at heart: his eyes are still a kind man's
-(warm gold, gently lidded - nothing like the Apophiss line's glare), his crest a small soul-flame like a candle in a window.
+serpent coiled in a hollow suit of armour for three hundred years. He isn't a serpent at heart: he wears the soldiers' shape and
+scowl, but his soul flame burns on his tail like a candle in a window.
 Before the war Pistachio was Sir Aldous's dog - "Pip", a pup at his heel on the guard's rounds - until the Captain gave him to the
 King's household the night he rode to the stair: "Mind the door, Pip." Pistachio has minded it for three hundred years.
 
 UNLOCK  Place a knight statue you've earned (knight_statue_dread), then call Pistachio and King Omega beside it (two of your
         three). Pistachio sniffs the plinth - and BARKS (his first bark in the pack: he's a butler); Omega: "...Aldous? Is that
-        you in there?" Two kind gold eyes open in the eye-slit; a soul serpent's head slides out of the visor, looks at the dog a
+        you in there?" Two glowing yellow eyes open in the eye-slit; a soul serpent's head slides out of the visor, looks at the dog a
         long moment, and lays its chin on Pistachio's head. The armour kneels.
 
 TWO IN ONE (two rigs, one follower)
   ARMOUR   knight_art's rig and geometry at companion size (0.5: ~1.5 blocks), with this follower's finishes (FINISHES) and the
-           SERPENT SHOWING THROUGH IT: its two kind gold eyes in the eye-slit (the Dread's red squares are gone), a coil of
+           SERPENT SHOWING THROUGH IT: its two glowing yellow eyes in the eye-slit (the Dread's red squares are gone), a coil of
            translucent soul glimpsed in the gorget and in the gap at the waist, its tail-tip curling out under the cape's hem.
            Finishes: 'hollow' (the default: black plate and bone, soul-blue light, the cloak re-dyed Omega's palace violet with a
            gold hem), 'freed' (the holy cosmetic: polished silver, gold for bone, a white cloak, warm gold light - the serpent in
            it pale gold), 'shiny' (Starlit: deep blue plate, silver trim; a starry indigo serpent).
            It swings the giant mace: knight_art's own poses, plus the kneel (sit_a, the vigil), the statue stance (sit_b) and the
            heap (BROKEN: helm knocked off, the mace dropped).
-  SERPENT  the soul itself (SERPENT, 'hs_'): SLIM AND WISPY - its own design, not an Apophiss recolour: a small rounded head (a
-           short snout, a soft smile line), big kind gold eyes with lids, a faint blush; a little SOUL-FLAME CREST on its crown;
-           ghostly frill-wisps trailing from its cheeks; a slender translucent body of soul-blue scales with a bright glowing CORE
-           down its length (seen through the scales), a pale banded belly, small wisp-fins along its back; its tail thins and
-           DISSOLVES into motes. Its body is a set of shapes, one shown per pose (_show): 's' (reared), 'lunge' (a strike),
-           'coil' (wound round a foe - 1.5 turns, radius ~1/3 block), 'drape' (over the kneeling armour's shoulders), 'helm'
-           (curled round the helm: the doll), 'dive' (streamlined, back in through the visor), 'peek' (half out of the visor).
+  SERPENT  the soul itself (SERPENT, 'hs_'): ONE OF KING OMEGA'S SOUL SERPENTS (3rd pass, the owner: "should look like the existing
+           one in game") - soulserp_art's own head, jaw and crest 'a' (the pale spikes swept back), imported and scaled (K_HEAD):
+           the snout and nostrils, heavy grey lids and the family's brows, solid glowing yellow eyes, a purple maw with cream fangs
+           and the long forked tongue; its see-through pale grey-blue hide, banded belly and back fins (soulserp's textures); the
+           blue soul flame on its tail tip. Its body is a set of shapes, one shown per pose (_show): 's' (reared, the tail up
+           with its flame), 'lunge' (a strike), 'coil' (wound round a foe - 1.5 turns, radius ~1/3 block), 'drape' (over the
+           kneeling armour's shoulders), 'helm' (curled round the helm: the doll), 'dive' (back in through the visor), 'peek'
+           (half out of the visor).
   BROKEN   beaten down, the armour falls apart ('heap') and the serpent fights alone with snake strikes until it reforms (30 s).
-  FREED    (cosmetic) holy items - a Totem, a golden apple and a Pistachio-made dinner - "free" him: the 'freed' finish and a
-           pale-gold, gentler serpent ('_f': rounder lids, blue eyes, a warm white flame); he stays because he wants to."""
+  FREED    (cosmetic) holy items - a Totem, a golden apple and a Pistachio-made dinner - "free" him: the 'freed' finish and the
+           same serpent, gentler, in pale gold ('_f': soulserp's textures tinted - soft blue eyes, a rose maw, a warm white flame);
+           he stays because he wants to."""
 import math
 import knight_art as KA
 import soulserp_art as SS
