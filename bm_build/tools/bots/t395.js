@@ -9,10 +9,12 @@
 //       at dusk (p181/roll from p181/tick) books tonight; at 13000 the Dread Night falls (DREAD NIGHT, #dnight 1); dawn ends it.
 //   (menus, cheap) the Handbook: "Followers met: N of <every bm:met/>", "Places found: 6 of 6" with all six found; its Followers
 //       page title's grey part not bold (no inherited bold); the Partner Wheel: "⌂ Send all home", Cecil's "⚙ Menu" tooltip "his ways".
+//   `node t395.js lean`: only (a) and the doll's respawn in (b).
 const { bot, rcon, sleep } = require('./lib_resp');
 const fs = require('fs');
 (async () => {
   const res = [];
+  const LEAN = process.argv[2] === 'lean';
   const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const wait = async (ms, fn, step = 200) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
@@ -99,6 +101,7 @@ const fs = require('fs');
   await descent('(b)');
   ok('..."You lost my feather? It is no matter"', A.chats.some(c => /You lost my feather/.test(c)));
   await sleep(1500);
+  if (!LEAN) {                                       // (`node t395.js lean`: only the first cross and one doll respawn)
   // the feather on the Partner Wheel (off hand, the wheel used): a hint, nobody
   await run('clear TestRat *[minecraft:custom_data~{bm:"herald_feather"}]');
   await give('herald_feather', 'weapon.offhand'); await give('partner_wheel', 'hotbar.2'); await sleep(2300);
@@ -165,6 +168,7 @@ const fs = require('fs');
   ok('...Cecil\'s "⚙ Menu" tooltip: "the wardrobe, his ways" (not "him ways")', /Cecil's own menu - the wardrobe, his ways/.test(wj) && !/him ways/.test(wj));
   A.close && A.close(0);
 
+  }
   // ---------------------------------------------------------------- put back
   await run(`scoreboard players set TestRat bm.pw${SLOT_CECIL} ${pwc0 || 0}`);
   await run(`scoreboard players set #hard bm.cfg ${hard0 === null ? 0 : hard0}`); await run(`scoreboard players set #dfell bm.cfg ${fell0 === null ? 0 : fell0}`);
