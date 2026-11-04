@@ -411,7 +411,6 @@ ASSAULT['cairn'] = R('p268', 'jx', 32, D(1.8, 0.9, 1),
 NAMES['cairn'] = ('Rockfall', 'flings its own stones at the monster twice and brings every block it is made of down on it')
 
 ASSAULT['knight'] = R('p269', 'iz', 34, D(2.0, 1.0, 0),
-    pull_fx='particle minecraft:soul ~ ~1 ~ 0.1 0.1 0.1 0.01 2',
     hits={1: (3, ['particle minecraft:soul ~ ~1 ~ 0.4 0.5 0.4 0.02 12', 'effect give @s minecraft:slowness 3 9 true'], 'minecraft:entity.vex.charge', 0.8),
           2: (3, ['particle minecraft:sweep_attack ~ ~1 ~ 0.2 0.1 0.2 0 1', CRIT], 'minecraft:entity.iron_golem.attack', 1.0),
           3: (5, ['particle minecraft:soul_fire_flame ~ ~0.4 ~ 0.8 0.2 0.8 0.05 30', 'particle minecraft:crit ~ ~1 ~ 0.5 0.5 0.5 0.4 16'], 'minecraft:block.anvil.land', 0.7)},
