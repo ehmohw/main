@@ -49,14 +49,33 @@ def generate(G):
     fast = G.FUNCS['loop/fast']
     old = 'tag @a[tag=bm.adv,gamemode=!adventure] remove bm.adv'
     assert old in fast, 'the market zone\'s tag sweep moved (guard.py keeps it from dropping a Survival player\'s tag)'
-    fast[fast.index(old)] = 'tag @a[tag=bm.adv,gamemode=!adventure,gamemode=!survival] remove bm.adv'
+    new_sweep = 'tag @a[tag=bm.adv,gamemode=!adventure,gamemode=!survival] remove bm.adv'
+    fast[fast.index(old)] = new_sweep
     # the lock
     fn('guard/stuck', [f'execute if entity @s[gamemode=survival,tag={t}] run return 1' for t in tags] + ['return fail'])
     fn('guard/lock', ['tag @s add bm.gdlk', f'attribute @s minecraft:block_break_speed modifier add {MOD} -1 add_multiplied_total', 'gamemode adventure @s'])
     fn('guard/unlock', ['tag @s remove bm.gdlk', f'attribute @s minecraft:block_break_speed modifier remove {MOD}'])
-    at = len(fast) - 1 if fast and fast[-1].startswith('schedule function bm:loop/fast') else len(fast)
-    fast[at:at] = [f'execute as @a[tag={t},gamemode=survival,tag=!bm.gdlk] run function bm:guard/lock' for t in tags] + \
-                  ['execute as @a[tag=bm.gdlk,gamemode=survival] run gamemode adventure @s',
-                   'execute as @a[tag=bm.gdlk] unless function bm:guard/stuck run function bm:guard/unlock']
+    lock = [f'execute as @a[tag={t},gamemode=survival,tag=!bm.gdlk] run function bm:guard/lock' for t in tags] + \
+           ['execute as @a[tag=bm.gdlk,gamemode=survival] run gamemode adventure @s',
+            'execute as @a[tag=bm.gdlk] unless function bm:guard/stuck run function bm:guard/unlock']
+    # (3.0i) THE MARKET'S AND THE CRYPTS' WAY IN, ON ITS OWN CLOCK, BY WHERE YOU STAND. The owner, an operator on a server, on a
+    #  team: "in Survival when I enter, and no message" - the way in never ran. It lived in loop/fast, among a thousand lines, and
+    #  asked for no market tag (bm.adv) on you: a loop that stops re-arming itself (a run cut short at the server's command limit,
+    #  a line its version can't read) or a tag left on from before kept it from ever running. Now the way in, the way out, the
+    #  tag sweep and the lock run in zone/tick (the game's own tick tag, every 4 ticks - no schedule to lose, nothing else in it),
+    #  and a Survival player on a protected floor by a zone marker is let in whatever tags they hold.
+    zl = [l for l in fast if l.endswith('run function bm:zone/enter') or l.endswith('run function bm:zone/exit') or l == new_sweep]
+    assert len(zl) >= 4, zl
+    for l in zl: fast.remove(l)
+    zl = [l.replace('@a[gamemode=survival,tag=!bm.adv]', '@a[gamemode=survival]') for l in zl]
+    fn('zone/tick', ['scoreboard players add #zt bm.timer 1', 'execute if score #zt bm.timer matches ..3 run return 0', 'scoreboard players set #zt bm.timer 0'] +
+       zl + lock)
+    # (and the loops re-arm themselves first: a run cut short still comes round again)
+    for name in ('loop/fast', 'loop/second', 'loop/second_b'):
+        L = G.FUNCS.get(name)
+        if not L: continue
+        sch = [l for l in L if l.startswith(f'schedule function bm:{name} ')]
+        if len(sch) == 1:
+            L.remove(sch[0]); L.insert(0, sch[0])
     G.FUNCS['admin/uninstall'][0:0] = ['execute as @a[tag=bm.gdlk] run function bm:guard/unlock']
     return n_msg, len(tags)

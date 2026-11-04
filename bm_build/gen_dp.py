@@ -1140,7 +1140,7 @@ HOSTILE = ['zombie', 'husk', 'drowned', 'skeleton', 'stray', 'bogged', 'wither_s
 
 def gen_tags_worldgen():
     wjson('minecraft/tags/function/load.json', {'values': ['bm:load']})
-    wjson('minecraft/tags/function/tick.json', {'values': ['bm:tick']})
+    wjson('minecraft/tags/function/tick.json', {'values': ['bm:tick'] + (['bm:zone/tick'] if 'zone/tick' in FUNCS else [])})      # (3.0i: the protected places' way in, on its own - guard.py)
     wjson('bm/tags/block/market_floor.json', {'values': sorted(set(S.MARKET_FLOOR) | {'minecraft:' + b for b in M2.FLOOR_BLOCKS})})
     wjson('bm/tags/block/zone_floor.json', {'values': sorted(set(S.MARKET_FLOOR + S.CRYPT_FLOOR) | {'minecraft:' + b for b in M2.FLOOR_BLOCKS})})
     wjson('bm/tags/entity_type/hostile.json', {'values': [{'id': f'minecraft:{h}', 'required': False} for h in HOSTILE]})
