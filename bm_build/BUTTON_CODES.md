@@ -2511,6 +2511,14 @@ In 1-9999, outside every route of `p28/act` and on no button.
   3449 Send all followers home (`p179/w/sendall`), 3448 Bring them all to me (`p179/w/recall`, the sneak + use recall) and a Close
   on `P28.NOOP` - so the Follower Gallery's 3D pages can keep counting up from 3422. Exact routes in `p179/w/act` (menu 3350).
   Pearlman's joke forms are two rows of his wardrobe (phase99.ROWS, block 9080-9099): 9094 the form on / off, 9095 give back.
+- 3.0i: the Partner Wheel's extras own 3505-3599 (`p259/w/act`; menus 3350 the wheel and 3505 its Teams page, each code checked
+  against its own): 3505 Teams, 3506 Sit all / Stand all, 3507 Show: All / Out now, 3508 Sort: Met order / A-Z (menu 3350); 3509
+  back to the wheel, 3511-3513 Call Team N, 3521-3523 Save who's out as Team N (menu 3505). The Follower Gallery's 3D pages keep
+  3422-3425 (up to ten pages, 80 followers; phase220 asserts it). The Rat Bank's Send to a player is 4093 (account page,
+  `P31.ACCT_EXTRA`), its pages 5300-5399 (`p259/bs/act`, menu 5300: 5301 someone else, 5302 back to the account, 5310+i a
+  currency, 5331-5334 1/10/64/All, 5335 another currency, 5340 Send it, 5341 change the amount); a recipient's button is built
+  at run time, 10000000 + their pid (routed 10000001..10999999 to `p259/bs/pick`), and a typed amount comes in on its own
+  trigger, `/trigger bm.bsam set N` (the amount page's text box; enabled for everyone in loop/fast) - not a bm.act code.
 <!-- /notes -->
 
 ## Revision log

@@ -423,9 +423,11 @@ def generate(G):
           win_t='THE MIRRORS CRACK', win_sub='Only you look back now.')
 
     # ---- THE SPIDER LARDER
-    spider = lambda nm='Larder Spider': mk('spider', nm, '#a08070', {})
-    cave = lambda: mk('cave_spider', 'Larder Biter', '#4080a0', {})
-    brood = mk('spider', 'The Broodmother', '#a0ff80', {}, {'CustomNameVisible': B(1), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']}, {'scale': 2.2})
+    # (3.0i, the owner: they "take fall damage when they hit the ground" - seven blocks from the ceiling: they land unhurt now)
+    SOFT = {'fall_damage_multiplier': 0.0}
+    spider = lambda nm='Larder Spider': mk('spider', nm, '#a08070', {}, None, SOFT)
+    cave = lambda: mk('cave_spider', 'Larder Biter', '#4080a0', {}, None, SOFT)
+    brood = mk('spider', 'The Broodmother', '#a0ff80', {}, {'CustomNameVisible': B(1), 'Tags': ['bm.gvg', 'bm.gvnew2', 'bm.tiered', 'bm.seen', 'bm.gvcap']}, dict(SOFT, scale=2.2))
     HOLE = [(6, 6), (18, 6), (6, 18), (18, 18), (12, 4), (12, 20)]
     drop = lambda f, idx, cond='': sum((mob(*f(), *HOLE[i], 11, cond) for i in idx), [])
     fight('larder', 'THE SPIDER LARDER', 'Don\'t look up.', '#a0ff80',
