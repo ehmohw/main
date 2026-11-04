@@ -439,17 +439,17 @@ def head_geom(face=None):
     drop = {'fierce': 0.45, 'hurt': 0.35, 'roar': -0.5, 'sleepy': 0.3}.get(face, 0.0)
     for sx in (1, -1):                                                                                  # THE BROW LEDGE: two rounded halves
         r = ('z', -tilt * sx, (sx * 0.4, 48.4, -13.5))
-        for (y0, y1, z0, z1, x1, tx) in ((47.4, 49.6, -15.6, -11.8, 5.8, 'stone_l'), (48.8, 50.4, -14.8, -11.4, 5.2, 'stone_l'), (49.8, 50.8, -14.0, -10.6, 4.6, 'fur')):
+        for (y0, y1, z0, z1, x1, tx) in ((47.5, 49.5, -14.7, -11.8, 5.8, 'stone_l'), (49.0, 50.4, -14.2, -11.4, 5.2, 'stone_l'), (50.0, 50.9, -13.6, -10.6, 4.6, 'fur')):
             lo, hi = sorted((sx * 0.0, sx * x1))
             B('head', (lo, y0 - drop, z0), (hi, y1 - drop, z1), tx, rot=r)
-    B('head', (-4.6, 45.0, -13.5), (4.6, 47.8, -13.44), 'EYES', faces=('north',), uv={'north': [0, 0, 16, 4.9]}, light=10)
+    B('head', (-4.6, 44.7, -13.5), (4.6, 47.5, -13.44), 'EYES', faces=('north',), uv={'north': [0, 0, 16, 4.9]}, light=10)
     # the muzzle: rounded, jutting, a broad flat nose on it, the nostrils flared
-    zoct('head', -16.6, -12.8, 4.4, 2.4, 'stone_l', c=(0.0, 42.4))
-    zoct('head', -17.2, -15.0, 3.0, 1.2, 'stone_l', c=(0.0, 44.3))                                     # (the nose)
-    B('head', (-1.5, 44.6, -15.8), (1.5, 47.4, -13.2), 'stone')                                        # (the bridge, up to the brow)
+    zoct('head', -16.6, -12.8, 4.4, 2.2, 'stone_l', c=(0.0, 41.9))
+    zoct('head', -17.2, -15.0, 3.0, 1.1, 'stone_l', c=(0.0, 43.4))                                     # (the nose)
+    B('head', (-1.2, 44.0, -15.0), (1.2, 47.6, -13.2), 'stone')                                        # (the bridge, up to the brow)
     for sx in (1, -1):
-        lo, hi = sorted((sx * 0.6, sx * 2.0)); B('head', (lo, 43.6, -17.25), (hi, 44.5, -17.15), 'nail')     # (nostrils)
-        lo, hi = sorted((sx * 3.4, sx * 4.8)); B('head', (lo, 41.0, -16.0), (hi, 44.0, -13.0), 'stone')        # (the lip's corners)
+        lo, hi = sorted((sx * 0.6, sx * 2.0)); B('head', (lo, 42.8, -17.25), (hi, 43.7, -17.15), 'nail')     # (nostrils)
+        lo, hi = sorted((sx * 3.4, sx * 4.8)); B('head', (lo, 40.6, -16.0), (hi, 43.4, -13.0), 'stone')        # (the lip's corners)
     B('head', (-3.4, 39.9, -16.2), (3.4, 40.3, -9.0), 'mouth', light=4)                                 # (the mouth's roof, its glow)
     for i in range(6):                                                                                  # (the upper teeth)
         z = -15.8 + i * 1.0
@@ -491,16 +491,19 @@ def arm(sx):
     rod(a, [SH, EL], [8.2, 7.0], 'fur')
     stack(R, a, profile(SH[1] - 3.6, 7.6, 4.6, n=3), 'fur', c=(SH[0] + sx * 0.4, SH[2]))         # (the shoulder cap)
     for k, (dz, L) in enumerate(((2.6, 9.0), (0.4, 8.0), (-2.2, 6.6))):                         # (fringe off the back of the upper arm)
-        lock(a, (SH[0] + sx * 3.4, SH[1] - 3.0 - k * 1.4, SH[2] + dz), (sx * 0.4, -1.0, 0.25), L, 3.0, droop=0.04)
+        lock(a, (SH[0] + sx * 3.2, SH[1] - 3.0 - k * 1.4, SH[2] + dz), (sx * 0.16, -1.0, 0.12), L * 0.8, 3.6, droop=0.02, t=0.6)
     # the forearm: huge, fur over its back, a STONE BRACER down its front with a crystal vein, a little cluster at the elbow
     rod(f, [EL, WR], [9.0, 8.4], 'fur')
     stack(R, f, profile(WR[1] + 1.0, 10.0, 5.0, n=3, d=0.95), 'fur', c=(WR[0], WR[2] + 0.4))      # (the forearm's swell)
-    B(f, (WR[0] - 3.6, WR[1] + 1.6, WR[2] - 5.6), (WR[0] + 3.6, EL[1] - 2.6, WR[2] - 3.6), 'stone_l')
-    SEG(f, (WR[0] - sx * 1.0, WR[1] + 3.0, WR[2] - 5.65), (WR[0] + sx * 1.2, EL[1] - 4.4, WR[2] - 5.65), 0.5, 0.3, 'vein', up=(0.0, 0.0, -1.0), light=13, full=True)
-    SEG(f, (WR[0] + sx * 1.2, EL[1] - 4.4, WR[2] - 5.65), (WR[0] - sx * 0.6, EL[1] - 3.0, WR[2] - 5.65), 0.5, 0.3, 'vein', up=(0.0, 0.0, -1.0), light=13, full=True)
+    for k in range(3):                                                                           # (the bracer: three plates, overlapping like scree)
+        y0 = WR[1] + 1.4 + k * 3.2; y1 = y0 + 3.6
+        B(f, (WR[0] - 3.7 + k * 0.2, y0, WR[2] - 5.4 + k * 0.15), (WR[0] + 3.7 - k * 0.2, y1, WR[2] - 3.4), 'stone_l', rot=('x', -6.0, (WR[0], y1, WR[2] - 4.4)))
+        B(f, (WR[0] - 3.7 + k * 0.2, y1 - 0.5, WR[2] - 5.65 + k * 0.15), (WR[0] + 3.7 - k * 0.2, y1, WR[2] - 5.3 + k * 0.15), 'stone_d', rot=('x', -6.0, (WR[0], y1, WR[2] - 4.4)))
+    SEG(f, (WR[0] - sx * 1.0, WR[1] + 3.0, WR[2] - 5.75), (WR[0] + sx * 1.2, EL[1] - 4.4, WR[2] - 5.75), 0.5, 0.3, 'vein', up=(0.0, 0.0, -1.0), light=13, full=True)
+    SEG(f, (WR[0] + sx * 1.2, EL[1] - 4.4, WR[2] - 5.75), (WR[0] - sx * 0.6, EL[1] - 3.0, WR[2] - 5.75), 0.5, 0.3, 'vein', up=(0.0, 0.0, -1.0), light=13, full=True)
     cluster(f, (EL[0] + sx * 1.8, EL[1] - 1.6, EL[2] + 3.6), [(sx * 0.6, 0.4, 1.0), (sx * 0.2, 0.9, 0.8), (sx * 0.9, -0.1, 0.6)], [(3.6, 1.2), (2.8, 1.0), (2.2, 0.8)])
     for k, (y, L) in enumerate(((EL[1] - 1.0, 7.0), (EL[1] - 4.0, 6.0))):                       # (fringe off the forearm's outer side)
-        lock(f, (EL[0] + sx * 4.4, y, EL[2] + 1.0), (sx * 0.5, -1.0, 0.2), L, 2.8, droop=0.02)
+        lock(f, (EL[0] + sx * 4.2, y, EL[2] + 1.0), (sx * 0.2, -1.0, 0.1), L, 3.2, droop=0.02, t=0.6)
     # the hand: a stone fist - palm, four curled fingers whose knuckle pads take its weight, a thumb on the inside
     x, y, z = WR
     B(h, (x - 4.2, y - 6.2, z - 4.0), (x + 4.2, y + 0.4, z + 3.6), 'stone')                      # (the palm)
