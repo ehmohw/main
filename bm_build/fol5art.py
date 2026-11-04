@@ -166,8 +166,97 @@ def _cairn():
     return A
 
 
+class KnightArt(types.ModuleType):
+    """the Hollow Statue Knight: TWO rigs in one follower - the armour (hk_, knight_art's at companion size) and the soul serpent
+    inside it (hs_, its parts 's_<part>'). rigpet sees one set of parts; phase269 writes every pose itself (each rig solved on
+    its own joints, the serpent anchored at the helm's visor or wherever the pose puts it). Its looks are drawn sets: Freed (look
+    1: the armour's freed finish and the serpent's '_f'), the shiny (Starlit: 'shiny' and '_s'); looks 2-3 recolour the cloak."""
+    def __init__(self):
+        super().__init__('f5art_knight')
+        import hollowknight_pet_art as H
+        self.H, self.AR, self.SR = H, H.ARMOUR, H.SERPENT
+        A, S = self.AR, self.SR
+        self.SP = tuple(f's_{p}' for p in S.PARTS)
+        self.PREFIX, self.RIG_SCALE = 'hk_', H.COMPANION
+        self.PARTS = tuple(A.PARTS) + self.SP
+        self.PIVOT = dict(A.PIVOT, **{q: (0.0, 0.0, 0.0) for q in self.SP})
+        self.PARENT = dict(A.PARENT, **{q: None for q in self.SP})
+        self.PART_K = dict(A.PART_K, **{q: S.RIG_SCALE / H.COMPANION for q in self.SP})
+        self.FACES, self.FACE_PARTS, self.FACE_PART = S.FACES, ('s_head',), 's_head'
+        self.FACE_BASE, self.RIGS = 'hs_head', (S,)        # (his faces: the serpent's head's models; its bare joints wear empty models)
+        self.FACE_MAP = {'happy': 'happy', 'surprised': 'focus', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'}
+        self.POSES = {}                  # (phase269 fills these: name -> (armour pose, serpent pose or None, anchor) and a dict rigpet reads)
+        self.SKINS = ['']
+        at, st = A.textures(), S.textures()
+        self._tex = dict({k: v for k, v in at.items() if k.startswith('hk_h_')}, **{k: v for k, v in st.items() if not (k[-2:] in ('_f', '_s') and k[:-2] in st)})
+        self.LOOK_TEX = ('hk_h_cloth', 'hk_h_hem')
+        self.LOOK_DRAWN = {1: dict({k: at['hk_f_' + k[5:]] for k in self._tex if k.startswith('hk_h_') and 'hk_f_' + k[5:] in at},
+                                   **{k: st[k + '_f'] for k in self._tex if k + '_f' in st})}
+        self.SHINY_TEX = dict({k: (lambda im: lambda b: im)(at['hk_s_' + k[5:]]) for k in self._tex if k.startswith('hk_h_') and 'hk_s_' + k[5:] in at},
+                              **{k: (lambda im: lambda b: im)(st[k + '_s']) for k in self._tex if k + '_s' in st})
+        keys = sorted(set(self.LOOK_DRAWN[1]) | set(self.SHINY_TEX))
+        self.LOOK_SHINY_ONLY = tuple(k for k in keys if k not in self.LOOK_TEX)
+        self.RECOL_KEYS = self.LOOK_TEX + self.LOOK_SHINY_ONLY
+        self.LOOK_GILD_SKIP = tuple(k for k in self.RECOL_KEYS if k not in ('hk_h_plate', 'hk_h_trim', 'hk_h_dark'))
+        self.SHINY_COLS = (None, '#3a4ab0', 'blue')
+        self.OWN_SETS = {}
+        self.DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+        self.GROUPS = {}
+        self.DOLL_POSE = None
+        self.FIT = (0.0, 1.5, -0.45, 0.45, -0.3, 0.35)
+
+    def _split(self, p):
+        return (p[2:], True) if p.startswith('s_') else (p, False)
+
+    def HIDDEN(self, p, pose):
+        q, ser = self._split(p)
+        if p in pose.get('_hide', ()):
+            return True
+        if ser:
+            sp = pose.get('_serp')
+            return sp is None or self.SR.HIDDEN(q, sp)
+        return self.AR.HIDDEN(q, pose.get('_arm', {}))
+
+    def model_name(self, p, pose=None, suffix=''):
+        q, ser = self._split(p)
+        if ser:
+            return self.SR.model_name(q, {k: v for k, v in ((pose or {}).get('_serp') or {}).items() if k != '_face'}, suffix)
+        return self.AR.model_name(q, {}, suffix)
+
+    def models(self):
+        out = {n: v for n, v in self.AR.models().items() if n.startswith('hk_hollow_')}
+        sm = self.SR.models()             # (its skins' sets dropped - a name that's another's plus '_f' / '_s'; its body shape 's' is hs_b_s)
+        out.update({n: v for n, v in sm.items() if not (n[-2:] in ('_f', '_s') and n[:-2] in sm)})
+        return out
+
+    def textures(self):
+        return dict(self._tex)
+
+    def look_item(self, n):
+        return n.startswith(('hk_hollow_', 'hs_'))
+
+    @property
+    def SHINY_LOOK(self):
+        return ('Shiny Starlit', ('#060a2a', '#3a4ab0', '#c0c8ff'), 'blue')
+
+    def face_cases(self, sfx=''):
+        return {e: f'hs_head_x{f}' for e, f in self.FACE_MAP.items() if f in self.FACES}
+
+
+def _knight():
+    return KnightArt()
+
+
+def _mimic():
+    import mimic_pet_art as MA
+    A = Art('mimic', MA.R, {'happy': 'happy', 'surprised': 'greedy', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'},
+            ('gum', 'tongue', 'throat'), drop=('_sh', '_crate', '_gild'), drawn={1: '_crate', 2: '_gild'}, gild=('brass', 'gold'), shiny=('_sh', '#7a3ad0', 'purple')).doll(MA)
+    A.NO_LOOK = ()
+    return A
+
+
 _MADE = {}
-_MAKERS = {'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
+_MAKERS = {'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 
 
 def get(w):

@@ -167,6 +167,52 @@ SPEC['cairn'] = dict(
 )
 
 
+# ---------------------------------------------------------------------------------------------------- 58: THE HOLLOW STATUE KNIGHT
+_hk = {1: ('Freed', ('#3a2a10', '#d8c890', '#fff8e0')), 2: ('Crimson Guard', ('#2a0408', '#9a1e2a', '#e0606a')), 3: ('Verdant Guard', ('#06200e', '#1a7a3a', '#7ae09a')),
+       4: ('Gilded Plate', GOLD), 5: ('Diamond Plate', DIAMOND), 6: ('Netherite Plate', NETHERITE)}
+SPEC['knight'] = dict(
+    shiny_name='Shiny Starlit', NAME='The Hollow Statue Knight', pron='him', COL='#7ab8e8', LINE='#e0f0ff', ab='hx', q='iz', pfx='p269', item='knight_token', prefix='hk_',
+    word='Plate', looks=_hk, dyes=_dyes('Plate', 'white', 'red', 'green', _hk), words='his cloak and plate', plain='Palace violet', base=5970,
+    aura=('Candle Vigil', '#7ad8ff', 1.2, 0.9, 'minecraft:soul_fire_flame',
+          ['particle minecraft:soul ~ ~1 ~ 0.4 0.4 0.4 0.01 1', f'particle {_dust(0.48, 0.85, 1.0, 0.7)} ~ ~1.4 ~ 0.4 0.5 0.4 0 2']),
+    anchors=('head', 'hk_hollow_head', 'chest', 'hk_hollow_chest'),
+    champ=(None, [], False, ['minecraft:soul ~ ~1.6 ~ 0.3 0.2 0.3 0.01 1', _dust(0.48, 0.72, 0.91, 0.8) + ' ~ ~1 ~ 0.4 0.5 0.4 0 2']),
+    gift=('Resistance and Strength', [f'effect give {P8} minecraft:resistance 15 0 true', f'effect give {P8} minecraft:strength 15 0 true']),
+    trib=[('minecraft:soul_lantern', 16), ('minecraft:iron_ingot', 32), ('minecraft:bone_block', 16), ('minecraft:totem_of_undying', 1), ('heartstone', 4)],
+    honour=('The Last Watch', 'the captain and his soul strike as one: 16 to monsters round him, slowed; you, Resistance II and Strength',
+            (16, 6), 0, 'slowness 5 2', ['resistance 10 1', 'strength 10 0'], 'minecraft:soul_fire_flame', 'minecraft:entity.iron_golem.attack'),
+    hint='Set up a knight statue you have won - then stand by it with Pistachio and King Omega.',
+    shiny_say='"Trying something new today, my lord. Starlight - deep blue plate, silver trim. A captain should shine."',
+    pierce=('Soul Step', 'his soul slips out of the armour - and the armour rises behind the monster where the serpent lands', 'behind',
+            [_P('minecraft:soul', 30, 0.4, 0.6, 0.02)], ['minecraft:soul ^ ^1 ^-1.2 0.2 0.3 0.2 0 2'],
+            [_P('minecraft:soul_fire_flame', 30, 0.4, 0.8, 0.05), _P('minecraft:crit', 20)], 'minecraft:entity.vex.charge', 'minecraft:entity.iron_golem.attack'),
+    henry=('The Captain\'s Lap', (('regeneration', 0), ('resistance', 0)), '(the serpent curls round the cat, very carefully)', '(Henry sits in the kneeling knight\'s lap)'),
+    nia=('Tail Light', (('regeneration', 1),), '"Ha! She wants the flame. Gently, little one."', '(Nia bats at the soul flame on the serpent\'s tail)'),
+)
+
+# ---------------------------------------------------------------------------------------------------- 59: THE MIMIC
+_mm = {1: ('Trapped Chest', ('#2a0806', '#a83020', '#f0a070')), 2: ('Christmas Chest', ('#2a0606', '#c02020', '#ffe080')), 3: ('Black Tongue', ('#06040a', '#2a1a3a', '#6a4a8a')),
+       4: ('Gilded Chest', GOLD), 5: ('Diamond Chest', DIAMOND), 6: ('Netherite Chest', NETHERITE)}
+SPEC['mimic'] = dict(
+    shiny_name='Shiny Voidbox', NAME='The Mimic', pron='it', COL='#e8b830', LINE='#fff0c0', ab='mx', q='wx', pfx='p270', item='mimic_key', prefix='mm_',
+    word='Chest', looks=_mm, dyes=_dyes('Chest', 'red', 'green', 'black', _mm), words='its chest', plain='Oak chest', base=5620,
+    aura=('Jackpot', '#ffd23a', 0.8, 0.8, 'minecraft:wax_on', ['particle minecraft:wax_on ~ ~0.8 ~ 0.4 0.3 0.4 0 1', f'particle {_dust(1.0, 0.85, 0.2, 0.6)} ~ ~0.6 ~ 0.4 0.3 0.4 0 2']),
+    anchors=('lid', 'mm_lid', 'body', 'mm_body'),
+    champ=(None, [], False, ['minecraft:wax_on ~ ~1 ~ 0.3 0.2 0.3 0 1', _dust(0.91, 0.72, 0.19, 0.8) + ' ~ ~0.6 ~ 0.4 0.3 0.4 0 2']),
+    gift=('Luck and Haste', [f'effect give {P8} minecraft:luck 15 0 true', f'effect give {P8} minecraft:haste 15 0 true']),
+    trib=[('minecraft:gold_ingot', 32), ('minecraft:chest', 16), ('minecraft:emerald', 16), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Bottomless', 'its lid opens on something enormous: 16 to monsters round it, slowed; you, Luck and Haste II',
+            (16, 6), 0, 'slowness 5 2', ['luck 10 0', 'haste 10 1'], 'minecraft:wax_on', 'minecraft:block.chest.close'),
+    hint='In a won heist\'s vault (Tier III or higher), one loot chest in forty looks back at you.',
+    shiny_say='"Trying something new today. Voidbox. Very ender. Very violet. Still bites."',
+    pierce=('Hidden Chest', 'shuts its lid, sinks into the floor - and pops up, open-mouthed, under the monster', 'below',
+            [_P('minecraft:wax_on', 20)], ['minecraft:block{block_state:"minecraft:oak_planks"} ~ ~0.1 ~ 0.4 0 0.4 0 3'],
+            [_P('minecraft:crit', 30), _P('minecraft:wax_on', 20)], 'minecraft:block.chest.close', 'minecraft:block.chest.open'),
+    henry=('Cat in a Box', (('regeneration', 0), ('night_vision', 0)), '(it holds its lid wide open, very still)', '(Henry curls up in the open chest, on the coins)'),
+    nia=('Tongue Twister', (('regeneration', 1),), '"Ha! Ha-ha! That TICKLES."', '(Nia bats at its tongue)'),
+)
+
+
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)
 MOB_NAME = 'The Doodle Mob'
 

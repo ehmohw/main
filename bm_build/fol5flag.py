@@ -11,5 +11,5 @@ CAKE = True
 SAPLING = True
 SPAWNER = True
 CAIRN = True
-KNIGHT = False
-MIMIC = False
+KNIGHT = True
+MIMIC = True

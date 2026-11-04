@@ -87,16 +87,17 @@ def rp(C, R, icon, art):
 
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
-        for r in art.RIGS:                  # (a bare joint - the Glitch's core - has no model; its display wears an empty one)
+        for r in getattr(art, 'RIGS', ()):  # (a bare joint - the Glitch's core - has no model; its display wears an empty one)
             for p in r.PARTS:
                 if not r._els[p]:
                     R2.wj(f'assets/bm/items/{r.PREFIX}{p}.json', {'model': {'type': 'minecraft:empty'}})
+        fb = getattr(art, 'FACE_BASE', f'{art.PREFIX}{fp}')     # (the Knight's: his serpent's head, hs_head - another rig's prefix)
         for sfx in art.SKINS:
-            base = f'{art.PREFIX}{fp}{sfx}'
+            base = f'{fb}{sfx}'
             if base not in names:
                 continue
-            cases = [{'when': e, 'model': mdl(f'{art.PREFIX}{fp}_x{C.FACE[e]}{sfx}')} for e in C.EXPR
-                     if C.FACE.get(e) and f'{art.PREFIX}{fp}_x{C.FACE[e]}{sfx}' in names]
+            cases = [{'when': e, 'model': mdl(f'{fb}_x{C.FACE[e]}{sfx}')} for e in C.EXPR
+                     if C.FACE.get(e) and f'{fb}_x{C.FACE[e]}{sfx}' in names]
             R2.wj(f'assets/bm/items/{base}.json', {'model': {'type': 'minecraft:select', 'property': 'minecraft:custom_model_data', 'index': 0,
                                                              'cases': cases, 'fallback': mdl(base)}})
     R.POST.append(post)
