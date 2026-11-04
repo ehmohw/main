@@ -221,7 +221,8 @@ import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper 
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
-import phase262 as R262      # 3.0k: the Rat King - the 52nd follower, the Keeper's counterpart (registers after it: the Partner Wheel's END)
+import rkflag as RKF        # 3.0k: the Rat King's switch (off: nothing of his is built)
+R262 = __import__('phase262') if RKF.ON else None      # 3.0k: the Rat King - the 52nd follower, the Keeper's counterpart (registers after it: the Partner Wheel's END)
 import phase259 as R259      # 3.0i: the wheel's teams, sorting and sit-all; bank transfers; the heist haul; bag previews
 import phase260 as R260      # 3.0j: the Handbook, a Settings page per follower, Stay here, your own settings, the crew page
 import elemforms as EFM      # 3.0h (redone: elemforms_art / elemforms_designs - new shapes per character); 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
@@ -1395,7 +1396,7 @@ def build(out_dir):
     if PHASE2: R243.generate_early(sys.modules[__name__])
     if PHASE2: R252.generate_early(sys.modules[__name__])      # [mireling hook]
     if PHASE2: R254.generate_early(sys.modules[__name__])      # [keeper hook]
-    if PHASE2: R262.generate_early(sys.modules[__name__])      # 3.0k: the Rat King's Raid Contract
+    if PHASE2 and RKF.ON: R262.generate_early(sys.modules[__name__])      # 3.0k: the Rat King's Raid Contract
     if PHASE2: R211.generate_early(sys.modules[__name__])
     if PHASE2: R213.generate_early(sys.modules[__name__])
     if PHASE2: R199.generate_early(sys.modules[__name__])
@@ -1466,7 +1467,7 @@ def build(out_dir):
     if PHASE2: R243.generate(sys.modules[__name__])      # 2.99: Vexis, the Unlinked
     if PHASE2: R252.generate(sys.modules[__name__])      # 3.00: [mireling hook] the Mireling
     if PHASE2: R254.generate(sys.modules[__name__])      # 3.0: [keeper hook] the Keeper of Bonds (its meeting needs phase253's island: its box, its markers)
-    if PHASE2: R262.generate(sys.modules[__name__])      # 3.0k: the Rat King, his coin and his Counting House (after phase76's pit: a friend's crew never draws him)
+    if PHASE2 and RKF.ON: R262.generate(sys.modules[__name__])      # 3.0k: the Rat King, his coin and his Counting House (after phase76's pit: a friend's crew never draws him)
     if PHASE2: R215.generate(sys.modules[__name__])
     if PHASE2: R216.generate(sys.modules[__name__])
     if PHASE2: R256.generate(sys.modules[__name__])      # 3.0b: the Pixel Creeper (its stock's in R216's, from import)
@@ -1547,7 +1548,7 @@ def build(out_dir):
     if PHASE2: R259.bags(sys.modules[__name__])           # 3.0i: bags write what they hold into their lore (after phase248)
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
     if PHASE2: print('3.0j: handbook, settings, stay here -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
-    if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega, the Rat King)' % __import__('compsize').finalize(sys.modules[__name__]))
+    if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))

@@ -405,7 +405,7 @@ def build(C, G, abilities, encounter):
     fn(f'{pfx}/box', ['execute if entity @s[tag=bm.ffpet] run return 0', f'execute if function bm:{pfx}/has_hit run return 0',
                       f'summon minecraft:interaction ~ ~ ~ {{Tags:["{hit_tag}","bm.{ab}hnew"],width:{C.HIT[0]}f,height:{C.HIT[1]}f,response:1b}}',
                       f'ride @e[type=minecraft:interaction,tag=bm.{ab}hnew,limit=1,sort=nearest] mount @s', f'tag @e[tag=bm.{ab}hnew] remove bm.{ab}hnew'] +
-       ([f'function bm:{pfx}/box_fit'] if C.BOX_FIT else []))      # (3.0k: a follower whose size changes - its click box made again at the size it is now)
+       ([f'function bm:{pfx}/box_fit'] if C.BOX_FIT and __import__('rkflag').ON else []))      # (3.0k: a follower whose size changes - its click box made again at the size it is now)
     fn(f'{pfx}/has_hit', [f'execute on passengers if entity @s[type=minecraft:interaction,tag={hit_tag}] run return 1', 'return 0'])
     second.append(f'execute as @e[type=minecraft:interaction,tag={hit_tag}] unless function bm:p20/frog/has_vehicle run kill @s')
     fast += [f'execute as @e[type=minecraft:interaction,tag={hit_tag}] if data entity @s interaction run function bm:{pfx}/click',

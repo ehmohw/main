@@ -206,18 +206,19 @@ def _unbound(G):
         'execute rotated as @s rotated ~ 0 run function bm:p239u/place', 'tag @e[tag=bm.xvusel] remove bm.xvusel'])
     # (3.0k) THE HITBOX FOLLOWS THE SIZE (compsize.resize): Bound, its own; Unbound - as vast as it stood against you - a giant's
     #  (the host as big as the game lets a follower walk among us, the click box round the whole of it); Bound again: its own
-    import compsize as CS
-    fn('p239/size_big', ['tag @s add bm.xvbig'] + CS.resize('bm.xvhit', *UNB_HIT, scale=UNB_HOST))
-    fn('p239/size_small', ['tag @s remove bm.xvbig'] + CS.resize('bm.xvhit', *Sovereign.HIT, scale=Sovereign.SCALE))
-    fn('p239/box_fit', ['execute if entity @s[tag=bm.xvbig] run function bm:p239/size_big'])
-    G.FUNCS['p239u/on'].insert(0, 'execute unless entity @s[tag=bm.xvbig] run function bm:p239/size_big')
+    import compsize as CS, rkflag
+    if rkflag.ON:
+     fn('p239/size_big', ['tag @s add bm.xvbig'] + CS.resize('bm.xvhit', *UNB_HIT, scale=UNB_HOST))
+     fn('p239/size_small', ['tag @s remove bm.xvbig'] + CS.resize('bm.xvhit', *Sovereign.HIT, scale=Sovereign.SCALE))
+     fn('p239/box_fit', ['execute if entity @s[tag=bm.xvbig] run function bm:p239/size_big'])
+     G.FUNCS['p239u/on'].insert(0, 'execute unless entity @s[tag=bm.xvbig] run function bm:p239/size_big')
     fn('p239u/raise', rig + ['execute as @e[type=minecraft:item_display,tag=bm.xvunew] run scoreboard players operation @s bm.pid = #me bm.pid',
                              'tag @e[type=minecraft:item_display,tag=bm.xvunew] add bm.xvusel', 'tag @e[type=minecraft:item_display,tag=bm.xvunew] remove bm.xvunew',
                              'particle minecraft:sculk_soul ~ ~5 ~ 2 4 2 0.05 120', 'particle minecraft:large_smoke ~ ~4 ~ 2 3 2 0.05 60',
                              'playsound minecraft:entity.warden.emerge neutral @a[distance=..32] ~ ~ ~ 1.5 0.5', 'playsound minecraft:block.chain.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
     fn('p239u/off', ['execute as @e[type=minecraft:item_display,tag=bm.xvu] if score @s bm.pid = #me bm.pid run kill @s',
                      'execute as @e[type=minecraft:item_display,tag=bm.xvsel] run data modify entity @s view_range set value 1.6f',
-                     'particle minecraft:sculk_soul ~ ~4 ~ 2 3 2 0.05 60', 'function bm:p239/size_small'])
+                     'particle minecraft:sculk_soul ~ ~4 ~ 2 3 2 0.05 60'] + (['function bm:p239/size_small'] if rkflag.ON else []))
     # (a giant whose host is gone - sent home, fainted, unloaded far off: gone too)
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.xvu] unless function bm:p239u/has run kill @s')
     fn('p239u/has', ['scoreboard players operation #me2 bm.pid = @s bm.pid',
