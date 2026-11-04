@@ -18,7 +18,7 @@ Data only: phase226 merges it (the fol5 followers' entries only while they're sw
 
 # (3.1a) the switch: off until the conversions have passed the six checkers and a playtest (phase226 merges nothing while it's off -
 # every follower vanishes as before 3.1a)
-ON = False
+ON = True
 
 _c = lambda r, g, b, s=1.1: f'minecraft:dust{{color:[{r},{g},{b}],scale:{s}}}'
 SL = lambda c: [f'particle {c} ~ ~1 ~ 0.35 0.4 0.35 0 10', 'particle minecraft:sweep_attack ~ ~1 ~ 0.2 0.1 0.2 0 1']
