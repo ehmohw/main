@@ -242,7 +242,7 @@ def generate(G):
         'tag @e[type=minecraft:item_display,tag=bm.stknp,distance=..2] add bm.stksel', 'execute rotated as @s rotated ~ 0 run function bm:p181/stk/place',
         'function bm:p181/stk/pose/stand_a', 'tag @e[tag=bm.stksel] remove bm.stksel', 'tag @e[tag=bm.stknp] remove bm.stknp'])
     # (every part to its joint, turned as the caller's rotation is - its eased facing)
-    fn('p181/stk/place', [parts_do('p181/stk/place1')])
+    fn('p181/stk/place', ['execute as @e[type=minecraft:item_display,tag=bm.stksel] positioned ~ ~ ~ run function bm:p181/stk/place1'])   # (at its host, as each part)
     U_ = SD / 16
     fn('p181/stk/place1', [f'execute if entity {me_(p)} positioned ^{-x * U_:.4f} ^{y * U_:.4f} ^{-z * U_:.4f} run return run tp @s ~ ~ ~ ~ 0'
                            for p, (x, y, z) in SA.PIVOT.items()])
@@ -628,7 +628,11 @@ def generate(G):
         wjson(f'minecraft/tags/damage_type/{tg}.json', {'replace': False, 'values': [v for v in vals if v != 'bm:stalker'] + ['bm:stalker']})
 
     # ================================================================== operators
+    # (3.0k: called after dawn's 23000, `time set 13000` turns the clock back - which the pack's day count (bloodmoon/tick: #bmday)
+    #  reads as a new day, so the night was set for a day that had just ended and never came: tonight's is the next day's)
     fn('admin/dread_night', ['scoreboard players operation #dnday bm.bm = #day bm.bm', 'scoreboard players operation #dnr bm.bm = #day bm.bm',
+                             'execute if score #tod bm.bm matches 23000.. run scoreboard players add #dnday bm.bm 1',
+                             'execute if score #tod bm.bm matches 23000.. run scoreboard players add #dnr bm.bm 1',
                              'execute unless score #tod bm.bm matches 13000..22999 run time set 13000',
                              tellraw('@s', P + [T('A Dread Night falls. ', DREAD, bold=True), T('(It ends at dawn. Those who beat the Hollow King are hunted.)', 'gray')])])
     fn('admin/dread_kit', [give('golden_cross', 4), give('dread_bell', 2), give('dread_essence', 16), give('dread_totem'), give('stalker_grin')])

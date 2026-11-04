@@ -40,7 +40,7 @@ from PIL import Image, ImageDraw
 from rigkit import qs, el, seg as _seg, solve, qrot, D, I
 
 FACESIDES = ('north', 'south', 'east', 'west', 'up', 'down')
-TOKENS = ('FACE', 'EYES')
+TOKENS = ('FACE', 'EYES', 'SNOUT')
 
 
 def hexc(h, a=255):

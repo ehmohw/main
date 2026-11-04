@@ -24,7 +24,7 @@ const res = [];
   const uuidEnt = async sel => { const m = (await run(`${O}data get entity ${sel} UUID`)).match(/\[I; (-?\d+), (-?\d+), (-?\d+), (-?\d+)\]/); if (!m) return null;
     const h = m.slice(1).map(v => ((+v) >>> 0).toString(16).padStart(8, '0')).join(''); const u = `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
     const e = Object.values(A.ents).find(e => e.objectUUID === u); return e ? e.entityId : null; };
-  const offerOf = async (sel, iid) => { for (let i = 0; i < 40; i++) { const r = await run(`${O}data get entity ${sel} Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`);
+  const offerOf = async (sel, iid) => { for (let i = 0; i < 90; i++) { const r = await run(`${O}data get entity ${sel} Offers.Recipes[${i}].sell.components."minecraft:custom_data".bm`);
     if (new RegExp(`"${iid}"`).test(r)) return i; if (/Found no elements/.test(r) || /No elements/i.test(r)) break; } return -1; };
   const trade = async (sel, idx) => {
     const eid = await uuidEnt(sel); A.windows.length = 0; A.interact(eid); await sleep(1200);

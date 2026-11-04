@@ -220,7 +220,7 @@ def generate(G):
                 'interpolation_duration': Int(0), 'view_range': F(1.5),
                 'transformation': {'left_rotation': [F(round(x, 5)) for x in q], 'right_rotation': [F(0), F(0), F(0), F(1)],
                                    'translation': [F(round(x, 4)) for x in t], 'scale': [F(round(S, 4))] * 3}}))
-        fn(f'{pfx}/rig', parts + ['execute rotated as @s run rotate @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] ~ 0',
+        fn(f'{pfx}/rig', parts + ['execute rotated as @s as @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] run rotate @s ~ 0',
                                   'execute as @e[type=minecraft:item_display,tag=bm.vrnew,distance=..1] run ride @s mount @e[type=minecraft:husk,tag=bm.vrme,limit=1,sort=nearest]',
                                   'tag @e[type=minecraft:item_display,tag=bm.vrnew,distance=..3] remove bm.vrnew'])
     # making one (as a Vorn husk): its old one-piece body (or 2.24's hoverboard) off, the rig on, its gait from where it stands
