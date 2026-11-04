@@ -294,7 +294,7 @@ def _encounter(G, X):
     # ---- THE SHELL OF RATS (the hall's interaction keeps the game: bm.qwg its stage - 2 the reveal, 3 the shuffle, 4 your pick, 5 won;
     #      bm.qwgt its clock, bm.qwth the thief's place, bm.qwo whose game; the rats keep their place in bm.qwsl, the five cups too)
     ratd = lambda i: {'Tags': ['bm.rwsr', 'bm.rwshell'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:rat3d_grey'}},
-                      'item_display': 'fixed', 'teleport_duration': Int(8), 'Rotation': [F(180), F(0)],
+                      'item_display': 'fixed', 'teleport_duration': Int(8), 'Rotation': [F(0), F(0)],      # (facing you, south, across the table)
                       'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(0.0), F(0)], 'scale': [F(0.8)] * 3}}
     cup = {'Tags': ['bm.rwcup', 'bm.rwshell'], 'width': F(0.7), 'height': F(0.7), 'response': B(1)}
     coin = {'Tags': ['bm.rwgc', 'bm.rwshell'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': f'bm:{COIN}'}},
