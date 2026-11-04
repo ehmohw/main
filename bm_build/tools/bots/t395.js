@@ -100,7 +100,6 @@ const fs = require('fs');
   ok('..."You lost my feather? It is no matter"', A.chats.some(c => /You lost my feather/.test(c)));
   await sleep(1500);
   // the feather on the Partner Wheel (off hand, the wheel used): a hint, nobody
-  await run('item replace entity TestRat weapon.offhand from entity TestRat container.0');
   await run('clear TestRat *[minecraft:custom_data~{bm:"herald_feather"}]');
   await give('herald_feather', 'weapon.offhand'); await give('partner_wheel', 'hotbar.2'); await sleep(2300);
   await plainUse(2); await sleep(500);
