@@ -363,7 +363,7 @@ def generate(G):
     # ---- FREED: a Totem of Undying handed to him, a golden apple in your pack, Pistachio by to serve it (his dinner) - look 1, earned
     W_ = G.FUNCS[f'{pfx}/who']
     k = next(i for i, l in enumerate(W_) if 'bm.pid = #me bm.pid run return run' in l)
-    W_.insert(k + 1, 'execute if items entity @s weapon.mainhand minecraft:totem_of_undying[!minecraft:custom_data] run return run function bm:p269/freed'   # (a real totem: not his own token, a totem too))
+    W_.insert(k + 1, 'execute if items entity @s weapon.mainhand minecraft:totem_of_undying[!minecraft:custom_data] run return run function bm:p269/freed')   # (a real totem: not his own token, a totem too)
     csay = lambda txt: title('@s', 'actionbar', [T('The Hollow Statue Knight: ', COL, bold=True), T(txt, LINE)])
     fn('p269/freed', ['scoreboard players set #q bm.rng 0', 'execute if score @s bm.wuknight matches 0.. run function bm:p269/has1',
                       'execute if score #q bm.rng matches 1 run return run ' + csay('"I am free already, friend. I stay because I wish to."'),

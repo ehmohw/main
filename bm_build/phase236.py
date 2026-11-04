@@ -528,7 +528,7 @@ def generate(G):
         # (the show over - she has come down - she greets the one she came for, and joins them, where she stands)
         G.FUNCS['tick'].append(f'execute as @e[type=minecraft:interaction,tag=bm.lhgo] unless score @s {X.S("sh")} matches 1.. at @s run function bm:p236l/descent/greet')
         fn('p236l/descent/greet', ['tag @s remove bm.lhgo', 'tag @s add bm.lhhere', 'scoreboard players operation #lw bm.rng = @s bm.lhwho',
-                                   'execute as @a if score @s bm.pid = #lw bm.rng run function bm:p236l/descent/join', 'tag @s remove bm.lhhere'])
+                                   'execute as @a if score @s bm.pid = #lw bm.rng at @s run function bm:p236l/descent/join', 'tag @s remove bm.lhhere'])
         joined = G.FUNCS['p236l/enc/joined']
         gone = f'execute as {X.here} at @s run function bm:p236l/enc/gone'
         summ = 'at @s run function bm:p236l/summon'
