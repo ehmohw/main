@@ -87,8 +87,8 @@ def _bs(name):
     s = STATE.get(name, name)
     if '[' in s:
         nm, props = s[:-1].split('[')
-        return '{Name:"minecraft:%s",Properties:{%s}}' % (nm, ','.join(f'{k}:"{v}"' for k, v in (p.split('=') for p in props.split(','))))
-    return '{Name:"minecraft:%s"}' % s
+        return '{id:"minecraft:%s",properties:{%s}}' % (nm, ','.join(f'{k}:"{v}"' for k, v in (p.split('=') for p in props.split(','))))
+    return '"minecraft:%s"' % s                                 # (26.3: a block state is "minecraft:x", or {id, properties})
 
 
 item(ITEM, TOTEM, 'The Waystone Heart', COL,
@@ -257,7 +257,7 @@ def _blocks(G, C):
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ('bm.jxpl', 'bm.jxpw', 'bm.jxrs', 'bm.jxsm', 'bm.jxhb', 'bm.jxst')]
     G.OBJECTIVES += ['bm.jxpl', 'bm.jxpw', 'bm.jxrs', 'bm.jxsm', 'bm.jxhb', 'bm.jxst']
     # ---- the block_displays: summoned with its rig (rigpet's rig_here - they take its new tag, so its id) and its encounter's
-    blk = lambda p, tags: snbt({'Tags': ['bm.axb', f'bm.axb_{p}'] + tags, 'block_state': {'Name': 'minecraft:stone'}, 'teleport_duration': Int(2), 'view_range': F(1.4),
+    blk = lambda p, tags: snbt({'Tags': ['bm.axb', f'bm.axb_{p}'] + tags, 'block_state': 'minecraft:stone', 'teleport_duration': Int(2), 'view_range': F(1.4),
                                 'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0)] * 3, 'scale': [F(0)] * 3}})
     G.FUNCS[f'{pfx}/rig_here'][0:0] = [f'summon minecraft:block_display ~ ~ ~ {blk(p, ["bm.axnew"])}' for p, *_r in BLK]
     G.FUNCS[f'{pfx}/rig_here'].append('tp @e[type=minecraft:block_display,tag=bm.axnew,distance=..1] ~ ~ ~ ~ 0')
@@ -364,7 +364,7 @@ def _abilities(G, X):
     P235.melee(G, X, 4, 2.4, ['particle minecraft:block{block_state:"minecraft:cobblestone"} ~ ~0.8 ~ 0.2 0.2 0.2 0 8'], 'minecraft:block.stone.hit')
     # FLING: a copy of its fist block flies at the foe (a block_display - it lands nowhere: it hits, and is gone)
     tgt = f'@e[{foe},distance=..7.5,sort=nearest,limit=1]'
-    fb = snbt({'Tags': ['bm.axfx', 'bm.axfl', 'bm.axfn'], 'block_state': {'Name': 'minecraft:stone'}, 'teleport_duration': Int(4),
+    fb = snbt({'Tags': ['bm.axfx', 'bm.axfl', 'bm.axfn'], 'block_state': 'minecraft:stone', 'teleport_duration': Int(4),
                'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(-0.16)] * 3, 'scale': [F(0.32)] * 3}})
     fn(f'{pfx}/ranged', X.hit(5) + ['execute positioned ^-0.4 ^0.7 ^0.4 run summon minecraft:block_display ~ ~ ~ ' + fb,
                                     'data modify entity @e[type=minecraft:block_display,tag=bm.axfn,limit=1] block_state set from entity @e[type=minecraft:block_display,tag=bm.axbsel,tag=bm.axb_fistr,limit=1] block_state',
@@ -377,7 +377,7 @@ def _abilities(G, X):
     fn(f'{pfx}/charged', [])
     G.FUNCS[f'{pfx}/charged_go'].append(f'execute at {tgt} run function bm:{pfx}/storm/start')
     N, STEPS = 18, 20
-    sb = lambda i: snbt({'Tags': ['bm.axfx', 'bm.axsb', f'bm.axs{i}', 'bm.axsn'], 'block_state': {'Name': 'minecraft:cobblestone'}, 'teleport_duration': Int(0),
+    sb = lambda i: snbt({'Tags': ['bm.axfx', 'bm.axsb', f'bm.axs{i}', 'bm.axsn'], 'block_state': 'minecraft:cobblestone', 'teleport_duration': Int(0),
                          'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0)] * 3, 'scale': [F(0)] * 3}})
     parts = [p for p, *_r in BLK]
     fn(f'{pfx}/storm/start', ['summon minecraft:marker ~ ~ ~ {Tags:["bm.axstorm","bm.axfx","bm.axsn"]}'] + [f'summon minecraft:block_display ~ ~ ~ {sb(i)}' for i in range(N)] +

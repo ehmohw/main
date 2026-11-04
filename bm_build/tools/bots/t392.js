@@ -44,9 +44,9 @@ runT({ W: 'cairn', NAME: 'The Cairn', ab: 'ax', q: 'jx', pfx: 'p268', prefix: 'a
     const MINE = '@e[type=minecraft:block_display,tag=bm.axb,tag=!bm.axencb]';
     await K.home(); await sleep(1500);
     ok('its body: 22 block displays of its own', (await cnt(MINE)) === 22, `${await cnt(MINE)}`);
-    const torso = async () => (await nbt('@e[type=minecraft:block_display,tag=bm.axb_torso,tag=!bm.axencb,limit=1]', 'block_state.Name')).replace(/"/g, '');
+    const torso = async () => (await nbt('@e[type=minecraft:block_display,tag=bm.axb_torso,tag=!bm.axencb,limit=1]', 'block_state'));
     await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sand`);
-    ok('MADE OF HERE - the floor sand: within the sampler\'s 5 s its blocks are the desert\'s (its torso a copy of sand)', await wait(9000, async () => /minecraft:sand$/.test(await torso()), 300),
+    ok('MADE OF HERE - the floor sand: within the sampler\'s 5 s its blocks are the desert\'s (its torso a copy of sand)', await wait(9000, async () => /minecraft:sand"/.test(await torso()), 300),
        await torso());
     ok('...and no real block changed: the floor still sand under it', /passed/i.test(await run(`${O}execute if block ${X} ${Y} ${Z} minecraft:sand`)));
     await run(`${O}fill ${X - 10} ${Y} ${Z - 10} ${X + 10} ${Y} ${Z + 10} minecraft:sandstone`);
