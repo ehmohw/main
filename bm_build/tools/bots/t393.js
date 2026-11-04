@@ -9,7 +9,7 @@
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p269', prefix: 'hk_', item: 'knight_token', parts: 25, figParts: 13, hp: 46, X: 19340, Z: 16000, pron: 'him',
   lookPart: 'chest', lookModel: 'hk_hollow_chest', seatPart: 'head', called: /strides back to you/, home: /his soul withdraws/, sit: /kneels on one knee/, stand: /On my feet/,
-  ways: ['The Mace', 'Hiss', 'Coil', 'The Spin', 'Broken', 'Freed'],
+  ways: ['The Mace', 'Hiss', 'Coil', 'The Spin', 'Broken', 'Companion Size', 'Freed'],
   plain: 'Palace violet', looks: ['Freed', 'Crimson Guard', 'Verdant Guard'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, num, ENC, X, Y, Z, score } = ctx; const K = kit(ctx, 'iz');
@@ -41,6 +41,7 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
   },
   abilities: async (ctx) => {
     const { ok, run, wait, num, nbt, cnt, A, sleep, PET, X, Y, Z, O, at, entOf, score, has } = ctx; const K = kit(ctx, 'iz');
+    await run('scoreboard players set TestRat bm.hxcs 0');
     const HIT = '@e[type=minecraft:interaction,tag=bm.hxhit,limit=1]';
     const D = (p) => `@e[type=minecraft:item_display,tag=bm.hxp_pet,tag=bm.hxp_${p},tag=!bm.hxfade,limit=1]`;
     const scl = async (p) => num(D(p), 'transformation.scale[0]');
@@ -80,6 +81,25 @@ runT({ W: 'knight', NAME: 'The Hollow Statue Knight', ab: 'hx', q: 'iz', pfx: 'p
     ok('SNEAK + right-click: the statue stance (sit_b - bm.hxsb)', /1b/.test(await nbt(PET, 'Sitting')) && /bm\.hxsb/.test(await nbt(PET, 'Tags')), await nbt(PET, 'Tags'));
     hb = await entOf(HIT); if (hb) A.interact(hb.entityId); await sleep(1200);
     ok('...right-clicked again: up', /0b/.test(await nbt(PET, 'Sitting')));
+    // ---- COMPANION SIZE, from his menu (as the Rat King's): the statue knights' size by default; on, host and click box shrink with
+    //      the rig - armour and serpent; kept across a send-home; and back
+    const SC = async () => num(PET, 'attributes[{id:"minecraft:scale"}].base');
+    await run('scoreboard players set TestRat bm.hxcs 0'); await sleep(800);
+    ok('COMPANION SIZE - off: the statue knights\' size (host 1.6, click box 3.0 tall, his chest at scale 1)', Math.abs((await SC()) - 1.6) < 0.01 && (await num(HIT, 'height')) > 2.8 &&
+       Math.abs((await scl('chest')) - 1.0) < 0.02, `${await SC()} / ${await num(HIT, 'height')} / ${await scl('chest')}`);
+    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion Size/); await sleep(1500);
+    ok('...pressed on his menu: on (bm.hxcs 1)', (await score('bm.hxcs')) === 1 && A.bars.some(b => /Companion Size: on/.test(b)), A.bars.slice(-1).join(''));
+    ok('...his host (0.9) and click box (1.5 tall, 0.65 wide) shrink with him', Math.abs((await SC()) - 0.9) < 0.01 && Math.abs((await num(HIT, 'height')) - 1.5) < 0.05 &&
+       Math.abs((await num(HIT, 'width')) - 0.65) < 0.05, `${await SC()} / ${await num(HIT, 'width')} x ${await num(HIT, 'height')}`);
+    ok('...the rig at half size, the serpent with it (chest 0.5, serpent 0.75)', await wait(3000, async () => Math.abs((await scl('chest')) - 0.5) < 0.02) &&
+       await (async () => { await run(`data modify entity ${PET} Health set value 10f`); return wait(4000, async () => Math.abs((await scl('s_head')) - 0.75) < 0.03); })(),
+       `${await scl('chest')} / ${await scl('s_head')}`);
+    await run(`scoreboard players set ${PET} bm.izbk 1`); await sleep(2500);
+    await ctx.sneakMenu(0); await A.press(/Send .* home/); await sleep(1500);
+    await ctx.use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(2500);
+    ok('...sent home and called again: still companion-sized', Math.abs((await SC()) - 0.9) < 0.01 && Math.abs((await num(HIT, 'height')) - 1.5) < 0.05);
+    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion Size/); await sleep(1500);
+    ok('...and off again: host 1.6, click box 3.0', (await score('bm.hxcs')) === 0 && Math.abs((await SC()) - 1.6) < 0.01 && (await num(HIT, 'height')) > 2.8, A.bars.slice(-1).join(''));
     await K.sendHome('p163/pi', 'bm.pipet', 'pi'); await K.sendHome('p170', 'bm.ompet', 'om');
     await run('clear TestRat *[minecraft:custom_data~{bm:"pi_cloche"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"om_monocle"}]');
     await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);

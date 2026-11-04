@@ -12,4 +12,4 @@ SAPLING = True
 SPAWNER = True
 CAIRN = True
 KNIGHT = True
-MIMIC = True
+MIMIC = False

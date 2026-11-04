@@ -177,7 +177,11 @@ class KnightArt(types.ModuleType):
         self.H, self.AR, self.SR = H, H.ARMOUR, H.SERPENT
         A, S = self.AR, self.SR
         self.SP = tuple(f's_{p}' for p in S.PARTS)
-        self.PREFIX, self.RIG_SCALE = 'hk_', H.COMPANION
+        # (3.1, the owner: the statue knights' own size by default - knight_art's RIG_SCALE, ~3 blocks; Companion Size, his menu's
+        #  toggle, twins it at H.COMPANION (compsize, phase269). FULL: the art's own lever if it gives one)
+        self.FULL = getattr(H, 'FULL', H.KA.RIG_SCALE)
+        self.F = self.FULL / H.COMPANION
+        self.PREFIX, self.RIG_SCALE = 'hk_', self.FULL
         self.PARTS = tuple(A.PARTS) + self.SP
         self.PIVOT = dict(A.PIVOT, **{q: (0.0, 0.0, 0.0) for q in self.SP})
         self.PARENT = dict(A.PARENT, **{q: None for q in self.SP})
@@ -203,7 +207,7 @@ class KnightArt(types.ModuleType):
         self.DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
         self.GROUPS = {}
         self.DOLL_POSE = None
-        self.FIT = (0.0, 1.5, -0.45, 0.45, -0.3, 0.35)
+        self.FIT = tuple(round(v * self.F, 3) for v in (0.0, 1.5, -0.45, 0.45, -0.3, 0.35))     # (at companion size: 1.5 tall)
 
     def _split(self, p):
         return (p[2:], True) if p.startswith('s_') else (p, False)

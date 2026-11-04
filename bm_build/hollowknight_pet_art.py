@@ -74,7 +74,7 @@ SPSKINS = {
                      'ss_mouth': ('#4a2030', '#7a3a4a', '#9a5060'), 'ss_tongue': ('#b85a7a', '#e08aa8', '#f4b8c8'),
                      'ss_fang': ('#e8dcc0', '#fff8e8'), 'ss_brow': ('#6a4a20', '#8a6a3a'), 'ss_lash': ('#5a3a14', '#6a4a20'),
                      'ss_flame': ('#d8a040', '#ffd878', '#fff0c0', '#ffffff'), 'ss_flame_core': ('#fffbe8', '#ffffff'),
-                     'wisp': ('#e8d8a8', '#fff4d8', '#fffcf0')}},
+                     'wisp': ('#e8d8a8', '#fff4d8', '#fffcf0'), 'ss_claw': ('#3a2a14', '#5a4424', '#7a6038')}},
     '_s': {'hide': '#4a3aa0', 'belly': '#b0a8f0', 'lid': '#2a1a6a', 'eye': '#f0f0ff', 'maw': '#1a0a3a', 'tongue': '#8a5ae0', 'fang': '#e8e8ff',
            'flame': '#c0c8ff', 'gleye': ('#e8e8ff', '#ffffff'), 'core': ('#e8e8ff', '#ffffff', '#c0c0ff'), 'stars': True,
            'ramps': {'ss_body': ('#120a3a', '#2a1a6a', '#4a3aa0', '#8a7ae0'), 'ss_body_dk': ('#0a0628', '#1a1050', '#2a1a6a'),
@@ -83,7 +83,7 @@ SPSKINS = {
                      'ss_mouth': ('#0a0420', '#1a0a3a', '#2a1650'), 'ss_tongue': ('#5a2ab0', '#8a5ae0', '#b08aff'),
                      'ss_fang': ('#d0d0f0', '#f4f4ff'), 'ss_brow': ('#05040c', '#12102a'), 'ss_lash': ('#05040c', '#0a0820'),
                      'ss_flame': ('#6a70e0', '#a0a8ff', '#d8dcff', '#ffffff'), 'ss_flame_core': ('#f0f0ff', '#ffffff'),
-                     'wisp': ('#8a80d0', '#b0a8f0', '#e0dcff')}},
+                     'wisp': ('#8a80d0', '#b0a8f0', '#e0dcff'), 'ss_claw': ('#06051a', '#12103a', '#24205a')}},
 }
 GA, HA, BA = 128, 220, 148                                   # (alphas: soulserp's - the hide, the lids, the belly: see-through)
 
@@ -233,7 +233,13 @@ _FLAME_C = (2.75, 2.4, 55.4)                                  # (where soulserp'
 SPV = {'root': (0, 0, 0), 'head': (0, 0, 0), 'jaw': tuple(round((_PJ[i] - _PH[i]) * K_HEAD, 3) for i in range(3)),
        'tongue': (0, 0.35, -4.4), 'mist': (0, 2, -8), **{f'b_{s}': (0, 0, 0) for s in SHAPES}}
 SPV['b_coil'] = (0, -14, 6)
-SPP = {'root': None, 'head': 'root', 'jaw': 'head', 'tongue': 'head', 'mist': 'head', **{f'b_{s}': 'root' for s in SHAPES}}
+# its arms (3.1, the owner: "the soul serpent is missing its arms"): soulserp's small arms and dark claws, at the head's scale; their
+# shoulders where the soldiers' are against the head (each shape moves them onto its own neck: ARMS_AT, by '_o_armr' / '_o_arml')
+_PAR, _PAL = SS.PIVOT['armr'], SS.PIVOT['arml']
+SPV['armr'] = tuple(round((_PAR[i] - _PH[i]) * K_HEAD, 3) for i in range(3))
+SPV['arml'] = tuple(round((_PAL[i] - _PH[i]) * K_HEAD, 3) for i in range(3))
+SPP = {'root': None, 'head': 'root', 'jaw': 'head', 'tongue': 'head', 'mist': 'head', **{f'b_{s}': 'root' for s in SHAPES},
+       'armr': 'root', 'arml': 'root'}
 SFACES = ('blink', 'happy', 'hiss', 'focus', 'hurt', 'sad', 'sleepy')
 _AF = {'blink': 'blink', 'happy': 'smug', 'hiss': 'shock', 'focus': 'smug', 'hurt': 'hurt', 'sad': 'tired', 'sleepy': 'tired'}   # (-> the family's faces)
 SERPENT = Rig('hs_', 0.75, SPV, SPP, SFACES, opt=('tongue', 'mist') + tuple(f'b_{s}' for s in SHAPES), companion=0.75)
@@ -243,7 +249,7 @@ FW, FH = 4.8, 2.9                                             # (kept: the old f
 
 _ASRC = AP.models()
 _SS_USED = {'ss_body', 'ss_body_dk', 'ss_belly', 'ss_fin', 'ss_mouth', 'ss_tongue', 'ss_fang', 'ss_eye', 'ss_lid', 'ss_brow', 'ss_lash',
-            'ss_flame', 'ss_flame_core'}
+            'ss_flame', 'ss_flame_core', 'ss_claw'}
 BASE = _soul_tex()
 STEX = {'': BASE, **{sfx: _skin_tex(BASE, sk) for sfx, sk in SPSKINS.items()}}
 for k, v in BASE.items(): S.tex(k, v)
@@ -263,7 +269,10 @@ def _head_els(face):
 S.add('head', _head_els(None))
 for _f in SFACES: S.face_els('head', _f, _head_els(_f))
 S.add('jaw', xform_els(SS._retex(_ASRC['apo_jaw'][1]), _PJ, _PH, K_HEAD, SPV['head'], SPV['jaw']))
-_FLAME = [e for e in SS.models()['ss_flame'][1] if 'ss_body_dk' not in SS._tex(e)]      # (its stem dropped: the tail tip is its stem)
+_SSM = SS.models()
+for _a, _sp in (('armr', _PAR), ('arml', _PAL)):
+    S.add(_a, xform_els(_SSM[f'ss_{_a}'][1], _sp, _PH, K_HEAD, SPV['head'], SPV[_a]))
+_FLAME = [e for e in _SSM['ss_flame'][1] if 'ss_body_dk' not in SS._tex(e)]      # (its stem dropped: the tail tip is its stem)
 # the tongue (the hiss): soulserp's long purple forked tongue, flicked straight out
 tx, ty, tz = SPV['tongue']
 S.seg('tongue', (0, ty, tz), (0, ty - 0.2, tz - 2.4), 0.5, 0.16, 'ss_tongue')
@@ -330,21 +339,35 @@ def SPZ(lift=None, **kw):
     return S.ground(kw, lift) if lift is not None else kw
 
 
+# where each shape's shoulders are (on its neck, just under the head), and the arms' turns pose by pose - soulserp's conventions:
+# x negative swings an arm forward / up, z out to its own side (armr -z, arml +z)
+ARMS_AT = {'s': (1.85, -1.7, -0.3), 'lunge': (1.8, -1.4, 1.5), 'coil': (1.9, -1.5, 1.1), 'drape': (1.8, -1.2, 1.6), 'helm': (1.8, -1.4, 1.3),
+           'dive': (1.7, -1.0, 1.8), 'peek': (1.8, -1.4, 1.5)}
+
+
+def ARMS(shape, r, l=None):
+    """the arms for a pose on this body shape: r = (x, z) turns for its right arm, l for its left (default: r mirrored)"""
+    l = l or (r[0], -r[1]); a = ARMS_AT[shape]
+    return {'_o_armr': tuple(round((a[0], a[1], a[2])[i] - SPV['armr'][i], 3) for i in range(3)),
+            '_o_arml': tuple(round((-a[0], a[1], a[2])[i] - SPV['arml'][i], 3) for i in range(3)),
+            'armr': T(r[0], 0, r[1]), 'arml': T(l[0], 0, l[1])}
+
+
 S.POSES.update({
-    'idle_a': SPZ(0.0, _show=('b_s',), head=T(4, 0, 6), jaw=T(8)),
-    'idle_b': SPZ(0.0, _show=('b_s',), _face='happy', head=T(-8, 14, -10), jaw=T(14)),
-    'hiss': SPZ(0.0, _face='hiss', _show=('b_s', 'tongue', 'mist'), head=T(-16), jaw=T(30)),
-    'strike_up': SPZ(0.0, _face='focus', _show=('b_s',), head=T(-28), jaw=T(16)),
-    'strike': SPZ(0.0, _face='hiss', _show=('b_lunge', 'tongue'), head=T(14), jaw=T(40)),
-    'coil': {'_face': 'focus', '_show': ('b_coil',), 'head': T(34)},
-    'dive': {'_face': 'focus', '_show': ('b_dive',), 'head': T(0), 'root': T(68)},
-    'peek': {'_face': None, '_show': ('b_peek',), 'head': T(6, -10, 4)},
-    'emerge': {'_face': 'happy', '_show': ('b_peek',), 'root': T(-6), 'head': T(10, 0, 8)},
-    'divein': {'_face': 'focus', '_show': ('b_dive',), 'root': T(-8), 'head': T(4)},
-    'drape': {'_face': 'sleepy', '_show': ('b_drape',), 'head': T(14, -8, 6)},
-    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(16, 34, -12)},
-    'happy': SPZ(0.0, _face='happy', _show=('b_s',), head=T(-12, 0, 10), jaw=T(12)),
-    'hurt': SPZ(0.0, _face='hurt', _show=('b_s',), head=T(-20, 20, 14), jaw=T(10)),
+    'idle_a': SPZ(0.0, _show=('b_s',), head=T(4, 0, 6), jaw=T(8), **ARMS('s', (-34, -16), (-40, 16))),
+    'idle_b': SPZ(0.0, _show=('b_s',), _face='happy', head=T(-8, 14, -10), jaw=T(14), **ARMS('s', (-44, -12), (-30, 20))),
+    'hiss': SPZ(0.0, _face='hiss', _show=('b_s', 'tongue', 'mist'), head=T(-16), jaw=T(30), **ARMS('s', (-115, -45))),
+    'strike_up': SPZ(0.0, _face='focus', _show=('b_s',), head=T(-28), jaw=T(16), **ARMS('s', (-70, -34))),
+    'strike': SPZ(0.0, _face='hiss', _show=('b_lunge', 'tongue'), head=T(14), jaw=T(40), **ARMS('lunge', (-85, -18))),
+    'coil': {'_face': 'focus', '_show': ('b_coil',), 'head': T(34), **ARMS('coil', (-58, 26))},
+    'dive': {'_face': 'focus', '_show': ('b_dive',), 'head': T(0), 'root': T(68), **ARMS('dive', (62, -6))},
+    'peek': {'_face': None, '_show': ('b_peek',), 'head': T(6, -10, 4), **ARMS('peek', (-72, 12))},
+    'emerge': {'_face': 'happy', '_show': ('b_peek',), 'root': T(-6), 'head': T(10, 0, 8), **ARMS('peek', (-66, 14))},
+    'divein': {'_face': 'focus', '_show': ('b_dive',), 'root': T(-8), 'head': T(4), **ARMS('dive', (58, -6))},
+    'drape': {'_face': 'sleepy', '_show': ('b_drape',), 'head': T(14, -8, 6), **ARMS('drape', (-22, -14))},
+    'helm': {'_face': 'happy', '_show': ('b_helm',), 'head': T(16, 34, -12), **ARMS('helm', (-30, 22))},
+    'happy': SPZ(0.0, _face='happy', _show=('b_s',), head=T(-12, 0, 10), jaw=T(12), **ARMS('s', (-70, 30), (-70, -30))),
+    'hurt': SPZ(0.0, _face='hurt', _show=('b_s',), head=T(-20, 20, 14), jaw=T(10), **ARMS('s', (-40, -60))),
 })
 S.DRAFT = ['idle_a', 'idle_b', 'hiss', 'strike_up', 'strike', 'happy', 'hurt']
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}

@@ -36,7 +36,10 @@ A0 = fol5art.get('knight')
 H, AR, SR = A0.H, A0.AR, A0.SR
 COL, LINE = S5['COL'], S5['LINE']
 ITEM = S5['item']
-CS, SS = H.COMPANION, SR.RIG_SCALE             # (the armour's size, the serpent's)
+CS = A0.FULL                                  # (the armour's size: the statue knights' own - companion size is compsize's twin)
+SS = SR.RIG_SCALE * A0.F                      # (the serpent's, with it)
+CSZ_K = round(H.COMPANION / A0.FULL, 4)
+HOST_BIG, HOST_SMALL = 1.6, 0.9                # (his host's scale: his own size, and companion)
 VISOR = (0.0, 41.9, -5.4)                     # (the eye-slit, knight_art units, on the helm - the art's own choreography sheet's)
 SHOULDER = (10.6, 37.2, -0.6)                 # (his right pauldron, on the arm: where the serpent's neck lies when he kneels)
 SH.UNSOLD.add('cos_knight_1')                 # (Freed: earned, never sold)
@@ -50,8 +53,8 @@ PEEK = ('on', 'b_peek', (0, -0.6, 7.5), 'head', VISOR, (0.0, -0.03, -0.04))
 INTO = ('on', 'root', (0, 0, 0), 'head', VISOR, (0.0, 0.03, -0.2))
 OUT_ = ('on', 'root', (0, 0, 0), 'head', VISOR, (0.0, 0.0, 0.0))
 DRAPE = ('on', 'root', (0, 0, 0), 'armr', SHOULDER, (0.0, 0.03, 0.0))
-COILD = ('on', 'b_coil', (0, -14, 6), None, (0.0, 1.02, 1.9), (0.0, 0.0, 0.0))   # (round a foe out in front of him: its coil's middle at a foe's chest height)
-BESIDE = ('at', (-0.62, 0.0, 0.85))           # (on the ground at his right front)
+COILD = ('on', 'b_coil', (0, -14, 6), None, (0.0, 1.3, 3.0), (0.0, 0.0, 0.0))   # (round a foe out in front of him: its coil's middle at a foe's chest height)
+BESIDE = ('at', (-1.2, 0.0, 1.7))           # (on the ground at his right front)
 # name: (armour pose, serpent pose or None (inside: only its eyes in the slit and the coils glimpsed through the plate), where, yaw)
 COMBO = {'idle_a': ('idle_a', None, None, 0), 'idle_b': ('idle_b', 'peek', PEEK, 0), 'idle_c': ('idle_b', 'emerge', PEEK, 0),
          'walk_0': ('walk_0', None, None, 0), 'walk_1': ('walk_1', None, None, 0), 'happy': ('wake_1', 'emerge', PEEK, 0), 'statue': ('statue', None, None, 0),
@@ -83,7 +86,9 @@ class Knight(RP.Cfg):
     EXPR = RP.Cfg.EXPR + ('hiss',)
     FACE = dict(A0.FACE_MAP, hiss='hiss')
     ATTRS = dict(armor=10, attack_damage=5, movement_speed=0.3, follow_range=32, step_height=1.1)
-    SCALE, HIT = 0.9, (0.8, 1.6)
+    SCALE, HIT = HOST_BIG, (1.3, 3.0)               # (his body and helm, the statue knights' own size; the mace swings outside it)
+    BOX_FIT = True
+    BUTTONS = ((6, 'Companion Size: on / off', 'The Knight at a companion\'s size - about your height. Off: as tall as the statue knights.', 'p269/csz/toggle'),)
     CYCLE = W5.cycle(A0, (240, [(0, 'idle_a'), (90, 'idle_b'), (150, 'idle_a'), (190, 'idle_c'), (220, 'idle_a')]), (80, [(0, 'sit_a'), (40, 'sit_a2')]),
                      (None, [(0, 'happy'), (14, 'idle_a')]),
                      {7: (None, [(0, 'swing_0'), (4, 'swing_1'), (10, 'idle_a')]), 8: (None, [(0, 'coil_go'), (6, 'coil'), (60, 'divein'), (66, 'idle_a')]),
@@ -104,6 +109,7 @@ class Knight(RP.Cfg):
               ('Coil', 'a foe 3-8 off, every 6 s: the serpent streaks to it and winds round it - Slowness III and no jumping for 3 s'),
               ('The Spin', 'charged, every minute: the giant mace swung round - 9 to every monster within 3.5'),
               ('Broken', 'under a third of his health: the armour collapses, and for 30 s the serpent fights alone (bites of 5) - then the armour stands again, healed'),
+              ('Companion Size', 'his menu: as tall as the statue knights, or about your height - his hitbox with it'),
               ('Freed', 'hand him a Totem of Undying, a golden apple in your pack and Pistachio by to serve it: the holy finish - silver, gold and a white cloak')]
     INTRO = [T('The Hollow Statue Knight', COL, bold=True), T(' - Sir Aldous Vane, Captain of Omega\'s guard, bound as a soul serpent in a statue\'s armour. ', 'gray'),
              T('"Mind the door, Pip."', LINE, italic=True)]
@@ -140,7 +146,7 @@ def _root(apz, spz, where, yaw):
     _k, sp, spt, ap, apt, nudge = where
     tgt = RK.point(AR, apz, ap, apt, scale=CS) if ap else apt          # (no armour part: a spot by him, in blocks)
     w = RK.point(SR, spz, sp, spt, scale=SS, yaw=yaw)
-    return tuple(tgt[i] + nudge[i] - w[i] for i in range(3))
+    return tuple(tgt[i] + nudge[i] * A0.F - w[i] for i in range(3))     # (the art's nudges are at companion size)
 
 
 def _turn(v, yaw):
@@ -334,6 +340,20 @@ def generate(G):
     for name in ('heap', 'happy'):
         if f'{pfx}/pose/{name}' not in G.FUNCS:
             G.FUNCS[f'{pfx}/pose/{name}'] = combo_pose(name, Knight.DUR.get(name, 6))
+    # ---- COMPANION SIZE (compsize, as the Rat King's): his rig - armour and serpent, every pose - at CSZ_K, his host and click box with
+    #      it; the owner's bm.hxcs, kept across recall
+    import compsize as CSZ
+    say = lambda txt: title('@s', 'actionbar', [T('The Hollow Statue Knight: ', COL, bold=True), T(txt, LINE)])
+    hit_small = tuple(round(v * CSZ_K, 2) for v in Knight.HIT)
+    CSZ.build(G, pfx, 'bm.hxcs', 'bm.hxcz', f'bm.{Knight.q}s', HOST_BIG, HOST_SMALL,
+              say('"At ease. I can stand a little shorter - it was never the height that held the stair." (Companion Size: on)'),
+              say('"Back to my post\'s full height. Hold the stair." (Companion Size: off)'), hit=('bm.hxhit', Knight.HIT, hit_small))
+    CSZ.LATE.append((pfx, CSZ_K, 'bm.hxcz', ()))
+    T_ = G.FUNCS[f'{pfx}/tick']
+    assert T_[0] == 'scoreboard players operation #me bm.pid = @s bm.pid', T_[0]
+    T_[1:1] = CSZ.sync(pfx, 'bm.hxcs', 'bm.hxcz', f'bm.{Knight.q}s', HOST_BIG, HOST_SMALL)
+    fn(f'{pfx}/box_fit', [f'execute if entity @s[tag=bm.hxcz] run function bm:{pfx}/box/small'])
+    fn(f'{pfx}/box/small', CSZ.resize('bm.hxhit', *hit_small))
     # ---- his displays' own models (two rigs: the armour's hk_hollow_<part>, the serpent's hs_<part> - not rigpet's <prefix><part>)
     names = {f'"bm:{A0.PREFIX}{p}"': f'"bm:{A0.model_name(p, {})}"' for p in A0.PARTS}
     for k, L in G.FUNCS.items():
