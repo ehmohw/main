@@ -480,7 +480,7 @@ def blush(im, cx, cy, w=6, col='#f6a8a0', col2=None, dots=None):
 def mouth(im, cx, y, kind='smile', col='#5a2418', tongue='#e8707a', w=4):
     """a small mouth: smile (a soft w / u), open (a little open smile with a tongue), o (surprised), flat, frown, wobble,
     grin (teeth), cat (:3)"""
-    h = w // 2
+    cx, y, w = int(cx), int(y), int(w); h = w // 2
     if kind == 'smile':
         put(im, cx - h, y, col); put(im, cx + h - 1, y, col)
         for x in range(cx - h + 1, cx + h - 1): put(im, x, y + 1, col)
