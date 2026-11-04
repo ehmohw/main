@@ -160,7 +160,7 @@ def _cairn():
     R.POSES = AR.POSES
     R.PARTS = ('eyes', 'heart')
     A = Art('cairn', R, {'happy': 'happy', 'surprised': 'blink', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'focus'},
-            (), drop=(), shiny=(None, '#c8962a', 'yellow'))
+            ('heartglow',), drop=(), shiny=(None, '#c8962a', 'yellow'))     # (a look is a whole palette of blocks (phase268); the glow round its heart takes the look's colour)
     A.FIT = AR.R.fit(AR.POSES['idle_a'])
     A.FULL = AR
     return A

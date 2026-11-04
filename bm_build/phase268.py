@@ -345,7 +345,7 @@ def _blocks(G, C):
     # ---- left without its host (sent home, fainted, gone): its blocks go, within the second, in a puff of their own dust
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:block_display,tag=bm.axb,tag=!bm.axencb] at @s run function bm:p268/orphan_q')
     fn('p268/orphan_q', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #al bm.rng 0',
-                         f'execute as {mine}[distance=..8] if score @s bm.pid = #me bm.pid run scoreboard players set #al bm.rng 1',
+                         f'execute as @e[type=minecraft:wolf,tag=bm.{ab}pet,distance=..8] if score @s bm.pid = #me bm.pid run scoreboard players set #al bm.rng 1',
                          'execute if score #al bm.rng matches 0 run function bm:p268/crumble'])
     fn('p268/crumble', ['particle minecraft:poof ~ ~0.4 ~ 0.2 0.2 0.2 0.02 3', 'kill @s'])
     G.FUNCS[f'{pfx}/fade'].append(f'execute as @e[type=minecraft:block_display,tag=bm.axb] if score @s bm.pid = #me bm.pid at @s run function bm:p268/crumble')

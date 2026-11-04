@@ -90,6 +90,7 @@ class Spawner(RP.Cfg):
 from fol5_kit import T as _T  # noqa: E402
 A0.POSES['sit_a2'] = A0.R.ground(dict(A0.POSES['sit_a'], flame=_T(0, 0, 14)))
 A0.POSES['chew2'] = dict(A0.POSES['chew'], core=_T(-6, 0, -8))
+A0.POSES['sit_b2'] = dict(A0.POSES['sit_b'], flame=_T(40), _o_core=(0, -1.5, 0))      # (turned down low: a slow flicker)
 _DOLL = 'A doll of the Spawner - a little iron cage with a smiling ember inside.'
 _eff = W5.pair_fx
 _PAIRS = {
