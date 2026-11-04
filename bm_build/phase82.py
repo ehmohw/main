@@ -300,8 +300,7 @@ def generate(G):
                       'execute as @a[distance=..64] run ' + title('@s', 'title', T('THE LANTERN GOES OUT', ORANGE, bold=True)),
                       'execute as @a[distance=..64] run ' + title('@s', 'subtitle', T('its heart still burns', 'gray', italic=True))])
     fn('p82/reward', ['scoreboard players add @s bm.salk 1', 'execute if score @s bm.salk matches 1 run function bm:p82/first',
-                      'execute store result score #r bm.rng run random value 1..100',
-                      'execute if score @s bm.salk matches 2.. if score #r bm.rng matches 1..35 run ' + give('scorching_heart'),
+                      'execute if score @s bm.salk matches 2.. run ' + give('scorching_heart'),   # (3.0j: every kill, was 35% after the first)
                       'loot give @s loot bm:p82/hoard', 'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 0.9'])
     fn('p82/first', [give('scorching_heart'), tellraw('@s', PREFIX + [T('The Scorching Heart', EMBER, bold=True),
                                                                      T(' is yours - carried, fire can\'t touch you; set down, it keeps the monsters away.', 'gray')])])
