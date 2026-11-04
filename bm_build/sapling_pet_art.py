@@ -26,7 +26,7 @@ RIG   each stage its own Rig with the same part names: body (the root), head (th
 SKINS '_sh' the SHINY "Cherry Blossom" (pink blossom, dark cherry bark, a blush-pink heartwood, the apple ripened into a cherry);
       '_aut' the cosmetic "Autumn Crown" (amber, scarlet and gold leaves; per stage)."""
 import math
-from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, bark, leaves, blade, glaze, glow, eye, blush, mouth, put,
+from fol5_kit import (Rig, hexc, mix, limb, T, cells, soft, lit, bark, leaves, foliage, blade, glaze, glow, eye, blush, mouth, put,
                       slab, stack, ball, leaf, cleaf, chain, ring)
 
 STAGES = (1, 2, 3)
@@ -34,11 +34,11 @@ FACES = ('happy', 'blink', 'focus', 'hurt', 'sleepy', 'surprised')
 SKIN_NAMES = {'_sh': 'SHINY: Cherry Blossom', '_aut': 'cosmetic: Autumn Crown'}
 
 C = dict(
-    bark=('#5e5247', '#85776a', '#a99c8c', '#c7bba9'),          # pale oak: deep, dark, base, light
-    root=('#56443a', '#76604f', '#937b66', '#ad977f'),
+    bark=('#6a5d50', '#8b7e70', '#a69a8a', '#bdb2a1'),          # pale oak: deep, dark, base, light
+    root=('#5e4c40', '#7a6555', '#937c68', '#a8927c'),
     heart=('#f3e5c9', '#fbf2df', '#e3cfac'),                      # heartwood: base, light, dark
     seed=('#ead3a4', '#f6e7c4', '#d9bd8a'),                       # the sprout's seed-coat
-    leaf=('#3f7a3e', '#5f9e4c', '#82bf62', '#b7e08a'),            # rows: dark, base, light, tip
+    leaf=('#4d8a44', '#64a250', '#80bc62', '#a8d880'),            # rows: dark, base, light, tip
     blade=('#3d743a', '#62a24e', '#86c466'),                      # one leaf: dark, base, light (vein lighter)
     coty=('#5d9a4a', '#86c25e', '#a6d877'),                       # the cotyledons: plumper, paler
     gold=('#b8800e', '#efbd2c', '#ffdf6e', '#fff6cc'),            # the pip / apple: dark, base, light, shine
@@ -126,11 +126,12 @@ def _eyes(kind, c, stage):
 
 
 # (W, H units of the face plate; eye centres; eye top row; eye w, h texels) - 4 texels a unit
-EYES = {1: (6.0, 3.8, (7, 17), 2, 7, 8), 2: (6.0, 4.4, (7, 17), 3, 8, 9), 3: (7.2, 5.4, (8, 21), 4, 9, 10)}
+EYES = {1: (6.0, 3.6, (7, 17), 2, 7, 8), 2: (6.0, 4.4, (7, 17), 3, 8, 9), 3: (7.2, 5.4, (8, 21), 4, 9, 10)}
 
 
 def _textures(c, stage):
-    t = {'bark': bark(c['bark'], 81, 4), 'barkf': bark(c['bark'], 82, 3, 1), 'root': bark(c['root'], 83, 3, 0),
+    t = {'bark': bark(c['bark'], 81, 4), 'barkf': bark(c['bark'], 82, 5, 1), 'fol': foliage(c['leaf'], 98),
+         'folt': lit(foliage(tuple(mix(v, '#fff8c0', 0.14) for v in c['leaf']), 99), 1.05, 1.0, 6), 'root': bark(c['root'], 83, 3, 0),
          'heart': _heart(c), 'seed': _seedcoat(c),
          'leaf': leaves(c['leaf'], 84), 'leaft': lit(leaves(tuple(mix(v, '#ffffff', 0.12) for v in c['leaf']), 85), 1.06, 1.0, 6),
          'blade': blade(c['blade'], 86, rim='sides'), 'coty': blade(c['coty'], 87, rim='sides'),
@@ -141,8 +142,9 @@ def _textures(c, stage):
          'green': soft(c['blade'][1], c['blade'][2], c['blade'][0], 94, 0.12),
          'earth': _earth(c), 'pebble': soft(*c['pebble'], 95, 0.2),
          'pipglow': glow((c['gold'][3], c['gold'][2], c['gold'][1]), 16),
-         'sap': glow(('#fff6cc', '#ffe070', '#f4bc2c', '#d89a14'), 16), 'sapa': glow(('#fff6cc', '#ffe070', '#f8c84a'), 16, alpha=(200, 150, 90)),
-         'petal': soft('#ffe58a', '#fff6cc', '#f2c040', 96, 0.25)}
+         'sap': glow(('#fff6cc', '#ffe070', '#f4bc2c', '#d89a14'), 16), 'sapa': glow(('#fff6cc', '#ffe070', '#f8c84a', '#f8c84a'), 16, alpha=(210, 150, 80, 0)),
+         'petal': soft('#ffe58a', '#fff6cc', '#f2c040', 96, 0.25), 'shine': soft(c['gold'][3], '#ffffff', c['gold'][3], 97, 0.3),
+         'apple': lit(soft(mix(c['gold'][1], c['gold'][2], 0.35), c['gold'][2], c['gold'][1], 100, 0.2), 1.12, 0.86, 16)}
     t['face'] = _face(None, c, stage); t['eyes'] = _eyes(None, c, stage)
     for f in FACES:
         t[f'face_{f}'] = _face(f, c, stage); t[f'eyes_{f}'] = _eyes(f, c, stage)
@@ -195,12 +197,12 @@ def sprout():
     """STAGE 1: a plump seed-bean, ~0.5 blocks to the tips of its cotyledons"""
     PIV = {'body': (0, 1.2, 0), 'head': (0, 1.2, 0), 'crown': (0, 7.6, -0.4), 'armr': (3.9, 4.6, -0.2), 'handr': (3.9, 4.6, -0.2),
            'arml': (-3.9, 4.6, -0.2), 'handl': (-3.9, 4.6, -0.2), 'legr': (1.6, 1.4, 0), 'legl': (-1.6, 1.4, 0),
-           'roots': (0, 0, -9), 'seeds': (0, 6, -4), 'sap': (0, 10, -7), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
+           'roots': (0, 0, -9), 'seeds': (0, 6, -4), 'sap': (-5, 9, -9), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
     PAR = {'body': None, 'head': 'body', 'crown': 'head', 'armr': 'head', 'handr': 'armr', 'arml': 'head', 'handl': 'arml',
            'legr': 'body', 'legl': 'body', 'roots': None, 'seeds': 'head', 'sap': None, 'aura': None, 'mound': None}
     R = _rig(1, PIV, PAR)
     # the bean: a plump capsule of slabs, its face on the flat of the wide band
-    rows = [(1.0, 1.7, 2.9, 2.5), (1.7, 2.5, 3.8, 3.2), (2.5, 6.4, 4.2, 3.5), (6.4, 7.1, 3.8, 3.2), (7.1, 7.7, 2.9, 2.5)]
+    rows = [(1.0, 1.5, 2.4, 2.0), (1.5, 2.0, 3.3, 2.8), (2.0, 2.6, 3.9, 3.3), (2.6, 6.2, 4.2, 3.5), (6.2, 6.8, 3.9, 3.3), (6.8, 7.3, 3.3, 2.8), (7.3, 7.7, 2.4, 2.0)]
     stack(R, 'head', rows, 'seed', shift=False)
     _face_plate(R, 1, 2.6, -3.5)
     # the seed-husk: a golden cup tipped back on its head like a beret, a scalloped rim, a little stalk
@@ -214,7 +216,7 @@ def sprout():
     # the shoot: a green stem out of the front of the husk, two fat cotyledons like ears, a new leaf-bud between them
     R.seg('crown', (0, 7.4, -0.5), (0.15, 9.6, -0.8), 0.7, 0.7, 'green')
     for sx in (1, -1):
-        cleaf(R, 'crown', (0.15 * sx, 9.5, -0.8), (sx * 1.0, 0.42, 0.05), 5.0, 3.0, 'coty', droop=0.16, t=0.55, tipw=0.62, base=0.35)
+        cleaf(R, 'crown', (0.15 * sx, 9.5, -0.8), (sx * 1.0, 0.95, 0.12), 4.4, 3.4, 'coty', droop=0.22, t=0.6, tipw=0.72, base=0.32, up=(0.0, 0.3, -1.0))
     cleaf(R, 'crown', (0.1, 9.6, -0.8), (0.25, 1.0, -0.25), 2.2, 1.1, 'blade', droop=0.05, t=0.25)
     cleaf(R, 'crown', (0.1, 9.6, -0.8), (-0.35, 1.0, 0.2), 1.7, 0.9, 'blade', droop=0.08, t=0.25)
     # leaf-nub hands
@@ -264,7 +266,7 @@ def sapling():
     """STAGE 2: ~0.85 blocks - a burl head with a leaf rosette, a slender ridged trunk, twig arms, root feet"""
     PIV = {'body': (0, 3.4, 0), 'head': (0, 8.7, 0), 'crown': (0, 15.0, 0.2), 'armr': (1.9, 7.9, 0), 'handr': (3.5, 6.1, -0.3),
            'arml': (-1.9, 7.9, 0), 'handl': (-3.5, 6.1, -0.3), 'legr': (1.2, 3.5, 0), 'legl': (-1.2, 3.5, 0),
-           'roots': (0, 0, -9), 'seeds': (0, 15.5, -3), 'sap': (0, 16, -8), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
+           'roots': (0, 0, -9), 'seeds': (0, 15.5, -3), 'sap': (-6, 14, -11), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
     PAR = {'body': None, 'head': 'body', 'crown': 'head', 'armr': 'body', 'handr': 'armr', 'arml': 'body', 'handl': 'arml',
            'legr': 'body', 'legl': 'body', 'roots': None, 'seeds': 'crown', 'sap': None, 'aura': None, 'mound': None}
     R = _rig(2, PIV, PAR)
@@ -281,22 +283,26 @@ def sapling():
         else: R.box('body', (x - 0.12 * (1 if x > 0 else -1), y0, z - 0.22), (x, y1, z + 0.22), 'bark')
     _knot(R, 'body', 6.6, -1.6, 1.35, 9)
     # the head: a round burl; the face on a heartwood plate under a carved bark brow
-    stack(R, 'head', [(8.6, 9.3, 3.3, 2.8), (9.3, 13.9, 4.2, 3.5), (13.9, 14.6, 3.6, 3.0), (14.6, 15.2, 2.6, 2.2)], 'bark')
+    stack(R, 'head', [(8.6, 9.0, 2.9, 2.4), (9.0, 9.4, 3.8, 3.2), (9.4, 13.8, 4.2, 3.5), (13.8, 14.4, 3.8, 3.2), (14.4, 14.9, 3.0, 2.5),
+                      (14.9, 15.2, 1.9, 1.6)], 'bark')
+    for sx in (1, -1): slab(R, 'head', 10.0, 12.8, 0.7, 'bark', 1.2, c=(sx * 4.0, -0.4))                 # (round cheeks)
     _face_plate(R, 2, 9.4, -3.5)
     _brow(R, 3.05, 13.55, -3.5, 0.55)
     R.box('head', (-3.05, 9.0, -3.62), (3.05, 9.4, -3.5), 'bark')                                             # (the chin lip)
     # a side twig off its head (its left) with one leaf - a little asymmetry
     R.seg('head', (-3.9, 12.6, 0.4), (-5.4, 13.9, 0.6), 0.45, 0.45, 'bark')
     cleaf(R, 'head', (-5.4, 13.9, 0.6), (-0.6, 0.6, -0.4), 2.2, 1.4, 'blade', droop=0.2, t=0.25)
-    # the crown: a rosette of curling leaves - six round the rim, two tall in the middle, two dipping over the brow
-    for i in range(6):
-        a = math.radians(i * 60 + 30); d = (math.cos(a), 0.85, math.sin(a))
-        cleaf(R, 'crown', (0.4 * math.cos(a), 15.0, 0.2 + 0.4 * math.sin(a)), d, 4.4, 2.0, 'blade', droop=0.32, t=0.3)
-    cleaf(R, 'crown', (0.1, 15.1, 0.2), (0.25, 1.0, 0.15), 4.2, 1.8, 'blade', droop=0.14, t=0.3)
-    cleaf(R, 'crown', (-0.1, 15.1, 0.3), (-0.35, 1.0, 0.35), 3.4, 1.6, 'blade', droop=0.18, t=0.3)
+    # the crown: the Sprout's two leaves grown up - two broad leaves up and out like ears, a tall one in the middle, two
+    #            behind, and a new curl coming
     for sx in (1, -1):
-        cleaf(R, 'crown', (sx * 0.8, 15.0, -1.2), (sx * 0.55, 0.4, -1.0), 3.0, 1.5, 'blade', droop=0.45, t=0.28)
-    R.seg('crown', (0, 14.7, 0.2), (0, 15.4, 0.2), 0.8, 0.8, 'green')
+        cleaf(R, 'crown', (sx * 0.4, 15.0, 0.0), (sx * 0.85, 1.0, -0.1), 4.4, 3.0, 'blade', droop=0.26, t=0.34, tipw=0.32, base=0.3,
+              up=(0.0, 0.25, -1.0))
+        cleaf(R, 'crown', (sx * 0.4, 15.0, 0.6), (sx * 0.55, 0.75, 0.9), 3.4, 2.3, 'blade', droop=0.3, t=0.32, tipw=0.32, base=0.3,
+              up=(0.0, 0.4, 1.0))
+    cleaf(R, 'crown', (0.0, 15.1, -0.2), (0.12, 1.0, -0.25), 4.6, 2.6, 'blade', droop=0.2, t=0.34, tipw=0.3, base=0.3, up=(0.0, 0.1, -1.0))
+    R.seg('crown', (-0.3, 15.0, 0.5), (-0.5, 16.6, 0.7), 0.4, 0.4, 'green')
+    cleaf(R, 'crown', (-0.5, 16.6, 0.7), (-0.4, 0.5, 0.6), 1.3, 1.0, 'coty', droop=0.1, t=0.25, tipw=0.6)
+    R.seg('crown', (0, 14.7, 0.2), (0, 15.4, 0.2), 0.9, 0.9, 'green')
     # twig arms: an upper twig, a forearm twig, three leaves for fingers
     for sx, a, h in ((1, 'armr', 'handr'), (-1, 'arml', 'handl')):
         ax, ay, az = PIV[a]; hx, hy, hz = PIV[h]
@@ -316,14 +322,12 @@ def sapling():
 
 
 def _knot(R, part, y, z, r, light):
-    """a knot in the bark on the front at height y: a dark rim of four boxes a hair proud, the golden pip glowing in it"""
-    R.box(part, (-r, y - r, z - 0.2), (r, y - r + 0.45, z + 0.1), 'knot')
-    R.box(part, (-r, y + r - 0.45, z - 0.2), (r, y + r, z + 0.1), 'knot')
-    R.box(part, (-r, y - r + 0.45, z - 0.2), (-r + 0.45, y + r - 0.45, z + 0.1), 'knot')
-    R.box(part, (r - 0.45, y - r + 0.45, z - 0.2), (r, y + r - 0.45, z + 0.1), 'knot')
-    R.box(part, (-r + 0.45, y - r + 0.45, z + 0.05), (r - 0.45, y + r - 0.45, z + 0.12), 'knot', faces=('north',))
-    R.box(part, (-r * 0.45, y - r * 0.45, z - 0.05), (r * 0.45, y + r * 0.45, z + 0.12), 'gold', light=light)
-    R.box(part, (-r * 0.6, y - r * 0.6, z - 0.03), (r * 0.6, y + r * 0.6, z - 0.02), 'pipglow', faces=('north',), full=True, light=light)
+    """a knot in the bark on the front at height y: a round rim of bark (eight short segs, a hair proud), a dark hollow, the
+    golden pip in it - a little ball, glowing, with a soft glow plate behind"""
+    ring(R, part, (0, y, z - 0.12), r, 8, 0.55, 0.42, 'knot', plane='xy', a0=22.5)
+    slab(R, part, y - r * 0.85, y + r * 0.85, r * 0.85, 'knot', 0.1, c=(0, z + 0.02), faces=('north',))
+    R.box(part, (-r * 0.75, y - r * 0.75, z - 0.02), (r * 0.75, y + r * 0.75, z - 0.01), 'pipglow', faces=('north',), full=True, light=light)
+    ball(R, part, (0, y, z - 0.25), r * 0.5, 'gold', 3, d=0.7, light=light)
 
 
 def _brow(R, w, y, z, h):
@@ -338,7 +342,7 @@ def spirit():
     """STAGE 3: the Tree Spirit, ~1.35 blocks to the top of its canopy"""
     PIV = {'body': (0, 4.6, 0), 'head': (0, 12.2, 0), 'crown': (0, 19.4, 0.5), 'armr': (2.9, 11.1, 0), 'handr': (5.3, 8.7, -0.4),
            'arml': (-2.9, 11.1, 0), 'handl': (-5.3, 8.7, -0.4), 'legr': (1.9, 4.7, 0), 'legl': (-1.9, 4.7, 0),
-           'roots': (0, 0, -10), 'seeds': (0, 18, -5), 'sap': (0, 22, -9), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
+           'roots': (0, 0, -10), 'seeds': (0, 18, -5), 'sap': (-7, 20, -12), 'aura': (0, 0, 0), 'mound': (0, 0, 0)}
     PAR = {'body': None, 'head': 'body', 'crown': 'head', 'armr': 'body', 'handr': 'armr', 'arml': 'body', 'handl': 'arml',
            'legr': 'body', 'legl': 'body', 'roots': None, 'seeds': 'head', 'sap': None, 'aura': None, 'mound': None}
     R = _rig(3, PIV, PAR)
@@ -362,10 +366,11 @@ def spirit():
         a = math.radians(i * 45 + 20); x, z = 3.0 * math.cos(a), 2.6 * math.sin(a)
         R.box('body', (x - 0.45, 10.6 + 0.3 * (i % 2), z - 0.45), (x + 0.45, 11.4, z + 0.45), 'moss')
     _knot(R, 'body', 8.4, -2.25, 1.45, 10)
-    for y, w, d in ((6.6, 2.1, 1.7), (7.9, 1.6, 1.3), (9.0, 1.0, 0.8)):                                       # (the Dryad's glow-mushrooms, a shelf)
-        R.box('body', (-2.6 - w, y, -0.6 - d * 0.5), (-2.5, y + 0.42, -0.6 + d * 0.5), 'mush', light=8)
-        R.box('body', (-2.6 - w * 0.72, y + 0.42, -0.6 - d * 0.35), (-2.5, y + 0.62, -0.6 + d * 0.35), 'mushlt', light=8)
-        R.box('body', (-2.6 - w + 0.2, y - 0.12, -0.6 - d * 0.42), (-2.5, y, -0.6 + d * 0.42), 'stem')
+    for y, w, d, z in ((6.4, 1.9, 2.6, -0.4), (7.9, 1.5, 2.0, 0.5), (9.2, 1.0, 1.4, -0.6)):                    # (the Dryad's glow-mushrooms, a shelf)
+        R.box('body', (-2.5 - w, y, z - d * 0.5), (-2.4, y + 0.6, z + d * 0.5), 'mush', light=8)
+        R.box('body', (-2.5 - w * 0.7, y + 0.6, z - d * 0.36), (-2.4, y + 0.9, z + d * 0.36), 'mushlt', light=8)
+        R.box('body', (-2.5 - w + 0.25, y - 0.16, z - d * 0.42), (-2.4, y, z + d * 0.42), 'stem')
+        R.box('body', (-2.5 - w - 0.12, y + 0.1, z - d * 0.3), (-2.5 - w, y + 0.5, z + d * 0.3), 'mushlt', light=8)
     # the head: big and round; the heartwood face under a carved brow
     stack(R, 'head', [(12.2, 12.9, 4.0, 3.4), (12.9, 18.7, 5.0, 4.2), (18.7, 19.4, 4.4, 3.7), (19.4, 19.9, 3.4, 2.9)], 'bark')
     _face_plate(R, 3, 13.1, -4.2)
@@ -373,38 +378,43 @@ def spirit():
     R.box('head', (-3.6, 12.7, -4.34), (3.6, 13.1, -4.2), 'bark')
     for sx in (1, -1):                                                                                       # (knobbly cheeks: a burl each side)
         slab(R, 'head', 13.8, 16.6, 0.9, 'bark', 1.3, c=(sx * 4.75, -0.6))
-    # the canopy: a terraced dome of leaves, set back a little; lighter leaves on each terrace's top
-    rows = [(18.8, 20.0, 6.6, 5.9), (20.0, 21.4, 7.3, 6.5), (21.4, 22.7, 7.0, 6.2), (22.7, 23.8, 6.1, 5.4), (23.8, 24.7, 4.8, 4.2), (24.7, 25.3, 3.2, 2.8)]
-    stack(R, 'crown', rows, 'leaf', c=(0, 0.6), top='leaft')
-    # bumps on the dome (leaf clumps a little proud), so the outline isn't a stepped cake
-    for x, y, z, r in ((4.6, 22.6, -3.2, 1.6), (-4.8, 22.2, -2.6, 1.7), (5.6, 21.6, 2.6, 1.6), (-5.4, 21.8, 3.0, 1.7), (2.0, 24.6, -2.2, 1.5),
-                       (-2.6, 24.4, 2.4, 1.5), (0.3, 22.6, 6.4, 1.6), (-1.2, 23.4, -4.4, 1.4)):
-        ball(R, 'crown', (x, y, z), r, 'leaf', 3, ry=r * 0.8, top='leaft')
+    # the canopy: a soft core dome with big leafy lobes round it (a cartoon tree's crown, not a stepped cake); lighter tops
+    rows = [(18.8, 20.0, 5.5, 5.0), (20.0, 21.4, 5.7, 5.2), (21.4, 22.8, 5.4, 4.9), (22.8, 24.0, 4.7, 4.2), (24.0, 24.8, 3.5, 3.1)]
+    stack(R, 'crown', rows, 'fol', c=(0, 0.6), top='folt')
+    for x, y, z, r, ry in ((5.0, 21.2, 0.4, 3.2, 2.7), (-5.1, 21.6, 0.9, 3.1, 2.6), (0.0, 22.6, 4.4, 3.3, 2.8), (2.4, 24.8, -0.4, 2.8, 2.3),
+                           (-2.8, 24.4, 2.0, 2.8, 2.3), (3.8, 22.8, 3.6, 2.6, 2.2), (-3.8, 23.0, -2.2, 2.6, 2.2), (3.4, 23.4, -2.8, 2.2, 1.9),
+                           (0.4, 25.6, 1.2, 2.2, 1.8), (-4.6, 21.0, -3.0, 2.0, 1.7)):
+        ball(R, 'crown', (x, y, z), r, 'fol', 5, ry=ry, top='folt', power=0.85)
     # the fringe over its brow: leaf tips hanging, alternating lengths; tufts all round the brim
-    for i in range(8):
-        x = -5.2 + i * 1.48; ln = 1.5 if i % 2 else 2.3
-        cleaf(R, 'crown', (x, 19.4, -5.6), (0.1 * (x / 5), -1.0, -0.35), ln, 1.55, 'blade', droop=0.0, t=0.3, tipw=0.35)
-    for i in range(14):
-        a = math.radians(i * 360 / 14 + 8)
-        if -0.9 < math.sin(a) < -0.45 and abs(math.cos(a)) < 0.6: continue                                 # (not in front of the face)
-        x, z = 6.9 * math.cos(a), 0.6 + 6.2 * math.sin(a)
-        cleaf(R, 'crown', (x, 19.6, z), (math.cos(a), -0.55, math.sin(a)), 2.6, 1.7, 'blade', droop=0.25, t=0.3)
+    for i in range(5):
+        x = -4.2 + i * 2.1; ln = 1.6 if i % 2 else 2.3
+        cleaf(R, 'crown', (x, 19.6, -4.85), (0.15 * (x / 5), -1.0, -0.5), ln, 2.6, 'blade', droop=0.0, t=0.34, tipw=0.42,
+              up=(0.0, 0.0, -1.0))
+    for i in range(9):
+        a = math.radians(i * 360 / 9 + 8)
+        if math.sin(a) < -0.5 and abs(math.cos(a)) < 0.75: continue                                         # (not in front of the face)
+        x, z = 6.2 * math.cos(a), 0.6 + 5.6 * math.sin(a)
+        ln = (2.0, 2.8, 2.4)[i % 3]
+        cleaf(R, 'crown', (x, 19.7 + 0.3 * (i % 2), z), (math.cos(a), -0.5 - 0.15 * (i % 3), math.sin(a)), ln, 2.4, 'blade', droop=0.2 + 0.08 * (i % 2), t=0.32, tipw=0.4)
     # on top: the sprout's curl, still there
     R.seg('crown', (0.2, 25.2, 0.6), (0.5, 26.6, 0.3), 0.5, 0.5, 'green')
     for sx in (1, -1):
         cleaf(R, 'crown', (0.5, 26.5, 0.3), (sx * 1.0, 0.45, 0.0), 2.2, 1.4, 'coty', droop=0.15, t=0.35, tipw=0.6)
     # the golden apple, hanging at its cheek: a twig from the brim, a stem, a leaf, the apple (glowing)
-    R.seg('crown', (5.4, 19.4, -3.3), (5.8, 18.1, -3.7), 0.4, 0.4, 'bark')
-    ball(R, 'crown', (5.85, 16.6, -3.75), 1.45, 'gold', 4, ry=1.35, light=10)
-    R.box('crown', (5.6, 17.85, -4.0), (6.1, 18.2, -3.5), 'root')
+    R.seg('crown', (5.3, 19.6, -3.3), (5.8, 18.1, -3.7), 0.4, 0.4, 'bark')
+    ball(R, 'crown', (5.85, 16.6, -3.75), 1.55, 'apple', 5, ry=1.45, light=3, shift=False)
+    R.box('crown', (5.05, 16.95, -5.34), (5.65, 17.45, -5.3), 'shine', faces=('north',), light=12)            # (its shine)
+    R.box('crown', (4.95, 16.45, -5.34), (5.25, 16.75, -5.3), 'shine', faces=('north',), light=12)
+    R.box('crown', (5.55, 17.9, -4.05), (6.15, 18.1, -3.45), 'husk')                                         # (the dimple)
+    R.box('crown', (5.7, 17.95, -3.9), (6.0, 18.5, -3.6), 'root')
     cleaf(R, 'crown', (5.85, 18.1, -3.75), (-0.8, 0.5, -0.4), 1.6, 1.0, 'blade', droop=0.1, t=0.22)
     # branch arms: an upper branch, the forearm, three forked twig fingers; leaf clusters at the elbow and the hand
     for sx, a, h in ((1, 'armr', 'handr'), (-1, 'arml', 'handl')):
         ax, ay, az = PIV[a]; hx, hy, hz = PIV[h]
-        chain(R, a, [(ax - sx * 0.3, ay + 0.3, az), (hx, hy, hz)], [1.35, 1.0], 'bark')
+        chain(R, a, [(ax - sx * 0.3, ay + 0.3, az), (hx, hy, hz)], [1.6, 1.2], 'bark')
         slab(R, a, ay - 0.1, ay + 0.75, 1.3, 'moss', 1.1, c=(ax - sx * 0.3, az))                         # (a moss pad on the shoulder)
         e = (hx + sx * 1.1, hy - 2.0, hz - 0.5)
-        chain(R, h, [(hx, hy, hz), e], [0.95, 0.75], 'bark')
+        chain(R, h, [(hx, hy, hz), e], [1.15, 0.85], 'bark')
         for d, L in (((sx * 0.4, -1.0, -0.5), 1.6), ((sx * 1.0, -0.5, 0.0), 1.5), ((sx * 0.0, -0.9, -1.0), 1.3)):
             m = math.sqrt(sum(v * v for v in d)); tip = tuple(e[i] + d[i] / m * L for i in range(3))
             chain(R, h, [e, tip], [0.5, 0.26], 'bark')

@@ -371,13 +371,7 @@ def generate(G):
     fn('p241/dress', ['tag @s add bm.adone', 'tag @s add bm.vorn', 'tag @s add bm.vstay', 'execute if entity @s[type=minecraft:husk] run function bm:p241/dress/trooper',
                       'data merge entity @s[type=minecraft:phantom] {size:5}'])
     fn('p241/dress/trooper', ['effect give @s minecraft:invisibility infinite 0 true', 'effect give @s minecraft:fire_resistance infinite 0 true',
-                              'tag @s add bm.adressme', 'execute summon minecraft:item_display run function bm:p241/dress/body', 'tag @s remove bm.adressme'])
-    import phase32 as P32
-    fn('p241/dress/body', ['data merge entity @s ' + snbt({'Tags': ['bm.vdisp', 'bm.vbody'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:vorn3d'}},
-                                                         'item_display': 'fixed', 'brightness': {'block': Int(13), 'sky': Int(13)}, 'teleport_duration': Int(2),
-                                                         'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
-                                                                            'translation': [F(0), F(round(-P32.HUSK_SEAT + 1.15 / 2, 3)), F(0)], 'scale': [F(1.15)] * 3}}),
-                           'ride @s mount @e[tag=bm.adressme,limit=1]'])
+                              'execute at @s run function bm:vrg/make'])      # (3.0k: the Vorn's jointed rig - vorn_rig; it used to be one stiff body that never turned)
     tick.append('execute as @e[tag=bm.avorn,tag=!bm.adone] run function bm:p241/dress')
 
     # ---- the hive's voice: one line to each player, the first time they come near

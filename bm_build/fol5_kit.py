@@ -231,7 +231,7 @@ def bark(pal, seed, w=4, knots=3, alpha=255):
             if dd < 2.3: return light
         i = x // w; xx = (x - wav[i][y]) % w
         if (x, y) in dash or (x - 1, y) in dash: return dark
-        if xx == 0: return deep if y % 5 else dark
+        if xx == 0: return dark if (y + i) % 6 else deep
         if xx == 1: return light
         if xx == w - 1: return dark
         return base
@@ -239,13 +239,35 @@ def bark(pal, seed, w=4, knots=3, alpha=255):
 
 
 def leaves(pal, seed, alpha=255):
-    """rows of overlapping leaves (pal: dark, base, light, tip): a lit tip, the base, a darker edge below - each row offset"""
+    """rows of overlapping leaves (pal: dark, base, light, tip) - scales 3 cells wide, 4 tall, each row offset: a lit tip in
+    the middle, the base, and a shadow under each leaf's two edges (so the shadow scallops instead of striping)"""
     dark, base, light, tip = pal
     def c(x, y, r):
-        k = (y + (x // 3) % 2 * 2) % 4
-        if k == 3: return dark
-        if k == 0: return tip if x % 3 == 1 else light
+        col = x % 3; k = (y + (x // 3) % 2 * 2) % 4
+        if k == 3: return dark if col != 1 else mix(base, dark, 0.4)
+        if k == 0: return tip if col == 1 else light
+        if k == 1 and col == 1: return light
         return base
+    return cells(c, seed, alpha=alpha)
+
+
+def foliage(pal, seed, step=5, alpha=255):
+    """a leafy mass seen from outside (pal: dark, base, light, tip): a soft base, and on a jittered grid single leaves - a lit
+    tip cell over a base cell, a shadow cell tucked under - so it reads as many leaves without striping or speckle"""
+    dark, base, light, tip = pal
+    rnd = random.Random(seed); lv = {}
+    for gy in range(0, 32, step):
+        for gx in range(0, 32, step):
+            x, y = gx + rnd.randrange(step - 1), gy + rnd.randrange(step - 2)
+            lv[(x, y)] = rnd.random()
+    pt = _patch(seed)
+    def c(x, y, r):
+        if (x, y) in lv: return tip if lv[(x, y)] < 0.5 else light
+        if (x - 1, y) in lv or (x + 1, y) in lv: return light if lv.get((x - 1, y), lv.get((x + 1, y), 1)) < 0.5 else base
+        if (x, y - 1) in lv: return base
+        if (x, y - 2) in lv or (x - 1, y - 2) in lv: return dark
+        k = pt[y * 4 // 32][x * 4 // 32]
+        return mix(base, dark, 0.35) if k < 0.25 else base
     return cells(c, seed, alpha=alpha)
 
 

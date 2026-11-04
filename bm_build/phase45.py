@@ -543,19 +543,10 @@ def generate(G):
     fn('p45/cecil/cast_down', [f'execute as @e[type=minecraft:item_display,tag=bm.cec_arm,distance=..3] run data merge entity @s {{start_interpolation:0,interpolation_duration:12,transformation:{{left_rotation:{snbt(q("x", 6))}}}}}'])
 
     # ------------------------------------------------------------------ the Vorn walk (and stand on the ground - the hoverboards are gone)
-    from phase32 import HUSK_SEAT
-    TS, WS = 1.15, 2.2
-    tick += ['scoreboard players add #vwt bm.rng 1', 'execute if score #vwt bm.rng matches 8.. run scoreboard players set #vwt bm.rng 0',
-             'execute if score #vwt bm.rng matches 0 as @e[type=minecraft:husk,tag=bm.vorn] run function bm:p45/vorn/step {p:"walk1"}',
-             'execute if score #vwt bm.rng matches 4 as @e[type=minecraft:husk,tag=bm.vorn] run function bm:p45/vorn/step {p:"walk2"}']
-    fn('p45/vorn/step', ['execute unless predicate bm:p21/walking run return run function bm:p45/vorn/pose {p:"stand"}', '$function bm:p45/vorn/pose {p:"$(p)"}'])
-    fn('p45/vorn/pose', ['$execute on passengers if entity @s[type=minecraft:item_display] run data modify entity @s item.components."minecraft:custom_model_data" set value {strings:["$(p)"]}'])
-    second += ['execute as @e[type=minecraft:husk,tag=bm.vtroop,tag=!bm.v224] run function bm:p45/vorn/fix_troop',
-               'execute as @e[type=minecraft:husk,tag=bm.vb_warlord,tag=!bm.v224] run function bm:p45/vorn/fix_warlord']
-    fn('p45/vorn/fix_troop', ['tag @s add bm.v224', 'execute on passengers if entity @s[tag=bm.vboard] run kill @s',
-                              f'execute on passengers if entity @s[tag=bm.vbody] run data merge entity @s {{transformation:{{translation:[0f,{round(-HUSK_SEAT + TS / 2, 3)}f,0f]}}}}'])
-    fn('p45/vorn/fix_warlord', ['tag @s add bm.v224', 'execute on passengers if items entity @s contents *[minecraft:item_model="bm:hoverboard_red"] run kill @s',
-                                f'execute on passengers if items entity @s contents *[minecraft:item_model="bm:vorn3d_warlord"] run data merge entity @s {{transformation:{{translation:[0f,{round(-HUSK_SEAT * WS + TS * WS / 2, 3)}f,0f]}}}}'])
+    # (3.0k: the two-pose flip-book every 4 ticks is gone - every Vorn husk wears a jointed rig, walked by the ground it covers: vorn_rig)
+    import vorn_rig
+    vorn_rig.generate(G)
+    # (2.24's hoverboards and one-piece bodies: vorn_rig's vrg/make takes them off as it rigs an older world's Vorn)
 
     # (2.24's patch for the notice board's old signs and floating counter slabs went with the 1.20 layout in 2.81)
     # Zorp aboard a mothership stands in front of his counter now (step him and his model two blocks across it)
@@ -736,6 +727,8 @@ def rp(R):
         R.HATS[f'vornp_{pose}'] = (vt, body + antm + wep(rifle))
         R.HATS[f'vornwp_{pose}'] = (vtr, body + antm + wep(hammer))
     R.DISPLAY_3D_EXTRA = R.DISPLAY_3D_EXTRA + ('vornp_', 'vornwp_')
+    import vorn_rig                                       # (3.0k: the Vorn's jointed rig - its eight parts, trooper and Warlord)
+    vorn_rig.rp(R)
     def post(R2):
         mdl = lambda n: {'type': 'minecraft:model', 'model': f'bm:item/{n}'}
         for item_id, pre in (('vorn3d', 'vornp'), ('vorn3d_warlord', 'vornwp')):

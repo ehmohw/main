@@ -363,9 +363,9 @@ def generate(G):
     TS = 1.15            # trooper body scale (the model is ~1.6 blocks tall at scale 1)
     trooper = {'Tags': ['bm.seen', 'bm.vorn', 'bm.vtroop'], 'Silent': B(1), 'CanPickUpLoot': B(0), 'CustomName': T('Vorn Trooper', GREEN),
                'DeathLootTable': 'bm:p32/trooper', 'Health': F(30), 'attributes': attrs(max_health=30, movement_speed=0.27, follow_range=40, attack_damage=4),
-               'active_effects': [invis, fireres], 'drop_chances': nodrop,
-               'Passengers': [disp('bm:vorn3d', TS, round(-HUSK_SEAT + TS / 2, 3), ('bm.vdisp', 'bm.vbody'))]}      # 2.24: on foot (the hoverboard is gone)
+               'active_effects': [invis, fireres], 'drop_chances': nodrop}      # (3.0k: its body is vorn_rig's jointed rig, put on at once below)
     fn('p32/spawn/trooper', ['execute unless block ~ ~ ~ #minecraft:replaceable run return 0', f'summon minecraft:husk ~ ~ ~ {snbt(trooper)}',
+                             'execute as @e[type=minecraft:husk,tag=bm.vtroop,tag=!bm.vrg,distance=..1] at @s run function bm:vrg/make',
                              'particle minecraft:end_rod ~ ~1 ~ 0.3 1 0.3 0.05 20', 'playsound minecraft:block.beacon.power_select hostile @a[distance=..32] ~ ~ ~ 0.8 1.6'])
     SS = 7                                    # (2.94: was 3 - the phantom's hitbox now spans the disc you see, not half of it)
     saucer = {'Tags': ['bm.seen', 'bm.vorn', 'bm.vsauc'], 'size': Int(SS), 'Silent': B(1), 'CustomName': T('Vorn Scout Saucer', GREEN),
@@ -388,9 +388,9 @@ def generate(G):
     fn('p32/spawn/bphantom', ['execute unless block ~ ~ ~ #minecraft:air run return 0', f'summon minecraft:phantom ~ ~ ~ {snbt(bph)}',
                               'team join bm.bio @e[type=minecraft:phantom,tag=bm.vphan,distance=..2]'])
     # every tick: displays face their mount's way; every second: aim and fire
-    tick += ['execute as @e[tag=bm.vtroop] at @s on passengers run rotate @s ~ 0',
+    tick += ['execute as @e[tag=bm.vtroop,tag=!bm.vrg] at @s on passengers run rotate @s ~ 0',       # (3.0k: a rigged Vorn turns by vorn_rig, eased)
              'execute as @e[tag=bm.vsauc] at @s on passengers run rotate @s ~ 0',
-             'execute as @e[tag=bm.vboss] at @s on passengers run rotate @s ~ 0']
+             'execute as @e[tag=bm.vboss,tag=!bm.vrg] at @s on passengers run rotate @s ~ 0']
     second += ['scoreboard players add @e[tag=bm.vtroop] bm.xat 1', 'scoreboard players add @e[tag=bm.vsauc] bm.xat 1',
                'execute as @e[tag=bm.vtroop,scores={bm.xat=3..}] at @s run function bm:p32/troop/fire',
                'execute as @e[tag=bm.vsauc,scores={bm.xat=10..}] at @s run function bm:p32/sauc/fire',   # (2.94: ten seconds between shots, not three)
@@ -428,9 +428,9 @@ def generate(G):
     warlord = {'Tags': ['bm.seen', 'bm.vorn', 'bm.vboss', 'bm.vb_warlord'], 'Silent': B(1), 'CanPickUpLoot': B(0), 'PersistenceRequired': B(1),
                'CustomName': T('The Vorn Warlord', RED, bold=True), 'CustomNameVisible': B(1), 'DeathLootTable': 'bm:p32/warlord', 'Health': F(400),
                'attributes': attrs(max_health=400, movement_speed=0.3, follow_range=64, attack_damage=10, armor=12, knockback_resistance=1.0, scale=WS),
-               'active_effects': [invis, fireres], 'drop_chances': nodrop,
-               'Passengers': [disp('bm:vorn3d_warlord', TS * WS, round(-HUSK_SEAT * WS + TS * WS / 2, 3), ('bm.vdisp',))]}
-    fn('p32/boss/warlord', [f'summon minecraft:husk ~ ~ ~ {snbt(warlord)}', 'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
+               'active_effects': [invis, fireres], 'drop_chances': nodrop}      # (3.0k: vorn_rig's rig, the Warlord's)
+    fn('p32/boss/warlord', [f'summon minecraft:husk ~ ~ ~ {snbt(warlord)}', 'execute as @e[type=minecraft:husk,tag=bm.vb_warlord,tag=!bm.vrg,distance=..1] at @s run function bm:vrg/make',
+                            'particle minecraft:explosion_emitter ~ ~1 ~ 0 0 0 0 1',
                             'playsound minecraft:entity.wither.spawn hostile @a[distance=..64] ~ ~ ~ 0.8 1.4',
                             'team join bm.vornred @e[tag=bm.vb_warlord,distance=..3]',
                             'title @a[distance=..64] times 10 50 15', title('@a[distance=..64]', 'subtitle', T('Breaker of Worlds', 'gray', italic=True)),
