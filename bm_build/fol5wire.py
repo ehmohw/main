@@ -142,9 +142,10 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
         G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {ft} dummy']
         G.OBJECTIVES.append(ft)
         L = len(models) * every
-        fn(f'{pfx}/frame/tick', ([f'scoreboard players add @s {ft} 1', f'execute if score @s {ft} matches {L}.. run scoreboard players set @s {ft} 0'] if models else []) +
+        fn(f'{pfx}/frame/tick', ([f'execute unless score @s {ft} matches 0.. run scoreboard players set @s {ft} 0'] if models else []) +
            [f'execute if score @s {ft} matches {i * every} run data modify entity @s Item.components."minecraft:item_model" set value "bm:{m}"' for i, m in enumerate(models)] +
-           list(frame.get('tick', [])))
+           list(frame.get('tick', [])) +
+           ([f'scoreboard players add @s {ft} 1', f'execute if score @s {ft} matches {L}.. run scoreboard players set @s {ft} 0'] if models else []))
         R_ = G.FUNCS['p68/rot']
         k = R_.index('tag @a[tag=bm.ffsn] remove bm.ffsn')
         R_.insert(k, f'execute if score @e[type=minecraft:armor_stand,tag=bm.ffas,limit=1] bm.ffk matches {n} run function bm:{pfx}/frame/click')

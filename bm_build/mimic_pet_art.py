@@ -43,11 +43,11 @@ E = 0.03                                # (the lid a hair proud of the body, so 
 
 PIVOT = {'body': (0, Y0, 0), 'lid': (0, LY0, D), 'tongue': (0, 9.4, 2.0), 'tonguel': (0, 9.4, 2.0),
          'ffr': (4.9, Y0, -4.9), 'ffl': (-4.9, Y0, -4.9), 'fbr': (4.9, Y0, 4.9), 'fbl': (-4.9, Y0, 4.9),
-         'coins': (0, 12, -10), 'gulp': (0, 8, 0), 'aura': (0, 0, 0)}
+         'coins': (0, 12, -10), 'gulp': (0, 8, 0), 'aura': (0, 0, 0), 'doll': (0, 1.4, 0), 'dolllid': (0, 9.0, 6.7)}
 PARENT = {'body': None, 'lid': 'body', 'tongue': 'body', 'tonguel': 'body', 'ffr': 'body', 'ffl': 'body', 'fbr': 'body', 'fbl': 'body',
-          'coins': None, 'gulp': 'body', 'aura': None}
+          'coins': None, 'gulp': 'body', 'aura': None, 'doll': None, 'dolllid': 'doll'}
 FACES = ('disg', 'happy', 'greedy', 'fierce', 'blink', 'hurt', 'sleepy')
-R = Rig('mm_', 1.0, PIVOT, PARENT, FACES, face_part='lid', opt=('tonguel', 'coins', 'gulp', 'aura'))
+R = Rig('mm_', 1.0, PIVOT, PARENT, FACES, face_part='lid', opt=('tonguel', 'coins', 'gulp', 'aura', 'doll', 'dolllid'))
 FEET = ('ffr', 'ffl', 'fbr', 'fbl')
 SKIN_NAMES = {'_sh': 'SHINY: Voidbox (ender-chest style)', '_crate': 'cosmetic: Trapped Chest', '_gild': 'cosmetic: Christmas Chest'}
 
@@ -64,6 +64,7 @@ SK = {'_sh': dict(van='ender', hue=0.77, gum=('#0a0820', '#181a40', '#2a2a6a'), 
 
 # the face: an eye overlay on the lid's front, either side of the latch: 12 x 3.5 units (48 x 14 texels); eyes 12 x 13 at 12, 36
 FW, FH = 12.0, 3.5
+DFW, DFH, DEYC = 14.4, 6.4, (14, 44)          # (the doll's eye window on its lid front: 57.6 x 25.6 texels; eyes 18 x 19 at 14, 44)
 EYC, EYY, EYW, EYH = (12, 36), 1, 12, 13
 
 
@@ -153,6 +154,15 @@ def _eyes(kind, c):
     return im
 
 
+def _deyes(c):
+    """the doll's eyes: two big glossy all-iris kawaii eyes (sclera=False) and a blush under each, on the doll lid's front"""
+    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
+    for i, cx in enumerate(DEYC):
+        eye(im, cx, 3, 18, 19, i == 1, None, iris=c['iris'], lash=c['lash'], pupil='#1a0a00', sclera=False, irk=0.62)
+        blush(im, cx + (-5 if i == 0 else 5), 23, 6, '#f08a8a')
+    return im
+
+
 def textures(c):
     ch = chest_tex(c['van'], c.get('hue'))
     c = dict(c, _pal=chest_pal(ch)); seam, dk, base, lt = c['_pal']
@@ -163,7 +173,7 @@ def textures(c):
          'tongue': glaze(c['tongue'], 11, 3), 'gold': glaze((c['gold'][0], c['gold'][1], c['gold'][2], c['gold'][3]), 12, 2),
          'gem': soft(c['gem'], mix(c['gem'], '#ffffff', 0.5), mix(c['gem'], '#000000', 0.3), 13, 0.3),
          'ruby': soft(c['ruby'], mix(c['ruby'], '#ffffff', 0.5), mix(c['ruby'], '#000000', 0.3), 14, 0.3),
-         'brass': metal(c['brass'], 7), 'grip': soft('#4a2a14', '#6a4020', '#2a1608', 17, 0.2), 'eyes': _eyes(None, c)}
+         'brass': metal(c['brass'], 7), 'grip': soft('#4a2a14', '#6a4020', '#2a1608', 17, 0.2), 'eyes': _eyes(None, c), 'deyes': _deyes(c)}
     for f in FACES: t[f'eyes_{f}'] = _eyes(f, c)
     return t
 
@@ -247,6 +257,31 @@ for i in range(10):
     if i % 2: B('aura', (x * 0.85 - 0.25, y + 2.0, z * 0.85 - 0.25), (x * 0.85 + 0.25, y + 2.5, z * 0.85 + 0.25), 'tooth', light=14)
 
 
+# ---- THE DOLL (opt parts 'doll' + 'dolllid', shown only by the 'doll' pose; Cecil's doll is baked from it): a chibi chest - the
+# body squat (8.2 of 14) under a big lid (6.4, a hair wider, a rounded cap on top) joined at the hinge and ajar, so the teeth peek
+# out; big glossy kawaii eyes with a blush, a blep of tongue over the rim, four tiny feet. The same vanilla texture and uv.
+DY0, DY1, DL0, DL1 = 1.4, 9.6, 9.0, 15.4
+B('doll', (-W, DY0, -6.5), (W, DY1, 6.5), 'chest', faces=('north', 'south', 'east', 'west', 'down'), uv=UV_BODY)
+B('doll', (-W + 0.7, DY1 - 0.4, -5.8), (W - 0.7, DY1 - 0.2, 5.8), 'gum', faces=('up',))
+for a, b, f in (((-W + 0.02, DY1 - 2.0, -6.48), (W - 0.02, DY1, -5.8), 'south'), ((-W + 0.02, DY1 - 2.0, -5.8), (-W + 0.7, DY1, 5.8), 'east'),
+                ((W - 0.7, DY1 - 2.0, -5.8), (W - 0.02, DY1, 5.8), 'west'), ((-W + 0.02, DY1 - 2.0, 5.8), (W - 0.02, DY1, 6.48), 'north')):
+    e = B('doll', a, b, 'gum', faces=(f, 'up')); e['faces']['up']['texture'] = '#rim'
+teeth('doll', DY1, True, [(-5.2 + i * 1.73, -6.0, (1.15 if i in (0, 6) else 0.85)) for i in range(7)])
+R.seg('doll', (2.9, DY1 - 0.1, -3.6), (3.0, DY1 + 0.15, -6.7), 2.1, 0.6, 'tongue', ext=0.1)             # (a blep, over the rim)
+R.seg('doll', (3.0, DY1 + 0.1, -6.8), (3.1, DY1 - 1.6, -7.05), 2.0, 0.5, 'tongue', ext=0.15)
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        x, z = sx * 4.9, sz * 4.4
+        B('doll', (x - 1.1, 0.0, z - 1.1), (x + 1.1, DY0 + 0.2, z + 1.1), 'dark')
+        B('doll', (x - 0.9, 0.0, z - 1.6), (x + 0.9, 0.6, z - 1.1), 'dark')
+B('dolllid', (-W - 0.2, DL0, -6.7), (W + 0.2, DL1, 6.7), 'chest', uv=UV_LID)
+B('dolllid', (-W + 0.5, DL1, -6.0), (W - 0.5, DL1 + 0.5, 6.0), 'chest', uv={**UV_LID, 'up': UV_LID['up']})    # (the rounded cap)
+B('dolllid', (-W + 0.7, DL0 - 0.04, -6.0), (W - 0.7, DL0 - 0.02, 6.0), 'throat', faces=('down',))
+B('dolllid', (-1.2, DL0 - 1.8, -7.8), (1.2, DL0 + 2.6, -6.7), 'chest', uv=UV_LOCK, faces=('north', 'east', 'west', 'up', 'down'))
+B('dolllid', (-DFW / 2, DL0 + 0.0, -6.76), (DFW / 2, DL0 + DFH, -6.74), 'deyes', faces=('north',), uv={'north': [0, 0, DFW, DFH]}, light=8)
+teeth('dolllid', DL0, False, [(-4.4 + i * 1.76, -5.9, 0.8 + 0.15 * (i % 2)) for i in range(6)])
+
+
 # ---------------------------------------------------------------------------------------------------- poses
 def P(lift=0.0, **kw):
     return R.ground(kw, lift)
@@ -279,10 +314,17 @@ POSES.update({
     'tantrum': P(lift=3.5, _face='fierce', lid=lid(55), body=T(10, 20, -14), ffr=T(-40), fbl=T(30)),
     'hurt': P(_face='hurt', lid=lid(22), body=T(-14, 0, 10)),
     'aura': P(_face='happy', _show=('aura',), lid=lid(20)),
+    # the doll's source (dolls_bake reads it; never shown in play): the chibi chest alone, lid ajar on its teeth
+    'doll': P(_show=('doll', 'dolllid'), _hide=('body', 'lid', 'tongue') + FEET, dolllid=lid(13)),
 })
 DRAFT = ['disguise', 'idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'sit_a', 'sit_b', 'snap_up', 'snap', 'swallow', 'gulp', 'spit',
          'stash', 'tantrum', 'hurt', 'aura']
 R.DRAFT = DRAFT
-DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
-DOLL_GROUPS = {'lid': 'head', 'body': 'body', 'tongue': 'body', 'ffr': 'legs', 'ffl': 'legs', 'fbr': 'legs', 'fbl': 'legs'}
+# THE DOLL: baked from the 'doll' pose (DOLL_POSE), not idle_a. Its chibi proportions are in its own geometry (the big lid, the squat
+# body, the big eyes, the tiny feet), and the whole chest is ONE 'head' mass (DOLL_GROUPS), so the default warp grows lid and body
+# together, joined at the hinge (warping the lid alone blew it up off the body). width/height: dolls_bake's fit, so it stands in its
+# own shelf slot (0.72 blocks) the size of the dolls beside it (Cecil 10 wide, the Gem 9; about 11 x 12 here).
+DOLL_POSE = 'doll'
+DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62, 'width': 11.0, 'height': 12.5}
+DOLL_GROUPS = {'doll': 'head', 'dolllid': 'head'}
 SHINY = 'Shiny Voidbox'
