@@ -543,10 +543,10 @@ POSES.update({
                 neck1=T(12, 4), neck2=T(8), neck3=T(4), head=T(-10), neckb=T(0, -6, 10), headb=T(10, 10, 0)),
     'walk_3': P(_face='narrowed', **FOLD, body=T(8), legr=limb(1, 4), legl=limb(-1, 4), neck1=T(16), neck2=T(6), head=T(-12), neckb=T(4, 0, 14)),
     # THE ROAR (its entrance, and the turn's last beat): reared up, both heads high, every jaw open, the wings flung wide
-    'roar': P(_face='wide', _show=('shriek',), body=T(-10), neck1=T(-16), neck2=T(-8), neck3=T(-6), head=T(-24), jaw=T(38),
+    'roar': P(_face='wide', _show=('shriek',), body=T(-10), neck1=T(-6), neck2=T(-10), neck3=T(-10), head=T(-20), jaw=T(38),
               neckb=T(-20, 10, 28), headb=T(-30, 30, 0), wr=limb(1, 10, 18, -10), wl=limb(-1, 10, 18, -10)),
     # DREAD BEAM: it draws its head back (the brow-eye kindling, 20 ticks) - then the beam (40 ticks, sweeping 60 deg)
-    'beam_up': P(_face='narrowed', **HALF, neck1=T(-18), neck2=T(-14), neck3=T(-10), head=T(10), neckb=T(-10, 0, 30), headb=T(0, 40)),
+    'beam_up': P(_face='narrowed', **HALF, body=T(-6), neck1=T(-6), neck2=T(-12), neck3=T(-12), head=T(14), neckb=T(-10, 0, 30), headb=T(0, 40)),
     'beam': P(_face='wide', _show=('beam',), **HALF, body=T(4), neck1=T(8), neck2=T(4), neck3=T(0), head=T(6), neckb=T(-6, 0, 10), headb=T(-10, 50)),
     # THE SHRIEK: the honk, gone wrong (wind-up 10, the shriek 4, held 10)
     'shriek': P(_face='wide', _show=('shriek',), body=T(4), neck1=T(20), neck2=T(-4), neck3=T(-6), head=T(-16), jaw=T(40),
@@ -555,13 +555,13 @@ POSES.update({
     'slam_up': P(_face='wide', body=T(-12), neck1=T(-10), neck2=T(-4), head=T(-8), wr=limb(1, 0, 60, -20), wl=limb(-1, 0, 60, -20), wr2=T(0, 0, 30), wl2=T(0, 0, -30)),
     'slam': P(_face='narrowed', body=T(16), neck1=T(26), neck2=T(10), head=T(-20), jaw=T(20), wr=limb(1, 20, -36, -30), wl=limb(-1, 20, -36, -30), wr2=T(0, 30, -30), wl2=T(0, -30, 30)),
     # THE LUNGE: the long neck strikes like a snake (wind-up 8, strike 3, recover 10) - the second head hissing the other way
-    'bite_up': P(_face='narrowed', **HALF, neck1=T(-24), neck2=T(-20), neck3=T(-10), head=T(20), jaw=T(10), neckb=T(10, 0, 30), headb=T(0, 60)),
+    'bite_up': P(_face='narrowed', **HALF, body=T(-8), neck1=T(-8), neck2=T(-16), neck3=T(-14), head=T(24), jaw=T(10), neckb=T(10, 0, 30), headb=T(0, 60)),
     'bite': P(_face='wide', **HALF, body=T(12), neck1=T(46), neck2=T(16), neck3=T(4), head=T(-30), jaw=T(42), neckb=T(-10, 0, 46), headb=T(-10, 60)),
     # DREAD EGGS (its parody of phase 1's egg drop): it rears, and the eggs are round it
     'eggs': P(_face='narrowed', _show=('eggs',), **HALF, body=T(-6), neck1=T(-8), head=T(-6)),
     # THE UNLUCKY: it spreads its wings over you and the sigil burns under everyone (luck inverted - see the doc)
     'curse': P(_face='wide', _show=('curse',), body=T(-8), neck1=T(-12), neck2=T(-6), head=T(16), wr=limb(1, 0, 30, -30), wl=limb(-1, 0, 30, -30), wr2=T(0, -20), wl2=T(0, 20)),
-    'hurt': P(_face='hurt', **HALF, body=T(-14, 0, 8), neck1=T(-20, 0, -14), neck2=T(-10), head=T(-14), jaw=T(30), neckb=T(-20, 0, 30)),
+    'hurt': P(_face='hurt', **HALF, body=T(-14, 0, 8), neck1=T(-6, 0, -12), neck2=T(-10), neck3=T(-8), head=T(-12), jaw=T(30), neckb=T(-20, 0, 30)),
     # TIRED / THE DEFEAT: down on its breast, wings fallen open, the heads low - and the shard tumbling out of its crown
     'tired': P(_face='dim', body=T(14), legr=limb(1, 60), legl=limb(-1, 60), neck1=T(40), neck2=T(20), neck3=T(10), head=T(-10),
                neckb=T(30, 0, 30), headb=T(20), wr=limb(1, 10, -20, 10), wl=limb(-1, 10, -20, 10), wr2=T(0, 20, -20), wl2=T(0, -20, 20)),
