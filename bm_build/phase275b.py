@@ -186,7 +186,7 @@ def build(G, X, C):
     A1 = {1: 'honk', 2: 'charge', 3: 'eggs', 4: 'slap', 5: 'coin'}
     A2 = {11: 'beam', 12: 'shriek', 13: 'slam', 14: 'lunge', 15: 'curse'}
     DUR = {1: 18, 2: 40, 3: 24, 4: 14, 5: 26, 11: 60, 12: 34, 13: 30, 14: 24, 15: 116}
-    for n, (lo, hi, CD) in ((1, (1, 5), (40, 60)), (2, (11, 15), (50, 70))):
+    for n, (lo, hi), CD in ((1, (1, 5), (40, 60)), (2, (11, 15), (50, 70))):
         fn(f'p275g/pick{n}', [f'execute store result score #r bm.rng run random value {lo}..{hi}',
                               'execute if score #r bm.rng = @s bm.gdl run scoreboard players add #r bm.rng 1',
                               f'execute if score #r bm.rng matches {hi + 1} run scoreboard players set #r bm.rng {lo}',
