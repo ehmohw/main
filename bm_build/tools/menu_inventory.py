@@ -80,6 +80,21 @@ def reached(F, rows, R):
     return seen
 
 
+def lint(dp):
+    """(3.0k) the proposal's rules, as warnings: a static dialog with more than 12 buttons, one with no way out (no exit and no
+    « button), a follower-menu verb without a tooltip - counts, and the worst offenders"""
+    F, D = BT.load(dp)
+    big, noexit, notip = [], [], 0
+    for name, L in F.items():
+        for l in L:
+            if 'dialog show' not in l or 'multi_action' not in l: continue
+            n = len(BT.ACT.findall(l))
+            if n > 12 and '$(acts)' not in l: big.append((n, name))
+            if 'exit_action' not in l and '\u00ab' not in l and '«' not in l: noexit.append(name)
+    big.sort(reverse=True)
+    return dict(over_12=len(big), worst=[f'{n} {f}' for n, f in big[:5]], no_way_out=len(set(noexit)))
+
+
 def _scope(r):
     t = (r['title'] or '') + ' ' + r['fn']
     if WARDROBE_FN.match(r['fn']) or 'wardrobe' in t.lower(): return 'wardrobes'

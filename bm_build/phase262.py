@@ -288,9 +288,10 @@ def _encounter(G, X):
                                 f'execute if score #n bm.rng matches ..{k - 1} run return run ' + rsay(f'"{nm}? You haven\'t got {nm.lower()}. Don\'t waste a king\'s time."'),
                                 f'clear @s {what} {k}', 'tag @s add bm.rwpaid', 'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 1 0.6',
                                 'playsound minecraft:block.chain.place player @s ~ ~ ~ 1 1.4', rchat([q(line)]),
-                                f'execute as {here} at @s run function bm:p262/pose_at {{p:"cut"}}', 'function bm:p262/sh/begin'])
-    fn('p262/pose_at', ['execute as @e[type=minecraft:item_display,tag=bm.rwencp,distance=..6] run tag @s add bm.rwsel',
-                        '$function bm:p262/pose/$(p)', 'tag @e[tag=bm.rwsel] remove bm.rwsel'])
+                                f'execute as {here} at @s run function bm:p262/pose_at/cut', 'function bm:p262/sh/begin'])
+    for name in ('cut', 'bow'):
+        fn(f'p262/pose_at/{name}', ['execute as @e[type=minecraft:item_display,tag=bm.rwencp,distance=..6] run tag @s add bm.rwsel',
+                                    f'function bm:p262/pose/{name}', 'tag @e[tag=bm.rwsel] remove bm.rwsel'])
     # ---- THE SHELL OF RATS (the hall's interaction keeps the game: bm.qwg its stage - 2 the reveal, 3 the shuffle, 4 your pick, 5 won;
     #      bm.qwgt its clock, bm.qwth the thief's place, bm.qwo whose game; the rats keep their place in bm.qwsl, the five cups too)
     ratd = lambda i: {'Tags': ['bm.rwsr', 'bm.rwshell'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:rat3d_grey'}},
@@ -346,8 +347,8 @@ def _encounter(G, X):
                             'scoreboard players operation #o bm.rng = @s bm.qwo',
                             'execute as @a[distance=..24] if score @s bm.pid = #o bm.rng run ' + rsay('"Well? Which one? Go on - give the thief a good poke."')])
     # (a poke: the cup tells its place; the one who poked is asked)
-    X.fast += ['execute as @e[type=minecraft:interaction,tag=bm.rwcup] if data entity @s attack run function bm:p262/sh/poked',
-               'execute as @e[type=minecraft:interaction,tag=bm.rwcup] if data entity @s interaction run function bm:p262/sh/poked']
+    X.fast += ['execute as @e[type=minecraft:interaction,tag=bm.rwcup] if data entity @s attack at @s run function bm:p262/sh/poked',
+               'execute as @e[type=minecraft:interaction,tag=bm.rwcup] if data entity @s interaction at @s run function bm:p262/sh/poked']
     fn('p262/sh/poked', ['scoreboard players operation #pk bm.rng = @s bm.qwsl', 'execute on attacker run function bm:p262/sh/pick',
                          'execute on target run function bm:p262/sh/pick', 'data remove entity @s attack', 'data remove entity @s interaction'])
     fn('p262/sh/pick', [f'execute unless score {here} bm.qwg matches 4 run return 0', f'execute unless score {here} bm.qwo = @s bm.pid run return 0',
@@ -361,7 +362,7 @@ def _encounter(G, X):
                          'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 0.8 0.7', 'playsound minecraft:block.chain.break player @s ~ ~ ~ 1 1.2',
                          rchat([T('(the thief coughs up the coin; he catches it without looking, bites it, and - for the first time - looks straight at you) ', 'gray', italic=True),
                                 q('"Sharp eyes. I like sharp eyes. Very well - you\'re on my books."')]),
-                         f'execute as {here} at @s run function bm:p262/pose_at {{p:"bow"}}'])
+                         f'execute as {here} at @s run function bm:p262/pose_at/bow'])
     fn('p262/sh/won_tick', ['execute if score @s bm.qwgt matches 10 run function bm:p262/sh/clear',
                             'execute if score @s bm.qwgt matches 40.. run function bm:p262/sh/give'])
     fn('p262/sh/give', ['scoreboard players set @s bm.qwg 0', 'scoreboard players operation #o bm.rng = @s bm.qwo', 'tag @s add bm.rwhere',
@@ -428,7 +429,7 @@ def generate(G):
                      f'execute positioned {LAND[0]} {LAND[1]} {LAND[2]} run particle minecraft:large_smoke ~ ~1 ~ 0.5 1 0.5 0.03 30',
                      f'execute positioned {LAND[0]} {LAND[1]} {LAND[2]} run playsound minecraft:block.gravel.fall player @a[distance=..24] ~ ~ ~ 1 0.6',
                      title('@s', 'actionbar', T('The Counting House.', COL, bold=True))])
-    second.append(f'execute in minecraft:overworld positioned {HOLE[0]} {HOLE[1]} {HOLE[2]} as @a[distance=..1.3] run function bm:p262/up')
+    second.append(f'execute in minecraft:overworld positioned {HOLE[0]} {HOLE[1]} {HOLE[2]} as @a[distance=..1.3] at @s run function bm:p262/up')
     fn('p262/up', ['execute store result storage bm:p262 up.x int 1 run scoreboard players get @s bm.rwbx',
                    'execute store result storage bm:p262 up.y int 1 run scoreboard players get @s bm.rwby',
                    'execute store result storage bm:p262 up.z int 1 run scoreboard players get @s bm.rwbz',
@@ -525,7 +526,7 @@ def _room():
           f'setblock {CX - 1} {y0 + 1} {CZ - 1} minecraft:candle[candles=2,lit=true]']
     # light: lanterns from the ceiling, candles in the corners, and the room's own unseen light
     for dx, dz in ((-4, -2), (4, -2), (-4, 4), (4, 4), (0, 2)):
-        L += [f'setblock {CX + dx} {y1} {CZ + dz} minecraft:chain', f'setblock {CX + dx} {y1 - 1} {CZ + dz} minecraft:lantern[hanging=true]']
+        L += [f'setblock {CX + dx} {y1} {CZ + dz} minecraft:iron_chain', f'setblock {CX + dx} {y1 - 1} {CZ + dz} minecraft:lantern[hanging=true]']
     for x, z in ((x0, z0 + 1), (x1, z0 + 1), (x0, z1 - 1), (x1, z1 - 1)):
         L.append(f'setblock {x} {y0} {z} minecraft:candle[candles=4,lit=true]')
     for dx, dz in ((-3, 3), (3, 3), (0, 6), (-6, 0), (6, 0), (0, -2)):
