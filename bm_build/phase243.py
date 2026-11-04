@@ -35,6 +35,7 @@ class Vexis(RP.Cfg):
     FACE = {'happy': 'soft', 'surprised': 'wide', 'hurt': 'dim', 'sleepy': 'closed', 'blink': 'closed', 'squint': 'narrowed', 'serious': 'narrowed'}
     ATTRS = dict(armor=10, attack_damage=6, movement_speed=0.36, follow_range=32, step_height=1.1)
     SCALE, HIT = 1.1, (1.0, 2.3)
+    BOX_FIT = True               # (3.0k: its hitbox follows its size - companion, or a full form: p243/box_fit)
     SWAP = tuple(VA.PARTS)                      # (every part: none of its models is a plain 'vx_<part>')
     SWAP_START = True
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (120, 'idle_b')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
@@ -236,6 +237,7 @@ def _forms(G):
                     'execute unless score @s bm.xbuk = #ub bm.rng run scoreboard players set @s bm.xbus -1',
                     'execute unless score @s bm.xbuk = #ub bm.rng run function bm:p243u/changed',
                     'scoreboard players operation @s bm.xbuk = #ub bm.rng',
+                    'execute if entity @s[tag=bm.xbfit] run function bm:p243/box_fit',
                     'scoreboard players set #us bm.rng 0'] +
        [f'execute if score @s bm.qxs matches {r} run scoreboard players set #us bm.rng {st}' for st, r in WAR_OF] +
        ['execute if score #us bm.rng = @s bm.xbus run scoreboard players add @s bm.xbuf 1', 'execute unless score #us bm.rng = @s bm.xbus run scoreboard players set @s bm.xbuf 0',
@@ -243,7 +245,7 @@ def _forms(G):
        [f'execute if score #ub bm.rng matches {k} run function bm:p243u/{tag}/anim' for k, tag in keys] +
        [f'execute if score #ub bm.rng matches {k} rotated as @s rotated ~ 0 run function bm:p243u/{tag}/place' for k, tag in keys] +
        ['tag @e[tag=bm.xbusel] remove bm.xbusel'])
-    fn('p243u/changed', ['particle minecraft:electric_spark ~ ~2 ~ 1 1.5 1 0.3 60', 'particle minecraft:reverse_portal ~ ~1.5 ~ 1 1 1 0.2 60',
+    fn('p243u/changed', ['tag @s add bm.xbfit', 'particle minecraft:electric_spark ~ ~2 ~ 1 1.5 1 0.3 60', 'particle minecraft:reverse_portal ~ ~1.5 ~ 1 1 1 0.2 60',
                          'playsound minecraft:block.beacon.power_select neutral @a[distance=..24] ~ ~ ~ 1 0.8',
                          'execute if score #ub bm.rng matches 3 run playsound minecraft:block.beacon.activate neutral @a[distance=..32] ~ ~ ~ 1.5 0.5',
                          'execute if score #ub bm.rng matches 2..3 run playsound minecraft:entity.iron_golem.repair neutral @a[distance=..24] ~ ~ ~ 1 0.6'])
@@ -252,7 +254,18 @@ def _forms(G):
                              'scoreboard players set @s bm.xbuk -1'])
     fn('p243u/off', ['execute as @e[type=minecraft:item_display,tag=bm.xbu] if score @s bm.pid = #me bm.pid run kill @s',
                      'execute as @e[type=minecraft:item_display,tag=bm.xbsel] run data modify entity @s view_range set value 1.6f',
-                     'particle minecraft:reverse_portal ~ ~1.5 ~ 1 1 1 0.2 60', 'scoreboard players set @s bm.xbuk -1'])
+                     'particle minecraft:reverse_portal ~ ~1.5 ~ 1 1 1 0.2 60', 'scoreboard players set @s bm.xbuk -1', 'function bm:p243/box_fit'])
+    # (3.0k) THE HITBOX FOLLOWS THE SIZE (compsize.resize): at a companion's size, its own; a form at full size (bm.xbuk odd: form * 2
+    #  + 1), as vast as it stood against you - its click box and its host grown by the form's full / companion ratio (its host to 3.0
+    #  at most, the most a follower may be among us; the click box to 3 across)
+    import compsize as CS
+    fit = ['tag @s remove bm.xbfit']
+    for i, f in FORMS.items():
+        r = _size(f, True) / _size(f, False)
+        fit.append(f'execute if score @s bm.xbuk matches {i * 2 + 1} run return run function bm:p243/box/{f}')
+        fn(f'p243/box/{f}', CS.resize('bm.xbhit', round(min(3.0, Vexis.HIT[0] * r), 2), round(Vexis.HIT[1] * r, 2), scale=round(min(3.0, Vexis.SCALE * r), 2)))
+    fn('p243/box_fit', fit + ['function bm:p243/box/own'])
+    fn('p243/box/own', CS.resize('bm.xbhit', *Vexis.HIT, scale=Vexis.SCALE))
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.xbu] unless function bm:p243u/has run kill @s')
     fn('p243u/has', ['scoreboard players operation #me2 bm.pid = @s bm.pid',
                      'execute as @e[type=minecraft:wolf,tag=bm.xbpet] if score @s bm.pid = #me2 bm.pid run return 1', 'return 0'])

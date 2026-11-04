@@ -507,11 +507,11 @@ def generate(G):
                 n_more += 1
             out.append(l)
         F[name][:] = out
-    more_btn = P28.btn([T('Not signed yet ', 'gray'), T('($(nm))', 'white'), T(' ›', 'gray')], B_MORE, width=180,
+    more_btn = P28.btn([T('Not signed yet (', 'gray'), T('$(nmore)', 'white'), T(') ›', 'gray')], B_MORE, width=180,
                        tooltip=T('Followers you\'ve met without a Raid Contract, and hirelings you haven\'t hired - and where to get them.', 'gray'))
     fn('p260/crew/more_btn', [f'$data modify storage bm:ui crew.acts append value {snbt(more_btn)}'])
     k = next(n for n, l in enumerate(crew) if '"/trigger bm.act set 7950"' in l)
-    crew[k:k] = ['execute store result storage bm:ui crew.nm int 1 run data get storage bm:ui crew.more',
+    crew[k:k] = ['execute store result storage bm:ui crew.nmore int 1 run data get storage bm:ui crew.more',
                  'execute if data storage bm:ui crew.more[0] run function bm:p260/crew/more_btn with storage bm:ui crew']
     k = next(n for n, l in enumerate(crew) if 'function bm:p103/crew/show_in' in l)
     crew.insert(k, 'execute if entity @s[tag=bm.crmore] run return run function bm:p260/crew/more_show')
@@ -521,8 +521,9 @@ def generate(G):
                      '@@ACTS@@', columns=2)
     fn('p260/crew/more_show', ['tag @s remove bm.crmore', 'data modify storage bm:ui crew.more append value ' +
                                snbt(P28.btn(T('« Raid Crew', 'gray'), 7807, width=180)),
-                               'function bm:p260/crew/show_more with storage bm:ui crew'])
-    fn('p260/crew/show_more', ['$dialog show @s ' + snbt(more).replace('"@@ACTS@@"', '$(more)')])
+                               'data modify storage bm:ui crewm.acts set from storage bm:ui crew.more',
+                               'function bm:p260/crew/show_more with storage bm:ui crewm'])
+    fn('p260/crew/show_more', ['$dialog show @s ' + snbt(more).replace('"@@ACTS@@"', '$(acts)')])
     fn('p260/crew/more', ['tag @s add bm.crmore', 'function bm:p98/crew', 'tag @s remove bm.crmore'])
     act.append(f'execute if score #act bm.pay matches {B_MORE} if score @s bm.menu matches 7807 run return run function bm:p260/crew/more')
     report['crew rows that move when unsigned'] = n_more
@@ -551,7 +552,7 @@ def generate(G):
     # screen shake: yours to turn off
     F['p125/shake'].insert(0, 'execute if entity @s[tag=bm.noshk] run return run scoreboard players reset @s bm.shk')
     onoff = lambda key, on: T('on', 'white', bold=True) if on else T('off', '#ff8a8a', bold=True)
-    st = lambda key, comp: f'data modify storage bm:ui ps.{key} set value {snbt(comp)}'
+    st = lambda key, comp: f'data modify storage bm:ui ps.r_{key} set value {snbt(comp)}'
     ps_state = ['data remove storage bm:ui ps']
     for key, tg in TAGS.items():
         ps_state += [st(key, onoff(key, True)), f'execute if entity @s[tag={tg}] run ' + st(key, onoff(key, False))]
@@ -566,16 +567,16 @@ def generate(G):
                  'execute if score #mktmus bm.cfg matches 0 run ' + st('srv', T('\nThe server has the market music switched off for everyone.', 'dark_gray')),
                  'execute if score #shpmus bm.cfg matches 0 run ' + st('srv', T('\nThe server has the ship music switched off for everyone.', 'dark_gray')),
                  f'scoreboard players set @s bm.menu {PS}']
-    rows = [('mus', [T('Music: ', 'gray'), '@@RAW:mus@@'], 'Every track of the Black Market\'s own: the market, the ships, the bosses, the dungeons, the vault.'),
-            ('mkt', [T('Market music: ', 'gray'), '@@RAW:mkt@@'], 'The Black Market\'s own swing, inside a market.'),
-            ('shp', [T('Ship music: ', 'gray'), '@@RAW:shp@@'], 'The mothership\'s and the Dreadnought\'s music, aboard.'),
-            ('chat', [T('Follower chatter: ', 'gray'), '@@RAW:chat@@'], 'Your followers\' quips and banter.'),
-            ('shk', [T('Screen shake: ', 'gray'), '@@RAW:shk@@'], 'The ground shaking under big steps and blows.'),
-            ('keep', [T('Keep up: ', 'gray'), '@@RAW:keep@@'], 'A partner left behind comes back to your side once you\'re on the ground or in water.'),
-            ('np', [T('Gear particles: ', 'gray'), '@@RAW:np@@', T(' ›', 'gray')], 'The Particle Toggler\'s switches: charms, armour, weapons, 3D wings.'),
+    rows = [('mus', [T('Music: ', 'gray'), '@@RAW:r_mus@@'], 'Every track of the Black Market\'s own: the market, the ships, the bosses, the dungeons, the vault.'),
+            ('mkt', [T('Market music: ', 'gray'), '@@RAW:r_mkt@@'], 'The Black Market\'s own swing, inside a market.'),
+            ('shp', [T('Ship music: ', 'gray'), '@@RAW:r_shp@@'], 'The mothership\'s and the Dreadnought\'s music, aboard.'),
+            ('chat', [T('Follower chatter: ', 'gray'), '@@RAW:r_chat@@'], 'Your followers\' quips and banter.'),
+            ('shk', [T('Screen shake: ', 'gray'), '@@RAW:r_shk@@'], 'The ground shaking under big steps and blows.'),
+            ('keep', [T('Keep up: ', 'gray'), '@@RAW:r_keep@@'], 'A partner left behind comes back to your side once you\'re on the ground or in water.'),
+            ('np', [T('Gear particles: ', 'gray'), '@@RAW:r_np@@', T(' ›', 'gray')], 'The Particle Toggler\'s switches: charms, armour, weapons, 3D wings.'),
             ('back', [T('« Back', 'gray')], 'Where you came from.')]
     d = P28.multi([T('YOUR SETTINGS', COL, bold=True), T('  ·  yours alone', 'gray')],
-                  [P28.body([T('Switches for you alone - everyone else keeps their own.', 'gray'), '@@RAW:srv@@'], 300)],
+                  [P28.body([T('Switches for you alone - everyone else keeps their own.', 'gray'), '@@RAW:r_srv@@'], 300)],
                   [P28.btn(lab, PS_ROWS[k], width=150, tooltip=T(tip, 'gray')) for k, lab, tip in rows], columns=2, exit_label='Done')
     fn('p260/ps/dlg', [f'$dialog show @s {P28.inline(d)}'])
     fn('p260/ps/show', ps_state + ['function bm:p260/ps/dlg with storage bm:ui ps'])
@@ -649,7 +650,7 @@ def generate(G):
                      'execute as @a[tag=!bm.hb_ht] at @s if dimension bm:hollow_throne run tag @s add bm.hb_ht',
                      'execute as @a[tag=!bm.hbgot] run function bm:p260/hb/first']
     place_has = lambda tg: f'@s[tag={tg}]' if tg else has(MET['keeper'])
-    hbs = lambda key, comp: f'data modify storage bm:ui hb.{key} append value {snbt(comp)}'
+    hbs = lambda key, comp: f'data modify storage bm:ui hb.r_{key} append value {snbt(comp)}'
     count = lambda name, conds: [f'scoreboard players set #hbn bm.rng 0'] + [f'execute if entity {c} run scoreboard players add #hbn bm.rng 1' for c in conds] + \
         [f'execute store result storage bm:ui hb.{name} int 1 run scoreboard players get #hbn bm.rng']
     sums = ['data remove storage bm:ui hb'] + count('fm', [has(MET[w]) for w in WS]) + count('bb', [has(a) for a, _n in BOSSES]) + \
@@ -675,25 +676,25 @@ def generate(G):
     def page(key, titl, intro, rows_fn, extra=()):
         """a page: its list built in storage (hb.<key>), shown as one block of text"""
         d = P28.multi([T('HANDBOOK', COL, bold=True), T(f'  ·  {titl}', 'gray')],
-                      [P28.body(intro, 340), P28.body('@@RAW:' + key + '@@', 340)] + list(extra), [back_hb], columns=1, exit_label='Close')
+                      [P28.body(intro, 340), P28.body('@@RAW:r_' + key + '@@', 340)] + list(extra), [back_hb], columns=1, exit_label='Close')
         fn(f'p260/hb/{key}_dlg', [f'$dialog show @s {P28.inline(d)}'])
-        fn(f'p260/hb/{key}', ['function bm:p260/hb/sums', f'data modify storage bm:ui hb.{key} set value [{{text:""}}]'] + rows_fn() +
+        fn(f'p260/hb/{key}', ['function bm:p260/hb/sums', f'data modify storage bm:ui hb.r_{key} set value [{{text:""}}]'] + rows_fn() +
            [f'scoreboard players set @s bm.menu {HB}', f'function bm:p260/hb/{key}_dlg with storage bm:ui hb'])
     def fol_rows():
         L = []
         for w in WS:
             L.append(f'execute if entity {has(MET[w])} run ' + hbs('fol', T(f'{WHO[w][0]}   ', WHO[w][2])))
         L += ['execute if score #hbn bm.rng matches 0 run ' + hbs('fol', T('(nobody yet)', 'dark_gray')),
-              'data modify storage bm:ui hb.hint set value [{text:"Where to look next:",color:"white"}]', 'scoreboard players set #hbh bm.rng 0']
+              'data modify storage bm:ui hb.r_hint set value [{text:"Where to look next:",color:"white"}]', 'scoreboard players set #hbh bm.rng 0']
         for n, w in enumerate(WS):
             L.append(f'execute if score #hbh bm.rng matches ..2 unless entity {has(MET[w])} run function bm:p260/hb/hint/{w}')
             fn(f'p260/hb/hint/{w}', [hbs('hint', T(f'\n#{n + 1:02d} ??? ', '#8a8a8a', bold=True)), hbs('hint', T(P220.HINT[w], 'gray', italic=True)),
                                      'scoreboard players add #hbh bm.rng 1'])
-        L.append('execute if score #hbh bm.rng matches 0 run data modify storage bm:ui hb.hint set value [{text:"Every friend there is - met.",color:"gold"}]')
+        L.append('execute if score #hbh bm.rng matches 0 run data modify storage bm:ui hb.r_hint set value [{text:"Every friend there is - met.",color:"gold"}]')
         return count('fm', [has(MET[w]) for w in WS])[:-1] + L
     page('fol', 'followers', [T('Met: ', 'white'), T('$(fm)', COL, bold=True), T(f' of {len(WS)}', 'gray'),
                               T('  (the Follower Gallery, on the Partner Wheel, has them all)', 'dark_gray')], fol_rows,
-         extra=[P28.body('@@RAW:hint@@', 340)])
+         extra=[P28.body('@@RAW:r_hint@@', 340)])
     def tick_rows(key, items, label):
         L = []
         for it in items:

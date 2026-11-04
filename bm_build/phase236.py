@@ -61,6 +61,7 @@ class Lightbringer(RP.Cfg):
     FACE = {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'hurt', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'}
     ATTRS = dict(armor=6, attack_damage=4, movement_speed=0.38, follow_range=32, step_height=1.1)
     SCALE, HIT = 0.9, (0.9, 1.9)
+    BOX_FIT = True               # (3.0k: her click box follows the Ophanim form's size - p236l/box_fit)
     SWAP = RF2.swapping(LA)
     SWAP_START = True
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
@@ -691,6 +692,7 @@ def gender_split(G, names=None):
 #   where she walks; everything else the same.
 # Off, sent home, fainted: the wheel goes (its own sweep, each second: no wheel without its host in this form).
 OPHF_Y, OPHF_YS, OPHF_K, OPHF_N = 3.35, 1.9, 0.32, 90
+OPHF_HIT, OPHF_HIT_S = (3.2, 5.4), (1.4, 2.9)       # (3.0k: the click box round the wheel - full (centre 3.35 up), and at companion size (1.9 up))
 
 
 def ophanim_form(G):
@@ -803,11 +805,21 @@ def ophanim_form(G):
                           f'execute if entity @e[{foe},distance=..1.2] run return 0',
                           'scoreboard players remove #ry bm.rng 1', 'execute if score #ry bm.rng matches 1.. positioned ^ ^ ^0.5 run function bm:p236l/ophf/ray'])
     # ---- off (or her owner's choice gone): the wheel goes, she's seen again
+    # (3.0k) THE HITBOX FOLLOWS THE SIZE (compsize.resize): her own click box as herself; the full wheel's - tall and wide, round
+    #  the wheel hovering over her - in the Ophanim form; and at companion size the little wheel's. Her host (her own size) stays.
+    import compsize as CS
+    fn('p236l/box_fit', ['execute unless entity @s[tag=bm.lhoph] run return run function bm:p236l/box/own',
+                         'execute if entity @s[tag=bm.lhcz] run return run function bm:p236l/box/small', 'function bm:p236l/box/full'])
+    fn('p236l/box/own', CS.resize('bm.lhhit', *Lightbringer.HIT))
+    fn('p236l/box/full', CS.resize('bm.lhhit', *OPHF_HIT))
+    fn('p236l/box/small', CS.resize('bm.lhhit', *OPHF_HIT_S))
+    for f_ in ('p236l/ophf/raise', 'p236l/ophf/small', 'p236l/ophf/full'):
+        G.FUNCS[f_].append('function bm:p236l/box_fit')
     fn('p236l/ophf/off', ['tag @s remove bm.lhoph', 'tag @s remove bm.lhcz',
                           'execute as @e[type=minecraft:item_display,tag=bm.ophf] if score @s bm.pid = #me bm.pid run kill @s',
                           'execute as @e[type=minecraft:item_display,tag=bm.lhsel] run data modify entity @s view_range set value 1.6f',
                           'particle minecraft:end_rod ~ ~1.5 ~ 0.6 1 0.6 0.1 40', 'particle minecraft:flash{color:[1.0,0.95,0.7,1.0]} ~ ~1.5 ~ 0 0 0 0 1',
-                          'playsound minecraft:block.beacon.deactivate neutral @a[distance=..24] ~ ~ ~ 0.8 1.2'])
+                          'playsound minecraft:block.beacon.deactivate neutral @a[distance=..24] ~ ~ ~ 0.8 1.2', 'function bm:p236l/box_fit'])
     # (no wheel without its host in this form - sent home, fainted, unloaded far off)
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.ophf] unless function bm:p236l/ophf/has run kill @s')
     fn('p236l/ophf/has', ['scoreboard players operation #me2 bm.pid = @s bm.pid',

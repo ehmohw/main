@@ -9,7 +9,13 @@ proportions at k of its size. Its attacks and stats are the same (the damage com
 
 sync(...) -> the host-tick lines: the owner's choice (a score, 1 = companion size) carried onto the host as <tag>; changed, the host's
 own scale attribute (its hitbox) set to match and its rig re-posed (its state reset: the next frame's pose applies the new size).
-toggle(...) makes the menu row's function (as the player). Default off; kept on the owner (logout, recall, faint)."""
+toggle(...) makes the menu row's function (as the player). Default off; kept on the owner (logout, recall, faint).
+(3.0k) THE HITBOX FOLLOWS THE SIZE (the owner: "a follower's hitbox shrinks while it's in companion mode"): resize() is the host's
+whole hitbox - its scale attribute (the host mob's own box) and the click box riding it (rigpet's interaction, bm.<ab>hit) - set
+together. build(hit=...) puts both sizes on csz/on and csz/off; a follower whose click box is made again later (rigpet's box,
+when it's lost) re-fits it by its tag (Cfg.BOX_FIT: <pfx>/box_fit). A recalled follower is a new host at its full size, and the
+next tick's sync shrinks it again if its owner keeps companion size on. Used for Apophiss, Omega, the Rat King (here), and for
+the Ophanim, the Bound Sovereign and Vexis, whose sizes are their own (phase236, phase239, phase243)."""
 import re
 
 _NUM = re.compile(r'(-?\d+(?:\.\d+)?)(f?)')
@@ -52,13 +58,23 @@ def sync(pfx, obj, tag, state_obj, host_big, host_small):
             f'execute if score #cz bm.rng matches 0 if entity @s[tag={tag}] run function bm:{pfx}/csz/off']
 
 
-def build(G, pfx, obj, tag, state_obj, host_big, host_small, say_on, say_off, fx=()):
-    """the host's switch (csz/on, csz/off) and the player's row (csz/toggle)"""
+def resize(hit_tag=None, w=None, h=None, scale=None):
+    """(as the host) its hitbox: the scale attribute (None: left as it is) and the click box riding it (None: it has none)"""
+    out = [f'attribute @s minecraft:scale base set {scale}'] if scale is not None else []
+    if hit_tag:
+        out.append(f'execute on passengers run data merge entity @s[type=minecraft:interaction,tag={hit_tag}] {{width:{w}f,height:{h}f}}')
+    return out
+
+
+def build(G, pfx, obj, tag, state_obj, host_big, host_small, say_on, say_off, fx=(), hit=None):
+    """the host's switch (csz/on, csz/off) and the player's row (csz/toggle). hit: (click box tag, (w, h) full, (w, h) companion)"""
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {obj} dummy']
     G.OBJECTIVES.append(obj)
-    G.fn(f'{pfx}/csz/on', ['tag @s add ' + tag, f'attribute @s minecraft:scale base set {host_small}', f'scoreboard players set @s {state_obj} -1',
+    hb = resize(hit[0], *hit[1]) if hit else []
+    hs = resize(hit[0], *hit[2]) if hit else []
+    G.fn(f'{pfx}/csz/on', ['tag @s add ' + tag, f'attribute @s minecraft:scale base set {host_small}', f'scoreboard players set @s {state_obj} -1'] + hs + [
                            'particle minecraft:poof ~ ~1 ~ 0.6 0.6 0.6 0.02 16', 'playsound minecraft:block.amethyst_block.chime neutral @a[distance=..16] ~ ~ ~ 1 1.6'] + list(fx))
-    G.fn(f'{pfx}/csz/off', ['tag @s remove ' + tag, f'attribute @s minecraft:scale base set {host_big}', f'scoreboard players set @s {state_obj} -1',
+    G.fn(f'{pfx}/csz/off', ['tag @s remove ' + tag, f'attribute @s minecraft:scale base set {host_big}', f'scoreboard players set @s {state_obj} -1'] + hb + [
                             'particle minecraft:poof ~ ~2 ~ 1.5 1.5 1.5 0.04 30', 'playsound minecraft:block.amethyst_block.resonate neutral @a[distance=..16] ~ ~ ~ 1 0.7'] + list(fx))
     G.fn(f'{pfx}/csz/toggle', [f'execute if score @s {obj} matches 1 run return run function bm:{pfx}/csz/toggle_off', f'scoreboard players set @s {obj} 1', say_on])
     G.fn(f'{pfx}/csz/toggle_off', [f'scoreboard players set @s {obj} 0', say_off])

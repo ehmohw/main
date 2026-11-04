@@ -5,8 +5,8 @@ Sanctuary (as above, so below). The wiring is a phase-to-be; this module is only
 
 LOOK  The heist's Rat King (ratking_art: a great, fat, upright rat in a gold crown, a crimson cape with an ermine collar, a
       blue sash and a belt with a gold buckle, a sceptre crowned with a wheel of golden cheese, a gold-ringed tail) at
-      companion size - RIG_SCALE 0.48: ~1.55 blocks to his crown's orb, a head shorter than you (his ego is the tallest
-      thing about him). The same geometry part for part (built by ratking_art's own builders), with his own textures (rkf_:
+      the boss's own size (3.0k, the owner: "large and imposing") - RIG_SCALE 0.9: ~2.8 blocks to his crown's orb - and,
+      from his menu, COMPANION size (0.48: ~1.55 blocks, a head shorter than you - his ego the tallest thing about him). The same geometry part for part (built by ratking_art's own builders), with his own textures (rkf_:
       the wardrobe recolours his cape and sash, the shiny paints his fur and gold - never the boss's), and a FACE: the
       boss's glowing red glare is his 'focus' face only (the Royal Decree, a fight's serious moments); at rest his eyes are
       beady rubies with a glint, under a haughty brow. Faces (head_x<face>): happy (smug crescents), blink, sleepy
@@ -31,7 +31,8 @@ from rigkit import qs, shrink
 import ratking_art as RA
 
 PREFIX = 'rkf_'
-RIG_SCALE = 0.48
+RIG_SCALE = 0.9                                  # (3.0k, the owner: his own size is the heist boss's - ~2.8 blocks to the crown; the rig is made at it)
+COMPANION = 0.48                                 # (...and his menu's Companion Size: ~1.55 blocks - compsize twins his rig at COMPANION / RIG_SCALE)
 SCALE = RIG_SCALE
 PIVOT = dict(RA.PIVOT, coin=(-12.4, 13.4, -6.6))
 PARENT = dict(RA.PARENT, coin='arml')
@@ -286,6 +287,7 @@ DRAFT = ['idle_a', 'idle_b', 'idle_c', 'walk_0', 'walk_1', 'run_0', 'run_1', 'ju
 
 # ---- the display case and the doll (FIT: measure from the built rig, as tools/preview/keeper.py 'fit'); Cecil's doll: the default warp
 DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
+FIT = (0.0, 2.96, -0.96, 1.07, -1.607, 0.935)     # (phase134.FIT: lowest y, height, x0, x1, z0, z1 in blocks - idle_a at RIG_SCALE; z0 the tail)
 
 
 # ---------------------------------------------------------------------------------------------------- the shiny (drawn: his fur and gold)
@@ -293,7 +295,7 @@ DOLL = {'kh': 1.55, 'kb': 0.82, 'kl': 0.62}
 # pale moon cheese. phase138's SHINY_TEX paints the fur and metal; the velvet and sash take the shiny look's own palette.
 SHINY_LOOK = ('Shiny Moonlit Albino', ('#0a1030', '#3a4ab0', '#c8d4ff'), 'white')
 def _shiny_fur(col, seed, dark, light): return lambda: RA._fur(col, seed, dark, light)
-SHINY_TEX = {'fur': _shiny_fur('#ece6e2', 1, '#c8bcb8', '#ffffff'), 'furdk': _shiny_fur('#d4ccc8', 2, '#b0a4a0', '#ece6e2'),
+SHINY_DRAW = {'fur': _shiny_fur('#ece6e2', 1, '#c8bcb8', '#ffffff'), 'furdk': _shiny_fur('#d4ccc8', 2, '#b0a4a0', '#ece6e2'),
              'furlt': _shiny_fur('#fbf6f2', 3, '#dcd2cc', '#ffffff'), 'belly': _shiny_fur('#fff4f2', 4, '#eadad6', '#ffffff'),
              'skin': lambda: RA._flat('#f2a8b8', 5), 'nose': lambda: RA._flat('#ff8aa8', 6, 4),
              'gold': lambda: RA._gold(11, '#6a7080', '#c8ccd8', '#ffffff'), 'golddk': lambda: RA._gold(12, '#4a505c', '#9aa0b0', '#e0e4ee'),
@@ -332,5 +334,47 @@ def shiny_textures():
     import phase99 as P99
     base = textures()
     out = P99._recolour({tex_name(k): base[tex_name(k)] for k in ('velvet', 'sash')}, SHINY_LOOK[1])
-    out.update({tex_name(k): f() for k, f in SHINY_TEX.items()})
+    out.update({tex_name(k): f() for k, f in SHINY_DRAW.items()})
     return out
+
+
+# (phase138: his wardrobe's Cape recolours LOOK_TEX; the shiny alone paints his fur, skin, eyes and metal - LOOK_SHINY_ONLY, worn as
+#  they are by every other look, gilded looks too (LOOK_GILD_SKIP) - each drawn by SHINY_TEX in place of a recolour)
+SHINY_TEX = {tex_name(k): (lambda base, f=f: f()) for k, f in SHINY_DRAW.items()}
+LOOK_SHINY_ONLY = tuple(SHINY_TEX)
+LOOK_GILD_SKIP = LOOK_SHINY_ONLY
+RECOL_KEYS = LOOK_TEX + LOOK_SHINY_ONLY
+
+
+# ---------------------------------------------------------------------------------------------------- icons (16 x 16, sprites280's kit, lit top-left)
+def icon_royal_marker():
+    """the Royal Marker: a curled sheet of vellum, two lines of writing, a fat gold wax seal with a crown pressed in it, a red ribbon"""
+    from sprites280 import S, GOLD as G
+    s = S()
+    V = {'v': '#f0e2c0', 'w': '#fff6e0', 'd': '#c8b088', 'k': '#5a4028'}
+    s.g(['..dvvvvvvvvvd..', '.dwwwwwwwwwwvd.', '.dvwwwwwwwwwvd.', '.dvwkkkkwkkwvd.', '.dvwwwwwwwwwvd.', '.dvwkkwkkkkwvd.',
+         '.dvwwwwwwwwwvd.', '.dvwkkkkkwwwvd.', '.dvwwwwwwwwwvd.', '.dvvvvvvvvvvvd.', '..ddddddddddd..'], V, 0, 1)
+    for x, y, c in ((5, 12, '#c0201a'), (6, 13, '#c0201a'), (5, 14, '#8a1010'), (10, 12, '#c0201a'), (9, 13, '#c0201a'), (10, 14, '#8a1010')):
+        s.px(x, y, c)                                                     # (the ribbon's tails)
+    s.disc(8.0, 10.6, 3.4, [G[0], G[1], G[2], G[3], G[4]])               # the seal
+    s.g(['g.g.g', 'ggggg'], {'g': G[0]}, 6, 9)                            # (a crown pressed into it)
+    s.px(6, 8, '#fffbe0')
+    return s.render()
+
+
+def icon_kings_coin():
+    """the King's Coin: a fat gold coin, a crowned rat's head on its face, a bite out of its edge"""
+    from sprites280 import S, GOLD as G
+    s = S()
+    s.disc(8.0, 8.0, 6.6, [G[0], G[1], G[2], G[3], G[4]])
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x + 0.5 - 8.0, y + 0.5 - 8.0)
+            if 5.0 < d < 5.9: s.px(x, y, G[1])                             # (its rim)
+    s.g(['.g.g.g.', '.ggggg.', '..ddd..', '.ddddd.', 'dd.d.dd', '.ddpdd.', '..ddd..'],
+        {'g': '#fff2a0', 'd': G[0], 'p': '#ff8aa8'}, 5, 4)                 # a crown over a rat's face (dark, struck into the gold)
+    for x, y in ((13, 3), (14, 4), (12, 3), (14, 5), (13, 4)):
+        s.px(x, y, None)                                                  # (the bite out of its edge)
+    s.px(12, 4, G[1]); s.px(13, 5, G[1])
+    s.px(4, 4, '#fffbe0'); s.px(5, 3, '#fffbe0')
+    return s.render()

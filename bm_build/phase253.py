@@ -1,7 +1,8 @@
 """3.0: THE LOOM SANCTUARY - where the Keeper of Bonds waits (keeper_sanctuary.py, keeper_art.py). A small island high in the
 Overworld sky that isn't there at all until someone has earned the way to it.
 
-THE COMPASS OF BONDS  once you have met every other follower (bm:met/<kind>: every one of phase125.WHO but the Keeper itself), the
+THE COMPASS OF BONDS  once you have met every other follower (bm:met/<kind>: every one of phase125.WHO but the Keeper itself - and, 3.0k,
+           its counterpart the Rat King, who comes of the same fifty: the King's Coin comes with the compass, phase262), the
            compass is yours - once, with a word - and the sanctuary is woven into the sky (placed the first time anyone earns it).
            Its needle points at the island; it hangs at y {Y} - high above the clouds.
 THE WAY UP  stand right under the island holding the compass, for three seconds: a thread of light draws you up to its landing
@@ -12,6 +13,7 @@ from nbt import IntArray
 import keeper_sanctuary as KS
 
 COL = '#ffd6f0'
+COUNTERPARTS = ('keeper', 'ratking')         # (3.0k: the Keeper and its counterpart, the Rat King - each found once all the OTHER fifty are met; neither counts toward the other)
 X0, Y0, Z0 = -2600, 262, 2600                 # (the template's corner; its grass at Y0 + TOP)
 SX, SY, SZ = KS.SIZE
 KVER = 1
@@ -40,7 +42,7 @@ def generate(G):
     KS.build(markers=True).export(G.path('data', 'bm', 'structure', 'p253_loom.nbt'))
     holds = 'items entity @s weapon.* *[minecraft:custom_data~{bm:"bond_compass"}]'
     # ---- the compass: every other follower met
-    kinds = [w for w in P125.WHO if w != 'keeper']
+    kinds = [w for w in P125.WHO if w not in COUNTERPARTS]
     fn('p253/all_met', [f'execute unless entity @s[advancements={{bm:met/{P220.MET_KEY.get(w, w)}=true}}] run return 0' for w in kinds] + ['return 1'])
     second.append('execute as @a[tag=!bm.kbcomp] if function bm:p253/all_met at @s run function bm:p253/grant')
     fn('p253/grant', ['tag @s add bm.kbcomp', give('bond_compass'), 'scoreboard players set #kbwant bm.p2 1',

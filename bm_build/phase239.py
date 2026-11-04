@@ -34,6 +34,7 @@ class Sovereign(RP.Cfg):
     FACE = {'happy': None, 'surprised': 'wide', 'hurt': 'dim', 'sleepy': 'closed', 'blink': 'closed', 'squint': 'narrowed', 'serious': 'narrowed'}
     ATTRS = dict(armor=12, attack_damage=7, movement_speed=0.36, follow_range=32, step_height=1.1)
     SCALE, HIT = 1.15, (1.1, 2.4)
+    BOX_FIT = True               # (3.0k: its hitbox follows its size - Bound, or Unbound and vast: p239/box_fit)
     SWAP = tuple(DA.PARTS)                      # (every part: none of its models is a plain 'ds_<part>')
     SWAP_START = True
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (120, 'idle_b')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
@@ -171,6 +172,7 @@ def generate(G):
 UNB_CYC = {0: (240, [(0, 'idle_a'), (120, 'idle_b')]), 1: (24, [(0, 'walk_0'), (6, 'walk_1'), (12, 'walk_2'), (18, 'walk_3')]),
            2: (None, [(0, 'dormant')]), 3: (None, [(0, 'sweep_up'), (8, 'sweep')]), 4: (None, [(0, 'slam_up'), (10, 'slam')]),
            5: (None, [(0, 'stab')])}
+UNB_HIT, UNB_HOST = (3.0, 9.0), 3.0           # (3.0k: Unbound's hitbox - its click box, and its host's scale)
 UNB_OF = [(2, '4'), (2, '6'), (2, '14'), (2, '16..17'), (1, '1..3'), (1, '10'), (3, '7'), (3, '13'), (5, '8'), (4, '12')]
 
 
@@ -202,13 +204,20 @@ def _unbound(G):
        ['execute if score #us bm.rng = @s bm.xvus run scoreboard players add @s bm.xvuf 1', 'execute unless score #us bm.rng = @s bm.xvus run scoreboard players set @s bm.xvuf 0',
         'scoreboard players operation @s bm.xvus = #us bm.rng', 'function bm:p239u/anim',
         'execute rotated as @s rotated ~ 0 run function bm:p239u/place', 'tag @e[tag=bm.xvusel] remove bm.xvusel'])
+    # (3.0k) THE HITBOX FOLLOWS THE SIZE (compsize.resize): Bound, its own; Unbound - as vast as it stood against you - a giant's
+    #  (the host as big as the game lets a follower walk among us, the click box round the whole of it); Bound again: its own
+    import compsize as CS
+    fn('p239/size_big', ['tag @s add bm.xvbig'] + CS.resize('bm.xvhit', *UNB_HIT, scale=UNB_HOST))
+    fn('p239/size_small', ['tag @s remove bm.xvbig'] + CS.resize('bm.xvhit', *Sovereign.HIT, scale=Sovereign.SCALE))
+    fn('p239/box_fit', ['execute if entity @s[tag=bm.xvbig] run function bm:p239/size_big'])
+    G.FUNCS['p239u/on'].insert(0, 'execute unless entity @s[tag=bm.xvbig] run function bm:p239/size_big')
     fn('p239u/raise', rig + ['execute as @e[type=minecraft:item_display,tag=bm.xvunew] run scoreboard players operation @s bm.pid = #me bm.pid',
                              'tag @e[type=minecraft:item_display,tag=bm.xvunew] add bm.xvusel', 'tag @e[type=minecraft:item_display,tag=bm.xvunew] remove bm.xvunew',
                              'particle minecraft:sculk_soul ~ ~5 ~ 2 4 2 0.05 120', 'particle minecraft:large_smoke ~ ~4 ~ 2 3 2 0.05 60',
                              'playsound minecraft:entity.warden.emerge neutral @a[distance=..32] ~ ~ ~ 1.5 0.5', 'playsound minecraft:block.chain.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
     fn('p239u/off', ['execute as @e[type=minecraft:item_display,tag=bm.xvu] if score @s bm.pid = #me bm.pid run kill @s',
                      'execute as @e[type=minecraft:item_display,tag=bm.xvsel] run data modify entity @s view_range set value 1.6f',
-                     'particle minecraft:sculk_soul ~ ~4 ~ 2 3 2 0.05 60'])
+                     'particle minecraft:sculk_soul ~ ~4 ~ 2 3 2 0.05 60', 'function bm:p239/size_small'])
     # (a giant whose host is gone - sent home, fainted, unloaded far off: gone too)
     G.FUNCS['loop/second'].append('execute as @e[type=minecraft:item_display,tag=bm.xvu] unless function bm:p239u/has run kill @s')
     fn('p239u/has', ['scoreboard players operation #me2 bm.pid = @s bm.pid',

@@ -176,7 +176,7 @@ def extend_offers(O, offer):
 SLOTS = ('emma', 'celi', 'zib', 'cecil', 'kw', 'leo', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'wil', 'fishy', 'dennis', 'pistachio',
          'omega', 'ashur', 'chef', 'neighbor', 'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'kettle', 'rufus',
          'henry', 'nia', 'gem', 'batty', 'eggbert', 'count', 'dragon', 'eraser', 'cursor', 'inkblot', 'speech', 'lightbringer', 'dryad',
-         'sovereign', 'pxcecil', 'pxleo', 'pxemma', 'sky', 'vexis', 'mireling', 'keeper')
+         'sovereign', 'pxcecil', 'pxleo', 'pxemma', 'sky', 'vexis', 'mireling', 'keeper', 'ratking')     # (3.0k: the Rat King - at the END: saved by number)
 REPAIR = 1                                   # (bump to run the wheel's repair again for everyone)
 
 def generate(G):
