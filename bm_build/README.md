@@ -21,6 +21,33 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0k: menus, tidied
+
+- **The menus, tidied** (phase261, from the approved menu proposal). Nothing was removed: every moved button keeps its code
+  and router, and `tools/menu_inventory.py --check` reports 0 lost routes.
+- **Long lists come in pages**, 12 to a page (the wheel: 8 partners), with "‹ Previous" and "Next ›  n/m". Each list is still
+  built as before; a pager (`p261/pg/<key>`) cuts out the page you're on.
+  - Pages: the Recruiter's book, the Tailor's followers and their Auras, the Ledger's Outfits page, and the Partner Wheel's
+    partners (the wheel also shows "Page n of m").
+  - The page is remembered per player (`bm.pg_<key>`), so a purchase or a call brings you back to the same page. It is
+    clamped to the list.
+  - Codes: Recruiter 8098/8099, Outfits 7966/7967, Tailor 8450/8451, Auras 8452/8453, wheel 3440/3441. Each is routed in
+    its page's own router, under that page's menu.
+- **The Partner Wheel**: Chatter and Keep up moved to "⚙ Your settings" (they are also on every follower's Settings page).
+- **The Rat Bank card**: the account page shows your four main balances, then Currencies ›, Deposit everything, Savings,
+  Exchange, Auto-deposit, Send to a player and Community Pots. Currencies › (4094) lists all 13 currencies, each with the
+  same page as before.
+- **The Raid Crew page**: its title says how many are switched on. The two rules paragraphs moved into the tooltip of a
+  "? How the crew works" button.
+- **Follower menus use the same words**: "Call <name>" (it was "Call for <name>", "Call him over" and so on) and "Sit /
+  follow" (Pearlman's was "Wait here / follow me"). 148 Sit / Send home / Call buttons that had no tooltip now have one.
+  Your settings and the Particle Toggler close with "Close".
+- **`menu_inventory.lint`** prints warnings in the build log: dialogs with more than 12 buttons (25 left, mostly wardrobes
+  and shops, which show their whole stock) and dialogs with no way out (0).
+- **Tests**: `t386` walks every page of all of the above as a non-op player. These older tests were updated for the moves:
+  `t226` (chatter is now on Settings / Your settings), `t272` (Keep up on Your settings), `t220` and `t338` (Currencies ›),
+  `rigpet_t`, `t163`, `t183` and `t125` ("Call <name>"). `t338` also now scans 90 offers instead of 40.
+
 ## New in 3.0j: the Handbook and tidier menus
 
 - **The Black Market Handbook** (phase260). Everyone gets one the first time they join (tag `bm.hbgot`). The Fence sells it
