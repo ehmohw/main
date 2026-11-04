@@ -21,6 +21,106 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0r: Talus and Trivyrn complete the Kaiju trio
+
+### Talus (62) and Trivyrn (63)
+
+The old mountain that guards the jungle: a knuckle-walking stone ape with a moss pelt and an amethyst crystal ridge.
+
+- **Its size.** It walks at a companion's size (about 2.6 blocks). Its menu's **Full Size** gives the mountain's own (about 8
+  blocks), with its hitbox.
+- **Meeting it.** It needs your Rex's roar to wake it.
+  1. **The Echo:** ride your Atomic Rex (or the Mecha) and roar in a jungle. A boulder crashes down, and in its dust lies a
+     **Heartgeode Seed**.
+  2. **The Geode:** drop the seed on budding amethyst in a Lush Cave. After 60 s it's a **Heartgeode**.
+  3. **The Drums:** carry it up a mountain (the Jagged, Frozen or Stony Peaks, above y 160) at dawn, set it down, and play eight
+     beats on note blocks within 10 s.
+
+  Talus climbs up out of the peak. If your Rex is out, the two roar at each other first. Right-click it for **the Mossback Drum**.
+- **Its ways:**
+  - **Climbing Leap:** 8.
+  - **Ground Pound:** 10 to all, knocked up.
+  - **Boulder Throw:** 12, with a splash.
+  - **War-Drum:** allies get Strength and Resistance, monsters are weakened.
+  - **Its Piercing Blow, the Fist Flurry,** plays out on screen: a flurry of fists, then both brought down at once, its ridge lit.
+- **Riding it.** Press its menu's **Ride**. Use its drum while riding: look level for the boulder, down for the pound, up for the
+  war-drum. Sneak to get off.
+- **Everything every follower has:**
+  - sitting;
+  - a wardrobe: **Autumn Moss**, **Snowcap** (both drawn), **Basalt Moss**, and the metal pelts;
+  - a rare aura, **Geode Heart**;
+  - a shiny, **Shiny Living Jade**;
+  - the Partner Wheel, a frame, the display case, Cecil's doll, the honours and a Raid Contract.
+- **Pairs:** with Bender ("For Fossils"), Mr. Capshun ("A Crown"), Henry ("Mossy Saddle") and Nia ("The View").
+
+#### New: Trivyrn, the Three-World Wyrm (the 63rd follower)
+
+A three-headed wyrm with a head from each world: **Squall** (storm), **Cinder** (fire) and **Hush** (the void).
+
+- **Its size.** A companion's size by default (about 2.45 blocks); its menu's **Full Size** gives about 7.6.
+- **Meeting it.** Its scales only shed once your Rex is hatched.
+  1. **Three scales:** a Squall Scale (from a Breeze, 1 in 40), a Cinder Scale (from Ancient Debris, 1 in 300, or a Magma Cube in
+     a Basalt Delta, 1 in 40) and a Hush Scale (from a Shulker, 1 in 30).
+  2. **The portal:** throw all three into a lit Nether portal together. They fuse into the **Three-World Egg**.
+  3. **Three cracks,** one in each world:
+     - drop the egg on a peak above y 150 in a thunderstorm;
+     - drop it on magma in a Basalt Delta;
+     - drop it on End stone more than 1000 blocks out.
+
+     The last crack hatches it. Cinder gives you **the Triune Horn**.
+- **Its ways:**
+  - **The Lash:** three snake-strikes, 8 each.
+  - **Wing Gust:** knocked far back.
+  - **Tri-Breath:** a bolt that chains, fire, and a void lift.
+  - **Its Piercing Blow, Lightning Breath,** plays out on screen: the storm crackles over its scales from tail to heads, then a
+    braided lightning stream pours from every head.
+- **Riding it.** Press its menu's **Ride**. Use its horn while riding: look level for a breath, down for the gust, up for all
+  three at once. It **glides** when it drops off a height.
+- **Everything every follower has:**
+  - sitting;
+  - a wardrobe: **Dawnscale**, **Abyssal** (both drawn), **Storm Grey**, and the metal scales;
+  - a rare aura, **the Three Worlds**;
+  - a shiny, **Shiny Opal**;
+  - the Partner Wheel, a frame, the display case, Cecil's doll (three big heads, each grown on its own neck), the honours and a
+    Raid Contract.
+- **Pairs:** with Bender ("Bark-Off"), Mr. Capshun ("Three Hats"), Henry ("Tail Fan") and Nia ("Show-Off").
+
+#### The Kaiju Trio
+
+With the Atomic Rex, Talus and Trivyrn all out:
+- **Three Titans:** allies within 16 get Resistance.
+- **The Triple Threat:** once a day, all three Piercing Blows land on one monster, one after the other: the beam, the flurry,
+  then the storm. It comes with a hidden advancement, "The Kaiju Trio".
+
+#### For the build
+
+- **Switches:** `fol5flag.py` now has TALUS and TRIVYRN on.
+- **Phases:**
+  - phase273 is Talus; phase274 is Trivyrn and the trio.
+  - `kaiju_ride.py` is a shared mount for big rigs, built from phase249's horse host.
+  - `dolls_bake` can grow each of several heads about its own neck (groups named `head:<name>`).
+- **Codes:**
+
+  | Follower | Menu | Ride | Full Size | Wardrobe |
+  |---|---|---|---|---|
+  | Talus | 6910 | 6916 | 6917 | 6930-6949 |
+  | Trivyrn | 6960 | 6966 | 6967 | 6980-6999 |
+
+- **Tests:**
+
+  | Test | What it covers |
+  |---|---|
+  | `t398.js` | Talus |
+  | `t399.js` | Trivyrn |
+  | `node t395.js talus,trivyrn` | the smoke test |
+
+  Both are also in the every-follower lists (`tools/bots/f5.js`).
+
+### Fixes
+
+- **No Darkness in the Dread Sovereign fight.** His shadow attack now sends a wave of soul particles instead, and everyone in the arena is kept clear of Darkness and Blindness every tick, so the Dread mobs he summons can't darken you either.
+- **Glass Cannon is rarer in heists.** When it's drawn it now sticks only 1 time in 3 (otherwise the draw goes again), so it comes up about a third as often as before.
+
 ## New in 3.0q: the Ferro and the Atomic Rex as followers
 
 ### The Ferro (60)
