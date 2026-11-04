@@ -62,7 +62,7 @@ _LB = LBA.textures()
 def edged(P, G, seed, w=6, rows=4):
     """pearl feathers whose tips catch the light in GOLD: the goose's feather rows, repainted; the tip row gold, its corners pearl"""
     im = GQ.feathers(P, seed, w=w, rows=rows, sparks=0)
-    px = im.load(); tip = hexc(mix(P['light'], G['light'], 0.55))
+    px = im.load(); tip = hexc(mix(P['light'], G['base'], 0.7))
     for y in range(64):
         cy = (y // 2) % rows
         if cy != rows - 1: continue
@@ -89,14 +89,50 @@ def sun_tex():
 KIND_IRIS = ('#8a4a06', '#b8700e', '#dc9a1e', '#f4c03a', '#fcde6a', '#fff4b0')   # (the Lightbringer's amber-to-pale-gold, a touch warmer)
 
 
+def kind_eye(im, x0, y0, kind=None, flip=False, W=16):
+    """one calm, kind gold eye in a W x W window (window x 0 = the back of the head, before flip): an amber-to-pale-gold oval,
+    a soft dark pupil, one big shine up toward the front, a warm brown upper lid that sits a little low (serene), a blush below.
+    kinds: None (serene), happy (^, gold), blink, fierce (the lid slanting down to the front), surprised (round, the lid up),
+    sad (the lid slanting down to the back, a tear)"""
+    from fol5_kit import _ell
+    fx = (lambda x: x0 + (W - 1 - x)) if flip else (lambda x: x0 + x)
+    P = lambda x, y, c: put(im, fx(x), y0 + y, c)
+    for x, y in ((3, 13), (4, 13), (5, 13), (6, 13), (4, 14), (5, 14)): P(x, y, '#f6c4b4')
+    lid = '#7a4a1a'
+    if kind == 'happy':
+        for x in range(4, 14):
+            y = 6 if 6 < x < 11 else 7 if x in (5, 6, 11, 12) else 8
+            P(x, y, '#c88a20'); P(x, y + 1, lid)
+        return
+    if kind == 'blink':
+        for x in range(4, 14): P(x, 8 if x in (4, 13) else 9, lid); P(x, 10, lid) if 6 < x < 11 else None
+        return
+    cx, cy, rx, ry = 8.8, 7.4, 3.6, (4.4 if kind == 'surprised' else 4.0)
+    S = _ell(cx, cy, rx, ry)
+    top, bot = min(y for _, y in S), max(y for _, y in S)
+    for x, y in S:
+        t = (y - top) / max(1, bot - top); P(x, y, KIND_IRIS[min(5, int(t * 6))])
+    for x, y in _ell(cx + 0.2, cy + 0.4, 1.4, 1.8): P(x, y, '#4a2408')
+    sx = max(x for x, _ in S) - 3
+    for dx in range(2):
+        for dy in range(2): P(sx + dx, top + 1 + dy, '#ffffff')
+    P(min(x for x, _ in S) + 2, bot - 1, '#fff6d8')
+    xs = range(min(x for x, _ in S) - 1, max(x for x, _ in S) + 2)
+    for x in xs:
+        if kind == 'fierce': y = top + 1 + round((x - 4) * 0.45)
+        elif kind == 'sad': y = top + 1 + round((13 - x) * 0.45)
+        elif kind == 'surprised': y = top - 1
+        else: y = top + 1
+        for yy in range(top - 1, y):
+            if (x, yy) in S: P(x, yy, '#f6ead2')
+        P(x, y, lid); P(x, y - 1, lid) if kind in (None, 'fierce', 'sad') and 0.25 < (x - xs[0]) / len(xs) < 0.8 else None
+    if kind == 'sad':
+        for dy, c in ((0, '#bfe6ff'), (1, '#e8f8ff'), (2, '#bfe6ff')): P(4, bot + 1 + dy, c)
+
+
 def eyes(kind=None):
-    """two calm, kind gold eyes (the Lightbringer's eye: a warm brown lash, an amber-gold iris, one shine), each in a 12 x 12 window
-    (the right eye at u 0, the left at u 12); rest is serene - the lid a little low - and every expression redrawn"""
     im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    k = {None: None, 'happy': 'happy', 'blink': 'blink', 'fierce': 'fierce', 'surprised': 'surprised', 'sad': 'sad'}[kind]
-    for x0, flip in ((0, False), (12, True)):
-        eye(im, x0 + 6, 2, 10, 9, flip=flip, kind=k, iris=KIND_IRIS, lash='#6a4418', pupil='#3a1e06', lid=3 if kind is None else None)
-        blush(im, x0 + (3 if not flip else 9), 11, 4, '#f6c0b0')
+    kind_eye(im, 0, 0, kind); kind_eye(im, 16, 0, kind, flip=True)
     return im
 
 
@@ -217,11 +253,11 @@ for sx in (1, -1):
 stack(R, 'head', [(HY + 0.4, HY + 1.0, 1.4, 1.0), (HY + 1.0, HY + 1.9, 1.6, 1.2)], 'hbill', c=(0, -19.0), k=0.62)   # (the knob, gold)
 R.box('head', (-0.65, HY + 0.6, -20.3), (0.65, HY + 1.9, -19.95), 'gem', rot=('z', 45.0, (0, HY + 1.25, -20.1)), light=8)   # (the emerald, back)
 for sx in (1, -1):                                                                      # (the eyes, on soft bumps, turned forward)
-    xc, yc, zc, a = sx * 2.75, HY + 0.6, -16.4, 22.0 * sx
-    B('head', (xc - 0.55, yc - 1.5, zc - 1.5), (xc + 0.55, yc + 1.5, zc + 1.5), 'hf2', rot=('y', a, (xc, yc, zc)))
-    x = xc + 0.56 * sx
-    B('head', (min(x, x + 0.02 * sx), yc - 1.5, zc - 1.5), (max(x, x + 0.02 * sx), yc + 1.5, zc + 1.5), 'EYES', faces=('east' if sx > 0 else 'west',),
-      uv={'east' if sx > 0 else 'west': [0, 0, 3, 3] if sx > 0 else [3, 0, 6, 3]}, light=6, rot=('y', a, (xc, yc, zc)))
+    xc, yc, zc, a = sx * 2.85, HY + 0.6, -16.6, 24.0 * sx
+    B('head', (xc - 0.6, yc - 2.0, zc - 2.0), (xc + 0.6, yc + 2.0, zc + 2.0), 'hf2', rot=('y', a, (xc, yc, zc)))
+    x = xc + 0.61 * sx
+    B('head', (min(x, x + 0.02 * sx), yc - 2.0, zc - 2.0), (max(x, x + 0.02 * sx), yc + 2.0, zc + 2.0), 'EYES', faces=('east' if sx > 0 else 'west',),
+      uv={'east' if sx > 0 else 'west': [0, 0, 4, 4] if sx > 0 else [4, 0, 8, 4]}, light=6, rot=('y', a, (xc, yc, zc)))
 # ---- the jaw
 R.seg('jaw', (0, HY - 1.3, -18.8), (0, HY - 1.55, -22.4), 2.6, 0.8, 'hbill_d', ext=0.1)
 B('jaw', (-0.9, HY - 1.0, -21.8), (0.9, HY - 0.85, -19.2), 'hmouth')
@@ -266,12 +302,12 @@ for p, f, sx in (('legr', 'footr', 1), ('legl', 'footl', -1)):
 # ---------------------------------------------------------------------------------------------------- fx
 # THE HOLY BEAM: a pillar of light called down on a foe (in front of her), rings round it, a sunburst where it lands
 bx, by, bz = PIVOT['beam']
-R.seg('beam', (bx, 0.2, bz), (bx, 44.0, bz), 4.0, 4.0, 'pillar', light=15, full=True)
-R.seg('beam', (bx, 0.2, bz), (bx, 44.0, bz), 7.0, 7.0, 'pillar', light=15, full=True, up=(0.7, 0.0, -0.7))
-for k in range(4): ring(R, 'beam', (bx, 2.0 + k * 9.0, bz), 5.0 + (k % 2) * 1.2, 12, 0.6, 0.6, 'ring', light=14)
+R.seg('beam', (bx, 0.2, bz), (bx, 90.0, bz), 6.0, 6.0, 'pillar', light=15, full=True)
+R.seg('beam', (bx, 0.2, bz), (bx, 90.0, bz), 11.0, 11.0, 'pillar', light=15, full=True, up=(0.7, 0.0, -0.7))
+for k in range(5): ring(R, 'beam', (bx, 2.0 + k * 18.0, bz), 7.0 + (k % 2) * 1.6, 12, 0.8, 0.8, 'ring', light=14)
 for k in range(8):
     a = math.radians(k * 45); B('beam', (bx + 8 * math.cos(a) - 0.8, 0.1, bz + 8 * math.sin(a) - 0.8), (bx + 8 * math.cos(a) + 0.8, 0.2, bz + 8 * math.sin(a) + 0.8), 'spark', faces=('up',), full=True, light=15)
-R.PART_K['beam'] = 2.0
+R.PART_K['beam'] = 4.0
 # THE WING GUST: three arcs of wind out in front, loose feathers tumbling in them
 gx, gy, gz = PIVOT['gust']
 for i, (r, z) in enumerate(((7.0, gz + 2.0), (10.0, gz - 3.0), (13.0, gz - 8.0))):

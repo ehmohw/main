@@ -411,7 +411,7 @@ def generate(G):
         b_call = P28.btn([icon, T(' Call ', 'white'), T(nm, col, bold=True)], c_call(i), tooltip=T(f'Call {nm}', 'gray'))
         b_home = P28.btn([icon, T(f' Send {nm} home', '#c8c8c8')], c_call(i), tooltip=T(f'{cap(nm)} goes home', 'gray'))
         b_out = P28.btn(T('Take the item back', 'gray'), c_out(i), tooltip=T(f'{it_nm} comes off the wheel', 'gray'))
-        b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], c_menu(i), tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, {WHO[w][1]} ways and choices (as sneak + using {it_nm})', 'gray'))
+        b_menu = P28.btn([T('\u2699 ', col), T('Menu', 'white')], c_menu(i), tooltip=T(f'{cap(nm)}\'s own menu - the wardrobe, { {"him": "his", "it": "its", "them": "their"}.get(WHO[w][1], WHO[w][1])} ways and choices (as sneak + using {it_nm})', 'gray'))
         fn(f'p179/w/row{i}', on + [f'execute if score #pwon bm.rng matches 0 run data modify storage bm:tmp pw.acts append value {snbt(b_call)}',
                                    f'execute if score #pwon bm.rng matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b_home)}',
                                    f'data modify storage bm:tmp pw.acts append value {snbt(b_menu)}',

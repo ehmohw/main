@@ -2,17 +2,18 @@
 phase235's).
 
 THE LIGHTBRINGER (The Herald's Feather) - HARD MODE ONLY   a herald of the Divine One, the light set against the Dread: translucent,
-  in white and gold, royal blue and purple at the edges. She comes only in hard mode, and only BEFORE you face what stands behind
-  the Dread (bm.dfin - the final reckoning; once that's done, she's no longer to be found). By day, under the open sky, wearing
-  something holy (anything a Golden Cross has made holy), she may come down to you; speak to her and she stays.
+  in white and gold, royal blue and purple at the edges. (3.0p) She comes once to every player, in hard mode: the first Golden
+  Cross they set down in the Overworld by day, under the open sky, she glides down beside them out of a puff of sparkles and
+  light and joins them - whether or not the Dread Sovereign has fallen. Her feather lost: her doll set down by a cross brings her
+  down again with a new one (met before, the feather nowhere about you or on your wheel, hard mode). (e_light, show_light)
   SMITE a foe within 12, every 3 s: a pillar of light (8; 14 to the undead). BLESS you, hurt in a fight, every 8 s: Regeneration II
   and Absorption, your followers healed too. WARD (charged, every minute): her wings close round you - you and your followers
   Resistance II and Absorption II; the monsters near pushed back (6, the undead set alight). PRAY out of a fight: a meal's worth and
   Regeneration. THE OPHANIM (2.99a; three or more monsters near, every 90 s): her true form, a wheel within a wheel, full of eyes -
   light falls three times on every monster within 16. SHE LOVES IT WHEN YOU WEAR HOLY THINGS: beside her, wearing something holy, she beams - Regeneration while you're
   near, her smite +4, her blessing and her prayer stronger.
-  (3.0) SHE OR HE: the herald may be a woman or a man - the same light. The first time you meet the Lightbringer (however: the sky,
-  the Summons' herald, an admin's meet, the feather got another way and first used) it's 50/50 which, and kept for you (bm.lhform:
+  (3.0) SHE OR HE: the herald may be a woman or a man - the same light. The first time you meet the Lightbringer (however: the
+  cross, an admin's meet, the feather got another way and first used) it's 50/50 which, and kept for you (bm.lhform:
   0 she, 1 he); the menu's "Form: Herald (she)" / "(he)" switches it (code MENU+3, rigpet's FORM). His look: lightbringer_art's '_m'
   twin of every part (the same rig, poses, faces, Ophanim). Whoever met her before this keeps her. Every line of hers that says
   she / her has a twin for him (gender_split); her bonds and her feather's lore say "the herald" instead.
@@ -549,7 +550,7 @@ def generate(G):
                                  X.tellraw('@s', [T('"The Divine One sees you. The Dread is rising - you will not face it alone." ', '#fff4d0', italic=True),
                                                   T('She plucks a feather from her wing, its tip still glowing, and puts it in your hand.', 'gray', italic=True)]),
                                  'advancement grant @s only bm:met/lightbringer', 'tag @s add bm.lhcross', 'function bm:p236l/enc/joined'])
-        # (3.0) SHE OR HE: the first time she's met (any way: this encounter, the Summons' herald, an admin's meet - the herald
+        # (3.0) SHE OR HE: the first time she's met (any way: the cross, an admin's meet - the herald
         # stands there already in the form chosen - or the feather got some other way and first used) it's 50/50 which, kept on
         # the player (bm.lhform: 0 she, 1 he; the menu's Form button switches it). Whoever had her before this keeps her.
         fn('p236l/form_roll', ['execute if score @s bm.lhform matches 0..1 run return 0',

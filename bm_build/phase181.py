@@ -48,6 +48,7 @@ HUNTED_MIN = 360                       # (seconds hunted in the Overworld for th
 KIN = set()                            # (2.87: followers' host tags that DO come out on a Dread Night - the Stalker, phase193)
 DAWN = []                              # (2.87: lines run as each survivor at dawn, after their essence - phase193's encounter)
 STILL = []                             # (2.87: lines run as each hunted player before the standing-still count is read)
+CROSS_SET = []                         # (3.0p: lines run as the player who sets a Golden Cross down, at it - phase236's Lightbringer)
 
 # ================================================================== THE ITEMS
 item('dread_essence', TOTEM, 'Dread Essence', ESS,
@@ -605,7 +606,7 @@ def generate(G):
                           'scoreboard players set #placed bm.rng 1',
                           'playsound minecraft:block.bell.resonate block @a[distance=..16] ~ ~ ~ 0.6 1.8',
                           'playsound minecraft:block.amethyst_block.place block @a[distance=..16] ~ ~ ~ 1 1.2',
-                          'particle minecraft:end_rod ~ ~0.8 ~ 0.2 0.4 0.2 0.04 12'])
+                          'particle minecraft:end_rod ~ ~0.8 ~ 0.2 0.4 0.2 0.04 12'] + CROSS_SET)
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.gci] if data entity @s attack at @s run function bm:p181/cross/pick',
              'execute as @e[type=minecraft:interaction,tag=bm.gci] if data entity @s interaction run data remove entity @s interaction']
     fn('p181/cross/pick', [f'execute on attacker run {give("golden_cross")}', 'kill @e[type=minecraft:item_display,tag=bm.gcd,distance=..0.7]',

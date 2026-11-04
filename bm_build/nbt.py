@@ -24,8 +24,58 @@ def _key(k):
     return k if _BARE.match(k) and not k[0].isdigit() and k not in ('true', 'false') else json.dumps(k)
 
 
+# ---------- (3.0p) text styles that a list's later parts would inherit ----------
+# In a text component given as a list, the first part is the parent of the rest (and a part's "extra" its children): they
+# inherit its bold, underline... - so [{"text":"RAID CREW","bold":true}, {"text":" - who comes..."}] drew the grey part bold too.
+# unbold() gives every such child the style it doesn't say, as false - only where the parent's is on, so nothing else changes.
+# Not inside an item's components (minecraft:*), lore, book pages or a set_name's name: an item stays the item it was.
+_STYLE = ('bold', 'underlined', 'strikethrough', 'obfuscated')
+_TXTK = ('text', 'translate', 'score', 'selector', 'keybind', 'nbt')
+_KEEP = ('lore', 'pages', 'name')
+
+
+def _is_txt(d):
+    return type(d) is dict and 'id' not in d and any(k in d for k in _TXTK)
+
+
+def _inherit(parent, kids):
+    on = [k for k in _STYLE if parent.get(k) is True]
+    if not on:
+        return kids
+    out = []
+    for c in kids:
+        if _is_txt(c) and any(k not in c for k in on):
+            c = dict(c)
+            for k in on:
+                c.setdefault(k, False)
+        out.append(c)
+    return out
+
+
+def unbold(v, key=None):
+    """(3.0p) a copy of v in which no text part inherits a style its parent turned on (see above)"""
+    if key is not None and (key in _KEEP or key.startswith('minecraft:')):
+        return v
+    t = type(v)
+    if t is dict:
+        out = {k: unbold(x, k) for k, x in v.items()}
+        if isinstance(out.get('extra'), list) and _is_txt(out):
+            out['extra'] = _inherit(out, out['extra'])
+        return out
+    if t is list or t is tuple:
+        out = [unbold(x) for x in v]
+        if len(out) > 1 and _is_txt(out[0]):
+            out[1:] = _inherit(out[0], out[1:])
+        return out
+    return v
+
+
 def snbt(v):
     """Python -> SNBT text."""
+    return _snbt(unbold(v))
+
+
+def _snbt(v):
     if isinstance(v, bool):
         return 'true' if v else 'false'
     if isinstance(v, Byte): return f'{int(v)}b'
@@ -38,9 +88,9 @@ def snbt(v):
     if isinstance(v, float): return _num(v)
     if isinstance(v, str): return json.dumps(v, ensure_ascii=False)
     if isinstance(v, dict):
-        return '{' + ','.join(f'{_key(k)}:{snbt(x)}' for k, x in v.items()) + '}'
+        return '{' + ','.join(f'{_key(k)}:{_snbt(x)}' for k, x in v.items()) + '}'
     if isinstance(v, (list, tuple)):
-        return '[' + ','.join(snbt(x) for x in v) + ']'
+        return '[' + ','.join(_snbt(x) for x in v) + ']'
     raise TypeError(type(v))
 
 

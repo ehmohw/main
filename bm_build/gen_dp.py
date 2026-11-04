@@ -1,6 +1,6 @@
 """Generates the Black Market data pack."""
 import json, os, shutil, sys
-from nbt import snbt, to_json, B, F, D, L, Int
+from nbt import snbt, to_json, B, F, D, L, Int, unbold as nbt_unbold
 import items as I
 from items import ITEMS, PRICES, CATEGORY, UPGRADES, FEASTS, COSMETICS, SKINS, BOOKS, T, TOTEM
 import structures as S
@@ -280,7 +280,7 @@ def path(*p):
 
 
 def wjson(rel, obj):
-    obj = mig263.convert(rel, to_json(mig263.custom_data_snbt(obj)))   # 26.3 shapes; custom_data as SNBT text (mig263.py)
+    obj = mig263.convert(rel, to_json(mig263.custom_data_snbt(nbt_unbold(obj))))   # 26.3 shapes; custom_data as SNBT text (mig263.py); (3.0p) no inherited bold (nbt.unbold)
     with open(path('data', *rel.split('/')), 'w') as f:
         json.dump(obj, f, indent=1, ensure_ascii=False)
 
