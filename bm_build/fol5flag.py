@@ -15,3 +15,5 @@ KNIGHT = True
 MIMIC = True
 FERRO = True                  # (60, phase271)
 REX = True                    # (61, phase272)
+TALUS = True                  # (62, phase273)
+TRIVYRN = True                # (63, phase274)

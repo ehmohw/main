@@ -684,7 +684,7 @@ def generate(G):
     fn('p238/a/root_snap', ['particle minecraft:squid_ink ~ ~0.6 ~ 0.6 0.6 0.6 0.1 30 force', 'playsound minecraft:entity.warden.attack_impact hostile @a[distance=..24] ~ ~ ~ 1 0.5',
                             f'execute as @a[distance=..1.7,gamemode=!spectator,gamemode=!creative] run function bm:p238/a/rooted', 'kill @s'])
     fn('p238/a/rooted', [f'damage @s 7 minecraft:magic by {M}', 'effect give @s minecraft:slowness 3 6', 'effect give @s minecraft:jump_boost 3 200 true'])
-    fn('p238/a/dark', [f'effect give {FIGHT} minecraft:darkness 6 0', 'playsound minecraft:entity.warden.nearby_closest hostile @a[distance=..64] ~ ~ ~ 3 0.5', 'function bm:p238/a/knights'])
+    fn('p238/a/dark', [f'execute as {FIGHT} at @s run particle minecraft:sculk_soul ~ ~1 ~ 1.5 1 1.5 0.02 40', 'playsound minecraft:entity.warden.nearby_closest hostile @a[distance=..64] ~ ~ ~ 3 0.5', 'function bm:p238/a/knights'])
 
     # ---- phase II's wing-eyes: six hitboxes that ride its wings; all six shot out and it crashes down
     eyeh = {'Tags': ['bm.sveye', 'bm.boss_part'], 'NoAI': B(1), 'Silent': B(1), 'NoGravity': B(1), 'PersistenceRequired': B(1), 'DeathLootTable': 'minecraft:empty',

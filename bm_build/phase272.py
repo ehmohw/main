@@ -222,7 +222,7 @@ def generate(G):
     fn(f'{pfx}/box_fit', [f'execute if entity @s[tag=bm.rqcz] run function bm:{pfx}/box/full'])
     fn(f'{pfx}/box/full', CSZ.resize('bm.ryhit', *HIT_F))
     # ---- RIDE: it goes home as a follower and comes as phase249's mount - full size, saddled (the Mecha's, in its costume) - you on it
-    fn('p272/ride', ['execute if entity @s[predicate=bm:p29/has_vehicle] run return run ' + say('(get down first)'),
+    fn('p272/ride', ['execute if function bm:p20/frog/has_vehicle run return run ' + say('(get down first)'),
                      'execute unless function bm:p249/allowed run return run ' + say('(it won\'t carry you here - not in a dungeon, a market, the vault or a heist)'),
                      'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #on bm.rng 0',
                      'execute as @e[type=minecraft:wolf,tag=bm.rypet,tag=!bm.ffpet] if score @s bm.pid = #me bm.pid run scoreboard players set #on bm.rng 1',

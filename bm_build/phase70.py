@@ -221,7 +221,10 @@ def generate(G):
                          'execute if score #gt bm.rng matches 4 run scoreboard players set #nm bm.rng 2',
                          'execute if score #gt bm.rng matches 5 store result score #nm bm.rng run random value 2..3',
                          'execute if score #nm bm.rng matches 1.. run function bm:p70/roll_mod'])
-    fn('p70/roll_mod', ['execute store result score #r bm.rng run random value 0..6'] +
+    fn('p70/roll_mod', ['execute store result score #r bm.rng run random value 0..6',
+                        # (3.0r: Glass Cannon is rarer - drawn, it sticks only 1 time in 3, otherwise the draw goes again)
+                        'execute if score #r bm.rng matches 4 store result score #q bm.rng run random value 1..3',
+                        'execute if score #r bm.rng matches 4 unless score #q bm.rng matches 1 run return run function bm:p70/roll_mod'] +
        [f'execute if score #r bm.rng matches {j} run scoreboard players set #bit bm.rng {2 ** j}' for j in range(7)] +
        ['scoreboard players operation #q bm.rng = #gm bm.rng', 'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
         'execute if score #q bm.rng matches 1 run return run function bm:p70/roll_mod', 'scoreboard players operation #gm bm.rng += #bit bm.rng',

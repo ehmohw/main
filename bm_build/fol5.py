@@ -13,9 +13,9 @@ modules only where a recolour needs their texture names (art() below).
           fifty, "fifty threads") - see the owner's decision in the batch notes"""
 import fol5flag as FL
 
-ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro', 'rex']
-FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO', 'rex': 'REX'}
-PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271', 'rex': 'phase272'}
+ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro', 'rex', 'talus', 'trivyrn']
+FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO', 'rex': 'REX', 'talus': 'TALUS', 'trivyrn': 'TRIVYRN'}
+PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271', 'rex': 'phase272', 'talus': 'phase273', 'trivyrn': 'phase274'}
 NOT_IN_COMPASS = True
 
 
@@ -256,6 +256,49 @@ SPEC['rex'] = dict(
             [_P('minecraft:soul_fire_flame', 40), _P('minecraft:end_rod', 20)], 'minecraft:block.beacon.power_select', 'minecraft:entity.warden.sonic_boom'),
     henry=('Nap on the Tail', (('regeneration', 0), ('fire_resistance', 0)), '(it lays its tail down very carefully, and holds still)', '(Henry naps on the warm end of its tail)'),
     nia=('Big Friend', (('regeneration', 1),), '(it puts its nose down to her, and lets her bat at it)', '(Nia climbs up its tail to sit on its back plates)'),
+)
+
+# ---------------------------------------------------------------------------------------------------- 62: TALUS, THE MOSSBACK TITAN
+_tl = _looks('Pelt', ('Autumn Moss', ('#2a1406', '#a8601a', '#f0c040')), ('Snowcap', ('#3a4048', '#e8eef4', '#a8e0ff')), ('Basalt Moss', ('#0a0a0c', '#3a3a40', '#8a6aff')))
+SPEC['talus'] = dict(
+    shiny_name='Shiny Living Jade', NAME='Talus', pron='it', COL='#9a6aff', LINE='#d8c8ff', ab='tl', q='tt', pfx='p273', item='mossback_drum', prefix='tl_',
+    word='Pelt', looks=_tl, dyes=_dyes('Pelt', 'orange', 'white', 'black', _tl), words='its pelt and crystals', plain='Mossback and amethyst', base=6930,
+    aura=('Geode Heart', '#b48cff', 1.4, 1.2, 'minecraft:end_rod', [f'particle {_dust(0.7, 0.55, 1.0, 1.0)} ~ ~1.4 ~ 0.7 0.6 0.7 0 3', 'particle minecraft:end_rod ~ ~2 ~ 0.4 0.4 0.4 0.01 1']),
+    anchors=('head', 'tl_head', 'body', 'tl_body'),
+    champ=(None, [], False, ['minecraft:end_rod ~ ~2 ~ 0.4 0.3 0.4 0.01 1', _dust(0.7, 0.55, 1.0, 1.0) + ' ~ ~1.2 ~ 0.5 0.5 0.5 0 3']),
+    gift=('Strength and Resistance', [f'effect give {P8} minecraft:strength 15 0 true', f'effect give {P8} minecraft:resistance 15 0 true']),
+    trib=[('minecraft:amethyst_shard', 32), ('minecraft:moss_block', 32), ('minecraft:bamboo', 32), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Mountain Range', 'it beats its chest and the ground rises: 16 to monsters round it, knocked up and weakened; you, Strength and Resistance II',
+            (16, 7), 0, 'weakness 5 1', ['strength 10 1', 'resistance 10 1'], 'minecraft:end_rod', 'minecraft:entity.warden.sonic_charge'),
+    hint='Ride a Rex and roar in the jungle; root what falls in a lush cave; then play the mountain\'s drums on a peak at dawn.',
+    shiny_say='"(it beats its chest, gently - its crystals rose-pink, its pelt sunrise orange: trying something new today)"',
+    pierce=('Fist Flurry', 'plants itself and hammers the monster with a flurry of fists - then brings both down on it at once', 'behind',
+            [_P('minecraft:end_rod', 20)], [_dust(0.7, 0.55, 1.0, 1.0) + ' ^ ^1 ^-1 0.3 0.3 0.3 0 3'],
+            [_P('minecraft:crit', 40), _P('minecraft:end_rod', 20)], 'minecraft:block.amethyst_cluster.break', 'minecraft:entity.generic.explode'),
+    henry=('Mossy Saddle', (('regeneration', 0), ('resistance', 0)), '(it sits very, very still)', '(Henry naps on its moss saddle)'),
+    nia=('The View', (('regeneration', 1),), '(it lifts her up, very gently, to the top of its crystals)', '(Nia climbs its crystal ridge, for the view)'),
+)
+
+# ---------------------------------------------------------------------------------------------------- 63: TRIVYRN, THE THREE-WORLD WYRM
+_tw = _looks('Scale', ('Dawnscale', ('#2a1006', '#c06a30', '#ffe0b0')), ('Abyssal', ('#020a0a', '#0a4a4a', '#40e0c0')), ('Storm Grey', ('#14161c', '#5a6070', '#ffe040')))
+SPEC['trivyrn'] = dict(
+    shiny_name='Shiny Opal', NAME='Trivyrn', pron='it', COL='#ff8a3a', LINE='#ffe0c8', ab='tw', q='tv', pfx='p274', item='triune_horn', prefix='tw_',
+    word='Scale', looks=_tw, dyes=_dyes('Scale', 'orange', 'cyan', 'gray', _tw), words='its scales', plain='Three-world maroon', base=6980,
+    aura=('The Three Worlds', '#ff8a3a', 1.4, 1.2, 'minecraft:electric_spark', [f'particle {_dust(1.0, 0.9, 0.2, 0.8)} ~ ~1.6 ~ 0.7 0.3 0.7 0 2', f'particle {_dust(1.0, 0.5, 0.1, 0.8)} ~ ~1.2 ~ 0.7 0.3 0.7 0 2',
+                                                                                  f'particle {_dust(0.9, 0.2, 0.8, 0.8)} ~ ~0.8 ~ 0.7 0.3 0.7 0 2']),
+    anchors=('hs', 'tw_hs', 'body', 'tw_body'),
+    champ=(None, [], False, ['minecraft:electric_spark ~ ~2 ~ 0.4 0.3 0.4 0.01 1', _dust(1.0, 0.5, 0.1, 1.0) + ' ~ ~1.2 ~ 0.5 0.5 0.5 0 3']),
+    gift=('Speed and Fire Resistance', [f'effect give {P8} minecraft:speed 15 0 true', f'effect give {P8} minecraft:fire_resistance 15 0 true']),
+    trib=[('minecraft:blaze_rod', 16), ('minecraft:breeze_rod', 8), ('minecraft:shulker_shell', 4), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Three Minds, One Wyrm', 'all three heads breathe at once - storm, fire and void: 16 to monsters round it, set alight and lifted; you, Speed and Fire Resistance',
+            (16, 7), 0, 'slowness 5 1', ['speed 10 1', 'fire_resistance 20 0'], 'minecraft:electric_spark', 'minecraft:entity.ender_dragon.growl'),
+    hint='Three scales from three worlds, thrown into a lit portal together; then each world cracks its own seam.',
+    shiny_say='"(Squall: "We\'re trying something NEW today." Cinder: "Opal. Ugh." Hush: "...pretty.")"',
+    pierce=('Lightning Breath', 'all three heads rear back and pour a braided storm of lightning into the monster', 'behind',
+            [_P('minecraft:electric_spark', 30)], [_dust(1.0, 0.9, 0.2, 1.0) + ' ^ ^1 ^-1 0.3 0.3 0.3 0 3'],
+            [_P('minecraft:electric_spark', 40), _P('minecraft:end_rod', 20)], 'minecraft:entity.lightning_bolt.thunder', 'minecraft:entity.lightning_bolt.impact'),
+    henry=('Tail Fan', (('regeneration', 0), ('night_vision', 0)), '(Hush watches over him, very quietly)', '(Henry sleeps curled in its tail fan)'),
+    nia=('Show-Off', (('regeneration', 1), ('speed', 0)), '(Squall flashes its crest for her - and Hush glows when she pats it)', '(Nia pats Hush)'),
 )
 
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)

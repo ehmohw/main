@@ -104,7 +104,17 @@ def bake(rp, parts, kh=1.55, kb=0.82, kl=0.62, groups=None, neck=None, hip=None,
     hip1 = ground + (hip0 - ground) * kl
     neck1 = None if neck is None else hip1 + (neck - hip0) * kb
     gnd = np.array([0, ground, 0.0])
+    # (3.1) PER-HEAD GROWTH: a group 'head:<name>' (Trivyrn's three) grows about its OWN neck - the lowest of its parts - and that
+    # point goes where the body's warp takes it, so each head stays on its own neck instead of all three crowding one neck point
+    necks = {}
+    for m, t, *_ in parts:
+        g = G[m]
+        if g.startswith('head:') and (g not in necks or t[1] < necks[g][1]):
+            necks[g] = tuple(t)
     def warp(g):
+        if g in necks:
+            c0 = np.array(necks[g], dtype=float); h0 = np.array([0, hip0, 0.0]); h1 = np.array([0, hip1, 0.0])
+            return kh, c0, h1 + kb * (c0 - h0)
         if g == 'legs': return kl, gnd, gnd                                                      # (about the ground)
         if g == 'head' and neck is not None: return kh, np.array([0, neck, 0.0]), np.array([0, neck1, 0.0])
         return kb, np.array([0, hip0, 0.0]), np.array([0, hip1, 0.0])

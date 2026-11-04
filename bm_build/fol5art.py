@@ -339,8 +339,29 @@ def _ferro():
     return A
 
 
+def _kaiju(mod, w, drawn, shiny, comp):
+    """Talus and Trivyrn (fol5_kit rigs, built at their full size): the follower is built at its companion size (comp - its own
+    RIG_SCALE / K_UP), Full Size (compsize) twins it at its own"""
+    import importlib
+    M = importlib.import_module(mod)
+    A = Art(w, M.R, {'happy': 'happy', 'surprised': 'look', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'},
+            tuple(t for t in M.R._tex if not any(t.endswith(s) for s in M.R._skins)), drop=tuple(s for s in M.R._skins if s not in ('_ch', '_g')), drawn=drawn, shiny=shiny,
+            doll_groups=getattr(M, 'DOLL_GROUPS', None))
+    M.DOLL_POSE = 'doll'
+    A.doll(M)
+    A.FULL = M.R.RIG_SCALE
+    A.K_UP = round(A.FULL / comp, 4)
+    A.RIG_SCALE = comp
+    A.FIT = tuple(round(v / A.K_UP, 3) for v in A.FIT)
+    A.NO_LOOK = tuple(s for s in ('_g', '_ch'))
+    A.M = M
+    return A
+
+
 _MADE = {}
-_MAKERS = {'rex': _rex, 'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
+_MAKERS = {'talus': lambda: _kaiju('kaiju_ape_art', 'talus', {1: '_au', 2: '_sn'}, ('_sh', '#3aa070', 'green'), 0.83),
+           'trivyrn': lambda: _kaiju('kaiju_hydra_art', 'trivyrn', {1: '_dw', 2: '_ab'}, ('_sh', '#f0e8f8', 'white'), 0.77),
+           'rex': _rex, 'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 
 
 def get(w):

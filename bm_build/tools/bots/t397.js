@@ -34,7 +34,7 @@ runT({ W: 'rex', NAME: 'The Atomic Rex', ab: 'ry', q: 'rq', pfx: 'p272', prefix:
     // RIDE
     await ctx.sneakMenu(0); await A.press(/^Ride/); await sleep(2500);
     ok('RIDE - pressed: the follower gone, phase249\'s mount here with TestRat on it', (await cnt(PET)) === 0 &&
-       /passed/i.test(await run(`${O}execute as TestRat if predicate bm:p29/has_vehicle`)), await run(`${O}execute if entity @e[type=minecraft:horse,tag=bm.ryride]`));
+       /passed/i.test(await run(`${O}execute as TestRat on vehicle if entity @s[type=minecraft:horse]`)), await run(`${O}execute if entity @e[type=minecraft:horse,tag=bm.ryride]`));
     A.input({ shift: true }); await sleep(800); A.input({}); await sleep(2500);
     ok('...off it (sneak): the mount gone, the follower back', (await cnt('@e[type=minecraft:horse,tag=bm.ryride]')) === 0 && (await cnt(PET)) === 1);
     // THE MECHA
