@@ -82,7 +82,7 @@ def generate(G):
             a_next = P28.btn([T('Next ›', 'white')], nxt, width=w, tooltip=T('The next page.', 'gray'))
         nav += ['$execute if score #pgp bm.rng < #pgl bm.rng run data modify storage bm:ui pg.out append value ' + snbt(a_next),
                 'execute if score #pgp bm.rng >= #pgl bm.rng run data modify storage bm:ui pg.out append value ' + dim('Next ›', w)]
-        fn(f'p261/pg/nav_{key}', nav)
+        fn(f'p261/pg/nav_{key}', [l if l[0] != '$' or '$(' in l else l[1:] for l in nav])
         fn(f'p261/pg/{key}', [f'scoreboard players operation #pgp bm.rng = @s bm.pg_{key}', f'scoreboard players set #pgN bm.rng {per}',
                               f'data modify storage bm:ui pg.src set from storage {S}', 'function bm:p261/pg/run',
                               f'scoreboard players operation @s bm.pg_{key} = #pgp bm.rng',

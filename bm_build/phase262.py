@@ -242,7 +242,7 @@ def _encounter(G, X):
     rchat = lambda parts, who='@s': tellraw(who, [T('The Rat King: ', COL, bold=True)] + parts)
     q = lambda s: T(s, LINE)
     # (the poses only his throne asks for - the rest are the follower's own)
-    for name in ('throne_a', 'throne_b', 'bow', 'cut', 'cut_a', 'whistle_a', 'gift', 'happy'):
+    for name in ('throne_a', 'throne_b', 'bow', 'cut', 'whistle_a', 'gift', 'happy'):
         if f'p262/pose/{name}' not in G.FUNCS:
             fn(f'p262/pose/{name}', RF.pose(RatKing.A, A.POSES[name], A.RIG_SCALE, RatKing.DUR.get(name, 6), X.psel, swap=RatKing.SWAP, keep=True) +
                RatKing.POSE_EXTRA(name, X.psel))
