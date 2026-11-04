@@ -15,7 +15,7 @@ import phase134 as P134
 
 PURPLE = '#b48cff'
 GAL, PAGE0, BACK = 3352, 3353, 3359
-PAGE6 = 3422                                  # (2.99: a seventh page on - 3353..3358 were full; the wheel's free codes from 3422)
+PAGE6 = 3422                                  # (2.99: a seventh page on - 3353..3358 were full; 3422-3425 are the pages' (3.0i: up to ten, 80 followers))
 pg_code = lambda i: PAGE0 + i if i < 6 else PAGE6 + i - 6
 PER, RADIUS, ARC = 8, 4.6, 20               # (eight to a page, 4.6 blocks out, 20 degrees apart)
 TALL, WIDE = 1.4, 1.15                      # (a figure fits in this: tall, and wide or deep)
@@ -56,7 +56,7 @@ def generate(G):
     assert set(HINT) == set(P125.WHO), set(HINT) ^ set(P125.WHO)
     met = lambda a: f'entity @s[advancements={{{a}=true}}]'
     pages = [E[i:i + PER] for i in range(0, len(E), PER)]
-    assert len(pages) <= 6 + 28, len(pages)
+    assert len(pages) <= 6 + 4, len(pages)          # (3.0i: 3426 on is the wheel's - 3448/3449 its top row)
 
     # ================================================================== the list
     btns = [P28.btn([T('◈ View in 3D: ', PURPLE), T(f'#{pg[0][0]:02d}-#{pg[-1][0]:02d}', 'white')], pg_code(i),

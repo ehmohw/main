@@ -221,6 +221,7 @@ import phase256 as R256      # 3.0b: the Pixel Creeper - a little 8-bit creeper 
 import phase255 as R255      # 3.0a: [no-spawn hook] nothing spawns in the Undercrown or the Armada but their own foes (and the Undercrown's Mires)
 import phase253 as R253      # 3.0: the Loom Sanctuary - the Compass of Bonds (every follower met) and the sky island where the Keeper waits
 import phase254 as R254      # 3.0: [keeper hook] the Keeper of Bonds - the 51st follower, the last (registers after every follower before it)
+import phase259 as R259      # 3.0i: the wheel's teams, sorting and sit-all; bank transfers; the heist haul; bag previews
 import elemforms as EFM      # 3.0h (redone: elemforms_art / elemforms_designs - new shapes per character); 3.0g: Ethereal and Wraithfire forms for ten more followers (the wardrobe rows, the gem's lore, the ways: at import)
 EFM.setup()
 import phase257 as R257      # 3.0d: the death sprites - holy fire, ash, star dust, goop bubbles (the three dramatic deaths)
@@ -1498,6 +1499,7 @@ def build(out_dir):
     R178.generate(sys.modules[__name__])        # 2.84b: hard auctions, hard replays, community pots
     R179.generate(sys.modules[__name__])        # 2.84c: rebalance re-sync, alien gear, the Partner Wheel
     if PHASE2: R220.generate(sys.modules[__name__])      # 2.94r: the Follower Gallery (on the wheel's page; after the wheel)
+    if PHASE2: R259.wheel(sys.modules[__name__])          # 3.0i: the wheel's Teams, Show/Sort, Sit all; Pearlman's card (after the wheel and its gallery)
     if PHASE2: R221.generate(sys.modules[__name__])      # 2.94t: shiny followers (after the wheel and the gallery)
     if PHASE2: R222.generate(sys.modules[__name__])      # 2.94u: dashes (after every follower's attacks)
     if PHASE2: R223.generate(sys.modules[__name__])      # 2.94u: signature moves
@@ -1535,6 +1537,9 @@ def build(out_dir):
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
     if PHASE2: print('3.0g: the heists mended and widened - %d hooks' % R3GH.generate(sys.modules[__name__]))      # (after phase175/184 and every room, guardian, bag and follower it hooks)
+    if PHASE2: R259.bank(sys.modules[__name__])           # 3.0i: send to a player from the Rat Bank
+    if PHASE2: R259.haul(sys.modules[__name__])           # 3.0i: the heist haul card (after every heist hook)
+    if PHASE2: R259.bags(sys.modules[__name__])           # 3.0i: bags write what they hold into their lore (after phase248)
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)

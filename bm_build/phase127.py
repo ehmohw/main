@@ -395,7 +395,11 @@ def generate(G):
     k = next(i for i, l in enumerate(sec) if l == 'execute if score @s bm.eme matches 1.. run function bm:p57/ethereal')
     sec[k:k] = ['tag @s remove bm.emwfs', 'scoreboard players set #wfs bm.rng 0',
                 'execute on owner if score @s bm.emwf matches 1 if score @s bm.emst matches 1 run scoreboard players set #wfs bm.rng 1',
-                'execute if score #wfs bm.rng matches 1 unless dimension bm:gutter run tag @s add bm.emwfs',
+                # (3.0i: and in the vault too - her heist self, the crew's, keeps the form you gave her; by her pid as well, should she
+                #  have no owner there)
+                'scoreboard players operation #wfp bm.rng = @s bm.pid',
+                'execute if score #wfs bm.rng matches 0 as @a if score @s bm.pid = #wfp bm.rng if score @s bm.emwf matches 1 if score @s bm.emst matches 1 run scoreboard players set #wfs bm.rng 1',
+                'execute if score #wfs bm.rng matches 1 run tag @s add bm.emwfs',
                 'execute if entity @s[tag=bm.emwfs] if score @s bm.eme matches 0 run function bm:p57/ascend',
                 'execute if entity @s[tag=bm.emwfs] if score @s bm.eme matches 1..29 run scoreboard players set @s bm.eme 30',
                 'execute if entity @s[tag=bm.emwfs] run particle minecraft:soul_fire_flame ~ ~1.2 ~ 0.3 0.5 0.3 0.01 2']
@@ -427,8 +431,7 @@ def generate(G):
     ea[-1:-1] = ['execute if score #act bm.pay matches 7307 run function bm:p127/em/toggle', 'execute if score #act bm.pay matches 7308 run function bm:p127/em/take']
     fn('p127/em/toggle', ['execute unless score @s bm.emwf matches 1 run return run function bm:p28/stale',
                           'execute if score @s bm.emst matches 1 run return run function bm:p127/em/off', 'scoreboard players set @s bm.emst 1',
-                          'execute if dimension bm:gutter run ' + emsay('Not here - the heart won\'t burn in the vault. Back home, though~!'),
-                          'execute unless dimension bm:gutter run ' + emsay('Okay! I\'ll stay like this - shining, just for you~'),
+                          emsay('Okay! I\'ll stay like this - shining, just for you~'),
                           'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 1 1.4', 'function bm:p57/menu'])
     fn('p127/em/off', ['scoreboard players set @s bm.emst 0', 'execute as @e[type=minecraft:cat,tag=bm.emsel2] if score @s bm.eme matches 2.. run scoreboard players set @s bm.eme 1',
                        emsay('Phew - okay, back to plain old me! Tell me when you want me shining again.'),
