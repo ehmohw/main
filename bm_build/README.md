@@ -21,6 +21,43 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0j: the Handbook and tidier menus
+
+- **The Black Market Handbook** (phase260). Everyone gets one the first time they join (tag `bm.hbgot`). The Fence sells it
+  for 1 Token, and a book plus a gold nugget crafts another. Right-click it for a dialog that keeps itself up to date from
+  what the pack already records:
+  - **Followers met** (`bm:met/*`, with the Follower Gallery's hints for the next three unmet);
+  - **Bosses beaten** and **Dungeons & heists cleared** (the story advancements);
+  - **Places found** (new tags `bm.hb_*`, set the first second you're in the market, the Gutter, the Hollow Throne, the
+    Undercrown or the Armada; the Loom Sanctuary counts once its Keeper is met);
+  - **Currencies**: what each one is (its lore) and which traders take it (read from the trades).
+  Sneak + right-click opens Your settings.
+- **One Settings page per follower** (block 6100 + 11 i, its menu the block's first code). It holds Chatter, Keep up,
+  Back after a faint and the aura, plus every switch that used to crowd their menu or wardrobe: forms, elements and
+  giving them back, companion size, Ophanim, joke forms. Each of those is a proxy that presses the old code, in the old menu,
+  through the old router.
+  - "⚙ Settings" (5661) takes the chatter switch's place on every follower's menu and wardrobe.
+  - The menus are reordered: the verbs first, then the follower's own actions, then Ways / Wardrobe / Settings.
+- **Your settings** (5670), from the Handbook, the Partner Wheel ("⚙ Your settings") and the Particle Toggler ("« Your
+  settings"). Every switch is a tag on the player:
+  - Music (`bm.nomus`, which all 74 `playsound bm:music.*` lines respect);
+  - Market music (`bm.nomkm`) and Ship music (`bm.noshp`), which used to be operator switches only;
+  - Screen shake (`bm.noshk`, which used to be on for everyone);
+  - Follower chatter (`bm.hush`, already per player) and Keep up (`bm.pwkeep`, already per player), surfaced here;
+  - gear particles, which open the Particle Toggler.
+- **Raid Crew page**: followers you've met without a contract, and hirelings you haven't hired, are on their own page,
+  "Not signed yet (N)" (5681).
+- **`tools/menu_inventory.py`** lists every button: its code, words, dialog, menu and the function its press ends in.
+  - `--check tools/menu_baseline.json` lists every function a button used to reach that no button reaches now. It follows
+    the proxies. gen_dp runs it after the button legend and fails the build on any loss.
+  - `--save` takes a new baseline. Do that only when a button is removed on purpose.
+- Tests:
+  - `t380` crawls every follower's menu, Settings page and wardrobe, plus the crew page and its "Not signed yet" page, and
+    checks that every button shown is routed;
+  - `t381` the Handbook;
+  - `t383` the per-player music, chatter and screen shake switches, with two players.
+- **Scorching Heart every time:** every Arachno-Lantern kill now gives a Scorching Heart (after the first it was only a 35% chance).
+
 ## New in 3.0i: teams, transfers and tidier heists
 
 - **Partner Wheel: Teams.** A new **Teams** button on the wheel opens three line-ups, Team 1 to 3. Each team's members are listed under its name. Press **Save who's out as Team N** to store the followers out with you right now. Press **Call Team N** and anyone out who isn't on that team goes home, then the rest are called, each their own way. The three-follower limit and the Keeper of Bonds' fourth place still apply. A member whose summoning item is neither on your wheel nor on you is skipped, with a message. (The team names are fixed: a dialog's text box can only send a number to `/trigger`, so a typed name can't reach the pack.)

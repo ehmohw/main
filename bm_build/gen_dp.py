@@ -1547,7 +1547,7 @@ def build(out_dir):
     if PHASE2: R259.haul(sys.modules[__name__])           # 3.0i: the heist haul card (after every heist hook)
     if PHASE2: R259.bags(sys.modules[__name__])           # 3.0i: bags write what they hold into their lore (after phase248)
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
-    if PHASE2: print('3.0j: handbook, settings, stay here -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
+    if PHASE2: print('3.0j: handbook, settings -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
