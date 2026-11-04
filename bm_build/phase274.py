@@ -223,14 +223,20 @@ def _encounter(G, X):
     fn('p274/enc/look', ['tag @s add bm.twchk'] + [f'execute if items entity @s contents *[minecraft:custom_data~{{bm:"{k}"}}] run tag @s add bm.twhold'
                                                    for k in ('squall_scale', 'cinder_scale', 'hush_scale', 'three_world_egg')])
     fn('p274/enc/hold', ['data modify entity @s PortalCooldown set value 40',
-                         'execute if block ~ ~ ~ minecraft:nether_portal if items entity @s contents *[minecraft:custom_data~{bm:"squall_scale"}] run function bm:p274/enc/portal'])
+                         'execute if items entity @s contents *[minecraft:custom_data~{bm:"squall_scale"}] run function bm:p274/enc/inportal'])
+    # (a held item is nudged to the portal block's edge - so the squall scale's own block, or one a step to any side, will do)
+    fn('p274/enc/inportal', [f'execute positioned ~{dx} ~ ~{dz} if block ~ ~ ~ minecraft:nether_portal run return run function bm:p274/enc/portal'
+                             for dx, dz in (('', ''), ('0.4', ''), ('-0.4', ''), ('', '0.4'), ('', '-0.4'))])
     fn('p274/enc/portal', ['scoreboard players set #n bm.rng 0',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"cinder_scale"}] run scoreboard players add #n bm.rng 1',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"hush_scale"}] run scoreboard players add #n bm.rng 10',
                            'execute unless score #n bm.rng matches 11.. run return 0',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"cinder_scale"}] run kill @s',
                            'execute as @e[type=minecraft:item,distance=..2.5] if items entity @s contents *[minecraft:custom_data~{bm:"hush_scale"}] run kill @s',
-                           'kill @s', 'loot spawn ~ ~0.5 ~ loot bm:items/three_world_egg', 'playsound minecraft:block.portal.trigger ambient @a[distance=..16] ~ ~ ~ 1 1.6',
+                           'kill @s', 'loot spawn ~ ~0.5 ~ loot bm:items/three_world_egg',
+                           # (held at once: a new item in a portal rides it in its own first tick, before the next look)
+                           'execute as @e[type=minecraft:item,tag=!bm.twchk,distance=..3] run function bm:p274/enc/look',
+                           'execute as @e[type=minecraft:item,tag=bm.twhold,distance=..3] run data modify entity @s PortalCooldown set value 40', 'playsound minecraft:block.portal.trigger ambient @a[distance=..16] ~ ~ ~ 1 1.6',
                            'particle minecraft:portal ~ ~1 ~ 0.6 1 0.6 1 120', 'particle minecraft:electric_spark ~ ~1 ~ 0.4 0.6 0.4 0.2 20',
                            tellraw('@a[distance=..12]', [T('The three scales are drawn between the worlds - and fuse into an egg, ', LINE, italic=True),
                                                          T('maroon, three seams glowing.', 'gray', italic=True)])])

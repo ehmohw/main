@@ -21,6 +21,85 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0s: the Golden Doodle, the 64th follower
+
+### The Golden Doodle
+
+A gilded, sparkly goose. She has two waddly feet, a long neck and a goofy body, and she is very proud of herself. Once she bit
+the wrong crown and turned into **the Gilded Eldritch**. The Lightbringer cured her, and left her a third form of her own.
+
+- **Meeting her: the Clover Pond.**
+  - It is a new room off the Gilded Roost's Counting House: a still golden pond in a ring of clover, with a gilded stone (a great
+    golden egg) on its island.
+  - Three hollows are carved round the stone: a **sun**, a **thread** and a **crown**. Right-click the stone and it tells you
+    which hollow is still dark.
+  - On a **Lucky Night** the pond shimmers. Stand in the clover ring with the right three of your own followers out, and the
+    stone hatches.
+- **Her fight.**
+  - **The entrance:** the pond fizzes, a lucky rainbow arcs over it, and a gold geyser bursts up. She is flung out of it and
+    lands on her face. Then she pops up, shakes herself off and strikes a pose: **HONK.** Her title card reads "THE GOLDEN
+    DOODLE: she is very important", and the kazoo starts.
+  - **Phase 1, the joke:**
+    - **Honk:** a cone, slowing you.
+    - **The Waddle Charge:** straight at you. If she charges into a wall she BONKS and is stunned.
+    - **The Egg Drop:** golden eggs land round you and pop: a coin, and sometimes a Lucky Token.
+    - **The Neck-Whip Slap.**
+    - **The Lucky Coin:** on heads she's quick and tough. On tails you all get Luck II, and she sulks.
+  - **The turn:** she sits down, dazed. Then she waddles over to the Bound Sovereign and **bites its crown**. A sliver of the
+    Dread sticks to her...
+  - **Phase 2, the Gilded Eldritch:**
+    - **The Dread Beam:** it sweeps. Get behind something, or hold up a **Lucky Token** to reflect it once.
+    - **The Shriek:** jump the rings.
+    - **The Wing Slam:** jump the shockwave.
+    - **The Lunge.**
+    - **The Unlucky:** a black clover sigil appears under you. Step off it, because it heals while you stand there.
+    - **ALL IN:** at a quarter of its health the coin lands on its edge. Then it tires: strike it!
+  - **The cure:** the Lightbringer steps in ("Hush, little one. That isn't yours to carry."). The shard burns away, and the goose
+    is back: HONK.
+  - **Rewards:**
+    - **First win:** Lucky and Dread Tokens, a **Gilded Feather** (in your off hand: Luck and Slow Falling, Luck II on a Lucky
+      Night), and **the Doodle Egg**. She comes along.
+    - **Later wins:** tokens and three Lucky Scratch Cards.
+  - The pond rests a full day after a win.
+  - **Music:** the fight has its own music, the Doodle theme. A playful kazoo loop has a record-scratch turn, then goes menacing
+    in a minor key. "Music off" keeps it quiet.
+- **Her three forms.** Her menu's **Form** button cycles **the goose**, **the Gilded Eldritch** and **her Lightbringer form**.
+  - She keeps the form until you change it, across a recall, a logout and a faint.
+  - Her hitbox follows her form.
+  - The two big forms have **Companion Size** (about 2 blocks).
+- **Her ways (by form):**
+  - **The goose:**
+    - **Honk.**
+    - **The Neck-Whip Slap.**
+    - **The Waddle Charge:** she runs at the monster.
+    - **The Golden Honk:** a monster near loses its weapon.
+    - **The Lucky Coin.**
+    - **The Golden Egg:** out of a fight, every 5 minutes, she lays a gold nugget; sometimes a Lucky Token or a Scratch Card.
+      Twice as often on a Lucky Night.
+  - **The Eldritch:** the Lunge, the Wing Slam, the Dread Beam, the Shriek and its Menace.
+  - **Her Lightbringer form:**
+    - **The Wing Gust.**
+    - **The Holy Beam:** stronger on the undead, and the struck monster glows.
+    - **The Sunburst.**
+    - **The Blessing:** Regeneration for you and every follower near.
+  - **Her Piercing Blow, the Lucky Streak,** plays out on screen in every form.
+  - **Lucky:** while she's out in the Overworld, a Lucky Night is twice as likely.
+- **Everything every follower has:**
+  - sitting: right-click and she plops down; sneak and she settles into her nest;
+  - a wardrobe: **Rose Gold** and **Platinum** (drawn on all three forms), **Midnight Gold**, and the metal feathers;
+  - a rare aura, **Jackpot**;
+  - a shiny, **Shiny Four-Leaf**;
+  - the Partner Wheel and the honours;
+  - a frame: right-click it for a HONK, and once each Lucky Night a gold nugget drops at its foot;
+  - the display case, and a Raid Contract.
+- **Cecil's doll:** set it down, then sneak + right-click it to cycle her three forms.
+- **Pairs:** with Bender ("Goose Chase"), Mr. Capshun ("Subtitles Available"), Henry ("Even Odds") and Nia ("Golden Bells").
+
+### Fixes
+- **"Get down first."** The rider checks (no calling a mount, a Kraken or the Skiff while you ride something) never fired: a
+  predicate they use was missing from the pack. It's back.
+- **Trivyrn's scales stay in the portal.** Thrown into a lit Nether portal, a scale used to ride through to the Nether before the fusion could happen. Now each scale (and the Three-World Egg) is held in the portal until all three are in and fuse.
+
 ## New in 3.0r: Talus and Trivyrn complete the Kaiju trio
 
 ### Talus (62) and Trivyrn (63)
