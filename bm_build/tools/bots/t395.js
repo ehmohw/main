@@ -11,7 +11,8 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run(`${O}tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5} 0 0`); await sleep(1500);
   const ALL = { knight: ['The Hollow Statue Knight', 'hx', 'knight_token', 'p269'], mimic: ['The Mimic', 'mx', 'mimic_key', 'p270'],
                 ferro: ['The Ferro', 'fe', 'lodestone_vial', 'p271'], rex: ['The Atomic Rex', 'ry', 'atomic_whistle', 'p272'],
-                talus: ['Talus', 'tl', 'mossback_drum', 'p273'], trivyrn: ['Trivyrn', 'tw', 'triune_horn', 'p274'] };
+                talus: ['Talus', 'tl', 'mossback_drum', 'p273'], trivyrn: ['Trivyrn', 'tw', 'triune_horn', 'p274'],
+                gdoodle: ['The Golden Doodle', 'gq', 'doodle_egg', 'p275'] };
   const WANT = (process.argv[2] || 'knight,mimic').split(',');
   for (const [nm, ab, iid, pfx] of WANT.map(k => ALL[k])) {
     const PET = `@e[type=minecraft:wolf,tag=bm.${ab}pet,tag=!bm.ffpet]`;

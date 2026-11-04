@@ -13,7 +13,8 @@ const ALL = [['glitch', 'GLITCH', 'The Glitch', 'glitch_rom', 'bm.gxpet', 9, -16
              ['ferro', 'FERRO', 'The Ferro', 'lodestone_vial', 'bm.fepet', 5, 20],
              ['rex', 'REX', 'The Atomic Rex', 'atomic_whistle', 'bm.rypet', 23, -20],
              ['talus', 'TALUS', 'Talus', 'mossback_drum', 'bm.tlpet', 18, 21],
-             ['trivyrn', 'TRIVYRN', 'Trivyrn', 'triune_horn', 'bm.twpet', 34, -21]];
+             ['trivyrn', 'TRIVYRN', 'Trivyrn', 'triune_horn', 'bm.twpet', 34, -21],
+             ['gdoodle', 'GDOODLE', 'The Golden Doodle', 'doodle_egg', 'bm.gqpet', 11, 22]];
 const live = ALL.filter(a => on(a[1]));
 module.exports = {
   on, live, DOODLEMOB: on('DOODLEMOB'),
