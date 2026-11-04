@@ -399,6 +399,19 @@ def stripes(cols, w, seed=0, vertical=True, alpha=255):
 
 
 # ---------------------------------------------------------------------------------------------------- faces
+VANILLA_TEX = __import__('os').path.join(__import__('os').environ.get('BM_MC', '/home/claude/mc263'), 'client', 'assets', 'minecraft', 'textures')
+
+
+def van(rel, fallback=None):
+    """a vanilla texture from the 26.3 client jar (as tools/setup_test_env.sh unpacks it: $BM_MC/client/assets/minecraft/
+    textures/<rel>.png), as RGBA; fallback(): a faithful recreation, used when the jar's assets aren't unpacked here"""
+    import os
+    p = os.path.join(VANILLA_TEX, rel + '.png')
+    if os.path.exists(p): return Image.open(p).convert('RGBA')
+    if fallback is None: raise FileNotFoundError(p)
+    return fallback()
+
+
 def put(im, x, y, c):
     if 0 <= x < im.width and 0 <= y < im.height: im.putpixel((int(x), int(y)), hexc(c))
 
