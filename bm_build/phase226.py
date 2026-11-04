@@ -38,6 +38,7 @@ PT = {'cecil': ('bm.cpet', True), 'emma': ('bm.emp', True), 'celi': ('bm.cep', T
       'pearlq': ('bm.pqp', True), 'bloo': ('bm.bop', True), 'stalker': ('bm.svp', True), 'lantern': ('bm.lnp', True), 'bender': ('bm.bvp', True),
       'bones': ('bm.bjp', True), 'capshun': ('bm.mzp', True), 'pxcecil': ('bm.xcp', True), 'pxleo': ('bm.xlp', True), 'pxemma': ('bm.xmp', True),
       'sky': ('bm.ybp', True), 'kettle': ('bm.ktp', True), 'rufus': ('bm.rup', True), 'henry': ('bm.hyp', True), 'nia': ('bm.nip', True), 'gem': ('bm.cgp', True), 'batty': ('bm.ytp', True), 'eggbert': ('bm.ebp', True), 'count': ('bm.knp', True), 'dragon': ('bm.ddp', True), 'eraser': ('bm.ezp', True), 'cursor': ('bm.uxp', True), 'inkblot': ('bm.ibp', True), 'speech': ('bm.wbp', True), 'lightbringer': ('bm.lhp', True), 'dryad': ('bm.pyp', True), 'sovereign': ('bm.xvp', True), 'vexis': ('bm.xbp', True), 'mireling': ('bm.mlp', True), 'keeper': ('bm.tkp', True)}
+if __import__('rkflag').ON: PT['ratking'] = ('bm.rwp', True)      # (3.0k: the Rat King - rkflag)
 
 # (name, what it looks like, where they come back: behind / below / above, the vanish, the sign at the foe while they're gone,
 #  the return, the sound going, the sound coming)
@@ -197,6 +198,7 @@ FLAV = {
             [P('minecraft:cloud', 40, 0.5, 0.8, 0.05)], ['minecraft:cloud ~ ~3.2 ~ 0.6 0.1 0.6 0 4'],
             [P('minecraft:electric_spark', 40, 0.5, 0.8, 0.3), P('minecraft:end_rod', 20, 0.3, 0.6, 0.1)], 'minecraft:entity.breeze.wind_burst', 'minecraft:entity.lightning_bolt.thunder'),
 }
+if __import__('rkflag').ON: FLAV['ratking'] = ('The Royal Decree', 'drops down a rat-run - and bursts up beneath the monster, sceptre first, with a screech his whole court obeys', 'below', [P('minecraft:large_smoke', 20, 0.5, 0.3, 0.02), 'minecraft:block{block_state:"minecraft:gravel"} ~ ~0.2 ~ 0.5 0.1 0.5 0 30'], ['minecraft:block{block_state:"minecraft:gravel"} ~ ~0.1 ~ 0.4 0 0.4 0 3'], [P('minecraft:wax_on', 30, 0.4, 0.8, 0), P('minecraft:crit', 30), 'minecraft:block{block_state:"minecraft:gravel"} ~ ~0.2 ~ 0.6 0.1 0.6 0 40'], 'minecraft:block.gravel.break', 'minecraft:entity.rabbit.attack')      # (3.0k: the Rat King - rkflag)
 TICKS = {'vanish': 1, 'move': 8, 'show': 11, 'end': 15}
 
 # (2.95e) THE ASSAULTS - seen, not vanished. Each: its own animation's hooks, its busy score, the hits (rend, and what else each

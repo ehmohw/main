@@ -102,6 +102,7 @@ TRIB = {
     'pxemma': [('minecraft:fire_charge', 16), ('minecraft:red_mushroom', 16), ('minecraft:gold_block', 2), ('minecraft:totem_of_undying', 1), ('heartstone', 2)],
     'sky': [('minecraft:sunflower', 16), ('minecraft:glow_berries', 16), ('minecraft:daylight_detector', 4), ('fallen_star', 2), ('heartstone', 2)],
 }
+if __import__('rkflag').ON: TRIB['ratking'] = [('minecraft:gold_ingot', 32), ('minecraft:raw_gold', 32), ('minecraft:gold_nugget', 64), ('minecraft:emerald', 16), ('heartstone', 4)]      # (3.0k: the Rat King - rkflag)
 
 
 def trib_pred(iid):

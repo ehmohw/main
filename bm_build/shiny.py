@@ -58,6 +58,7 @@ LOOKS = {
     'pxleo': ('Shiny Neon Arcade', ('#14002a', '#ff2ab0', '#7affff'), 'magenta'),
     'pxcecil': ('Shiny Neon Arcade', ('#14002a', '#ff2ab0', '#7affff'), 'magenta'),
 }
+if __import__('rkflag').ON: LOOKS['ratking'] = __import__('ratking_pet_art').SHINY_LOOK   # (drawn, not recoloured - ratking_pet_art.SHINY_TEX)      # (3.0k: the Rat King - rkflag)
 KW = ('Shiny Ultraviolet', (('#12041e', '#5a1aa0', '#c08aff'), ('#ff6ad8', '#ffe0f8')))
 EMMA = ('Shiny Lilac Gown', '#c8a0ff', '#a07ae0')            # (her dresses: the cloth's two colours)
 CELI = ('Shiny Rose Frost', '#ff8ad8', '#e060b0')

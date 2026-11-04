@@ -67,6 +67,7 @@ ANCHORS = {
     'pxemma': ('bm.xmp_head', 'xm_hbone', 'bm.xmp_head', 'xm_bbone'),
     'sky': ('bm.ybp_head', 'yb_head', 'bm.ybp_body', 'yb_body'),
 }
+if __import__('rkflag').ON: ANCHORS['ratking'] = ('bm.rwp_head', 'rkf_head', 'bm.rwp_body', 'rkf_body')      # (3.0k: the Rat King - rkflag)
 # who: (head piece, [body pieces], fierce?, aura particles)
 WHOLE_BODY = {'apo', 'omega', 'fishy', 'bones'}   # (bodies with no chest on top - a serpent's coil, a bowl, a shark: fit the whole bone)
 # (2.93: no head pieces - the owner found every crown and hat messy; the regalia is the body's and the medal)
@@ -121,10 +122,12 @@ STYLE = {
     'pxemma': (None, [], False, ['minecraft:electric_spark ~ ~1 ~ 0.4 0.5 0.4 0.05 1', 'minecraft:dust{color:[1.0,1.0,1.0],scale:0.6} ~ ~1 ~ 0.4 0.5 0.4 0 2']),
     'sky': (None, [], False, ['minecraft:end_rod ~ ~2 ~ 0.6 0.5 0.6 0.01 1', 'minecraft:dust{color:[1.0,0.85,0.3],scale:0.9} ~ ~2 ~ 0.6 0.5 0.6 0 2']),
 }
+if __import__('rkflag').ON: STYLE['ratking'] = (None, [], False, ['minecraft:wax_on ~ ~2.6 ~ 0.4 0.3 0.4 0 1', 'minecraft:dust{color:[1.0,0.78,0.2],scale:0.8} ~ ~1.6 ~ 0.5 0.7 0.5 0 2'])      # (3.0k: the Rat King - rkflag)
 COL = {'emma': '#ff8ad8', 'celi': '#9ad8ff', 'zib': '#3ad8c8', 'cecil': '#b48cff', 'kw': '#ffe040', 'leo': '#5ab8e0', 'demo': '#7ad06a',
        'apo': '#3ad06a', 'tul': '#7ad8ff', 'frog': '#6ac850', 'don': '#e8d29a', 'fishy': '#ffa040', 'dennis': '#e0a040', 'pistachio': '#7ae890',
        'omega': '#9fb4ff', 'ashur': '#ff7a2a', 'chef': '#ffd07a', 'neighbor': '#7ab8ff', 'ava': '#6ad8e8', 'pearlq': '#5ae0d8', 'bloo': '#5a9ae8',
        'stalker': '#a8ac70', 'lantern': '#ff8a2a', 'bender': '#e0a860', 'bones': '#8ab0c8', 'capshun': '#f0f0f0', 'kettle': '#8ad8ff', 'rufus': '#c0392b', 'henry': '#9a9ab8', 'nia': '#e0a050', 'gem': '#5ae0a0', 'batty': '#8a8ad8', 'eggbert': '#d8d4c0', 'count': '#a8c8f0', 'dragon': '#5ac048', 'eraser': '#f08aa0', 'cursor': '#cfe8ff', 'inkblot': '#7a7aaa', 'speech': '#ffd060', 'lightbringer': '#ffe08a', 'dryad': '#6aa8f0', 'sovereign': '#d0182e', 'vexis': '#7aff6a', 'mireling': '#e0384a', 'keeper': '#ffd6f0', 'sky': '#ffd04a', 'pxemma': '#ff6ac8', 'pxleo': '#4ab0ff', 'pxcecil': '#b070ff'}
+if __import__('rkflag').ON: COL['ratking'] = '#ffc23a'      # (3.0k: the Rat King - rkflag)
 # the 4 x 4 tiles of a follower's sheet
 G, GD, GL, P, PD, PL, ST, STL, BN, BND, RUBY, SAPH, PEARL, FL_O, FL_Y, LEAF = range(16)
 

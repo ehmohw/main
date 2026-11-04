@@ -11,8 +11,9 @@ FOLLOWER SETTINGS   every follower has one Settings page (code block 6100 + 11 i
             and wardrobes (forms, elements and giving them back, companion size, Ophanim, joke forms). Each of those runs exactly
             what its old button ran (a proxy: the old menu and code, through the old router). A "Settings" button (5661) takes
             the chatter switch's place on every follower's menu and wardrobe; "Stay here" (5662) sits beside "Send home".
-STAY HERE   a follower told to stay guards the spot: tied (an invisible leash) to a marker where it stood, it wanders a few blocks,
-            fights what comes near (wolves are set angry at the nearest monster) and doesn't follow; "couldn't keep up", keep up
+STAY HERE   a follower told to stay guards the spot: tied to a marker where it stood (its Owner moves onto the marker, so the
+            game's own follow and teleport-to-owner stop; it's kept within 6 blocks), it wanders, fights what comes near
+            (wolves are set angry at the nearest monster) and doesn't follow; "couldn't keep up", keep up
             and your logging off leave it be. It comes back when called: its item, the wheel's Call, Come with me (send home +
             call), or Send home. The tag (bm.anc on it, bm.an_<w> on you) and the marker persist through relogs and restarts.
 YOUR SETTINGS (from the Handbook, the Partner Wheel and the Particle Toggler) - per player, each a tag on you: Music (every track
@@ -43,6 +44,7 @@ PS_ROWS = {'mus': 5671, 'mkt': 5672, 'shp': 5673, 'chat': 5674, 'shk': 5675, 'ke
 B_NPBACK, B_MORE = 5680, 5681                                # ("« Your settings" on the Particle Toggler; the crew's "Not signed yet")
 FS0, FSN = 6100, 11                                          # (a follower's settings block: 6100 + 11 i .. +10)
 S_BACK, S_ANC, S_KEEP, S_WD, S_PX = 0, 1, 2, 3, 4            # (its slots: back (and the menu), stay here, keep up, wardrobe, proxies 4..10)
+TETHER = 6                                                   # (an anchored follower is kept this near its spot)
 TAGS = {'mus': 'bm.nomus', 'mkt': 'bm.nomkm', 'shp': 'bm.noshp', 'shk': 'bm.noshk'}
 
 item(ITEM, TOTEM, 'Black Market Handbook', COL,
@@ -253,14 +255,14 @@ def generate(G):
                                  'playsound minecraft:entity.wolf.ambient player @s ~ ~ ~ 0.5 1.3',
                                  tellraw('@s', PRE + [T(f'{cap(nm)} stays here', col, bold=True),
                                                       T(f' - guarding this spot. Call {"them" if pr == "them" else pr} (their item, the wheel, or Come with me) to bring {"them" if pr == "them" else pr} back.', 'gray')])])
-        fn(f'p260/an/free/{w}', ['scoreboard players operation #me bm.pid = @s bm.pid',
+        fn(f'p260/an/free/{w}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'tag @a remove bm.anme', 'tag @s[type=minecraft:player] add bm.anme',
                                  f'execute as {mine[:-1]},tag=bm.anc] if score @s bm.pid = #me bm.pid run function bm:p260/an/unset',
                                  f'tag @s[type=minecraft:player] remove bm.an_{w}',
-                                 *([f'scoreboard players reset @s[type=minecraft:player,scores={{bm.pwo{pi}=-1}}] bm.pwo{pi}'] if kept else [])])
+                                 *([f'scoreboard players reset @s[type=minecraft:player,scores={{bm.pwo{pi}=-1}}] bm.pwo{pi}'] if kept else []), 'tag @a remove bm.anme'])
         fn(f'p260/an/come/{w}', ['execute unless entity @s[tag=bm.an_' + w + '] run return run ' + say(f"{cap(nm)} isn't standing guard anywhere.", col),
                                  f'function bm:p260/an/free/{w}', f'function bm:{home}', f'function bm:{try_}'])
         fn(f'p260/an/t/{w}', [f'execute if entity @s[tag=bm.an_{w}] run return run function bm:p260/an/come/{w}', f'function bm:p260/an/stay/{w}'])
-        # (every way back frees them first: their call, recall, home - so a leash never snaps, and you're never shown a stale "Come with me")
+        # (every way back frees them first: their call, recall, home - so it's never carried off still tied, and you're never shown a stale "Come with me")
         rec = [r for r in (f'{pfx[w]}recall',) if r in F]
         for f_ in [try_, home] + rec:
             F[f_].insert(0, f'function bm:p260/an/free/{w}')
@@ -274,27 +276,35 @@ def generate(G):
             assert k is not None, ('the follow rules\' ticket line', w, e[0], L[:8])
             L.insert(k + 1, 'execute if entity @s[tag=bm.anc] run return run function bm:p260/an/held')
     fn('p260/an/held', ['scoreboard players set @s bm.fmis 0', 'tag @a remove bm.fown'])
+    # (the tie: its Owner moves onto the marker - an untamed host doesn't follow or teleport to anyone - and it's kept within
+    #  TETHER blocks of the marker; untying puts the Owner back - from the marker, or from its player found by bm.pid)
+    mk = 'execute as @e[type=minecraft:marker,tag=bm.ancm] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run '
     fn('p260/an/set', ['tag @s add bm.anc', 'data modify entity @s Sitting set value 0b', 'scoreboard players operation @s bm.ancw = #anw bm.rng',
-                       'execute as @e[type=minecraft:marker,tag=bm.ancm] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run kill @s',
+                       mk + 'kill @s',
                        'summon minecraft:marker ~ ~ ~ {Tags:["bm.ancm","bm.ancnew"]}',
                        'scoreboard players operation @e[type=minecraft:marker,tag=bm.ancnew] bm.pid = #me bm.pid',
                        'scoreboard players operation @e[type=minecraft:marker,tag=bm.ancnew] bm.ancw = #anw bm.rng',
-                       'data modify entity @s leash set from entity @e[type=minecraft:marker,tag=bm.ancnew,limit=1] UUID',
+                       'data modify entity @e[type=minecraft:marker,tag=bm.ancnew,limit=1] data.owner set from entity @s Owner',
+                       'data remove entity @s Owner',
                        'tag @e[type=minecraft:marker,tag=bm.ancnew] remove bm.ancnew',
                        'particle minecraft:end_rod ~ ~0.2 ~ 0.4 0.05 0.4 0.01 12'])
-    fn('p260/an/unset', ['data remove entity @s leash', 'tag @s remove bm.anc', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
-                         'execute as @e[type=minecraft:marker,tag=bm.ancm] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run kill @s'])
-    # (a leash snapped: the lead it dropped goes; near its marker it's tied again - pulled far away (a call nobody told us of), it's free)
-    fn('p260/an/snap', ['kill @e[type=minecraft:item,distance=..3,limit=1,sort=nearest,nbt={Item:{id:"minecraft:lead"}}]',
-                        'scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
-                        'tag @e[tag=bm.ancme] remove bm.ancme',
-                        'execute as @e[type=minecraft:marker,tag=bm.ancm,distance=..10] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run tag @s add bm.ancme',
-                        'execute if entity @e[tag=bm.ancme] run return run function bm:p260/an/relash',
-                        'tag @s remove bm.anc', 'execute on owner run function bm:p260/an/untag',
-                        'execute as @e[type=minecraft:marker,tag=bm.ancm] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run kill @s'])
-    fn('p260/an/relash', ['data modify entity @s leash set from entity @e[tag=bm.ancme,limit=1] UUID', 'tag @e[tag=bm.ancme] remove bm.ancme'])
+    fn('p260/an/unset', ['tag @s remove bm.anc', 'scoreboard players operation #anw bm.rng = @s bm.ancw', 'tag @e[tag=bm.ancme] remove bm.ancme',
+                         mk + 'tag @s add bm.ancme',
+                         'execute if entity @e[tag=bm.ancme] run data modify entity @s Owner set from entity @e[tag=bm.ancme,limit=1] data.owner',
+                         'execute unless data entity @s Owner run data modify entity @s Owner set from entity @a[tag=bm.anme,limit=1] UUID',
+                         'kill @e[tag=bm.ancme]'])
+    fn('p260/an/tether', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
+                          'tag @e[tag=bm.ancme] remove bm.ancme',
+                          'execute as @e[type=minecraft:marker,tag=bm.ancm,distance=..48] if score @s bm.pid = #me bm.pid if score @s bm.ancw = #anw bm.rng run tag @s add bm.ancme',
+                          'execute unless entity @e[tag=bm.ancme] run return run function bm:p260/an/lost',
+                          f'execute unless entity @e[tag=bm.ancme,distance=..{TETHER}] run tp @s @e[tag=bm.ancme,limit=1]',
+                          'tag @e[tag=bm.ancme] remove bm.ancme'])
+    # (its marker not near: carried off by something we weren't told of - untied, back to its owner)
+    fn('p260/an/lost', ['tag @a remove bm.anme', 'execute as @a if score @s bm.pid = #me bm.pid run tag @s add bm.anme',
+                        'execute as @a[tag=bm.anme] run function bm:p260/an/untag', 'function bm:p260/an/unset',
+                        mk + 'kill @s', 'tag @a remove bm.anme'])
     fn('p260/an/untag', [f'execute if score #anw bm.rng matches {widx[w]} run tag @s remove bm.an_{w}' for w in WS])
-    fast[-1:-1] = ['execute as @e[tag=bm.anc] unless data entity @s leash at @s run function bm:p260/an/snap']
+    fast[-1:-1] = ['execute as @e[tag=bm.anc] at @s run function bm:p260/an/tether']
     # (each second: a marker whose follower is gone goes too; an anchored wolf turns on the nearest monster)
     fn('p260/an/mchk', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players operation #anw bm.rng = @s bm.ancw',
                         'scoreboard players set #ok bm.rng 0',

@@ -110,6 +110,9 @@ B = {
     'keeper': (('Loose Thread', (('luck', 0), ('speed', 0)), '"Ah - you have found my loose thread. Yes, you may have it."', '(Henry bats the thread. The thread, very gently, bats back.)'),
                ('Warm Lap', (('regeneration', 1),), '(it kneels, and spreads its robe for her like a blanket)', '(Nia curls up in the rainbow folds of it, purring, among the motes)')),
 }
+if __import__('rkflag').ON:                                     # (3.0k: the Rat King - rkflag)
+    B['ratking'] = (('The Royal Mouser', (('strength', 0), ('night_vision', 0)), '"A CAT. In my court. ...Fine. You may keep the mice off the hoard."', '(Henry sits on the hoard. The hoard is his now.)'),
+                    ('Lap of Luxury', (('regeneration', 1),), '"She is shedding on my ermine. She is shedding on my ERMINE."', '(Nia curls up in the ermine collar of his cape, and purrs like a little engine)'))
 # (2.96c) Nia is the gentle one - a support follower: her side of every pair looks after you. Each keeps Regeneration, and
 # nothing of hers makes you hit harder (Strength becomes Resistance; Haste, Absorption)
 _SOFT = {'strength': 'resistance', 'haste': 'absorption'}

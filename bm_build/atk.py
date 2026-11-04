@@ -16,6 +16,7 @@ ME = {'bm.kxme': ('kw', None), 'bm.cpme': ('cecil', 'p46/pet/anim'), 'bm.emme': 
       'bm.ompme': ('omega', 'p170/anim'), 'bm.nbme': ('neighbor', 'p187/anim'), 'bm.mzme': ('capshun', 'p198/anim'), 'bm.ktme': ('kettle', 'p227/anim'), 'bm.rume': ('rufus', 'p228/anim'), 'bm.hyme': ('henry', 'p229/anim'), 'bm.nime': ('nia', 'p230/anim'), 'bm.cgme': ('gem', 'p231/anim'), 'bm.ytme': ('batty', 'p232b/anim'), 'bm.ebme': ('eggbert', 'p232e/anim'), 'bm.knme': ('count', 'p232c/anim'), 'bm.ddme': ('dragon', 'p235d/anim'), 'bm.ezme': ('eraser', 'p235e/anim'), 'bm.uxme': ('cursor', 'p235c/anim'), 'bm.ibme': ('inkblot', 'p235i/anim'), 'bm.wbme': ('speech', 'p235b/anim'), 'bm.lhme': ('lightbringer', 'p236l/anim'), 'bm.pyme': ('dryad', 'p236p/anim'), 'bm.xvme': ('sovereign', 'p239/anim'), 'bm.xbme': ('vexis', 'p243/anim'), 'bm.mlme': ('mireling', 'p252/anim'), 'bm.tkme': ('keeper', 'p254/anim'), 'bm.lnme': ('lantern', 'p194/anim'),
       'bm.kkme': ('chef', 'p186/anim'), 'bm.fyme': ('fishy', 'p145/anim'), 'bm.dwme': ('dennis', 'p163/dw/anim'), 'bm.bvme': ('bender', 'p195/anim'),
       'bm.bome': ('bloo', 'p191/anim'), 'bm.bjme': ('bones', 'p196/anim'), 'bm.avme': ('ava', 'p189/anim'), 'bm.aspme': ('ashur', 'p185/anim')}
+if __import__('rkflag').ON: ME['bm.rwme'] = ('ratking', 'p262/anim')      # (3.0k: the Rat King - rkflag)
 HOLD = 2                                     # (ticks of hit-stop)
 DMG = re.compile(r'^(\$?)(.*?)damage @s (\S+) (\S+) by @e\[type=minecraft:(wolf|cat),tag=(bm\.[a-z0-9]+)')
 

@@ -65,6 +65,7 @@ SAY = {
     'pxleo': 'Trying something new today! The arcade palette - for honour, and for style!',
     'pxcecil': 'I am trying something new today. Neon. Sixteen colours, and every one of them loud.',
 }
+if __import__('rkflag').ON: SAY['ratking'] = '"Trying something new today. White fur. Platinum. Very regal. NOBODY say \'lab rat\'."'      # (3.0k: the Rat King - rkflag)
 
 
 def generate(G):
