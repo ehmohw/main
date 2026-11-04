@@ -172,5 +172,35 @@ def build():
     for (x, z) in [(22, 62), (32, 62), (22, 74), (32, 74), (27, 79)]:
         B.set(x, 17, z, 'lantern[hanging=true,waterlogged=false]')
     B.fx(27, 10, 68); B.zone(27, 6, 68)
+
+    # ================================================================ 3.1: THE CLOVER POND (phase275b) - off the Counting House's east wall
+    # a still golden pond in a ring of clover; on its island the gilded stone (a great golden egg - the marker bm.gdpond); three
+    # hollows carved round it: a sun, a thread, a crown. On a Lucky Night, the right three brought here wake what sleeps in it.
+    if __import__('fol5').on('gdoodle'):
+        room(37, 32, 49, 52, 13)
+        cx, cz = 43, 42
+        for x in range(38, 49):
+            for z in range(33, 52):
+                d = ((x - cx) ** 2 + (z - cz) ** 2) ** 0.5
+                if abs(x - cx) <= 2 and abs(z - cz) <= 2:                      # the island
+                    B.set(x, 3, z, 'gold_block'); B.set(x, 4, z, 'gold_block')
+                elif d <= 4.4:                                                 # the pond, gold under the water
+                    B.set(x, 2, z, 'gold_block'); B.set(x, 3, z, 'water'); B.set(x, 4, z, 'water')
+                    if B.rnd.random() < 0.18: B.set(x, GY, z, 'lily_pad')
+                elif d <= 7.2:                                                 # the clover ring
+                    B.set(x, 4, z, 'moss_block')
+                    r = B.rnd.random()
+                    if r < 0.45: B.set(x, GY, z, 'pink_petals[facing=north,flower_amount=4]')
+                    elif r < 0.7: B.set(x, GY, z, 'moss_carpet')
+        for z, word in ((41, 'SUN'), (42, 'THREAD'), (43, 'CROWN')):
+            B.sign(41, GY, z, 'birch_sign[rotation=4,waterlogged=false]', ['', f'a {word}', 'is carved here', ''], color='gold', glow=True)
+        B.mb(cx, GY, cz, ['bm.gdpond'])
+        for z in range(41, 44):                                                # the doorway, gilded
+            for y in range(GY, GY + 4): B.set(37, y, z, 'air')
+            B.set(37, GY + 4, z, TRIM)
+        B.sign(36, GY + 5, 42, 'birch_wall_sign[facing=west,waterlogged=false]', ['THE CLOVER', 'POND', 'it stirs on a', 'Lucky Night'], color='gold', glow=True)
+        for (x, z) in [(39, 34), (47, 34), (39, 50), (47, 50)]:
+            B.set(x, 13, z, 'lantern[hanging=true,waterlogged=false]')
+        B.fx(cx, 9, cz); B.zone(cx, 6, cz)
     B.controller(27, 10, 44)
     return B

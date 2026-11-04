@@ -358,8 +358,54 @@ def _kaiju(mod, w, drawn, shiny, comp):
     return A
 
 
+class GoldenArt(Art):
+    """the Golden Doodle: THREE rigs in one follower - the goose (gq_, goldendoodle_pet_art), the Gilded Eldritch (gk_, the boss's
+    phase-2 rig) and the Lightbringer form (gh_). Her displays are the UNION of the three rigs' parts, every one standing at the
+    host (no pivots of its own): phase275 writes every pose itself, each form's own pose solved on its own rig's joints
+    (fol5wire.form_pose), and dresses each display in its form's model - <prefix><part>, an empty model where that form has no
+    such part. Her looks are the three rigs' drawn sets: Rose Gold (look 1, '_rg') and Platinum (2, '_pt'); the shiny, Four-Leaf
+    ('_sh'). rigpet sees one set of parts and the virtual pose names phase275 maps per form (VMAP)."""
+    def __init__(self):
+        import goldendoodle_pet_art as Q, goldendoodle_boss_art as K, goldendoodle_holy_art as H
+        feathers = ('gold', 'gold2', 'gold_d', 'neck', 'prim', 'down', 'gcr', 'gcr2', 'gcr3', 'plate', 'hf', 'hf2', 'hdown', 'hneck', 'hprim', 'hgold')
+        super().__init__('gdoodle', Q.R, {'happy': 'happy', 'surprised': 'wide', 'hurt': 'dizzy', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'smug', 'serious': 'fierce'},
+                         feathers, drop=('_sh', '_rg', '_pt', '_gos', '_cr1', '_cr2'), drawn={1: '_rg', 2: '_pt'}, shiny=('_sh', '#3ab060', 'green'), extra=(K.R, H.R))
+        self.Q, self.K, self.H = Q, K, H
+        self.FORMS = (Q.R, K.R, H.R)
+        self.FACE_MAPS = (dict(self.FACE_MAP),
+                          {'happy': 'narrowed', 'surprised': 'wide', 'hurt': 'hurt', 'sleepy': 'dim', 'blink': 'blink', 'squint': 'narrowed', 'serious': 'narrowed'},
+                          {'happy': 'happy', 'surprised': 'surprised', 'hurt': 'sad', 'sleepy': 'blink', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'})
+        parts = []
+        for r in self.FORMS:
+            parts += [p for p in r.PARTS if p not in parts]
+        self.PARTS = tuple(parts)
+        self.PIVOT = {p: (0.0, 0.0, 0.0) for p in parts}
+        self.PARENT = {p: None for p in parts}
+        self.PART_K = {}
+        self.POSES = {}                  # (phase275 fills these: the virtual names rigpet's cycles use - each {} here, every pose its own)
+        self.SKINS = ['']
+        self.DOLL_POSE = None
+        self.GROUPS = {}
+        self.FACE_PART = 'head'
+        self.FIT = Q.R.fit(Q.R.POSES['idle_a'])
+        self.NO_LOOK = ()
+
+    def HIDDEN(self, p, pose):
+        return False
+
+    def model_name(self, p, pose=None, suffix=''):
+        return f'gq_{p}{suffix}'
+
+    def face_cases(self, sfx=''):
+        return {e: f'gq_head_x{f}{sfx}' for e, f in self.FACE_MAP.items() if f in self.FACES}
+
+
+def _gdoodle():
+    return GoldenArt()
+
+
 _MADE = {}
-_MAKERS = {'talus': lambda: _kaiju('kaiju_ape_art', 'talus', {1: '_au', 2: '_sn'}, ('_sh', '#3aa070', 'green'), 0.83),
+_MAKERS = {'gdoodle': _gdoodle, 'talus': lambda: _kaiju('kaiju_ape_art', 'talus', {1: '_au', 2: '_sn'}, ('_sh', '#3aa070', 'green'), 0.83),
            'trivyrn': lambda: _kaiju('kaiju_hydra_art', 'trivyrn', {1: '_dw', 2: '_ab'}, ('_sh', '#f0e8f8', 'white'), 0.77),
            'rex': _rex, 'ferro': _ferro, 'knight': _knight, 'mimic': _mimic, 'glitch': _glitch, 'cake': _cake, 'sapling': _sapling, 'spawner': _spawner, 'cairn': _cairn}
 

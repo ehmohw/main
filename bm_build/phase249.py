@@ -134,6 +134,8 @@ def generate(G):
     G.wjson('bm/predicate/p249/moving.json', {'condition': 'minecraft:any_of', 'terms': [inp(forward=True), inp(backward=True), inp(left=True), inp(right=True)]})
     G.wjson('bm/predicate/p249/sprint.json', inp(forward=True, sprint=True))
     G.wjson('bm/predicate/p249/thunder.json', {'condition': 'minecraft:weather_check', 'thundering': True})
+    # (3.1: its "get down first" - phase29 wrote this for its mercenary, whose old code is no longer built: written here, where it's used)
+    G.wjson('bm/predicate/p29/has_vehicle.json', {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:vehicle': {}}})
     for k, c in KN.items():
         G.wjson(f'bm/advancement/story/rex_{k}.json', {
             'parent': 'bm:story/root' if k == 'atomic' else 'bm:story/vexis', 'criteria': {'got': {'trigger': 'minecraft:impossible'}},

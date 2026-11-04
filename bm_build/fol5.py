@@ -13,9 +13,9 @@ modules only where a recolour needs their texture names (art() below).
           fifty, "fifty threads") - see the owner's decision in the batch notes"""
 import fol5flag as FL
 
-ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro', 'rex', 'talus', 'trivyrn']
-FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO', 'rex': 'REX', 'talus': 'TALUS', 'trivyrn': 'TRIVYRN'}
-PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271', 'rex': 'phase272', 'talus': 'phase273', 'trivyrn': 'phase274'}
+ORDER = ['glitch', 'cake', 'sapling', 'spawner', 'cairn', 'knight', 'mimic', 'ferro', 'rex', 'talus', 'trivyrn', 'gdoodle']
+FLAG = {'glitch': 'GLITCH', 'cake': 'CAKE', 'sapling': 'SAPLING', 'spawner': 'SPAWNER', 'cairn': 'CAIRN', 'knight': 'KNIGHT', 'mimic': 'MIMIC', 'ferro': 'FERRO', 'rex': 'REX', 'talus': 'TALUS', 'trivyrn': 'TRIVYRN', 'gdoodle': 'GDOODLE'}
+PHASE = {'glitch': 'phase264', 'cake': 'phase265', 'sapling': 'phase266', 'spawner': 'phase267', 'cairn': 'phase268', 'knight': 'phase269', 'mimic': 'phase270', 'ferro': 'phase271', 'rex': 'phase272', 'talus': 'phase273', 'trivyrn': 'phase274', 'gdoodle': 'phase275'}
 NOT_IN_COMPASS = True
 
 
@@ -301,6 +301,28 @@ SPEC['trivyrn'] = dict(
     nia=('Show-Off', (('regeneration', 1), ('speed', 0)), '(Squall flashes its crest for her - and Hush glows when she pats it)', '(Nia pats Hush)'),
 )
 
+# ---------------------------------------------------------------------------------------------------- 64: THE GOLDEN DOODLE (her)
+_gd = _looks('Feathers', ('Rose Gold', ('#3a1414', '#d88a8a', '#ffe0d8')), ('Platinum', ('#2a2c30', '#c8ccd4', '#ffffff')),
+             ('Midnight Gold', ('#0a0a1a', '#3a3a6a', '#e0c070')))
+SPEC['gdoodle'] = dict(
+    shiny_name='Shiny Four-Leaf', NAME='The Golden Doodle', pron='her', COL='#ffd040', LINE='#fff0b0', ab='gq', q='gu', pfx='p275', item='doodle_egg', prefix='gq_',
+    word='Feathers', looks=_gd, dyes=_dyes('Feathers', 'pink', 'light_gray', 'blue', _gd), words='her feathers', plain='Gold leaf', base=7320,
+    aura=('Jackpot', '#ffd040', 1.0, 0.9, 'minecraft:wax_on', [f'particle {_dust(1.0, 0.82, 0.25, 0.9)} ~ ~1 ~ 0.6 0.3 0.6 0 3', 'particle minecraft:wax_on ~ ~1.3 ~ 0.5 0.3 0.5 0 1']),
+    anchors=('head', 'gq_head', 'body', 'gq_body'),
+    champ=(None, [], False, ['minecraft:wax_on ~ ~1.3 ~ 0.3 0.2 0.3 0 1', _dust(1.0, 0.82, 0.25, 0.9) + ' ~ ~0.8 ~ 0.4 0.4 0.4 0 2']),
+    gift=('Luck and Speed', [f'effect give {P8} minecraft:luck 15 1 true', f'effect give {P8} minecraft:speed 15 0 true']),
+    trib=[('minecraft:gold_ingot', 32), ('minecraft:golden_carrot', 16), ('lucky_token', 8), ('minecraft:diamond', 4), ('heartstone', 4)],
+    honour=('Jackpot Honk', 'she honks so proudly the luck spills over: 16 to monsters round her, slowed and weakened; you, Luck II and Speed II',
+            (16, 6), 0, 'weakness 5 1', ['luck 15 1', 'speed 10 1'], 'minecraft:wax_on', 'minecraft:entity.goat.screaming.ambient'),
+    hint='On a Lucky Night, take the sun, the thread and the crown to the clover pond in the Gilded Roost.',
+    shiny_say='"(HONK. She is green all over - four-leaf green, gold beak and feet: trying something new today)"',
+    pierce=('Lucky Streak', 'charges the monster down and strikes it three times running - then hits the jackpot', 'behind',
+            [_P('minecraft:wax_on', 20)], [_dust(1.0, 0.82, 0.25, 1.0) + ' ^ ^1 ^-1 0.3 0.3 0.3 0 3'],
+            [_P('minecraft:crit', 30), _P('minecraft:wax_on', 20)], 'minecraft:entity.goat.screaming.ambient', 'minecraft:block.note_block.bell'),
+    henry=('Even Odds', (('luck', 0), ('speed', 0)), '(a black cat and a lucky goose: their luck cancels out - she sits on him anyway)', '(Henry stalks her, very seriously)'),
+    nia=('Golden Bells', (('luck', 0), ('regeneration', 0)), '(her gold leaf and Nia\'s gold bell ring together)', '(Nia bats at her sparkles)'),
+)
+
 # ---------------------------------------------------------------------------------------------------- the Doodle Mob (the dragon renamed)
 MOB_NAME = 'The Doodle Mob'
 
@@ -407,6 +429,8 @@ def reg(mod, g, part=None):
             g['HOME'][w] = f'{pfx}/home'
             if pron == 'it':
                 g['IT'].add(w)
+            elif pron == 'her':
+                g['SHE'].add(w)
         elif mod == 'shiny':
             g['LOOKS'][w] = _ARTS[w]().SHINY_LOOK
 
