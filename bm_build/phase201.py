@@ -33,6 +33,7 @@ import math
 import re
 
 AVA_C, PEARL_C, GOLD = '#6ad8e8', '#d8f4ff', '#ffd66a'
+POSS = {'him': 'his', 'it': 'its', 'them': 'their'}         # (3.0p: a follower's pronoun -> its possessive)
 MENU = 4100                                 # (its block: 4100-4199)
 STATS = [('v', 'Vitality', '#ff8a9a', '+20% health a level'), ('b', 'Bulwark', '#9ad0ff', '+3 armour, +1 toughness a level'),
          ('m', 'Might', '#ffb05a', '+15% damage a level - special attacks too')]
@@ -155,7 +156,7 @@ def generate(G):
         'playsound minecraft:block.conduit.activate player @s ~ ~ ~ 0.8 1.4'])
     for w in FOL:
         nm, _pr, col = WHO[w][0], WHO[w][1], WHO[w][2]
-        label = snbt([T(nm, col, bold=True), T('  ·  her honours', 'gray')])
+        label = snbt([T(nm, col, bold=True), T(f'  ·  {POSS.get(_pr, _pr)} honours', 'gray')])      # (3.0p: his / its / their - it said "her" for everyone)
         fn(f'p201/slot/{w}', ['scoreboard players add #ns bm.rng 1'] +
            [f'execute if score #ns bm.rng matches {k + 1} as @a if score @s bm.pid = #me bm.pid run scoreboard players set @s bm.hns{k} {IDX[w]}' for k in range(3)] +
            [f'execute if score #ns bm.rng matches {k + 1} run data modify storage bm:ui hn.r_l{k} set value {label}' for k in range(3)] +
@@ -174,9 +175,11 @@ def generate(G):
                      P28.body([T('Each follower with you can be honoured: Vitality, Bulwark and Might, five ranks each - for good, '
                                  'everywhere you call them, heists too.', 'gray')], 320),
                      P28.body([T("The Tide's Haste ", '#9af0d8', bold=True), T('$(sr)/2', 'white'),
-                               T('   every follower you call: a faint rests 80 s, then 45 s', 'dark_gray')], 320)],
-                    [B_('@@RAW:r_l0@@', MENU + 1), B_('@@RAW:r_l1@@', MENU + 2), B_('@@RAW:r_l2@@', MENU + 3),
-                     B_([T("The Tide's Haste +1", '#9af0d8'), T('  ($(src))', 'gray')], MENU + 5)], columns=1)
+                               T('   every follower you call: a faint rests 80 s, then 45 s', 'dark_gray'),
+                               T('\nNext: ', 'gray'), T('$(src)', 'white')], 320)],
+                    # (3.0p: the price in the text above, not in the button - a price in its label scrolled)
+                    [B_('@@RAW:r_l0@@', MENU + 1, w=260), B_('@@RAW:r_l1@@', MENU + 2, w=260), B_('@@RAW:r_l2@@', MENU + 3, w=260),
+                     B_([T("The Tide's Haste +1", '#9af0d8')], MENU + 5, w=260, tip=T('Next: $(src)', 'gray'))], columns=1)
     fn('p201/list_dlg', [f'$dialog show @s {P28.inline(lst)}'])
 
     # ---------------------------------------------------------------- a follower's page: three honours, five ranks
@@ -193,10 +196,11 @@ def generate(G):
     page = P28.multi([T("QUEEN AVA'S HONOURS", AVA_C, bold=True), T('  ·  ', 'gray'), '@@RAW:r_nm@@'],
                      [P28.body([T('Honour ', AVA_C, bold=True), T('$(hp)', 'white'), T('   Vitality, Bulwark and Might together', 'dark_gray')], 320)] +
                      [P28.body([T(s_nm + ' ', s_col, bold=True), T(f'$({k}p)', 'white'), T(f'   {desc}', 'dark_gray')], 320) for k, s_nm, s_col, desc in STATS] +
-                     [P28.body([T('You have ', 'gray'), T('$(rp)', PEARL_C, bold=True), T(' Royal Pearls and ', 'gray'), T('$(dt)', '#b0102a', bold=True),
+                     [P28.body([T('Next rank: ', AVA_C), T('$(hc)', 'white')], 320),          # (3.0p: the price here - in the button's label it scrolled)
+                      P28.body([T('You have ', 'gray'), T('$(rp)', PEARL_C, bold=True), T(' Royal Pearls and ', 'gray'), T('$(dt)', '#b0102a', bold=True),
                                 T(' Dread Tokens.', 'gray')], 320)],
-                     [B_([T('Honour +1', AVA_C, bold=True), T('  ($(hc))', 'gray')], MENU + 11, w=260,
-                         tip=T('One Honour, three ranks: each raises Vitality, Bulwark and Might together (II, IV, then V).', 'gray'))] +
+                     [B_([T('Honour +1', AVA_C, bold=True)], MENU + 11, w=260,
+                         tip=T('$(hc). One Honour, three ranks: each raises Vitality, Bulwark and Might together (II, IV, then V).', 'gray'))] +
                      [B_(T('« Her honours', 'gray'), MENU + 9, w=260)], columns=1)
     fn('p201/page_dlg', [f'$dialog show @s {P28.inline(page)}'])
     fn('p201/page', [f'scoreboard players set @s bm.menu {MENU}', 'function bm:p177/wallet',

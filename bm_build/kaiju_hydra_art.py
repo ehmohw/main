@@ -736,7 +736,7 @@ def feet_low(p):
     return out
 
 
-FOLD = dict(wr=limb(1, -6, -24, -64), wr2=qs(('y', -128), ('z', -10)), wl=limb(-1, -6, -24, -64), wl2=qs(('y', 128), ('z', 10)))
+FOLD = dict(wr=limb(1, 0, 20, -100), wr2=qs(('y', -170)), wl=limb(-1, 0, 20, -100), wl2=qs(('y', 170)))     # (folded high on its back, a cloak)
 HALF = dict(wr=limb(1, -4, 6, -30), wr2=qs(('y', -60)), wl=limb(-1, -4, 6, -30), wl2=qs(('y', 60)))
 OPEN = dict(wr=limb(1, 0, 18, 0), wr2=T(0, -10, 0), wl=limb(-1, 0, 18, 0), wl2=T(0, 10, 0))
 LEGS = dict(ufr=limb(1, 0), lfr=limb(1, 0), ufl=limb(-1, 0), lfl=limb(-1, 0), thr=limb(1, 0), shr=limb(1, 0), thl=limb(-1, 0), shl=limb(-1, 0))
