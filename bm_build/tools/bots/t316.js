@@ -126,12 +126,12 @@ const N = 'execute in minecraft:the_nether run ';
     ok('the Bound Sovereign called (its Eye used)', await wait(8000, async () => (await cnt(PET)) === 1), `${await cnt(PET)} pets; ${await cnt('@e[type=minecraft:wolf,tag=bm.xvpet]')} anywhere`);
     const menu = async () => { for (let k = 0; k < 3; k++) { const n0 = A.dialogN.length; A.input({ shift: true }); await sleep(250); A.use(); await sleep(400); A.release(); A.input({});
       if (await wait(3000, async () => A.dialogN.length > n0)) return; await sleep(1000); } };
-    await sleep(2500); await menu(); A.bars.length = 0;
+    await sleep(2500); await menu(); await A.press(/Settings/); A.bars.length = 0;     // (3.0p: its Form button is on its ⚙ Settings page)
     ok('its menu offers Unbound / Bound', A.buttons().some(b => /Unbound \/ Bound/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
     await A.press(/Unbound \/ Bound/); await sleep(1500);
     ok('...not yet: it does not remember (felled only once)', A.bars.some(b => /does not remember/.test(b)) && (await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')) === 0);
     await run('tag TestRat add bm.xvunb');
-    await menu(); await A.press(/Unbound \/ Bound/);
+    await menu(); await A.press(/Settings/); await A.press(/Unbound \/ Bound/);
     ok('felled twice: Unbound - the giant stands (19 parts, at the boss\'s scale)', await wait(3000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.xvu,x=${X},y=${Y},z=${Z},distance=..24]`)) === 19), `${await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')} parts`);
     const hd = await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvu_head,limit=1] transformation.scale`);
     ok('...as vast as the boss (its head\'s scale)', +((hd.match(/\[(-?[\d.]+)f/) || [0, 0])[1]) > 3.5, hd.slice(-40));
@@ -141,7 +141,7 @@ const N = 'execute in minecraft:the_nether run ';
     const hp2 = (await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvu_body,limit=1] Pos`)).match(/\[(-?[\d.]+)d/);
     const wp = (await run(`${O}data get entity ${PET.slice(0, -1)},limit=1] Pos`)).match(/\[(-?[\d.]+)d/);
     ok('...where it goes, the giant goes', hp2 && wp && Math.abs(+hp2[1] - +wp[1]) < 3 && Math.abs(+wp[1] - X) > 3, hp2 && wp ? `giant ${(+hp2[1]).toFixed(1)}, it ${(+wp[1]).toFixed(1)}` : 'none');
-    await menu(); await A.press(/Unbound \/ Bound/);
+    await menu(); await A.press(/Settings/); await A.press(/Unbound \/ Bound/);
     ok('Bound again: the giant gone, its own rig back', await wait(3000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')) === 0) &&
        /1\.6f/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvp_head,limit=1] view_range`)));
     await run(`${O}execute as ${PET} run function bm:p239/home`); await run('scoreboard players set TestRat bm.xvub 0');

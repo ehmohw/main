@@ -21,6 +21,15 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0v: free cameras in the boss fights, and the Keeper on your crew
+
+- **No more locked cutscenes for the Dread Sovereign or Admiral Vexis.** Only the Sovereign's very first scene, the coming as you
+  enter the throne room, still holds your camera. Broken's and True's entrances, the Last Light, and every one of Vexis's scenes
+  now play while you keep your camera and can move, so you can watch them from wherever you like. You're still unhurt while they
+  play, and kept clear of Darkness.
+- **The Keeper of Bonds never takes a Raid Crew slot.** Raid Crew (three when you raid alone) counted the Keeper, so with it
+  along you could only take two others. Now it rides free, as it already did outside heists.
+
 ## New in 3.0u: the Golden Doodle, fixed up
 
 - **The Clover Pond wakes any time,** day or night; it no longer waits for a Lucky Night. Stand anywhere on the clover ring
