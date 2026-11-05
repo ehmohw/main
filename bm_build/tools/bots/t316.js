@@ -2,7 +2,7 @@
 // the bot in the hall; the Sovereign's pools set to their edge, as t312 does); the bot plays.
 //   adv      inside the Undercrown, survival becomes Adventure; out of it, Survival again
 //   refight  one who felled it: it does not stir for them (told so); the Dread Ember kindled (held right-click): it rises for them
-//   enter    each form's entrance: the client's camera held on it (position packets, facing it), its own music, its title;
+//   enter    the coming holds the client's camera (position packets, facing it); each later entrance plays with the camera free (3.0v); its own music, its title;
 //            then the fight goes on in the new form (II, then III, the floor fallen)
 //   unbound  the Bound Sovereign's menu: Unbound locked until it's felled twice; then the giant rig stands where it walks
 //            (19 boss-scale parts, its small rig unseen), and Bound again puts it away
@@ -327,9 +327,8 @@ const N = 'execute in minecraft:the_nether run ';
     // the Broken's entrance: from right under it; killed in the middle of it
     const sv = await pos(SOV); await at(sv[0], sv[1], sv[2] + 3);
     await run(`${N}data modify entity ${SOV} Health set value 100f`);
-    ok('the Broken form\'s entrance: held', await wait(5000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svturn]')) === 1) && await wait(1500, held, 100));
+    ok('the Broken form\'s entrance: it plays, the camera free (3.0v: only the coming holds)', await wait(5000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svturn]')) === 1) && !(await held()) && await free());
     await sleep(2500);
-    ok('...one right under it has glided back to see it whole (12+)', dist(await me(), await pos(SOV)) >= 12, `${dist(await me(), await pos(SOV)).toFixed(1)} from it - sov ${JSON.stringify(sv)} -> ${JSON.stringify(await pos(SOV))} me ${JSON.stringify(await me())} ko ${JSON.stringify(await pos('@e[type=minecraft:marker,tag=bm.svko,limit=1]'))} below ${await run(`${N}execute at TestRat if block ~ ~-0.6 ~ #bm:grap_pass`)}`);
     ok('...its look marker and its keep-out (one each)', (await cnt('@e[type=minecraft:marker,tag=bm.svlook]')) === 1 && (await cnt('@e[type=minecraft:marker,tag=bm.svko]')) === 1);
     await run('kill TestRat');
     ok('...killed mid-entrance: respawned with their body their own', await wait(6000, async () => A.health > 0 && await free(), 200));
@@ -340,13 +339,13 @@ const N = 'execute in minecraft:the_nether run ';
     // the True form's entrance: logged out in the middle of it; a second player walks in
     await run(`${N}kill @e[type=minecraft:husk,tag=bm.sveye]`); await sleep(2000);
     await run(`${N}data modify entity ${SOV} Health set value 100f`);
-    ok('the True form\'s entrance: held', await wait(6000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svturn]')) === 1) && await wait(1500, held, 100));
+    ok('the True form\'s entrance: it plays, the camera free', await wait(6000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svturn]')) === 1) && !(await held()));
     A.end(); await sleep(1500);
     const B = await bot('TestRat2'); await sleep(2500); B.stand(); await run('tag TestRat2 add bm.lkpass'); await run('effect give TestRat2 minecraft:resistance infinite 4 true');
     B.chats.length = 0; B.cmd('gamemode creative'); await sleep(500);
     ok('...a second (regular) player', /unknown|incomplete/i.test(B.chats.join(' ')));
     await run(`${N}tp TestRat2 ${ar[0] + 4} ${ar[1]} ${ar[2] + 6}`);
-    ok('...walking in mid-entrance: held with the rest', await wait(3000, async () => held('TestRat2'), 100));
+    ok('...walking in mid-entrance: free, as everyone is', await wait(1500, async () => free('TestRat2'), 100) && !(await held('TestRat2')));
     ok('...the entrance over: phase III', await wait(18000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=3}]')) === 1));
     ok('...the one who walked in: free again', await wait(1500, async () => free('TestRat2'), 100));
     B.end(); await sleep(500);
@@ -355,7 +354,7 @@ const N = 'execute in minecraft:the_nether run ';
     // the finale
     await run(`${N}tp TestRat ${ar[0]} ${ar[1]} ${ar[2] + 6}`); await sleep(500);
     await run(`${N}data modify entity ${SOV} Health set value 100f`);
-    ok('its last pool spent: the Last Light (held)', await wait(8000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svfall]')) === 1) && await wait(3000, held, 100));
+    ok('its last pool spent: the Last Light (played, the camera free)', await wait(8000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svfall]')) === 1) && !(await held()));
     ok('...the spoils: then control back at once, still Adventure', await wait(40000, async () => (await has('ukey_victor')) === 1, 500) && await wait(1500, free, 100) && (await gm()) === 2);
     ok('...no camera markers left', (await cnt('@e[type=minecraft:marker,tag=bm.svcamm]')) === 0);
     await run('scoreboard players set #ucol bm.p2 0'); await run('scoreboard players set #uhold bm.p2 0'); await run('scoreboard players set #ufell bm.p2 0');

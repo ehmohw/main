@@ -8,7 +8,7 @@
 //   reactor  Dreadnought A's reactor: walk in, it ignites (four conduits); strike each one 8 times; all four broken: the trial solved
 //   lock     the Command Lock: the three Ciphers dropped (Q) on their slots: the trial solved, an Armada Key
 //   gauntlet the sentry lasers sweep the corridor and burn the bot standing in a beam
-//   boss     Admiral Vexis: it wakes as you cross the bridge (eyes held on it); the pylons shield it - one struck while dark shrugs it
+//   boss     Admiral Vexis: it wakes as you cross the bridge (the camera stays yours); the pylons shield it - one struck while dark shrugs it
 //            off, struck while it glows overloads; the turns (II, III) and its fall: the follower, the record, the nights over
 //   nights   after the fall no invasion is rolled and the Fleet Beacon gets no answer; a Dreadnought reactor's sabotage begun:
 //            the hive remembers - the nights again, and Vexis will rise for you
@@ -146,10 +146,7 @@ const E = 'execute in minecraft:the_end run ';
     const c = W(52, 55, 180); await at(c[0] + 0.5, c[1], c[2] + 12.5, 180, 0);
     ok('crossing the bridge: it wakes (the coming)', await wait(6000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxintro]`)) === 1));
     await sleep(3000);
-    const look = await pos('@e[type=minecraft:marker,tag=bm.vxlook,limit=1]'); const me = await pos('@a[name=TestRat,limit=1]');
-    const rot = (await run('data get entity TestRat Rotation')).match(/\[(-?[\d.]+)f, (-?[\d.]+)f\]/);
-    if (look && me && rot) { const yaw = Math.atan2(-(look[0] - me[0]), look[2] - me[2]) * 180 / Math.PI; const d = ((+rot[1] - yaw) % 360 + 540) % 360 - 180;
-      ok('...your eyes held on it', Math.abs(d) < 12, `yaw ${(+rot[1]).toFixed(1)} vs ${yaw.toFixed(1)}`); } else ok('...your eyes held on it', false, 'no look marker');
+    ok('...the camera your own (3.0v: no locked cutscenes) - no Slowness 255', !/slowness/.test(await run('data get entity TestRat active_effects')) || !/amplifier: 255b/.test(await run('data get entity TestRat active_effects')));
     ok('...20 s later: the fight begins (its bar, phase I)', await wait(24000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxlive]`)) === 1, 500));
     ok('...the four shield pylons stand', (await cnt('@e[type=minecraft:interaction,tag=bm.vxpyi]')) === 4);
     // (a pylon struck while dark shrugs it off; while it glows it overloads)
@@ -166,7 +163,7 @@ const E = 'execute in minecraft:the_end run ';
     // (its pool to its edge: the turn to the Hive-Link)
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 101f`); await sleep(400); await hit(VX); await sleep(600);
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);
-    ok('its first pool spent: the turn - the cockpit blows, the wreck kneels, eyes held', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxturn]`)) === 1));
+    ok('its first pool spent: the turn - the cockpit blows, the wreck kneels', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxturn]`)) === 1));
     ok('...and THE HIVE-LINK (phase II): the wreck left behind', await wait(20000, async () => (await sc(VX, 'bm.vxph')) === 2 && (await cnt(`${VX.slice(0, -1)},tag=bm.vxlive]`)) === 1, 500) &&
        (await cnt('@e[type=minecraft:item_display,tag=bm.vxw]')) === 20);
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);

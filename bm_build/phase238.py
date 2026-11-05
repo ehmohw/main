@@ -470,7 +470,10 @@ def generate(G):
                           'bossbar set bm:usov color purple', f'execute as {AUD} at @s run function bm:p152/tick'])
     # (2.98c) EACH FORM'S ENTRANCE - everyone's eyes held on it (the look marker rides its head), the hall dark, the change slow
     look = '@e[type=minecraft:marker,tag=bm.svlook,limit=1]'
-    fn('p238/c/look', ['function bm:p238/cam/all'])
+    # (3.0v: the owner's call - only the coming (the throne room's first entrance, p238/c/hold) holds the camera; every later
+    #  cinematic (Broken's and True's entrances, the Last Light) plays while the player keeps their camera and moves - they were
+    #  choppy, and the forced angle often hid what was happening. Kept: unhurt while it plays, and no Darkness)
+    fn('p238/c/look', [f'execute as {FIGHT} run function bm:p176/nodark', f'effect give {FIGHT} minecraft:resistance 2 255 true'])
     rs2 = random.Random(2381)
     crack = lambda k: [f'particle minecraft:block{{block_state:"minecraft:blackstone"}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.6 0.6 0.6 0 40 force {AUD}',
                        f'particle minecraft:dust{{color:[1.0,0.15,0.2],scale:2.5}} ~{rs2.uniform(-2, 2):.1f} ~{rs2.uniform(3, 9):.1f} ~{rs2.uniform(-2, 2):.1f} 0.3 0.3 0.3 0 20 force {AUD}',

@@ -281,8 +281,9 @@ def generate(G):
     hx, hy, hz = HX + 0.5, HY + 7.5, HZ + 0.5                 # (its cockpit, standing)
     look = '@e[type=minecraft:marker,tag=bm.vxlook,limit=1]'
     # (3.0g: whoever is held watches it in the light - Darkness and Blindness cleared, and none laid on them till it lets go: p176/nodark)
-    fn('p242/c/look', [f'execute as {FIGHT} at @s run tp @s ~ ~ ~ facing entity {look} feet', f'execute as {FIGHT} run function bm:p176/nodark', f'effect give {FIGHT} minecraft:slowness 2 255 true',
-                       f'effect give {FIGHT} minecraft:resistance 2 255 true', f'effect give {FIGHT} minecraft:jump_boost 2 200 true'])
+    # (3.0v: the owner's call - no locked cutscenes: Vexis's cinematics play while the player keeps their camera and moves.
+    #  Kept: unhurt while they play, and no Darkness)
+    fn('p242/c/look', [f'execute as {FIGHT} run function bm:p176/nodark', f'effect give {FIGHT} minecraft:resistance 2 255 true'])
     import random
     rs = random.Random(242)
     shk = [(1.4 * (1 - k / 3) * rs.choice((-1, 1)), 0.8 * (1 - k / 3) * rs.choice((-1, 1))) for k in range(2)]
