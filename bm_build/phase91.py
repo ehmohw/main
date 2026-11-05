@@ -116,7 +116,7 @@ TEMPLE = {
                "#..B#B..#",
                "#.......#",
                "##.#B#.##",
-               "#...S...#",
+               "#.S.....#",     # (3.0v: the switch moved off the square inside the door - a stone on it sealed you in)
                "####@####"],
     'hard': ["###########",
              "#..S.#....#",
@@ -138,13 +138,22 @@ TEMPLE_TIER = {1: 'easy', 2: 'easy', 3: 'medium', 4: 'hard', 5: 'hardest'}
 TG = (7, 1)                                                  # the grid's north-west corner (x, z): 11 wide, 8 deep at most
 
 
+def door_cell(rows):
+    """(3.0v) the square just inside the door (north of '@'): players walk it, stones never go onto it - so however the stones
+    lie, the way out stays open (the owner was sealed in by a stone on a switch there, and the reset button is outside)"""
+    z = len(rows) - 1; x = rows[z].index('@')
+    assert rows[z - 1][x] == '.', 'the Block Temple: the square inside the door must be plain floor'
+    return (x, z - 1)
+
+
 def temple_cells(name):
     rows = TEMPLE[name]
     off = (11 - len(rows[0])) // 2
+    dc = door_cell(rows)
     out = []
     for z, r in enumerate(rows):
         for x, c in enumerate(r):
-            out.append((TG[0] + off + x, TG[1] + z, c))
+            out.append((TG[0] + off + x, TG[1] + z, 'd' if (x, z) == dc else c))
     return out
 
 
@@ -158,6 +167,7 @@ def solvable(rows):
             if c in 'SX': sw.add((x, z))
             if c == '@': start = (x, z)
             else: floor.add((x, z))
+    nob = {door_cell(rows)}                                   # (walked, never a stone's)
     def reach(p, bl):
         seen = {p}; q = deque([p])
         while q:
@@ -176,7 +186,7 @@ def solvable(rows):
             for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 if (bx - dx, bz - dz) not in R: continue
                 tgt = (bx + dx, bz + dz)
-                if tgt in walls or tgt in bl or tgt not in floor: continue
+                if tgt in walls or tgt in bl or tgt not in floor or tgt in nob: continue
                 nb = frozenset(bl - {(bx, bz)} | {tgt})
                 k = (min(reach((bx, bz), nb)), nb)
                 if k in seen: continue
@@ -460,7 +470,7 @@ def generate(G):
         for (x, z, c) in cells:
             if c == '#': lay += [f'setblock {rel(x, 3, z)} minecraft:mossy_stone_bricks', f'fill {rel(x, 4, z)} {rel(x, 5, z)} minecraft:mossy_stone_bricks',
                                  f'setblock {rel(x, 6, z)} minecraft:barrier']
-            elif c == '@': lay.append(f'setblock {rel(x, 3, z)} minecraft:polished_andesite')
+            elif c in '@d': lay.append(f'setblock {rel(x, 3, z)} minecraft:polished_andesite')     # (not temple floor: no stone slides onto it)
             elif c in 'SX': lay.append(f'setblock {rel(x, 3, z)} minecraft:gold_block')
             else: lay.append(f'setblock {rel(x, 3, z)} minecraft:smooth_stone')
             if c in 'BX':
