@@ -369,7 +369,8 @@ def generate(G):
     anchor = 'execute as @a[tag=!bm.haskey] if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"market_key"}] run tag @s add bm.haskey'
     k = f.index(anchor) + 1
     f[k:k] = ['execute as @a[tag=!bm.haskey] if items entity @s container.* *[minecraft:custom_data~{bm_key:1b}] run tag @s add bm.haskey',
-              'execute as @a[tag=!bm.haskey] if items entity @s weapon.offhand *[minecraft:custom_data~{bm_key:1b}] run tag @s add bm.haskey']
+              'execute as @a[tag=!bm.haskey] if items entity @s weapon.offhand *[minecraft:custom_data~{bm_key:1b}] run tag @s add bm.haskey'] + \
+             [f'execute as @a[tag=!bm.haskey,tag=bm.rqt_{kk}] run tag @s add bm.haskey' for kk in KEY_ORDER]     # (3.0y: a market key on the Rat Pack's Keyring - its bm.rqt_ tag - counts at the doors too)
     slots = [f'container.{i}' for i in range(36)] + ['weapon.offhand']
     for t, nm, pts, col, key, unlock in TIERS[2:]:
         lower = KEY_ORDER[:KEY_ORDER.index(key)]

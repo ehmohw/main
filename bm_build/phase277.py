@@ -79,7 +79,7 @@ MAPS = ['sealed_map_market', 'sealed_map_graveyard', 'sealed_map_frog', 'sealed_
         'sealed_map_brood', 'sealed_map_frost', 'sealed_map_tide', 'sealed_map_hex', 'sealed_map_keep', 'hive_coords', 'message_bottle']
 MOUNTS = ['mecha_remote', 'ember_call', 'void_call']
 # (3.0y) the carrot-on-a-stick tools phase29 dispatches from the main hand (not in useitem.HOLD): used from a row the same way
-CARROT = {'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
+CARROT = {'lodestone_locket': 'bm:p29/locket/use', 'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
 CATS = {'pocket': POCKET, 'keys': KEYS, 'charms': CHARMS, 'maps': MAPS, 'mounts': MOUNTS}
 HELD = {'bond_compass'}                            # (checked "in either hand" - weapon.* - too)
 # the Pack's auto-pack kinds: (key, label, default on)

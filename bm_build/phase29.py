@@ -413,6 +413,7 @@ def generate(G):
     fn('p29/locket/off', ['scoreboard players set @s bm.magnet 0', 'playsound minecraft:block.lodestone.break player @s ~ ~ ~ 1 0.8',
                           title('@s', 'actionbar', T('Lodestone Locket: off', 'gray'))])
     second.append('execute as @a[scores={bm.magnet=1},gamemode=!spectator] if items entity @s container.* *[minecraft:custom_data~{bm:"lodestone_locket"}] at @s run function bm:p29/locket/pull')
+    second.append('execute as @a[scores={bm.magnet=1},gamemode=!spectator,tag=bm.rqt_lodestone_locket] unless items entity @s container.* *[minecraft:custom_data~{bm:"lodestone_locket"}] at @s run function bm:p29/locket/pull')     # (3.0y: on the Rat Pack)
     fn('p29/locket/pull', ['tp @e[type=minecraft:item,distance=1.2..7,nbt={PickupDelay:0s}] @s', 'tp @e[type=minecraft:experience_orb,distance=1.2..7] @s'])
 
     # ================================================================== FAIR WEATHER BELL

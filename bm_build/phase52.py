@@ -137,6 +137,7 @@ def generate(G):
     G.FUNCS['p22/lucky/start'].append(tellraw('@a', PREFIX + [T('HAPPY HOUR! ', GOLD, bold=True), T('Until dawn every Black Market trader and Zorp take a third off, and Lucky Whiskers has something special.', 'yellow')]))
     G.FUNCS['p32/inv/start'].append(tellraw('@a', PREFIX + [T('The Fence has invasion stock tonight: ', GREEN), T('Signal Jammers, Flak Rockets, and he buys Vorn salvage.', 'gray')]))
     second.append('execute as @a if items entity @s container.* *[minecraft:custom_data~{bm:"four_leaf_charm"}] run effect give @s minecraft:luck 3 0 true')
+    second.append('execute as @a[tag=bm.rqt_four_leaf_charm] unless items entity @s container.* *[minecraft:custom_data~{bm:"four_leaf_charm"}] run effect give @s minecraft:luck 3 0 true')     # (3.0y: on the Rat Pack, active)
 
     # ================================================================ 3) the Lucky Den's slot machines + the progressive jackpot
     S = 'storage bm:slot'
