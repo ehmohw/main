@@ -270,7 +270,7 @@ if PHASE2:
     import phase277 as R277   # 3.1: the Rat Pack (after every item is registered: it renames the wheel, lists what goes on it)
 
 OUT = None
-VERSION2 = 'v3.0x'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0y'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 

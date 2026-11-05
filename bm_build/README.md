@@ -21,6 +21,44 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0y: Relics on the Rat Pack, Rings of Ten Burrows, and fixes
+
+### The Rat Pack: Relics
+
+**A Relics page on the Rat Pack** (Relics › on its front page) for the major boss drops and the things that matter. It has four pages of its own, each with « Relics to go back. Put a relic on the usual way: hold it in your off hand and use the Pack, and it goes on the page it belongs to.
+
+- **Powers**: boss drops that *do* something. These are the Fire Extinguisher, the Dread Ember, the Echo of the Hollow King, the Shard of the Hollow Throne, the Hollow Gate, the Serpent's Summons and the Dread Bell. Press one and it works just as if you'd right-clicked it (Press to: Use / Take back, as on the Pocket). The Fire Extinguisher still goes into a heist only if you carry it loose, because the Pack waits at the coat check.
+- **Passives**: they keep working from the Pack exactly as if carried. These are the Talisman of the Three Nights, the Ravenous Heart, the Scorching Heart (its fire-proofing; set it down by hand), the Forgeheart, the Void Totem (used up from the Pack when it saves you), the Dread Totem, the Heart of the Dread, the Ember, Void and Three Skies Mantles, the Star Cloak, the Obsidian Skull and the seven dungeon relics (the Broodmother's Heartsilk, the Rimeheart, the Tyrant's Pearl, the Archmage's Focus, Bobbery's Fuse, the Hollow Crownshard and the Golden Egg of Plenty).
+- **Materials**: kept a stack each, with the count on every row. These are Vorn Power Cells, Heartstones, Fallen Stars, Starhearts, Emberhearts, Voidhearts, Hellstars, Voidstars, the six Skiff parts and the nine elemental Gems. Press one to take the stack back.
+- **Arms & Armour**: the bosses' weapons and armour, kept exactly as they were (enchantments, wear and all). These come from the Undercrown, the Armada, the Hollow King (his whole set and the Sepulchre), the dungeon bosses, the Golden Goose's gilded set, the Serpent King's Mace, the Eldritch tools, the Dread Carapace and the Crown of the Deep. Press one to take it back to wield or wear it. The Pack keeps one of each kind.
+
+**Auto-pack** has two new switches on the Pack's ⚙ Settings. **Relics** (on to start with) covers powers, passives and materials. **Arms & armour** is off to start with, so nobody's sword vanishes onto the Pack. Auto-pack never takes what's in your hand or what you're wearing.
+
+**Up to five Rings of Ten Burrows** fit in the Pocket, each on its own row ("Ring of Ten Burrows 1".."5", or its own name if you named it). Each ring keeps its own ten burrows. Press a row to open that ring's menu, as if you held it. A ring already on your Pack is ring 1. A sixth is refused with a note.
+
+**The Black Market Key on the Keyring counts at the market's doors**, along with every other check written late in the build, now that the Pack's "counts as carried" runs a second time at the end.
+
+### The Ring of Ten Burrows
+
+The Ring of Three Burrows is now the **Ring of Ten Burrows**: ten homes a ring. **Each ring keeps its own ten.** A ring is numbered the first time it's used, and its homes stay with it. The burrows a player set before go to the first ring they use, so nothing is lost. Its menu works from the Rat Pack too: you no longer have to hold the ring to press Go or Set.
+
+### More from the Rat Pack
+
+- **Collectors take plain vanilla items only.** Most Black Market items are built on a totem of undying, which the Spirit Jar's list takes (an evoker drops one). So "Deposit" could put the Rat Pack itself into a jar, and the Ore Magnet could take custom items on iron or emerald bases. The pick-up, the Pack's auto-collect, Deposit and "Deposit all they take" now leave every custom item alone. Anything already in a jar comes out with Withdraw all, or by unfolding the jar.
+- **Withdraw all stays withdrawn.** A collector on the Pack no longer sucks the stack you just took straight back in off the ground.
+- **The Spirit Jar, Ore Magnet and Vacuum Satchel unfold wherever a backpack does.** That includes the markets, the crypts, the dungeons and the Vorn ships, in the backpack's careful way: on open floor in front of you, never beside the place's own works, and the space put back as it was. They also get the backpack's safety copy, so a rebuild or an explosion loses nothing. Never on a heist.
+- **The Crew Flare stays off the Pack.** It's a heist tool, and the Pack waits at the coat check. A flare already on a Pack is handed back.
+- **« Partners from a partner's menu.** A partner's own menu, opened while they're on your Rat Pack, has a **« Partners** button at the bottom that takes you back to the Partners page. Without the Pack, it's Close as before.
+- Keys, the Ledger and the Ravenous Heart on the Pack count as carried again, after a slip in the build's last pass.
+
+### Fixes
+
+- **Health survives a rejoin.** With bonus hearts from armour, Heartstones or buffs, the game used to cut your health to 10 hearts when you logged back in. Now your health is noted each second, and two seconds after you're back it's topped up to what it was.
+- **The Tide's Haste (Swift Return) works on every follower.** It only shortened the faint timers of the older followers. Now level I cuts a faint to 80 seconds and level II to 45 seconds, for every partner.
+- **The Dark Auction's pedestal clears itself.** A lot, its glow and the price board stuck on their last second ("7s") are put away whenever no sale is running. That happened if the hall was out of range when the sale closed, or the pack reloaded mid-sale.
+- **The Stalker's Grin sits on your face** instead of inside your head. The band runs over the crown and the strap goes behind.
+- Earlier in 3.0y: the Banker's Card, the Ring, the Pocket Rift, the Fair Weather Bell and the Champion's Ribbon go in the Pocket. The Lodestone Locket and the Four-Leaf Charm work from the Pack. The Partners page's "Page N of M" opens a page picker, and the Partners page stays open after you call or send someone home. No more blazes in Blood Moons.
+
 ## New in 3.0x: the Rat Pack
 
 ### The Rat Pack (was the Partner Wheel)
