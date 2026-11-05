@@ -87,7 +87,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await openP(); await A.press(/Keyring/);
   await A.press(/Rat King's Key/); await sleep(900);
   ok('...pressed: the key is back in his pocket, off the Pack', (await has('rat_king_key')) === 1 && (await sc('bm.rq_rat_king_key')) === 0);
-  A.cmd('trigger bm.act set ' + (8700 + 17 + 3)); await sleep(700);
+  A.cmd('trigger bm.act set ' + (8700 + 22 + 3));     // (the Pocket's 22 entries, then the Keyring: market, silver, gold, rat king) await sleep(700);
   ok('...and only once (still one key)', (await has('rat_king_key')) === 1);
   // Charms: active, then resting; taken back
   ok('Charms: the Ember Charm active while carried (bm.rqt_charm_ember)', /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.rqt_charm_ember]')));
