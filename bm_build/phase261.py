@@ -32,7 +32,7 @@ PAGERS = {
     'wh': ('p179/w/open', 'bm:tmp pw.acts', None, 'function bm:p259/w/rows', 24, 3440, 3441, 'p179/w/act', 1, 'p179/w/open', 3),
 }
 CUR = 4094
-JUMP = {'wh': (3240, 12)}                    # (3.0y: the Partners page's page picker: 3240 opens it, 3241-3252 pages 1-12, 3253 back)
+JUMP = {'wh': (3424, 12)}                    # (3.0y: the Partners page's page picker, in the wheel's own block 3350-3449 (routed whole to p179/w/act): 3424 opens it, 3425-3436 pages 1-12, 3437 back)
 MENU_OF = {'wh': 3350}
 TIP = {'sit': 'Sit down where they stand - or get up and follow you again.',
        'home': 'They go home. Call them again with their item or the wheel.',
@@ -113,8 +113,6 @@ def generate(G):
                            [f'execute if score #act bm.pay matches {j0 + k} run return run function bm:p261/pg/{key}_go {{p:{k - 1}}}' for k in range(1, jmax + 1)] + \
                            [f'execute if score #act bm.pay matches {j0 + jmax + 1} run return run function bm:{reopen}']
             fn(f'p261/pg/{key}_go', [f'$scoreboard players set @s bm.pg_{key} $(p)', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2', f'function bm:{reopen}'])
-            ra = F['p28/act']; kk = next(i for i, l in enumerate(ra) if 'run return run function bm:' + rtr in l)
-            ra.insert(kk, f'execute if score #act bm.pay matches {j0}..{j0 + jmax + 1} run return run function bm:{rtr}')
     rep['pagers'] = len(PAGERS)
 
     # ================================================================== THE WHEEL: its global switches are on Your settings
