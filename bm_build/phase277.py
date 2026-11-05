@@ -48,11 +48,16 @@ RQV = 1                                            # (custom_data bmrp: a wheel 
 
 # ------------------------------------------------------------------ menus and codes
 M_FRONT, M_SET = 8660, 8673
-M_CAT = {'pocket': 8690, 'keys': 8691, 'charms': 8692, 'maps': 8693, 'mounts': 5640}      # (the Mounts page keeps phase249's menu)
+M_CAT = {'pocket': 8690, 'keys': 8691, 'charms': 8692, 'maps': 8693, 'mounts': 5640,      # (the Mounts page keeps phase249's menu)
+         'rpow': 8694, 'rpas': 8695, 'rmat': 8696, 'rarm': 8697}
+M_REL = 8698                                       # (the Relics page: its four sub-pages)
+B_REL, B_RBACK = 8688, 8994                        # (the front page's Relics ›; a relic page's « Relics)
+B_RSUB = {'rpow': 8990, 'rpas': 8991, 'rmat': 8992, 'rarm': 8993}
 B_SEC = {'partners': 8661, 'pocket': 8662, 'keys': 8663, 'charms': 8664, 'maps': 8665, 'mounts': 8666, 'bags': 8667,
          'cols': 8668, 'settings': 8669, 'handbook': 8670, 'guide': 8671}
 B_BACK, B_MODE, B_PREV, B_NEXT, B_YOURS = 8672, 8682, 8683, 8684, 8685
-B_AP0 = 8674                                       # (8674-8681: the auto-pack switches)
+B_AP0 = 8674                                       # (8674-8681: the auto-pack switches; 8686/8687 the Relics' two)
+AP_CODE = [8674, 8675, 8676, 8677, 8678, 8679, 8680, 8681, 8686, 8687]
 B_E0 = 8700                                        # (8700+n: an entry's row)
 M_BAGS, M_COLS, M_BAG = 9160, 9161, 9170
 B_UNFOLD, B_TAKE, B_AUTO, B_CONV, B_DEP, B_WD1, B_WDA, B_BBACK, B_DEPALL = 9162, 9163, 9164, 9165, 9166, 9167, 9168, 9169, 9172
@@ -80,15 +85,37 @@ MAPS = ['sealed_map_market', 'sealed_map_graveyard', 'sealed_map_frog', 'sealed_
 MOUNTS = ['mecha_remote', 'ember_call', 'void_call']
 # (3.0y) the carrot-on-a-stick tools phase29 dispatches from the main hand (not in useitem.HOLD): used from a row the same way
 CARROT = {'lodestone_locket': 'bm:p29/locket/use', 'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
-CATS = {'pocket': POCKET, 'keys': KEYS, 'charms': CHARMS, 'maps': MAPS, 'mounts': MOUNTS}
+# (3.1, the owner) RELICS: the major boss drops and important items - four sub-pages off "Relics ›"
+RELIC_POW = ['fire_extinguisher', 'dread_ember', 'hollow_echo', 'hollow_summons', 'hollow_gate', 'serpent_summons', 'dread_bell']    # (used from a row)
+RELIC_PAS = ['three_nights_talisman', 'ravenous_heart', 'scorching_heart', 'forgeheart', 'void_totem', 'dread_totem', 'sov_heart',
+             'ember_mantle', 'void_mantle', 'three_skies_mantle', 'star_cloak', 'obsidian_skull'] + \
+            [f'relic_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')]                                     # (they work by being carried)
+RELIC_MAT = ['power_cell', 'heartstone', 'fallen_star', 'starheart', 'emberheart', 'voidheart', 'hellstar', 'voidstar'] + \
+            [f'skiff_{p}' for p in ('hull', 'dome', 'coil', 'core', 'emitter', 'reactor')] + \
+            [f'gem_{g}' for g in ('fire', 'water', 'poison', 'earth', 'electric', 'rock', 'air', 'grass', 'ice')]                      # (kept, a stack each)
+RELIC_ARM = ['sov_edge', 'black_crown', 'sov_wings', 'sov_wings_holy', 'starfire_lance', 'hive_breaker', 'admiral_crown', 'singularity_launcher',
+             'conq_blade', 'conq_axe', 'conq_bow', 'conq_pick', 'conq_shovel', 'conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots',
+             'sepulchre', 'hollow_wings', 'hollow_crown', 'archmage_staff', 'bobbery_axe', 'broodfang', 'frost_longbow', 'tyrant_trident',
+             'lucky_sword', 'lucky_axe', 'lucky_pick', 'lucky_shovel', 'lucky_helmet', 'lucky_chestplate', 'lucky_leggings', 'lucky_boots',
+             'apo_mace', 'eld_maw', 'eld_axe', 'eld_pick', 'eld_shovel', 'dread_carapace', 'crown_of_the_deep']                       # (kept whole: enchantments, wear and all)
+RELICS = ('rpow', 'rpas', 'rmat', 'rarm')
+TAKE_ONLY = {'keys', 'rpas', 'rmat', 'rarm'}        # (a row takes it back: there's nothing to press)
+NOCARRY = {'rmat', 'rarm'}                          # (kept, not "carried": nothing checks them)
+CATS = {'pocket': POCKET, 'keys': KEYS, 'charms': CHARMS, 'maps': MAPS, 'mounts': MOUNTS,
+        'rpow': RELIC_POW, 'rpas': RELIC_PAS, 'rmat': RELIC_MAT, 'rarm': RELIC_ARM}
 HELD = {'bond_compass'}                            # (checked "in either hand" - weapon.* - too)
 # the Pack's auto-pack kinds: (key, label, default on)
 AP = [('fol', 'Followers\' items', True), ('pocket', 'Pocket tools', True), ('keys', 'Keys', True), ('charms', 'Charms', True),
-      ('maps', 'Maps', True), ('mounts', 'Mount calls', False), ('bags', 'Bags', False), ('cols', 'Collectors', False)]
+      ('maps', 'Maps', True), ('mounts', 'Mount calls', False), ('bags', 'Bags', False), ('cols', 'Collectors', False),
+      ('relics', 'Relics', True), ('arms', 'Arms & armour', False)]
+AP_KEY = {'rpow': 'relics', 'rpas': 'relics', 'rmat': 'relics', 'rarm': 'arms'}       # (a category's auto-pack switch, where it isn't its own)
 PAGE_OF = {'fol': 'Partners', 'pocket': 'Pocket', 'keys': 'Keyring', 'charms': 'Charms', 'maps': 'Maps', 'mounts': 'Mounts',
-           'bags': 'Bags', 'cols': 'Collectors'}
+           'bags': 'Bags', 'cols': 'Collectors', 'relics': 'Relics', 'arms': 'Relics · Arms & Armour',
+           'rpow': 'Relics · Powers', 'rpas': 'Relics · Passives', 'rmat': 'Relics · Materials', 'rarm': 'Relics · Arms & Armour'}
 SEC = {'pocket': ('✦', 'Pocket', '#e8c070'), 'keys': ('⚿', 'Keyring', '#ffd700'), 'charms': ('✿', 'Charms', '#ff9ad8'),
        'maps': ('⚑', 'Maps', '#7ad8ff'), 'mounts': ('◈', 'Mounts', '#7ad8ff')}
+SEC.update({'rpow': ('⚡', 'Powers', '#ff7a5a'), 'rpas': ('❂', 'Passives', '#ffd070'), 'rmat': ('◆', 'Materials', '#7ad8ff'),
+            'rarm': ('⚔', 'Arms & Armour', '#c8c8ff')})
 # bags and collectors: (key, item, page, name, phase33 kind, collects: (range, how many a pass, filter run as the item), switch)
 BAGK = [('bp', 'backpack', 'bags', 'Backpack', 'pack', None, None),
         ('vs', 'vacuum_satchel', 'bags', 'Vacuum Satchel', 'box', (6, 4, 'unless items entity @s contents @@BAG@@'), 'vac'),
@@ -170,6 +197,7 @@ def carry_patch(G, E, patched, dec_needed):
     """every check of an entry's item also takes the Pack (run once in generate, and again late - after the finalizers that
     write checks of their own, the market's bm.haskey among them). Idempotent: a line already taught is left be."""
     F = G.FUNCS
+    E = [e for e in E if e['cat'] not in NOCARRY]
     BY = {e['iid']: e for e in E}
     skip = ('p277/', 'p179/', 'admin/', 'p18/', 'p129/', 'p84/lk/', 'p72/', 'p121/strip', 'p80/kit/', 'p104/key/', 'p28/key/', 'p175/',
             'p145/hand_free', 'p276/', 'p249/w/', 'p242/ms/upgrade', 'p173/ledger/', 'h3g/', 'p155/')
@@ -296,7 +324,7 @@ def generate(G):
             kind = 'worn' if iid in WORN_CHARMS else ('carry' if iid in CARRY_CHARMS else 'item')
             use, how = None, None
             if hb: use, how = 'bm:p276/hb_open', 'fn'
-            elif cat != 'keys' and kind == 'item':
+            elif cat not in TAKE_ONLY and kind == 'item':
                 if iid in HOLD: use, how = HOLD[iid], 'hold'
                 elif iid in CARROT: use, how = CARROT[iid], 'hold'
                 else:
@@ -318,7 +346,7 @@ def generate(G):
     # ---------------------------------------------------------------- who has what counted as carried (each second, and at once on a change)
     tg = []
     for e in E:
-        if e['iid'] == 'bm_handbook': continue
+        if e['iid'] == 'bm_handbook' or e['cat'] in NOCARRY: continue
         T_, O = e['tag'], e['obj']
         tg += [f'tag @s remove {T_}', f'execute if entity @s[tag=bm.pwc,scores={{{O}=1..}}] run tag @s add {T_}']
         if e['kind'] == 'carry': tg.append(f'execute if score @s bm.rqo_{e["iid"]} matches 1 run tag @s remove {T_}')
@@ -471,7 +499,7 @@ def generate(G):
             fn(f'p277/c/unwear_{iid}', [f'tag @s remove bm.rqw_{iid}', say([T(nm, col), T(': resting', 'red')]), 'function bm:p277/tg', 'function bm:p277/pg/charms'])
         # its button: by the page's switch (Use / Take back); the Keyring only takes back; a charm's use is its switch
         h = [f'execute unless score @s {O} matches 1.. run return run function bm:p28/stale']
-        if e['cat'] == 'keys': h.append(f'return run function bm:p277/o/{iid}')
+        if e['cat'] in TAKE_ONLY: h.append(f'return run function bm:p277/o/{iid}')
         else:
             h.append(f'execute if entity @s[tag=bm.rqtb] run return run function bm:p277/o/{iid}')
             if e['cat'] == 'charms' and e['kind'] in ('carry', 'worn'): h.append(f'function bm:p277/c/{iid}')
@@ -486,8 +514,12 @@ def generate(G):
                 'mounts': 'Call it - as using the item'}.get(e['cat'], '')
         b_take = P28.btn(lab(' ↩ '), code, width=150, tooltip=T(f'Take {nm} back off the Pack (at your feet)', 'gray'))
         rows = []
-        if e['cat'] == 'keys':
-            rows.append(f'data modify storage bm:tmp rq.acts append value {snbt(P28.btn(lab(" "), code, width=150, tooltip=T(f"On your Rat Pack: it counts as carried. Press: take {nm} back out", "gray")))}')
+        if e['cat'] in TAKE_ONLY:
+            tip_ = {'keys': f'On your Rat Pack: it counts as carried. Press: take {nm} back out',
+                    'rpas': f'On your Rat Pack: it works as if carried. Press: take {nm} back out',
+                    'rmat': f'Kept on your Rat Pack. Press: take the stack back out',
+                    'rarm': f'Kept on your Rat Pack, exactly as it was. Press: take {nm} back out to wield or wear it'}[e['cat']]
+            rows.append(f'data modify storage bm:tmp rq.acts append value {snbt(P28.btn(lab(" "), code, width=150, tooltip=T(tip_, "gray")))}')
         elif e['cat'] == 'charms':
             act_t = 'worn' if e['kind'] == 'worn' else 'active'
             b_on = P28.btn([T('● ', 'green')] + lab(' ')[0:1] + [T(' ' + nm, col)], code, width=150, tooltip=T(f'{nm}: {act_t}. Press: rest it', 'gray'))
