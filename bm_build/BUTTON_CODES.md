@@ -4086,6 +4086,14 @@ In 1-9999, outside every route of `p28/act` and on no button.
   Arms & Armour only take back, as the Keyring does. The two new auto-pack switches are 8686 (Relics) and 8687 (Arms & armour) -
   NOT 8682/8683, which the switch and the pager hold: the settings page maps its switches through phase277.AP_CODE.
   8689 and 8995-8999 stay free.
+- 3.1 (collector accounts, phase278): the Stone Collector, the Wood Box, the Ore Magnet and the Spirit Jar own 9250-9699
+  (`p278/act`, every line checks bm.menu). Menus: 9250 an account's front page, 9251 a category, 9252 a kind's page. Codes:
+  9260-9263 a category, 9264 Deposit everything, 9265 Auto-collect, 9266 « Collectors, 9278 Take it off the Pack (menu 9250); 9267 /
+  9268 ‹ Previous / Next ›, 9269 « (to the front), 9300+g a kind's row - one range route over 9300..9534, g its place in
+  phase278.TYPES (menu 9251); 9270 Take a stack, 9271 Take all, 9272 Deposit all of these, 9273 « (to the category) (menu 9252);
+  9274-9277 the four rows on the Rat Pack's Collectors page (menu 9161). Which account a page shows is bm.cbk (0 stone, 1 wood,
+  2 ore, 3 mob); the kind, bm.cbi. 9279-9299 and 9535-9699 are free. The Spirit Jar's and Ore Magnet's old Pack rows (9220-9239,
+  phase277's BAGK) are gone: the Prime Cooler's rows are 9220+j now (BAGK index 2).
 <!-- /notes -->
 
 ## Revision log

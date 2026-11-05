@@ -25,7 +25,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect give TestRat resistance 600 4 true');
   const pid = await num('scoreboard players get TestRat bm.pid');
   await run(`data remove storage bm:cb p${pid}`); for (const k of ['stone', 'wood', 'ore', 'mob']) { await run(`scoreboard players reset TestRat bm.cba_${k}`); await run(`scoreboard players set TestRat bm.rcb_${k} 0`); }
-  const bal = (k, n) => num(`data get storage bm:cb p${pid}.k${k}.i${n}`);
+  const bal = async (k, n) => +(((await run(`data get storage bm:cb p${pid}.k${k}.i${n}`)).match(/contents: (-?\d+)/) || [0, 0])[1]);
   const useSlot = async (s) => { A.slot(s); await sleep(250); const n0 = A.dialogN.length; A.use(); await sleep(350); A.release(); await wait(2500, async () => A.dialogN.length > n0, 100); };
 
   // ---- the Fence sells both
@@ -92,6 +92,13 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('scoreboard players set TestRat bm.rcb_mob 0'); await run('scoreboard players set TestRat bm.cbmig 0');
   ok('an old jar on the Pack\'s 3.0 list: its bones moved over, the jar the Pack\'s one', await wait(4000, async () => (await bal('mob', 'bone')) === 5) &&
      (await num('scoreboard players get TestRat bm.rcb_mob')) === 1 && !/passed/i.test(await run(`execute if data storage bm:pw p${pid}.rb_sj`)));
+
+  // "Deposit all they take" on the Collectors page: the flesh into the jar's account; the Rat Pack and a custom item stay
+  await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/partner_wheel'); await run('loot replace entity TestRat hotbar.5 loot bm:items/emma_ribbon');
+  await run('give TestRat minecraft:rotten_flesh 6'); const f0 = await bal('mob', 'rotten_flesh');
+  await useSlot(0); await A.press(/Collectors/); await A.press(/Deposit all they take/); await sleep(600);
+  ok('Collectors: "Deposit all they take" - the flesh into the account, the Rat Pack and Emma\'s Ribbon still his', (await bal('mob', 'rotten_flesh')) === f0 + 6 &&
+     (await has('minecraft:rotten_flesh')) === 0 && (await has('*[minecraft:custom_data~{bm:"partner_wheel"}]')) === 1 && (await has('*[minecraft:custom_data~{bm:"emma_ribbon"}]')) === 1);
 
   await run('clear TestRat'); for (const k of ['stone', 'mob']) await run(`scoreboard players set TestRat bm.rcb_${k} 0`);
   console.log(`${res.filter(x => x).length}/${res.length} passed`);

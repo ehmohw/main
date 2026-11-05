@@ -10,7 +10,7 @@ USE        right-click it (main or off hand), or press its row on the Rat Pack's
 AUTO-COLLECT  (off at first for the Stone Collector and the Wood Box; on for the Jar and the Magnet, which always collected) while
            it's carried - inventory, off hand, or on the Rat Pack: once a second, its kinds of dropped item within 8 blocks go in,
            and so do its kinds in your main inventory rows (slots 9-35: never the hotbar or the off hand - what you build with
-           stays in hand). Never in a heist or the gutter. Only plain vanilla items (no custom data, name or enchantments) - never
+           stays in hand). Never in a heist or the gutter. Only plain vanilla items (no custom data or name) - never
            a pack item. The switch is the account's (per player, per kind), not the item's.
 WHAT EACH TAKES  the Stone Collector: full stone blocks (never stairs, slabs or walls) - Natural, Polished, Bricks, Chiseled (the
            columns go there). The Wood Box: Logs, Stripped logs, Planks. The Ore Magnet: Ores, Raw & ingots, Gems & dusts. The
@@ -85,7 +85,7 @@ for _k in ORDER:
     for _ci, (_cn, _xs) in enumerate(KINDS[_k][3]):
         for _x in _xs: TYPES.append((_k, _ci, _x))
 assert len(TYPES) <= 400, len(TYPES)
-PLAIN = '[!minecraft:custom_data,!minecraft:custom_name,!minecraft:enchantments]'
+PLAIN = '[!minecraft:custom_data,!minecraft:custom_name]'           # (every item carries a default enchantments component: never test for it)
 MENU_F, MENU_C, MENU_I = 9250, 9251, 9252
 B_CAT0, B_DEPALL, B_AUTO, B_BACKP, B_PREV, B_NEXT, B_BACKF = 9260, 9264, 9265, 9266, 9267, 9268, 9269
 B_STACK, B_ALL, B_DEP1, B_BACKC, B_ROWP0, B_OFF, B_ROW0 = 9270, 9271, 9272, 9273, 9274, 9278, 9300
