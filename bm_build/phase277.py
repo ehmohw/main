@@ -123,6 +123,9 @@ BAGK = [('bp', 'backpack', 'bags', 'Backpack', 'pack', None, None),
         ('om', 'ore_magnet', 'cols', 'Ore Magnet', 'orecol', (8, 16, 'if items entity @s contents #bm:p174_ore[!minecraft:custom_data]'), 'rpoff'),
         ('pc', 'prime_cooler', 'cols', 'Prime Cooler', 'cool', (6, 16, 'if function bm:p148/cool/prime'), 'coff')]
 BAGMAX = 10
+# (3.0y: the owner - "the crew flare shouldn't be able to go on the rat pack": it's a heist tool, and the Pack waits at the coat
+#  check. Kept in POCKET so no code after it moves; it can't be put on or auto-packed, and one already on is handed back)
+NOPACK = {'crew_flare'}
 HL = '*[minecraft:custom_data~{bm:"fixers_ledger",bm_hl:1b}]'
 HLNOT = ',!minecraft:custom_data~{bm_hl:1b}'
 NOPK = ',!minecraft:custom_data~{bm_rpno:1b}'          # (taken back on purpose: auto-pack leaves it be)
@@ -472,6 +475,8 @@ def generate(G):
                                          'function bm:p277/tg', 'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6', told])
             if iid == 'fixers_ledger':
                 a.insert(0, f'execute if items entity @s weapon.offhand {HL} run return run ' + say('The Heist Ledger stays with you in the vault - it can\'t go on the Pack.'))
+            if iid in NOPACK:                      # (its row stays - its place in the codes kept - only to hand back one put on before)
+                a.insert(0, 'return run ' + say([T(nm, col), T(' stays in your pockets - it\'s for the job, and the Pack waits at the coat check.', 'gray')]))
             if e['kind'] == 'worn': a.append(f'function bm:p277/c/aw_{iid}')
             fn(f'p277/a/{iid}', a + ['function bm:p277/tg', 'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6',
                                      'particle minecraft:enchant ~ ~1.2 ~ 0.3 0.4 0.3 0.6 20', told])
@@ -1094,6 +1099,7 @@ def generate(G):
     for c, L in CATS.items():
         ca = []
         for iid in L:
+            if iid in NOPACK: continue
             e = BY[iid]
             x = HLNOT if iid == 'fixers_ledger' else ''
             ri = real(iid)
@@ -1147,6 +1153,13 @@ def generate(G):
         run.append(f'execute {on_(pg, dfl[pg])} run function bm:p277/ap/k_{pg}')
     fn('p277/ap/run', run)
     second.append('execute as @a[tag=bm.pwc,tag=!bm.gvp,tag=!bm.gvdead,gamemode=!spectator,scores={bm.pid=1..}] run function bm:p277/ap/run')
+    # (NOPACK: one put on before is handed back - at your feet, as taking it back does - outside a heist)
+    for iid in NOPACK:
+        e = BY[iid]
+        fn(f'p277/nf/{iid}', [pid, f'data modify storage bm:rp t.k set value "{e["path"][1:]}"', f'data modify storage bm:rp t.id set value "{e["real"]}"',
+                              'function bm:p277/s/give with storage bm:rp t', f'scoreboard players set @s {e["obj"]} 0', f'tag @s remove {e["tag"]}',
+                              tellraw('@s', PRE + [T(e['name'], e['col'], bold=True), T(' comes off your Rat Pack - it stays in your pockets now (a job\'s tool).', 'gray')])])
+        second.append(f'execute as @a[tag=!bm.gvp,tag=!bm.gvdead,gamemode=!spectator,scores={{{e["obj"]}=1..}}] at @s run function bm:p277/nf/{iid}')
 
     # ================================================================== THE HEIST LEDGER
     import copy
