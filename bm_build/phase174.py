@@ -218,7 +218,7 @@ def generate(G):
            ['execute if score #vs bm.rng matches -1 run return 0',
             'execute store result storage bm:tmp cpk.n int 1 run scoreboard players get #vs bm.rng',
             'function bm:p148/cool/read with storage bm:tmp cpk', 'scoreboard players set #vtak bm.rng 0', 'scoreboard players set #vfull bm.rng 0',
-            f'execute as @e[type=minecraft:item,distance=..8,nbt={{PickupDelay:0s}},limit=16,sort=nearest] if items entity @s contents #bm:{tg} at @s run function bm:p33/vac/take',
+            f'execute as @e[type=minecraft:item,distance=..8,nbt={{PickupDelay:0s}},limit=16,sort=nearest] if items entity @s contents #bm:{tg}[!minecraft:custom_data] at @s run function bm:p33/vac/take',
             'execute if score #vtak bm.rng matches 1.. run function bm:p148/cool/write with storage bm:tmp cpk',
             f'execute if score #vfull bm.rng matches 1 unless score @s bm.vfcd matches 1.. run function bm:p174/full {{n:"{nm}"}}'])
     fn('admin/collectors', [G.give(c['iid']) for c in COLLECTORS.values()])

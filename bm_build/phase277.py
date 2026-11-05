@@ -119,8 +119,8 @@ SEC.update({'rpow': ('⚡', 'Powers', '#ff7a5a'), 'rpas': ('❂', 'Passives', '#
 # bags and collectors: (key, item, page, name, phase33 kind, collects: (range, how many a pass, filter run as the item), switch)
 BAGK = [('bp', 'backpack', 'bags', 'Backpack', 'pack', None, None),
         ('vs', 'vacuum_satchel', 'bags', 'Vacuum Satchel', 'box', (6, 4, 'unless items entity @s contents @@BAG@@'), 'vac'),
-        ('sj', 'spirit_jar', 'cols', 'Spirit Jar', 'mobcol', (8, 16, 'if items entity @s contents #bm:p174_mob'), 'rpoff'),
-        ('om', 'ore_magnet', 'cols', 'Ore Magnet', 'orecol', (8, 16, 'if items entity @s contents #bm:p174_ore'), 'rpoff'),
+        ('sj', 'spirit_jar', 'cols', 'Spirit Jar', 'mobcol', (8, 16, 'if items entity @s contents #bm:p174_mob[!minecraft:custom_data]'), 'rpoff'),
+        ('om', 'ore_magnet', 'cols', 'Ore Magnet', 'orecol', (8, 16, 'if items entity @s contents #bm:p174_ore[!minecraft:custom_data]'), 'rpoff'),
         ('pc', 'prime_cooler', 'cols', 'Prime Cooler', 'cool', (6, 16, 'if function bm:p148/cool/prime'), 'coff')]
 BAGMAX = 10
 HL = '*[minecraft:custom_data~{bm:"fixers_ledger",bm_hl:1b}]'
@@ -995,7 +995,9 @@ def generate(G):
 
     # ---------------------------------------------------------------- deposit / withdraw (a collector's page)
     cut_sel = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{c}"}}' for c in P148.PRIME_CUTS) + ']'
-    dfilt = {'sj': '#bm:p174_mob', 'om': '#bm:p174_ore', 'pc': cut_sel}
+    # (3.0y: the owner - "depositing all items into the collectors category eats your rat pack": the Pack's own items are made on a
+    #  totem of undying, which the Spirit Jar's list takes (an evoker drops one). A collector takes plain vanilla items only now)
+    dfilt = {'sj': '#bm:p174_mob[!minecraft:custom_data]', 'om': '#bm:p174_ore[!minecraft:custom_data]', 'pc': cut_sel}
     for k, flt in dfilt.items():
         fn(f'p277/d/{k}', ['$data modify storage bm:tmp vac.c set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"',
                            'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []', 'scoreboard players set #rqd bm.rng 0'] +
