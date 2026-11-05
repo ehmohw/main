@@ -12,7 +12,8 @@ DUNGEONS   the Phase 2 dungeons (those round a bm.zone_d marker, the Hollow Thro
            of the dungeon's own fixtures (its markers: puzzle pieces, doors, gates, sigils, bridges, vaults, spawners), and
            folding back puts back exactly that air. (3.0f) The same careful way in the markets, the crypts, aboard the Vorn
            ships and everywhere else the satchel refuses (phase37's p37/allowed). Not on a heist (the coat check keeps your
-           pack in the gutter).
+           pack in the gutter). (3.0y) The Vacuum Satchel, Pistachio's Spirit Jar and Dennis's Ore Magnet
+           unfold the same careful way now, by hand or from the Rat Pack, with the same copy kept (SAFE below).
 SAFE       while a backpack is out, its marker keeps a copy of the barrel's contents every tick (data.snap). If the barrel is
            taken away without a player - a dungeon rebuild, a reset or a door setting its block back, any command - the
            backpack folds with what was in it, from that copy; if it was broken (an explosion), the drops it spilled this
@@ -120,8 +121,16 @@ def generate(G):
     reach = lambda d: f'rotated ~ 0 positioned ^ ^ ^{d} align xyz positioned ~0.5 ~ ~0.5'
     op[k:k + 3] = ['scoreboard players set #bxw bm.rng 1',
                    'execute unless function bm:p37/allowed run scoreboard players set #bxw bm.rng 0',
-                   '$data modify storage bm:tmp bpkk set value "$(kind)"',
-                   'execute if score #bxw bm.rng matches 0 if data storage bm:tmp {bpkk:"pack"} if function bm:p248/dungeon run scoreboard players set #bxw bm.rng 2',
+                   # (3.0y: the owner - "the spirit jar and ore magnet should be able to unfold anywhere like backpacks and vacuum
+                   #  satchels": the careful way, and the copy below, now take the Vacuum Satchel, Pistachio's Spirit Jar and
+                   #  Dennis's Ore Magnet as well as the backpack - by hand or from the Rat Pack. #bpkc 1 = one of those)
+                   'scoreboard players set #bpkc bm.rng 0',
+                   '$data modify storage bm:tmp bpkk set value "$(kind)"', '$data modify storage bm:tmp bpkn set value "$(name)"',
+                   'execute if data storage bm:tmp {bpkk:"pack"} run scoreboard players set #bpkc bm.rng 1',
+                   'execute if data storage bm:tmp {bpkk:"mobcol"} run scoreboard players set #bpkc bm.rng 1',
+                   'execute if data storage bm:tmp {bpkk:"orecol"} run scoreboard players set #bpkc bm.rng 1',
+                   'execute if data storage bm:tmp {bpkn:"Vacuum Satchel"} run scoreboard players set #bpkc bm.rng 1',
+                   'execute if score #bxw bm.rng matches 0 if score #bpkc bm.rng matches 1 if function bm:p248/dungeon run scoreboard players set #bxw bm.rng 2',
                    refuse,
                    f'execute if score #bxw bm.rng matches 1 {reach(1.6)} run function bm:p33/box/try',
                    f'execute if score #bxw bm.rng matches 1 if score #ok bm.rng matches 0 {reach(2.6)} run function bm:p33/box/try',
@@ -131,7 +140,7 @@ def generate(G):
                    say('No room here: it wants open floor in front of you, clear of the dungeon\'s works.')]
     # (a backpack's marker keeps a copy of what's in its barrel from the start)
     k = op.index('function bm:p33/box/open2 with storage bm:tmp bx')
-    op.insert(k + 1, 'execute if data storage bm:tmp {bpkk:"pack"} as @e[type=minecraft:marker,tag=bm.bxnew] at @s run function bm:p248/snap_new')
+    op.insert(k + 1, 'execute if score #bpkc bm.rng matches 1 as @e[type=minecraft:marker,tag=bm.bxnew] at @s run function bm:p248/snap_new')
     # (3.0f: every protected place the satchel refuses - the markets, the crypts, the Vorn ships, the dungeons - takes the
     #  backpack's careful way: plain air over solid floor, clear of the place's own works, and that air put back. Only a heist
     #  (the coat check keeps your pack in the gutter) still refuses it.)
