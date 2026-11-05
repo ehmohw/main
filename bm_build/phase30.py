@@ -225,7 +225,7 @@ def generate(G):
     fn('p30/abort', ['tag @a remove bm.gotpad',          # (2.83a: as close does - else whoever stood in the hall got no paddle next sale)
                      'scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',
                      'scoreboard players set #usebank bm.pay 0', 'bossbar set bm:auction visible false',
-                     'data remove storage bm:auction sale', 'function bm:p30/ped_clear', 'scoreboard players add #pgen bm.auc 1',
+                     'data remove storage bm:auction sale', 'function bm:p30/idle', 'scoreboard players add #pgen bm.auc 1',
                      tellraw('@a[scores={bm.escrow=1..}]', PREFIX + [T('The Dark Auction was interrupted. Your Medallions come straight back.', 'gray')])])
     # draw: one headline (last), a relic cosmetic about one sale in three, regular lots for the rest; no repeats
     heads = [i for i, l in enumerate(lots) if l[3] == 'head']
@@ -302,6 +302,15 @@ def generate(G):
         bk.append(give('hollow_gate'))
         fn('p30/bosskey', ['execute unless score @s bm.conq matches 0.. run scoreboard players set @s bm.conq 0'] + bk)
     fn('p30/ped_clear', ['execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data remove entity @s item'])
+    # (3.0y: the owner - "this item and display are stuck here, alongside the auctioneer's text, even though no auction is active".
+    #  The pedestal and board were only reset by whoever was loaded at the close - a hall out of range, or a reload mid-sale (load
+    #  aborts it, the board left on its last "7s"), kept the lot, its glow and its board for good. Now an idle reset, and while no
+    #  sale runs, a lot found still on a loaded pedestal is put away)
+    idle_board = snbt([T('THE DARK AUCTION\n', 'gold', bold=True), T('Next sale: ', 'gray'), T('see the sign at the gate', 'white')])
+    fn('p30/idle', ['execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data remove entity @s item',
+                    'execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data modify entity @s Glowing set value 0b',
+                    f'execute as @e[type=minecraft:text_display,tag=bm.aboard] run data modify entity @s text set value {idle_board}'])
+    second.append('execute unless score #state bm.auc matches 2..3 as @e[type=minecraft:item_display,tag=bm.apedestal,limit=1] if data entity @s item run function bm:p30/idle')
     fn('p30/close', ['scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',
                      'scoreboard players set #usebank bm.pay 0', 'bossbar set bm:auction visible false', 'function bm:p30/ped_clear',
                      'scoreboard players add #pgen bm.auc 1', 'tag @a remove bm.gotpad',
