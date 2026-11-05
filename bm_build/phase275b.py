@@ -150,6 +150,7 @@ def build(G, X, C):
                                {'id': 'minecraft:fire_resistance', 'amplifier': B(0), 'duration': Int(-1), 'show_particles': B(0), 'show_icon': B(0), 'ambient': B(0)}]}
     fn('p275g/wake', ['kill @e[type=minecraft:item_display,tag=bm.gdstone,distance=..3]', 'kill @e[type=minecraft:interaction,tag=bm.gdstoneh,distance=..3]',
                       f'summon minecraft:husk ~ ~ ~ {snbt(host)}',
+                      'kill @e[type=minecraft:marker,tag=bm.gdarena,distance=..64]', 'summon minecraft:marker ~ ~ ~ {Tags:["bm.gdarena"]}',
                       'execute as @e[type=minecraft:husk,tag=bm.gdnew,distance=..2] at @s run function bm:p275g/born',
                       tellraw('@a[distance=..32]', P + [T('The gilded stone wobbles - and the Clover Pond begins to ', 'gray'), T('fizz', COL, bold=True), T('.', 'gray')])])
     fn('p275g/born', ['tag @s remove bm.gdnew', 'scoreboard players operation @s bm.pid = #o bm.rng', 'scoreboard players set @s bm.gdk 40', 'scoreboard players set @s bm.gdx 0',
@@ -435,7 +436,8 @@ def build(G, X, C):
                           'execute as @a[distance=..48,tag=bm.gdfight] at @s run function bm:p275g/reward', 'function bm:p275g/gone'])
     fn('p275g/gone', [rig_off('q'), rig_off('k'), 'kill @e[type=minecraft:item_display,tag=bm.gdsun,distance=..16]', f'kill @e[type=minecraft:marker,tag={look},distance=..32]',
                       'kill @e[type=minecraft:item_display,tag=bm.gdegg,distance=..32]', 'kill @e[type=minecraft:marker,tag=bm.gdsig,distance=..32]',
-                      'tag @e[type=minecraft:wolf] remove bm.gdsov', 'tag @e[type=minecraft:wolf] remove bm.gdlb', 'tag @a remove bm.gdfight', 'tag @a remove bm.gdhit',
+                      'tag @e[type=minecraft:wolf] remove bm.gdsov', 'tag @e[type=minecraft:wolf] remove bm.gdlb', 'tag @a remove bm.gdfight', 'tag @a remove bm.gdhit', 'tag @a remove bm.gdp2f',
+                      'kill @e[type=minecraft:marker,tag=bm.gdarena,sort=nearest,limit=1]',
                       'bossbar set bm:gdoodle players', 'tp @s ~ -300 ~', 'kill @s'])
     # ---- the spoils (as each who fought): the first time, the tokens, the feather - and she joins; later, tokens and scratch cards
     fn('p275g/reward', ['tag @s add bm.gdwin', 'execute unless entity @s[tag=bm.gdbeat] run function bm:p275g/first', 'execute if entity @s[tag=bm.gdbeat] run function bm:p275g/again',
@@ -453,8 +455,19 @@ def build(G, X, C):
                      'execute unless entity @s[tag=bm.gdcure] unless entity @s[tag=bm.gdintro] store result bossbar bm:gdoodle value run scoreboard players get #b bm.rng',
                      'execute unless entity @s[tag=bm.gdcure] unless entity @s[tag=bm.gdintro] run bossbar set bm:gdoodle players @a[distance=..48]',
                      f'tag {FIGHT} add bm.gdfight',
+                     f'execute unless entity @s[tag=bm.gdp1] unless entity @s[tag=bm.gdintro] run tag {FIGHT} add bm.gdp2f',
                      'execute if entity @a[distance=..48,gamemode=!spectator] run return run scoreboard players set @s bm.gdi 0',
                      'scoreboard players add @s bm.gdi 1', 'execute if score @s bm.gdi matches 60.. run function bm:p275g/leave'])
+    # (3.0u: THE SAFETY NET - one blow bigger than all her health left (a follower's Piercing Blow, a smash) kills the host before
+    #  the cure can start, and then nothing paid out: the owner won and got no Golden Doodle. Her arena marker is loaded and she is
+    #  gone without the cure: everyone who fought her past the turn is paid as the cure pays, and she joins them)
+    second.append('execute as @e[type=minecraft:marker,tag=bm.gdarena] at @s unless entity @e[type=minecraft:husk,tag=bm.gdb,distance=..96] run function bm:p275g/lost')
+    fn('p275g/lost', ['execute store result score #gt bm.rng run time query gametime', f'scoreboard players add #gt bm.rng {REST}',
+                      f'execute as {pond} at @s if entity @e[type=minecraft:marker,tag=bm.gdarena,distance=..48] run scoreboard players operation @s bm.gdr = #gt bm.rng',
+                      'execute if entity @a[distance=..64,tag=bm.gdp2f] run playsound minecraft:ui.toast.challenge_complete player @a[distance=..64] ~ ~ ~ 1 1.2',
+                      'execute as @a[distance=..64,tag=bm.gdp2f] at @s run function bm:p275g/reward',
+                      'tag @a remove bm.gdfight', 'tag @a remove bm.gdhit', 'tag @a remove bm.gdp2f', 'bossbar set bm:gdoodle players',
+                      'tag @e[type=minecraft:wolf] remove bm.gdsov', 'tag @e[type=minecraft:wolf] remove bm.gdlb', 'kill @s'])
     fn('p275g/leave', ['particle minecraft:wax_on ~ ~1 ~ 1 1 1 0 40', 'function bm:p275g/gone'])
     # ---- the Gilded Feather: in the off hand, Luck (II on a Lucky Night) and Slow Falling
     second.append('execute as @a if items entity @s weapon.offhand *[minecraft:custom_data~{bm:"gilded_feather"}] run function bm:p275g/feather')
