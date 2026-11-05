@@ -21,6 +21,25 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0w: the Guide, and the Handbook on the Partner Wheel
+
+- **The Guide** (your Black Market Handbook: right-click it, then **Guide ›**). A little friend who comes along with you. It isn't a follower: it doesn't fight, gives no buffs and doesn't count toward your followers or your Raid Crew. Switch it on from the Handbook's Guide page and pick how it looks:
+  - **Wisp**: a ball of warm light on four little feathered wings, two big and two small, fluttering out of step.
+  - **Rainbow Butterfly**: a bright, sticker-style rainbow butterfly.
+  - **Suitcase**: a little caramel-leather case on stubby legs, with a luggage tag and travel stickers. It walks beside you and hops to keep up.
+  - **Little Handbook**: your Handbook itself, awake, with a cute face on its cover and a ribbon tail.
+
+  The Wisp, the Butterfly and the Book float just behind your right shoulder. They bob gently when you stop and turn to look at you. The Wisp and Butterfly flutter faster when they follow you, and the Book flaps its cover. The Suitcase and the Book blink now and then. If you leave it behind, it hurries after you, and if you get far away it pops back to your side. After a portal or an ender pearl it reappears beside you a moment later. **Right-click it** and it does a happy little twirl and opens your Handbook (sneak + right-click opens Your settings). Hitting it does nothing.
+
+  Your choice of on/off and form is kept through death, logging out and other dimensions. It disappears while you're dead, in spectator mode or logged out, and comes back when you return. You can have one at a time. Change its form or switch it off on the same Guide page.
+
+- **The Handbook on the Partner Wheel.** You don't have to carry the Handbook separately. Hold it in your off hand and use the Partner Wheel, and it goes onto the wheel the same way a partner's item does. The wheel's menu then has a **Black Market Handbook** button that opens it, a **Guide ›** shortcut, and **Take the Handbook back**, which gives you the same Handbook back, just once. It stays on the wheel if you die. The **Guide ›** shortcut is also on the wheel's menu when the Handbook isn't, as long as there are partners on the wheel.
+
+### Fixes
+- **The Block Temple can't seal you in any more.** On the medium layout, a gold switch sat right inside the doorway, so solving
+  the puzzle put a stone there and sealed you inside (the reset button is outside). That switch has moved down the side
+  corridor, and in every layout the square just inside the door never takes a stone, so the way out is always open.
+
 ## New in 3.0v: free cameras in the boss fights, and the Keeper on your crew
 
 - **No more locked cutscenes for the Dread Sovereign or Admiral Vexis.** Only the Sovereign's very first scene, the coming as you
