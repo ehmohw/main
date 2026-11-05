@@ -21,6 +21,39 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0x: the Rat Pack
+
+### The Rat Pack (was the Partner Wheel)
+
+**The Partner Wheel is now the Rat Pack**, the one thing you carry for everything else. A wheel you already have turns into a Rat Pack as soon as it's in your pocket, and it keeps every partner and setting. What it holds is kept for you, not in the item, so a new Pack opens with the same things on it. **The Fence sells it now**, at the price Cecil charged. Cecil doesn't any more.
+
+**Putting things on.** Hold something in your off hand and use the Pack: it goes on, and chat tells you which page it's on. **Taking things back.** Press the item on its page. You get the same item back, once, at your feet. **While you carry the Pack, everything on it counts as carried**: a key at the market gate, a charm's effect, the Ledger's welcome gift, the bond compass on the Keeper's island, and so on. If something would be used up (a renewal key, for example), it comes off the Pack instead.
+
+**The front page** is a short list of sections: Partners ›, Pocket ›, Keyring ›, Charms ›, Maps ›, Mounts ›, Bags ›, Collectors ›, ⚙ Settings ›, the Handbook (once it's in the Pocket) and Guide ›. Each section is a page of its own, with « Rat Pack to come back. Long lists show eight items a page (‹ Previous / Next ›). An empty page tells you how to put something on it. Sneak + use still calls your partners to your side.
+
+- **Partners**: the old wheel. Call or send home, each partner's menu, Gallery, Teams, Send all home.
+- **Pocket**: your everyday tools. These are the Handbook, the Fixer's Ledger, the Particle Toggler, the Smuggler's Waytoken, the Crew Flare, the Courier Whistle, the Fixer's Calling Card, the Key of New Beginnings, the Ender Pouch, the Wayfarer's Lodestar, the Enchanted Sundial, the Merchant's Bell, the Lodestone Locket, the Compass of Bonds, the Chorus Compass, the Surface Charm and the Lava Wader Charm. Press one and it works as if you'd used the item.
+- **Keyring**: the market keys (Black Market, Silver, Gold, Rat King's), the Mailbox Key, the Trial Key Fob, every dungeon's key, vault key and victor's key, and the Undercrown and Armada keys. Press one to take it back. A market key on the ring still turns into the next one as your tier grows. Vault and altar keys still have to be in your hand when you turn them in, so take one out first.
+- **Charms**: every charm you've put on, with ● (active) or ○ (resting). Press one to switch it. The Four-Leaf Charm, the Lucky Horseshoe, the Mudlark's Charm and the Fletcher's Charm only work in the off hand, so the Pack *wears* one of them at a time. The first one you put on is worn.
+- **Maps**: your sealed maps, the Hive-Star Coordinates and messages in bottles. Press one to break its seal, as if you'd opened it (one is used up).
+- **Mounts**: your Vorn Skiff or Mothership Key (call it, send it home), the Mecha Rex Remote and the Ember and Void Rats' calls.
+
+**Each page has a "Press to: Use / Take back" switch** that sets what pressing a row does. The Keyring only takes back.
+
+**Bags and Collectors.** The Pack holds up to **10 each** of Backpacks, Vacuum Satchels, Pistachio's Spirit Jars, Dennis's Ore Magnets and Prime Coolers. It refuses an 11th of a kind with a note. Each one keeps its own load. The list shows each one's fill and first stacks, for example "Backpack 1 12/27 Iron Ingot ×32, Coal ×12…". Press a row for **a look inside**: its stacks shown as item icons with their counts (hover for the tooltip). From there you can:
+- **Unfold** it into a barrel in front of you, just as using the item does. It folds back onto the Pack when you sneak, walk off, after five minutes or when you open another bag.
+- **Take it back**, with its load.
+- Switch a satchel's **Vacuum** on or off.
+- Switch a collector's **Auto-collect** on or off. Switched-on ones keep collecting while the Pack is on you, first-with-room-first.
+- Switch the Prime Cooler's **Cuts → Tokens** on or off.
+- **Deposit** what a collector takes from your inventory, or **Withdraw a stack** / **Withdraw all**.
+
+The Collectors page also has **Deposit all they take**. No bags inside bags, as before.
+
+**Auto-pack** (⚙ Settings): a switch for each kind of thing: followers' items, Pocket tools, keys, charms, maps, mount calls, bags and collectors. The first five are on to start with. Once a second, anything of a switched-on kind in your own inventory goes on the Pack, and chat says so: "[Rat Pack] The Gold Key is on your Rat Pack now (Keyring page). Take it out any time from there." It never takes from your off hand, a chest or a bundle, and never in a heist. It never takes what the Pack can't hold, and never something you took back on purpose (until you put it on again yourself). Settings also has a link to ⚙ Your settings.
+
+**On a heist the Rat Pack waits at the coat check** with the rest of your things, and nothing on it works inside. Instead, **every raider is handed a Heist Ledger on every way in**: the Fixer's Ledger for that job, whatever Ledger you own. You can't lose it. Drop it, frame it or put it in a chest near you, and it's back in your pocket at once. A fresh one turns up if it ever goes missing. The Fixer takes it back when you leave, however you leave, and nobody outside a heist can keep one. Your own Fixer's Ledger works from the Pack, and the Fixer's welcome gift counts it, so nobody gets a second.
+
 ## New in 3.0w: the Guide, and the Handbook on the Partner Wheel
 
 - **The Guide** (your Black Market Handbook: right-click it, then **Guide ›**). A little friend who comes along with you. It isn't a follower: it doesn't fight, gives no buffs and doesn't count toward your followers or your Raid Crew. Switch it on from the Handbook's Guide page and pick how it looks:

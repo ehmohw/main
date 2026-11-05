@@ -168,7 +168,7 @@ P73.follow_rules = _rules
 
 
 def extend_offers(O, offer):
-    O['wizard'].append(offer(('medallion', 3), ('partner_wheel', 1)))
+    O['fence'].append(offer(('medallion', 3), ('partner_wheel', 1)))      # (3.1: the Rat Pack - the Fence sells it now; phase277)
 
 
 
@@ -583,13 +583,8 @@ def rp(R):
     R.HATS['xeno_antennae'] = ({'b': 'minecraft:block/lime_concrete', 's': 'minecraft:block/green_concrete', 'g': 'minecraft:block/verdant_froglight_side'}, [
         c((3.5, 15, 3.5), (12.5, 16, 4.5), 'b'), c((3.5, 15, 11.5), (12.5, 16, 12.5), 'b'), c((3.5, 15, 4.5), (4.5, 16, 11.5), 'b'), c((11.5, 15, 4.5), (12.5, 16, 11.5), 'b'),
         c((4.5, 16, 7.5), (5.5, 21, 8.5), 's'), c((10.5, 16, 7.5), (11.5, 21, 8.5), 's'), c((4, 21, 7), (6, 23, 9), 'g'), c((10, 21, 7), (12, 23, 9), 'g')])
-    # the wheel: six coloured spokes in a gold rim, a hub in the middle
-    from PIL import Image, ImageDraw
-    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    for n, col in enumerate(('#ff8ad8', '#b48cff', '#5ab8e0', '#7ad06a', '#ffe040', '#ff7040')):
-        d.pieslice((1, 1, 14, 14), n * 60 - 90, n * 60 - 30, fill=col)
-    d.ellipse((1, 1, 14, 14), outline='#c89a2a'); d.ellipse((6, 6, 9, 9), fill='#5a3a1a', outline='#ffd870')
-    R.ICONS['partner_wheel'] = im
+    # (3.1) the Rat Pack: a purple leather pack with a rat's ears and face on its flap, brass buckles (phase277)
+    R.ICONS['partner_wheel'] = rat_pack_icon()
 
     def post(R2):
         for layer in ('humanoid', 'humanoid_leggings'):
@@ -598,6 +593,34 @@ def rp(R):
         for nm in ('xenoplate', 'warplate'):
             R2.wj(f'assets/bm/equipment/{nm}.json', {'layers': {'humanoid': [{'texture': f'bm:{nm}'}], 'humanoid_leggings': [{'texture': f'bm:{nm}'}]}})
     R.POST.append(post)
+
+
+def rat_pack_icon():
+    from PIL import Image
+    rows = ['................',
+            '...ee......ee...',
+            '..eppe....eppe..',
+            '..eppeooooeppe..',
+            '...eoLLLLLLoe...',
+            '...oLffffffLo...',
+            '..oLffKffKffLo..',
+            '..oLfffnnfffLo..',
+            '..oLffwffwffLo..',
+            '..oDDDDDDDDDDo..',
+            '..oddbddddbddo..',
+            '..oddBddddBddo..',
+            '..odddddddddDo..',
+            '..oDdddddddDDo..',
+            '...oooooooooo...',
+            '................']
+    pal = {'o': '#1e1030', 'e': '#6a5070', 'p': '#ff9ab8', 'L': '#c8a0ff', 'f': '#9a72e0', 'K': '#140a1e', 'n': '#ff7aa8', 'w': '#f0f0f0',
+           'D': '#5a3a9a', 'd': '#7a52c0', 'b': '#8a5a14', 'B': '#ffd870'}
+    im = Image.new('RGBA', (16, 16), (0, 0, 0, 0)); px = im.load()
+    for y, r in enumerate(rows):
+        for x, ch in enumerate(r):
+            if ch in pal:
+                h = pal[ch].lstrip('#'); px[x, y] = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) + (255,)
+    return im
 
 
 def repair_wheel(G, PW, holds):

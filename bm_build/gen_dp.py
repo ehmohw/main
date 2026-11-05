@@ -267,9 +267,10 @@ PHASE2 = '--phase2' in sys.argv
 if PHASE2:
     import p2  # registers Phase 2 items on import
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
+    import phase277 as R277   # 3.1: the Rat Pack (after every item is registered: it renames the wheel, lists what goes on it)
 
 OUT = None
-VERSION2 = 'v3.0w'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.0x'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1556,6 +1557,7 @@ def build(out_dir):
     if PHASE2: print('3.0j: handbook, settings -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
     if PHASE2: print('3.0k: the menus tidied -', __import__('phase261').generate(sys.modules[__name__]))      # (after phase260: it pages and words its menus too)
     if PHASE2: print('3.1: the guide -', __import__('phase276').generate(sys.modules[__name__]))      # (after phase260/261: its button joins the Handbook's front page)
+    if PHASE2: print('3.1: the Rat Pack -', R277.generate(sys.modules[__name__]))      # (after the guide and every check of an item it holds; before the finalizers)
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
