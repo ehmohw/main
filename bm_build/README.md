@@ -21,6 +21,43 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0z: the Stone Collector and the Wood Box, and collectors that work like a bank
+
+**Two new collectors at the Fence (16 Tokens each): the Stone Collector and the Wood Box.** They work like the Banker's Card: each is the key to an account kept for you, not in the item. Any copy opens the same account, and nothing in it is lost if the item is. **Dennis's Ore Magnet and Pistachio's Spirit Jar work the same way now**, and Dennis and Pistachio still sell them.
+
+**Use one** (right-click, from either hand, or from its row on the Rat Pack) to open its account:
+- **The front page** has a button for each category with its total, **Deposit everything** (everything in your inventory it keeps) and **Auto-collect: on / off**. Opened from the Rat Pack, it also has **Take it off the Pack** and « Collectors.
+- **A category** lists every kind you have some of, with its picture, name and count, eight to a page. It says "(nothing yet)" while it's empty.
+- **A kind's page** shows the item and how many you have. It has **Take a stack**, **Take all** (into your inventory, the rest at your feet) and **Deposit all of these**.
+
+**Auto-collect.** It starts off on the Stone Collector and the Wood Box, and on for the Magnet and the Jar (which always collected). While you carry one (pockets, off hand, or on the Rat Pack), once a second its kinds of dropped item within 8 blocks go into the account, and so do its kinds in your inventory's main rows. It never takes from your hotbar or off hand, so the blocks you're building with stay in hand. It never works in a heist or the gutter. It only takes plain items: never anything renamed, enchanted or with the pack's own data. The switch belongs to the account, so it's the same for every copy.
+
+**What each keeps:**
+- **Stone Collector**, full blocks only (never stairs, slabs or walls):
+  - **Natural**: stone, cobblestone, mossy cobblestone, granite, diorite, andesite, deepslate, cobbled deepslate, tuff, calcite, dripstone, blackstone, basalt, smooth basalt, netherrack, end stone, sandstone, red sandstone, obsidian.
+  - **Polished**: the polished stones, smooth stone, the smooth and cut sandstones, smooth quartz, the quartz block, purpur.
+  - **Bricks**: every brick and tile block, including mud, prismarine, quartz and resin bricks.
+  - **Chiseled**: every chiseled block, plus the quartz and purpur pillars.
+- **Wood Box**: **Logs** (logs, wood, stems, hyphae, the block of bamboo), **Stripped logs** and **Planks** (bamboo planks and mosaic too), for every wood.
+- **Ore Magnet**: **Ores** (every ore, both kinds, the nether ores and ancient debris), **Raw & ingots** (raw metals, ingots, nuggets, netherite scrap, the raw blocks) and **Gems & dusts** (coal, charcoal, redstone, lapis, quartz, amethyst, diamond, emerald, flint, glowstone, echo shards).
+- **Spirit Jar**: **Monster drops**, **Animal goods** (with every wool), **Fish & sea** and **Rare** (the mob heads, the Totem of Undying, the Heavy Core, the Trial Key, saddles).
+  - The bows, swords, trident and goat horn it used to gather are no longer taken. An account can't keep an item's wear, enchantments or horn type.
+  - The iron and copper ingots, gold nuggets and emeralds belong to the Magnet now, so each kind has one home.
+
+**On the Rat Pack** the Collectors page has one row each for the Stone Collector, the Wood Box, the Ore Magnet and the Spirit Jar (pressing one opens its account), plus your Prime Coolers as before. You only need one of each: they're accounts, not bags. **Deposit all they take** fills the accounts on the Pack too. Auto-pack's Collectors switch puts one of each on.
+
+**Your old jars and magnets move over by themselves, and nothing is lost.** This covers an old Spirit Jar or Ore Magnet in your pockets or off hand, on the Rat Pack (all ten of them), or unfolded as a barrel (it folds first):
+- every stack it can keep goes into your account;
+- anything else (a custom item, or a kind it doesn't keep) is handed back at your feet;
+- the item becomes a key to its account;
+- chat says how many items moved and how many things were handed back.
+
+The Rat Pack keeps the first jar and the first magnet. The others come back to you empty, with a note.
+
+### Also
+
+- **Saving your health for a rejoin costs next to nothing now.** It copies the game's own health score each second instead of reading the player's data. Health is still topped up two seconds after you rejoin, and a note saved by 3.0y is read correctly.
+
 ## New in 3.0y: Relics on the Rat Pack, Rings of Ten Burrows, and fixes
 
 ### The Rat Pack: Relics
