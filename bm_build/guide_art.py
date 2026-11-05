@@ -53,11 +53,13 @@ def _edge(S):
     return {(x, y) for x, y in S if any((x + dx, y + dy) not in S for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
 
 
-def vpanel(R, part, x0, x1, y0, y1, z, tex, sx, rot=None, t=0.1):
+def vpanel(R, part, x0, x1, y0, y1, z, tex, sx, rot=None, t=0.1, vflip=False):
     """a flat upright cut-out panel (a wing) in the x-y plane, its texture drawn as seen from the front with its ROOT at the
-    image's right: mirrored per side and per face so the drawing sits the same way on both wings, front and back"""
+    image's right: mirrored per side and per face so the drawing sits the same way on both wings, front and back (vflip: the
+    drawing upside down - a lower wing, fanned downward)"""
     e = R.box(part, (x0, y0, z - t / 2), (x1, y1, z + t / 2), tex, faces=('north', 'south'), rot=rot, full=True)
     a, b = ([0, 0, 16, 16], [16, 0, 0, 16]) if sx > 0 else ([16, 0, 0, 16], [0, 0, 16, 16])
+    if vflip: a, b = [a[0], 16, a[2], 0], [b[0], 16, b[2], 0]
     e['faces']['north']['uv'] = a; e['faces']['south']['uv'] = b
     return e
 
@@ -72,13 +74,15 @@ def hpanel(R, part, x0, x1, z0, z1, y, tex, sx, rot=None, t=0.1):
 
 
 def unshaded(els):
+    """shade off (a face lit as painted, from every side): the wisp's light, its halo and its white wings - not a glow (only
+    the core has light_emission)"""
     for e in els: e['shade'] = False
     return els
 
 
 # ==================================================================================================== 1. THE WISP
-WP = {'body': (0, 5.0, 0), 'wr': (1.9, 6.0, 0.9), 'wl': (-1.9, 6.0, 0.9)}
-WPAR = {'body': None, 'wr': 'body', 'wl': 'body'}
+WP = {'body': (0, 5.0, 0), 'wr': (1.9, 5.9, 0.9), 'wl': (-1.9, 5.9, 0.9), 'wr2': (1.8, 4.3, 0.9), 'wl2': (-1.8, 4.3, 0.9)}
+WPAR = {'body': None, 'wr': 'body', 'wl': 'body', 'wr2': 'body', 'wl2': 'body'}
 WISP = Rig('guiw_', 0.75, WP, WPAR, (), face_part='body')
 CORE = dict(white='#ffffff', base='#fff7e0', warm='#ffeab0')
 HALO = '#fff0b8'
@@ -121,6 +125,9 @@ def wisp_wing():
             if math.hypot(x + .5 - R0[0] - vx * t, y + .5 - R0[1] - vy * t) <= 4.2 - 1.4 * t: cov.add((x, y))
     E = _edge(cov)
     for p in cov: out[p] = FEATHER['line'] if p in E else FEATHER['root'] if p[0] > 24 else FEATHER['base']
+    SIL = _edge(set(out)); part = mix(FEATHER['line'], FEATHER['root'], 0.45)
+    for p, c in out.items():
+        if c == FEATHER['line'] and p not in SIL: out[p] = part          # (inside the wing the feathers part in a softer line)
     return up2(lambda x, y: out.get((x, y)))
 
 
@@ -130,17 +137,20 @@ def halo_tex():
     return cells(c, 3)
 
 
-WISP.tex('core', soft(CORE['base'], CORE['white'], CORE['warm'], 1, 0.08))
+WISP.tex('core', soft(CORE['base'], CORE['white'], CORE['warm'], 1, 0.03))
 WISP.tex('corec', soft(CORE['white'], CORE['white'], CORE['base'], 2, 0.1))
 WISP.tex('halo', halo_tex())
 WISP.tex('wing', wisp_wing())
 # the core: a ball of light (the only glow), a brighter heart a hair in front of it; the halo: a soft shell round it
 from fol5_kit import profile
 unshaded(stack(WISP, 'body', [r + ('core' if i in (0, 4) else 'corec',) for i, r in enumerate(profile(2.7, 4.6, 2.3, 5))], 'core', light=15))
-unshaded(ball(WISP, 'body', (0, 5.0, 0), 3.3, 'halo', 4))
+unshaded(ball(WISP, 'body', (0, 5.0, 0), 3.15, 'halo', 5))
 for sx, p in ((1, 'wr'), (-1, 'wl')):
     x0 = 1.9 * sx
-    vpanel(WISP, p, min(x0, x0 + 6.2 * sx), max(x0, x0 + 6.2 * sx), 3.6, 9.8, 0.9, 'wing', sx, rot=('y', -22 * sx, (x0, 6.0, 0.9)))
+    unshaded([vpanel(WISP, p, min(x0, x0 + 6.2 * sx), max(x0, x0 + 6.2 * sx), 3.6, 9.8, 0.9, 'wing', sx, rot=('y', -22 * sx, (x0, 6.0, 0.9)))])
+for sx, p in ((1, 'wr2'), (-1, 'wl2')):                         # (the lower pair: smaller, fanned down and out, a touch further back)
+    x0 = 1.8 * sx
+    unshaded([vpanel(WISP, p, min(x0, x0 + 4.3 * sx), max(x0, x0 + 4.3 * sx), 0.6, 4.9, 1.1, 'wing', sx, rot=('y', -30 * sx, (x0, 4.3, 1.1)), vflip=True)])
 
 
 def wing(sx, raise_=0.0, back=0.0):
@@ -148,20 +158,22 @@ def wing(sx, raise_=0.0, back=0.0):
     return limb(sx, 0.0, -raise_, back)
 
 
-def WPOSE(off=0.0, body=None, r=0.0, b=0.0, rr=None, bb=None, **kw):
-    p = {'_off': (0.0, off, 0.0), 'wr': wing(1, r, b), 'wl': wing(-1, rr if rr is not None else r, bb if bb is not None else b)}
+def WPOSE(off=0.0, body=None, r=0.0, b=0.0, r2=0.0, b2=0.0, **kw):
+    """r / b: the upper pair raised / swept back; r2 / b2: the lower pair's (out of step with the upper: one flutters while the
+    other settles)"""
+    p = {'_off': (0.0, off, 0.0), 'wr': wing(1, r, b), 'wl': wing(-1, r, b), 'wr2': wing(1, r2, b2), 'wl2': wing(-1, r2, b2)}
     if body: p['body'] = body
     p.update(kw); return p
 
 
 WISP.POSES.update({
-    'idle_a': WPOSE(0.0, r=6, b=0),
-    'idle_b': WPOSE(0.7, r=-14, b=10),
-    'move_0': WPOSE(0.3, T(16), r=22, b=-6),
-    'move_1': WPOSE(0.0, T(12), r=-24, b=14),
-    'happy': WPOSE(2.0, T(-8, 0, 14), r=34, b=-10),
-    'happy_b': WPOSE(1.0, T(-4, 0, -14), r=-20, b=12),
-    'frame': WISP.ground(WPOSE(0.0, r=10, b=-4), 0.6),
+    'idle_a': WPOSE(0.0, r=6, b=0, r2=-12, b2=8),
+    'idle_b': WPOSE(0.7, r=-14, b=10, r2=6, b2=0),
+    'move_0': WPOSE(0.3, T(16), r=22, b=-6, r2=-22, b2=14),
+    'move_1': WPOSE(0.0, T(12), r=-24, b=14, r2=14, b2=-4),
+    'happy': WPOSE(2.0, T(-8, 0, 14), r=34, b=-10, r2=-26, b2=10),
+    'happy_b': WPOSE(1.0, T(-4, 0, -14), r=-20, b=12, r2=18, b2=-6),
+    'frame': WISP.ground(WPOSE(0.0, r=10, b=-4, r2=-6, b2=0), 0.6),
 })
 WISP.DRAFT = ['idle_a', 'idle_b', 'move_0', 'move_1', 'happy', 'happy_b', 'frame']
 
@@ -273,13 +285,13 @@ def toon_eye(im, cx, y0, kind=None, flip=False):
     if kind == 'wow':
         P = _ell(cx, y0 + h / 2 + 0.5, 1.2, 1.6)
     else:
-        P = _ell(cx + (0.5 if flip else -0.5), y0 + h / 2 + 1.0, 2.0, 2.6)
+        P = _ell(cx, y0 + h / 2 + 0.8, 2.0, 2.7)
     P &= S
     for x, y in P: put(im, x, y, SPUP)
     if kind != 'wow':
-        top = min(y for _, y in P); xs = [x for x, y in P if y == top + 1]
-        hx = max(xs) - 1 if xs else cx
-        for x, y in ((hx, top + 1), (hx - 1, top + 1), (hx, top + 2)): put(im, x, y, SWHITE)          # (the pie-cut wedge)
+        top = min(y for _, y in P); right = max(x for x, _ in P)
+        for x, y in ((right - 1, top + 1), (right, top + 1), (right - 1, top + 2), (right, top + 2)):      # (the pie-cut: a notch of
+            if (x, y) in S: put(im, x, y, SWHITE)                                                         #  white out of the pupil)
 
 
 def case_face(kind=None):
@@ -314,6 +326,17 @@ def sticker():
     return im
 
 
+def back_tex():
+    """the back: leather and an old hotel label, tilted - a purple oval, a gold rim and a gold star (the Black Market's own)"""
+    im = lit(soft(LEATHER['base'], LEATHER['light'], LEATHER['dark'], 13, 0.05), 1.06, 0.94, 6)
+    S = {(x, y) for x, y in _ell(24, 12, 7, 5)}
+    for x, y in _ell(24, 12, 8, 6) - S: put(im, x, y, BRASS[2])
+    for x, y in S: put(im, x, y, '#4a2272' if y > 9 else '#5e2e8c')
+    for x, y in ((0, -2), (-1, -1), (0, -1), (1, -1), (-3, 0), (-2, 0), (-1, 0), (0, 0), (1, 0), (2, 0), (3, 0), (-1, 1), (0, 1), (1, 1), (-2, 2), (2, 2)):
+        put(im, 24 + x, 12 + y, BRASS[2])
+    return im
+
+
 def tag_tex():
     im = cells(lambda x, y, r: '#fff4dc' if y > 1 else '#ffe8b8', 13)
     d = ImageDraw.Draw(im)
@@ -324,9 +347,9 @@ def tag_tex():
 
 CASE.tex('leather', lit(soft(LEATHER['base'], LEATHER['light'], LEATHER['dark'], 10, 0.05), 1.06, 0.94, 6))
 CASE.tex('leathert', soft(LEATHER['light'], mix(LEATHER['light'], '#ffffff', 0.2), LEATHER['base'], 14, 0.05))
-CASE.tex('side', sticker())
+CASE.tex('side', sticker()); CASE.tex('back', back_tex())
 CASE.tex('cap', lit(soft(CAP, CAP_L, mul(CAP, 0.85), 15, 0.1), 1.12, 0.92, 4))
-CASE.tex('latch', lit(cells(lambda x, y, r: BRASS[0] if (x in (1, 2) and 2 <= y <= 4) else BRASS[3] if y == 0 else BRASS[2] if y < 2 else BRASS[1], 20), 1.0, 0.86, 4))
+CASE.tex('latch', cells(lambda x, y, r: BRASS[0] if (x == 1 and 2 <= y <= 3) else BRASS[3] if y == 0 else BRASS[1] if y >= 5 else BRASS[2], 20))
 CASE.tex('brass', lit(cells(lambda x, y, r: BRASS[3] if y == 0 else BRASS[2] if y < 3 else BRASS[1], 16), 1.0, 0.86, 4))
 CASE.tex('strap', lit(soft('#5a3018', '#764222', '#4a2612', 17, 0.08), 1.1, 0.9, 3))
 CASE.tex('seam', cells(lambda x, y, r: LEATHER['deep'], 18))
@@ -338,7 +361,7 @@ for f in SFACES:
 B = CASE.box
 # the case: a fat rounded box (front view: the corners cut), the lid seam round its middle, dark corner caps
 e = B('body', (-4.5, 2.4, -2.0), (4.5, 8.1, 2.0), 'leather', shift=False)
-e['faces']['west']['texture'] = '#side'
+e['faces']['west']['texture'] = '#side'; e['faces']['south']['texture'] = '#back'
 e['faces']['up']['texture'] = '#leathert'
 B('body', (-4.0, 2.0, -1.8), (4.0, 2.4, 1.8), 'leather', shift=False)
 B('body', (-4.0, 8.1, -1.8), (4.0, 8.5, 1.8), 'leathert', shift=False)
@@ -440,11 +463,16 @@ def cover_face(kind=None):
         for x in range(cx - hw - 1, cx + hw): put(im, x, dy, GOLD[2] if dy < 7 else GOLD[1])
     put(im, cx - 1, 6, GOLD[3])
     by = 25
-    if kind != 'blink' or True:
+    if kind == '_back': return im
+    if True:
         for c in KEYE:
             blush(im, c + (-1 if c < cx else 1), by, 5, KBLUSH, mix(KBLUSH, PURPLE['base'], 0.45))
     mouth(im, cx, by + 1, 'o' if kind == 'wow' else 'cat', GOLD[2], '#ff8ab8', 4)
     return im
+
+
+def back_board():
+    im = cover_face('_back'); return im
 
 
 def cover_eyes(kind=None):
@@ -458,7 +486,7 @@ def pages(vertical):
 
 
 BOOK.tex('board', lit(soft(PURPLE['base'], PURPLE['light'], PURPLE['dark'], 23, 0.05), 1.1, 0.92, 8))
-BOOK.tex('boardb', lit(soft(PURPLE['dark'], PURPLE['base'], PURPLE['deep'], 24, 0.05), 1.1, 0.92, 8))
+BOOK.tex('boardb', back_board())
 BOOK.tex('pagev', pages(True)); BOOK.tex('pageh', pages(False))
 BOOK.tex('sheet', soft(PAGE[0], '#ffffff', PAGE[1], 25, 0.08))
 BOOK.tex('gilt', lit(cells(lambda x, y, r: GOLD[3] if y == 0 else GOLD[2] if y < 2 else GOLD[1], 26), 1.0, 0.9, 2))
@@ -474,7 +502,7 @@ for k in ('up', 'down'): e['faces'][k]['texture'] = '#pageh'
 B('body', (3.4, 0.0, -1.5), (3.95, 10.0, 1.5), 'board', shift=False)
 B('body', (3.95, 0.0, -1.1), (4.3, 10.0, 1.1), 'board', shift=False)
 for y in (1.6, 8.0):
-    B('body', (3.38, y, -1.58), (4.38, y + 0.5, 1.58), 'gilt', shift=False)
+    B('body', (3.93, y, -1.2), (4.38, y + 0.5, 1.2), 'gilt', shift=False)
 # the front board (the face), hinged at the spine
 B('cover', (-3.7, 0.0, -1.5), (3.7, 10.0, -1.0), 'board', shift=False)
 B('cover', (-KFW / 2, 0.0, -1.52), (KFW / 2, KFH, -1.5), 'FACE', faces=('north',), uv={'north': [0, 0, KFW, KFH]})
@@ -500,7 +528,7 @@ BOOK.POSES.update({
     'idle_b': KPOSE(0.6, T(0, 0, -2), 28, 9, 19, T(0, 0, 6)),
     'move_0': KPOSE(0.3, T(14), 16, 4, 9, T(-26)),
     'move_1': KPOSE(0.0, T(10), 30, 10, 22, T(-14)),
-    'happy': KPOSE(2.2, T(-14, 0, 10), 70, 28, 50, T(24, 0, 10), _face='happy'),
+    'happy': KPOSE(2.2, T(-14, 0, 10), 56, 24, 40, T(24, 0, 10), _face='happy'),
     'happy_b': KPOSE(1.0, T(-6, 0, -10), 44, 16, 32, T(-12, 0, -10), _face='happy'),
     'frame': BOOK.ground(KPOSE(0.0, None, 16, 4, 9, None), 0.0),
 })
