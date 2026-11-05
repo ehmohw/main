@@ -398,6 +398,7 @@ def _fourth_thread(G):
     J = G.FUNCS['p254/enc/joined']
     k = next(i for i, l in enumerate(J) if 'unless function bm:p58/full at @s run function bm:p254/summon' in l)
     J[k] = J[k].replace('unless function bm:p58/full at @s run', 'at @s run')
+    J[:] = [l for l in J if not ('if function bm:p58/full' in l and 'tellraw' in l)]     # (3.0u: rigpet's 'three out already' note - never so for it)
     for f, L in G.FUNCS.items():                # (nothing else of its own may still ask)
         if f.startswith('p254/'):
             assert not any('p58/full' in l for l in L), f
