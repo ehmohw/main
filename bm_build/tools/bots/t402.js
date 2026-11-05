@@ -56,7 +56,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
 
   // ---- the front page and every section
   const openP = async () => { A.slot(0); await sleep(200); await run('scoreboard players set TestRat bm.gvhc 0'); return A.useWait(2500); };
-  ok('using the Pack: its front page - THE RAT PACK, every section', await openP() && ['Partners', 'Pocket', 'Keyring', 'Charms', 'Maps', 'Mounts', 'Bags', 'Collectors', 'Settings', 'Guide']
+  ok('using the Pack: its front page - THE RAT PACK, every section', await openP() && ['Partners', 'Pocket', 'Keyring', 'Charms', 'Maps', 'Mounts', 'Bags', 'Collectors', 'Relics', 'Settings', 'Guide']
      .every(n => A.buttons().some(b => b.label.includes(n))), A.buttons().map(b => b.label).join(' | '));
   for (const [sec, want] of [['Partners', /Gallery/], ['Pocket', /Nothing on this page/], ['Keyring', /Nothing on this page/], ['Charms', /Nothing on this page/],
     ['Maps', /Nothing on this page/], ['Mounts', /Nothing on this page/], ['Bags', /Nothing on this page/], ['Collectors', /Nothing on this page/], ['Settings', /Auto-pack|Keys:/]]) {
@@ -134,6 +134,24 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('loot give TestRat loot bm:items/vkey_frost'); await sleep(2200);
   ok('...and a Rime Key given now stays in his pocket', (await has('vkey_frost')) === 1);
   await A.press(/^Keys:/);
+
+  // ---- two Rings of Ten Burrows on the Pocket, each with its own burrows
+  for (const k of ['ring_burrows', 'ring_burrows2', 'ring_burrows3', 'ring_burrows4', 'ring_burrows5']) { await run(`scoreboard players set TestRat bm.rq_${k} 0`); await run(`data remove storage bm:pw p${pid}.rq_${k}`); }
+  await putOn('ring_burrows', 'a Ring of Ten Burrows (A)'); await putOn('ring_burrows', 'a second Ring of Ten Burrows (B)');
+  ok('...two rings, two places on the Pack', (await sc('bm.rq_ring_burrows')) === 1 && (await sc('bm.rq_ring_burrows2')) === 1);
+  const ringSet = async (n) => { await openP(); await A.press(/Pocket/); const b = await A.press(new RegExp(`Ring of Ten Burrows ${n}`));
+    const s1 = b && b.next && A.buttons().some(x => /Set burrow 1 here/.test(x.label)); if (s1) { await A.press(/Set burrow 1 here/); await sleep(500); } return s1; };
+  const ringShow = async (n) => { await openP(); await A.press(/Pocket/); await A.press(new RegExp(`Ring of Ten Burrows ${n}`)); return (A.buttons().find(x => /^1\. Go:/.test(x.label)) || {}).label || ''; };
+  ok('ring 1 used from its row: its menu; burrow 1 set here', await ringSet(1));
+  await run(`tp TestRat ${X + 12.5} ${Y} ${Z + 9.5} 0 0`); await sleep(1500);
+  ok('ring 2 used from its row: burrow 1 set over here', await ringSet(2));
+  const g1 = await ringShow(1), g2 = await ringShow(2);
+  ok('...each ring\'s menu shows its own burrow 1', new RegExp(`${X}, ${Y}, ${Z}`).test(g1) && new RegExp(`${X + 12}, ${Y}, ${Z + 9}`).test(g2), `${g1} / ${g2}`);
+  await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); await sleep(1200);
+  await openP(); await A.press(/Pocket/); await A.press(/Press to:/); await A.press(/Ring of Ten Burrows 2/); await sleep(800);
+  await openP(); await A.press(/Pocket/); await A.press(/Press to:/); await A.press(/Ring of Ten Burrows 1/); await sleep(800);
+  ok('...both taken back, each its own ring', (await has('ring_burrows')) === 2 && (await sc('bm.rq_ring_burrows')) === 0 && (await sc('bm.rq_ring_burrows2')) === 0);
+  await run('clear TestRat *[minecraft:custom_data~{bm:"ring_burrows"}]');
 
   // ---- RELICS: the front page's Relics ›, its four pages; a power used from its row, a passive working from the Pack, a stack and a weapon kept exactly
   await openP(); await A.press(/Relics/);

@@ -67,7 +67,7 @@ B_ROW0 = 9200                                      # (9200 + kind*10 + slot: a b
 POCKET = ['bm_handbook', 'fixers_ledger', 'particle_toggler', 'waytoken', 'crew_flare', 'courier_whistle', 'fixers_card', 'renewal_key',
           'ender_pouch', 'wayfarers_lodestar', 'enchanted_sundial', 'merchants_bell', 'lodestone_locket', 'bond_compass', 'chorus_compass',
           'surface_charm', 'lava_wader_charm',
-          'bankers_card', 'ring_burrows', 'pocket_rift', 'fair_weather_bell', 'champion_ribbon']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
+          'bankers_card', 'ring_burrows', 'ring_burrows2', 'ring_burrows3', 'ring_burrows4', 'ring_burrows5', 'pocket_rift', 'fair_weather_bell', 'champion_ribbon']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
 KEYS = ['market_key', 'silver_key', 'gold_key', 'rat_king_key', 'mail_key', 'trial_key_fob'] + \
        [f'key_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep')] + \
        [f'vkey_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
@@ -128,7 +128,12 @@ HLNOT = ',!minecraft:custom_data~{bm_hl:1b}'
 NOPK = ',!minecraft:custom_data~{bm_rpno:1b}'          # (taken back on purpose: auto-pack leaves it be)
 
 assert len(set(sum(CATS.values(), []))) == len(sum(CATS.values(), [])), 'an item on two pages'
-for _i in sum(CATS.values(), []) + [b[1] for b in BAGK]:
+# (3.1, the owner) up to five Rings of Ten Burrows in the Pocket, each its own row (and its own burrows - phase29's bm_rid): one item, five
+# places - ring_burrows (the first, the place a ring already on the Pack was kept in) and ring_burrows2..5
+ALIAS = {f'ring_burrows{n}': 'ring_burrows' for n in range(2, 6)}
+GROUP = {'ring_burrows': ['ring_burrows'] + list(ALIAS)}
+real = lambda iid: ALIAS.get(iid, iid)
+for _i in [real(x) for x in sum(CATS.values(), [])] + [b[1] for b in BAGK]:
     assert _i in ITEMS, _i
 
 # ------------------------------------------------------------------ the item: renamed (import time - before any give, loot table or re-sync is written)
@@ -174,10 +179,12 @@ for _iid, _it in ITEMS.items():
 
 
 def holds(iid, extra=''):
+    iid = real(iid)
     return f'*[minecraft:custom_data~{{bm:"{iid}"}}{extra}]'
 
 
 def icon(iid, col='white'):
+    iid = real(iid)
     mdl = ITEMS[iid]['comps'].get('minecraft:item_model', f'minecraft:{ITEMS[iid]["base"].split(":")[-1]}')
     ns_, p = mdl.split(':', 1) if ':' in mdl else ('minecraft', mdl)
     if ns_ == 'minecraft' and p in ('compass', 'recovery_compass', 'clock'): p += '_00'
@@ -185,11 +192,13 @@ def icon(iid, col='white'):
 
 
 def colour(iid):
+    iid = real(iid)
     try: return ITEMS[iid]['comps']['minecraft:item_name']['extra'][1]['color']
     except (KeyError, IndexError, TypeError): return 'white'
 
 
 def stack_of(iid):
+    iid = real(iid)
     return int(ITEMS[iid]['comps'].get('minecraft:max_stack_size', 64 if ITEMS[iid]['base'] != TOTEM else 1))
 
 
@@ -197,7 +206,7 @@ def carry_patch(G, E, patched, dec_needed):
     """every check of an entry's item also takes the Pack (run once in generate, and again late - after the finalizers that
     write checks of their own, the market's bm.haskey among them). Idempotent: a line already taught is left be."""
     F = G.FUNCS
-    E = [e for e in E if e['cat'] not in NOCARRY]
+    E = [e for e in E if e['cat'] not in NOCARRY and e['iid'] not in ALIAS]
     BY = {e['iid']: e for e in E}
     skip = ('p277/', 'p179/', 'admin/', 'p18/', 'p129/', 'p84/lk/', 'p72/', 'p121/strip', 'p80/kit/', 'p104/key/', 'p28/key/', 'p175/',
             'p145/hand_free', 'p276/', 'p249/w/', 'p242/ms/upgrade', 'p173/ledger/', 'h3g/', 'p155/')
@@ -321,20 +330,21 @@ def generate(G):
         for iid in L:
             n = len(E)
             hb = iid == 'bm_handbook'
+            ri = real(iid)
             kind = 'worn' if iid in WORN_CHARMS else ('carry' if iid in CARRY_CHARMS else 'item')
             use, how = None, None
             if hb: use, how = 'bm:p276/hb_open', 'fn'
             elif cat not in TAKE_ONLY and kind == 'item':
-                if iid in HOLD: use, how = HOLD[iid], 'hold'
-                elif iid in CARROT: use, how = CARROT[iid], 'hold'
+                if ri in HOLD: use, how = HOLD[ri], 'hold'
+                elif ri in CARROT: use, how = CARROT[ri], 'hold'
                 else:
                     import json, os
-                    p = G.path('data', 'bm', 'advancement', 'consume', f'{iid}.json')
+                    p = G.path('data', 'bm', 'advancement', 'consume', f'{ri}.json')
                     if os.path.exists(p):
                         use, how = json.load(open(p))['rewards']['function'], 'eat'
             E.append(dict(n=n, iid=iid, cat=cat, obj='bm.pwhb' if hb else f'bm.rq_{iid}', path='hb' if hb else f'rq_{iid}',
                           tag='bm.pw_hb' if hb else f'bm.rqt_{iid}', use=use, how=how, stack=stack_of(iid), kind=kind,
-                          name=ITEMS[iid]['name'], col=colour(iid)))
+                          name=ITEMS[ri]['name'] + (f' {GROUP[ri].index(iid) + 1}' if ri in GROUP else ''), col=colour(iid), real=ri))
     BY = {e['iid']: e for e in E}
     assert len(E) <= 280, len(E)           # (8700+n stays clear of the Relics page's 8990-8994)
     objs += [e['obj'] for e in E if e['obj'] != 'bm.pwhb'] + [f'bm.rqo_{i}' for i in CARRY_CHARMS] + [f'bm.rb_{k}' for k, *_r in BAGK]
@@ -346,7 +356,7 @@ def generate(G):
     # ---------------------------------------------------------------- who has what counted as carried (each second, and at once on a change)
     tg = []
     for e in E:
-        if e['iid'] == 'bm_handbook' or e['cat'] in NOCARRY: continue
+        if e['iid'] == 'bm_handbook' or e['cat'] in NOCARRY or e['iid'] in ALIAS: continue
         T_, O = e['tag'], e['obj']
         tg += [f'tag @s remove {T_}', f'execute if entity @s[tag=bm.pwc,scores={{{O}=1..}}] run tag @s add {T_}']
         if e['kind'] == 'carry': tg.append(f'execute if score @s bm.rqo_{e["iid"]} matches 1 run tag @s remove {T_}')
@@ -431,13 +441,18 @@ def generate(G):
     page_fn['mounts'] = 'p249/m/open'
     for e in E:
         n, iid, O, P_, T_, nm, col = e['n'], e['iid'], e['obj'], e['path'], e['tag'], e['name'], e['col']
-        setk = [pid, f'data modify storage bm:rp t.k set value "{P_[1:]}"', f'data modify storage bm:rp t.id set value "{iid}"']
+        setk = [pid, f'data modify storage bm:rp t.k set value "{P_[1:]}"', f'data modify storage bm:rp t.id set value "{e["real"]}"']
         where = PAGE_OF[e['cat']]
         # put on (from the off hand: the Pack's use)
         if iid != 'bm_handbook':
             told = tellraw('@s', PRE + [T(nm, col, bold=True), T(f' goes on your Rat Pack ({where} page). ', 'gray'), T('(Use the Pack to take it out again.)', 'dark_gray')])
             if e['stack'] == 1:
-                a = [f'execute if score @s {O} matches 1.. run return run ' + say([T(nm, col), T(' is on your Rat Pack already.', 'gray')])] + setk + \
+                grp = GROUP.get(e['real'])
+                nxt = grp[grp.index(iid) + 1] if grp and grp.index(iid) + 1 < len(grp) else None
+                busy = (f'execute if score @s {O} matches 1.. run return run function bm:p277/a/{nxt}' if nxt else
+                        f'execute if score @s {O} matches 1.. run return run ' + (say([T(f'Your Rat Pack holds {len(grp)} {ITEMS[e["real"]]["name"]}s', col), T(' - this one stays with you.', 'gray')]) if grp else
+                                                                                     say([T(nm, col), T(' is on your Rat Pack already.', 'gray')])))
+                a = [busy] + setk + \
                     ['function bm:p277/s/put with storage bm:rp t', f'scoreboard players set @s {O} 1']
             else:
                 M = e['stack']
@@ -474,7 +489,7 @@ def generate(G):
         # use: as using the item
         if e['how'] == 'hold':
             fn(f'p277/u/{iid}', ['dialog clear @s'] + setk + ['execute at @s run function bm:p277/sw/in with storage bm:rp t', f'execute at @s run function {e["use"]}',
-                                 pid, f'data modify storage bm:rp t.k set value "{P_[1:]}"', f'data modify storage bm:rp t.id set value "{iid}"',
+                                 pid, f'data modify storage bm:rp t.k set value "{P_[1:]}"', f'data modify storage bm:rp t.id set value "{e["real"]}"',
                                  'execute at @s run function bm:p277/sw/out with storage bm:rp t',
                                  f'execute store result score @s {O} run function bm:p277/s/cnt with storage bm:rp t', 'function bm:p277/tg'])
         elif e['how'] == 'eat':                    # (a consumable: one is used up first - as eating it - then its use; a seal that holds gives it back)
@@ -508,7 +523,8 @@ def generate(G):
         fn(f'p277/e/{iid}', h)
         # its row on the page
         cnt = (lambda: [T(' ×$(c)', 'gray')]) if e['stack'] > 1 else (lambda: [])
-        lab = lambda pre: [icon(iid, col), T(pre, 'white'), T(nm, col)] + cnt()
+        nmc = '@@NM@@' if e['real'] in GROUP else T(nm, col)          # (a ring's row: its own name, if it has one - phase277 rn/)
+        lab = lambda pre: [icon(iid, col), T(pre, 'white'), nmc] + cnt()
         code = B_E0 + n
         verb = {'pocket': 'Use it - as using the item', 'maps': 'Open it - the seal breaks (one is used up)',
                 'mounts': 'Call it - as using the item', 'rpow': 'Use it - as using the item'}.get(e['cat'], '')
@@ -532,18 +548,24 @@ def generate(G):
             b_use = P28.btn(lab(' '), code, width=150, tooltip=T(f'{nm}: ' + (verb if e['use'] else 'it works by being carried'), 'gray'))
             rows += [f'execute if entity @s[tag=bm.rqtb] run data modify storage bm:tmp rq.acts append value {snbt(b_take)}',
                      f'execute unless entity @s[tag=bm.rqtb] run data modify storage bm:tmp rq.acts append value {snbt(b_use)}']
+        rows = [r.replace('"@@NM@@"', '$(nm)') for r in rows]
         rows = [('$' + r) if '$(' in r else r for r in rows]
         fn(f'p277/r/{iid}', rows)
+        if e['real'] in GROUP:
+            fn(f'p277/rn/{iid}', [pid, f'data modify storage bm:rp rc.nm set value {snbt(T(nm, col))}',
+                                  f'data modify storage bm:rp t.k set value "{P_[1:]}"',
+                                  'function bm:p277/rn/cp with storage bm:rp t', f'function bm:p277/r/{iid} with storage bm:rp rc'])
+    fn('p277/rn/cp', ['$execute if data storage bm:pw p$(pid).r$(k).components."minecraft:custom_name" run data modify storage bm:rp rc.nm set from storage bm:pw p$(pid).r$(k).components."minecraft:custom_name"'])
     # (an off-hand stack bigger than what fits: the rest stays in your off hand)
     fn('p277/a/rest', ['$item modify entity @s weapon.offhand {function:"minecraft:set_count",count:$(r)}'])
 
     # ================================================================== PUT ON: the Pack's use with one of them in the off hand
     use = F['p179/w/use']
     k = use.index('execute if predicate bm:p20/sneaking run return run function bm:p179/w/recall')
-    anyq = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{e["iid"]}"}}' for e in E if e['iid'] != 'bm_handbook') + '|' + \
+    anyq = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{e["iid"]}"}}' for e in E if e['iid'] != 'bm_handbook' and e['iid'] not in ALIAS) + '|' + \
            '|'.join(f'minecraft:custom_data~{{bm:"{b[1]}"}}' for b in BAGK) + ']'
     use[k:k] = [f'execute if items entity @s weapon.offhand {anyq} run return run function bm:p277/add']
-    fn('p277/add', [f'execute if items entity @s weapon.offhand {holds(e["iid"])} run return run function bm:p277/a/{e["iid"]}' for e in E if e['iid'] != 'bm_handbook'] +
+    fn('p277/add', [f'execute if items entity @s weapon.offhand {holds(e["iid"])} run return run function bm:p277/a/{e["iid"]}' for e in E if e['iid'] != 'bm_handbook' and e['iid'] not in ALIAS] +
        [f'execute if items entity @s weapon.offhand {holds(b[1])} run return run function bm:p277/b/add_{b[0]}' for b in BAGK])
     use[-1] = 'function bm:p277/open' if use[-1] == 'function bm:p179/w/open' else use[-1]
     assert use[-1] == 'function bm:p277/open', use[-1]
@@ -591,6 +613,8 @@ def generate(G):
             if e['stack'] > 1:
                 build += [f'execute if score @s {e["obj"]} matches 1.. store result storage bm:rp rc.c int 1 run scoreboard players get @s {e["obj"]}',
                           f'execute if score @s {e["obj"]} matches 1.. run function bm:p277/r/{iid} with storage bm:rp rc']
+            elif e['real'] in GROUP:
+                build.append(f'execute if score @s {e["obj"]} matches 1.. run function bm:p277/rn/{iid}')
             else:
                 build.append(f'execute if score @s {e["obj"]} matches 1.. run function bm:p277/r/{iid}')
         bk = back_rel if c in RELICS else back_btn
@@ -1070,12 +1094,13 @@ def generate(G):
         for iid in L:
             e = BY[iid]
             x = HLNOT if iid == 'fixers_ledger' else ''
+            ri = real(iid)
             if iid == 'bm_handbook':
                 body = [f'data modify storage bm:rp a.id set value "{iid}"', 'execute unless function bm:p277/ap/find run return 0',
                         'function bm:p277/ap/mvhb with storage bm:rp a', 'scoreboard players set @s bm.pwhb 1', 'tag @s add bm.pw_hb']
                 cond = 'unless score @s bm.pwhb matches 1'
             elif e['stack'] == 1:
-                body = [f'data modify storage bm:rp a.id set value "{iid}"', f'data modify storage bm:rp a.k set value "{e["path"][1:]}"',
+                body = [f'data modify storage bm:rp a.id set value "{ri}"', f'data modify storage bm:rp a.k set value "{e["path"][1:]}"',
                         'execute unless function bm:p277/ap/find run return 0', 'function bm:p277/ap/mv with storage bm:rp a', f'scoreboard players set @s {e["obj"]} 1']
                 cond = f'unless score @s {e["obj"]} matches 1..'
             else:                                  # (a stack: added to what's on, if it fits - else left be)
@@ -1095,7 +1120,7 @@ def generate(G):
             fn(f'p277/ap/e_{iid}', body)
             ca.append(' '.join(['execute'] + ([cond] if cond else []) + [f'unless items entity @s weapon.mainhand {holds(iid)}',
                                                                          f'if items entity @s container.* {holds(iid, x + NOPK)} run function bm:p277/ap/e_{iid}']))
-        anyc = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{iid}"}}' for iid in L) + ']'
+        anyc = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{iid}"}}' for iid in dict.fromkeys(real(i) for i in L)) + ']'
         fn(f'p277/ap/k_{c}', ca)
         run.append(f'execute {on_(AP_KEY.get(c, c), dfl[AP_KEY.get(c, c)])} if items entity @s container.* {anyc} run function bm:p277/ap/k_{c}')
     fn('p277/ap/cnt', ['$execute store result score #rqt bm.rng run data get entity @s Inventory[{Slot:$(s)b}].count'])
@@ -1236,6 +1261,6 @@ def generate(G):
             if nl != l: L[i] = nl; nw += 1
     rep['lines reworded'] = nw
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/rat_pack', 'yellow'), T('  the Rat Pack, and one of every tool, key, charm, map and call it holds', 'gray')])]
-    fn('admin/rat_pack', [give('partner_wheel')] + [give(e['iid']) for e in E] + [give(b[1]) for b in BAGK])
+    fn('admin/rat_pack', [give('partner_wheel')] + [give(e['iid']) for e in E if e['iid'] not in ALIAS] + [give(b[1]) for b in BAGK])
     F['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.rqh]']
     return rep
