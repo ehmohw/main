@@ -286,10 +286,9 @@ def generate(G):
                                     tellraw('@s', P + [T(f"The Tide's Haste {'I' * L}", '#9af0d8', bold=True), T(f': a faint now rests {secs} seconds, for every follower you call.', 'gray')]),
                                     'function bm:p201/open'])
 
-    # the Tide's Haste at work: after a faint (2 minutes), the rest is cut short (2.93: from Vesper's old Ledger, its rule too)
-    for w, (cd, *_r) in P173.AR.items():
-        second += [f'execute as @a[scores={{bm.fret=1,{cd}=81..}}] run scoreboard players set @s {cd} 80',
-                   f'execute as @a[scores={{bm.fret=2,{cd}=46..}}] run scoreboard players set @s {cd} 45']
+    # the Tide's Haste at work: after a faint (2 minutes), the rest is cut short (2.93: from Vesper's old Ledger, its rule too) -
+    # (3.0y: the owner - "upgrading follower respawn times hasn't worked": it only cut the faint timers phase173.AR knew of, and
+    #  every follower made since on rigpet / fol5 keeps its own (phase98.CALLED). Now late(), over every called follower's timer)
 
     # ---------------------------------------------------------------- the Ethereal Gem comes home
     eth = f'items entity @s container.* {holds("ethereal_gem")}'
@@ -457,3 +456,14 @@ def own(sel):
             'execute if score #fo bm.rng matches 1.. store result score #fh bm.rng run data get entity @s Health 100',
             'execute if score #fo bm.rng matches 1.. store result score #fab bm.rng run data get entity @s AbsorptionAmount 100',
             'execute if score #fo bm.rng matches 1.. run scoreboard players operation #fh bm.rng += #fab bm.rng']
+
+
+def late(G):
+    """(3.0y) the Tide's Haste on every follower's faint timer - phase173.AR's and every one phase98.CALLED lists (after them all)"""
+    import phase98 as P98, phase173 as P173
+    cds = []
+    for cd in [v[0] for v in P173.AR.values()] + [c[6] for c in P98.CALLED]:
+        if cd not in cds: cds.append(cd)
+    G.FUNCS['loop/second'] += [l for cd in cds for l in (f'execute as @a[scores={{bm.fret=1,{cd}=81..}}] run scoreboard players set @s {cd} 80',
+                                                         f'execute as @a[scores={{bm.fret=2,{cd}=46..}}] run scoreboard players set @s {cd} 45')]
+    return len(cds)
