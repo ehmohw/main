@@ -1,7 +1,8 @@
 // 3.1: THE GUIDE (phase276, guide_art.py) as a regular (non-op) player - the Handbook's "Guide ›" page: Guide on (its parts appear by
 // him, at its hover height, one guide only), each of the four forms in turn (Wisp 5 parts, Rainbow Butterfly 4, Suitcase 5 - on the
 // ground, Little Handbook 5: their own guiw_/guib_/guis_/guik_ models, the old form gone); right-clicked (its click box): the happy
-// twirl and the Handbook's own front page; a hit on it does nothing; he walks 10 blocks away and it follows; Guide off: gone.
+// twirl and the Handbook's own front page; a hit on it does nothing; he walks 10 blocks away and it follows; Guide off: gone. The Handbook
+// on the Partner Wheel: off hand (F) + the wheel used - it goes on; the wheel's menu opens it and its Guide page; taken back once.
 const { bot, rcon, sleep } = require('./lib_resp');
 (async () => {
   const res = [];
@@ -81,6 +82,27 @@ const { bot, rcon, sleep } = require('./lib_resp');
      await wait(2500, async () => (await count('@e[type=minecraft:item_display,tag=bm.gdp]')) === 0 && (await count('@e[type=minecraft:marker,tag=bm.gd]')) === 0));
   await sleep(1500);
   ok('...and stays gone', (await count('@e[tag=bm.gdx]')) === 0);
+  // THE HANDBOOK ON THE PARTNER WHEEL: in the off hand (F), the wheel used - it goes on; the wheel opens it, its Guide ›; taken back once
+  await run('scoreboard players set TestRat bm.pwhb 0'); await run('clear TestRat');
+  await run('loot replace entity TestRat hotbar.0 loot bm:items/bm_handbook'); await run('loot replace entity TestRat hotbar.1 loot bm:items/partner_wheel');
+  const hbN = async () => +(((await run('clear TestRat *[minecraft:custom_data~{bm:"bm_handbook"}] 0')).match(/Found (\d+)/) || [0, 0])[1]);
+  A.slot(0); await sleep(300); A.swap(); await sleep(500);
+  ok('the Handbook in his off hand (F)', /bm_handbook/.test(await run('data get entity TestRat equipment.offhand')));
+  A.slot(1); await sleep(300); A.chats.length = 0; await run('scoreboard players set TestRat bm.gvhc 0'); A.use(); await sleep(350); A.release(); await sleep(800);
+  ok('...the wheel used: it goes on the wheel (off his hands, the flag set, he is told)', (await hbN()) === 0 && /has 1 /.test(await run('scoreboard players get TestRat bm.pwhb')) &&
+     A.chats.some(c => /Partner Wheel/.test(c)), A.chats.slice(-1).join(''));
+  await sleep(1200);
+  ok('...carrying the wheel counts as carrying it (bm.pw_hb)', /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.pw_hb]')));
+  ok('the wheel: Black Market Handbook, Guide ›, Take the Handbook back', await openB() && ['Black Market Handbook', 'Guide', 'Take the Handbook back'].every(n => A.buttons().some(b => b.label.includes(n))),
+     A.buttons().map(b => b.label).join(' | ').slice(0, 300));
+  const hbp = await A.press(/Black Market Handbook/);
+  ok('...its Handbook button opens the Handbook (its front page)', hbp && hbp.next && A.buttons().some(b => /Followers/.test(b.label)));
+  await openB(); const gdp = await A.press(/Guide ›/);
+  ok('...its Guide › opens the guide page', gdp && gdp.next && A.buttons().some(b => /^Guide: /.test(b.label)));
+  await openB(); await A.press(/Take the Handbook back/); await sleep(800);
+  ok('...Take the Handbook back: the Handbook is his again, the flag off', (await hbN()) === 1 && /has 0 /.test(await run('scoreboard players get TestRat bm.pwhb')), `${await hbN()} handbooks`);
+  A.cmd('trigger bm.act set 7009'); await sleep(800);
+  ok('...and only once (the button pressed again: still one)', (await hbN()) === 1);
   await run('clear TestRat');
   console.log(`${res.filter(x => x).length}/${res.length} passed`);
   A.end(); R.end(); process.exit(0);

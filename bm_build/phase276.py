@@ -19,7 +19,10 @@ awake). The choice is yours (bm.gdon, bm.gdf - scores: kept through death, loggi
                 idle) and your Handbook opens - exactly as using the Handbook does (sneak: Your settings). A hit on it does
                 nothing at all (the attack is cleared).
 Codes 7000-7006 (p276/act, each line menu-checked): 7000 "Guide ›" on the Handbook (menu 5660); on its page (menu 7000) 7001
-on / off, 7002-7005 the forms, 7006 "« Handbook"."""
+on / off, 7002-7005 the forms, 7006 "« Handbook"; on the Partner Wheel (menu 3350) 7007 "Black Market Handbook" (open it), 7008
+"Guide ›", 7009 "Take the Handbook back".
+THE HANDBOOK ON THE WHEEL   hold it in your off hand and use the Partner Wheel: it goes on (its own flag, bm.pwhb - never one of
+                the wheel's numbered partner slots); the wheel's menu then opens it, and takes it back (the same item, once)."""
 from items import T
 from nbt import snbt
 import rigfol as RF
@@ -29,6 +32,7 @@ import guide_art as A
 
 MENU = 7000
 B_GUIDE, B_TOG, B_FORM0, B_BACK = 7000, 7001, 7002, 7006
+B_WHB, B_WGD, B_WOUT = 7007, 7008, 7009                      # (on the Partner Wheel, menu 3350: the Handbook, Guide ›, take it back)
 COL = '#e8c070'
 NEAR_POP, LOST = 8, 16
 FORMS = A.FORMS                                              # (wisp, butterfly, suitcase, book: bm.gdf 0..3)
@@ -209,7 +213,7 @@ def generate(G):
            f'execute if score #act bm.pay matches {B_BACK} if score @s bm.menu matches {MENU} run return run function bm:p260/hb/open'] + \
           [f'execute if score #act bm.pay matches {B_FORM0 + i} if score @s bm.menu matches {MENU} run return run function bm:p276/form{i}' for i in range(len(FORMS))]
     fn('p276/act', act + ['function bm:p28/stale'])
-    F['p28/act'].append(f'execute if score #act bm.pay matches {B_GUIDE}..{B_BACK} run return run function bm:p276/act')
+    F['p28/act'].append(f'execute if score #act bm.pay matches {B_GUIDE}..{B_WOUT} run return run function bm:p276/act')
     # (the Handbook's front page: a "Guide ›" button after its pages)
     gb = snbt(P28.btn([T('✦ ', COL), T('Guide', 'white'), T(' ›', 'gray')], B_GUIDE, width=150,
                       tooltip=T('A little friend who comes along: a wisp, a butterfly, a suitcase or a book.', 'gray')))
@@ -218,5 +222,51 @@ def generate(G):
         sp = P260.actions(l)
         if sp: L[j] = P260.set_actions(l, sp, sp[2] + [gb]); n += 1
     assert n == 1, n
-    F['admin/uninstall'][0:0] = ['kill @e[tag=bm.gdx]', 'kill @e[type=minecraft:marker,tag=bm.gd]', 'tag @a remove bm.hasgd', 'tag @a remove bm.gdo']
-    return f'{len(FORMS)} forms, codes {B_GUIDE}-{B_BACK}'
+    # ---------------------------------------------------------------- THE HANDBOOK ON THE PARTNER WHEEL (one less thing to carry)
+    # Not a numbered slot (phase179's SLOTS save partners by position): its own flag, bm.pwhb, and the item itself kept as it was
+    # (storage bm:pw p<pid>.hb) - put on from the off hand as a partner's item is, taken back from the wheel's menu (given back
+    # once: the stored item, or a fresh one if the store is gone); dying keeps it with the wheel (a score). While you carry the
+    # wheel with it on, you're tagged bm.pw_hb (as bm.pw_<partner> for a partner's item).
+    import phase179 as P179
+    PRE = [T('[', 'dark_gray'), T('Black Market', 'dark_purple', bold=True), T('] ', 'dark_gray')]
+    holds = f'*[minecraft:custom_data~{{bm:"{P260.ITEM}"}}]'
+    F['load'][-1:-1] = ['scoreboard objectives add bm.pwhb dummy']
+    G.OBJECTIVES.append('bm.pwhb')
+    second += ['tag @a remove bm.pw_hb', 'tag @a[tag=bm.pwc,scores={bm.pwhb=1}] add bm.pw_hb']
+    use = F['p179/w/use']
+    use.insert(1, f'execute if items entity @s weapon.offhand {holds} run return run function bm:p276/hb_add')
+    fn('p276/hb_add', ['execute if score @s bm.pwhb matches 1 run return run ' + say(T('Your Handbook is on your wheel already.', 'gray')),
+                       'function bm:p179/w/pid', 'function bm:p276/hb_addm with storage bm:tmp pw',
+                       'item replace entity @s weapon.offhand with minecraft:air', 'scoreboard players set @s bm.pwhb 1', 'tag @s add bm.pw_hb',
+                       'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6', 'particle minecraft:enchant ~ ~1.2 ~ 0.3 0.4 0.3 0.6 20',
+                       G.tellraw('@s', PRE + [T('Black Market Handbook', COL, bold=True), T(' goes on your Partner Wheel. ', 'gray'),
+                                              T('(Use the wheel: it has a Handbook button.)', 'dark_gray')])])
+    fn('p276/hb_addm', ['$data modify storage bm:pw p$(pid).hb set from entity @s equipment.offhand'])
+    fn('p276/hb_out', ['execute unless score @s bm.pwhb matches 1 run return run function bm:p28/stale',
+                       'function bm:p179/w/pid', 'function bm:p276/hb_outm with storage bm:tmp pw', 'scoreboard players set @s bm.pwhb 0',
+                       'tag @s remove bm.pw_hb', 'playsound minecraft:item.armor.equip_chain player @s ~ ~ ~ 0.6 1.4',
+                       G.tellraw('@s', PRE + [T('Black Market Handbook', COL, bold=True), T(' comes off your Partner Wheel.', 'gray')]),
+                       'function bm:p179/w/open'])
+    fn('p276/hb_outm', ['$execute unless data storage bm:pw p$(pid).hb run return run ' + G.give(P260.ITEM),
+                        'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.pwout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                        '$data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Item set from storage bm:pw p$(pid).hb',
+                        'data modify entity @e[type=minecraft:item,tag=bm.pwout,limit=1] Owner set from entity @s UUID',
+                        'tag @e[type=minecraft:item,tag=bm.pwout] remove bm.pwout', '$data remove storage bm:pw p$(pid).hb'])
+    fn('p276/hb_open', ['execute unless score @s bm.pwhb matches 1 run return run function bm:p28/stale', 'dialog clear @s', 'function bm:p260/hb/open'])
+    # (its row on the wheel - after the partners': the Handbook, Guide ›, take it back; without it, Guide › beside your settings)
+    icon = {'type': 'object', 'object': 'atlas', 'atlas': 'minecraft:items', 'sprite': 'minecraft:item/book', 'fallback': {'text': '◆', 'color': COL}}
+    b_hb = P28.btn([icon, T(' Black Market Handbook', COL, bold=True)], B_WHB, tooltip=T('Open your Handbook (it rides on your wheel)', 'gray'))
+    b_gd = P28.btn([T('✦ ', COL), T('Guide', 'white'), T(' ›', 'gray')], B_WGD, tooltip=T('Your guide: on or off, and how it looks', 'gray'))
+    b_out = P28.btn(T('Take the Handbook back', 'gray'), B_WOUT, tooltip=T('The Black Market Handbook comes off the wheel', 'gray'))
+    op = F['p179/w/open']
+    k = op.index('function bm:p179/w/top')
+    op[k:k] = [f'execute if score @s bm.pwhb matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b)}' for b in (b_hb, b_gd, b_out)]
+    k = op.index('function bm:p179/w/show with storage bm:tmp pw')
+    op.insert(k, f'execute unless score @s bm.pwhb matches 1 run data modify storage bm:tmp pw.acts append value {snbt(b_gd)}')
+    wact = [f'execute if score #act bm.pay matches {B_WHB} if score @s bm.menu matches {P179.WMENU} run return run function bm:p276/hb_open',
+            f'execute if score #act bm.pay matches {B_WGD} if score @s bm.menu matches {P179.WMENU} run return run function bm:p276/open',
+            f'execute if score #act bm.pay matches {B_WOUT} if score @s bm.menu matches {P179.WMENU} run return run function bm:p276/hb_out']
+    F['p276/act'][-1:-1] = wact
+    F['admin/uninstall'][0:0] = ['kill @e[tag=bm.gdx]', 'kill @e[type=minecraft:marker,tag=bm.gd]', 'tag @a remove bm.hasgd', 'tag @a remove bm.gdo',
+                                 'tag @a remove bm.pw_hb']
+    return f'{len(FORMS)} forms, codes {B_GUIDE}-{B_WOUT}'
