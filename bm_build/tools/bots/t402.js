@@ -75,6 +75,12 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await putOn('particle_toggler', 'the Particle Toggler'); await putOn('fixers_ledger', 'the Fixer\'s Ledger'); await putOn('rat_king_key', 'the Rat King\'s Key');
   await putOn('charm_ember', 'an Ember Charm'); await putOn('sealed_explorer_map', 'a Sealed Explorer\'s Map'); await putOn('ember_call', 'an Ember Rat\'s Call');
   await sleep(1200);
+  // the Crew Flare never goes on the Pack: still in his off hand after using the Pack
+  await run('loot replace entity TestRat weapon.offhand loot bm:items/crew_flare'); await sleep(300);
+  A.slot(0); await sleep(250); A.use(); await sleep(350); A.release(); await sleep(800);
+  ok('the Crew Flare in his off hand and the Pack used: it stays in his off hand, not on the Pack', /crew_flare/.test(await run('data get entity TestRat equipment.offhand')) &&
+     (await sc('bm.rq_crew_flare')) <= 0);
+  await run('item replace entity TestRat weapon.offhand with minecraft:air');
   // Pocket: the toggler used from its row - as using it (its own menu); the Pack still in his hand after
   await openP(); await A.press(/Pocket/);
   ok('Pocket: the Particle Toggler and the Ledger listed', A.buttons().some(b => /Particle Toggler/.test(b.label)) && A.buttons().some(b => /Fixer's Ledger/.test(b.label)));
