@@ -728,6 +728,15 @@ def stalker_models():
             _b((3.8, 2.4, 1.6), (12.2, 3.4, 3.6), 'stk_shade'), _b((3.9, 3.4, 1.7), (12.1, 3.42, 3.4), 'stk_maw', full=True),
             _b((4.2, 10.6, 2.8), (6.2, 12.6, 2.88), 'stk_eye', full=True), _b((9.8, 10.6, 2.8), (11.8, 12.6, 2.88), 'stk_eye', full=True),
             _b((3.0, 14.4, 2.9), (13.0, 15.8, 13.0), 'stk_skin'), _b((3.0, 8.0, 12.4), (13.0, 15.8, 13.0), 'stk_shade')]
+    # (3.0y: the owner - "it doesn't sit on the face". Worn with the default head transform the head fills 1.6..14.4 on every
+    #  axis, so the face plate (2.9..3.6) sat 1.3 inside the head, the face hidden behind the player's own. Now the mask comes
+    #  2.2 forward - its front just clear of the skin's outer layer (0.8) - the top band runs back over the crown, and the strap
+    #  sits behind the head (14.5..15.1) instead of buried in it)
+    for e in grin[:-2]:
+        e['from'][2] = round(e['from'][2] - 2.2, 3); e['to'][2] = round(e['to'][2] - 2.2, 3)
+        if e.get('rotation'): e['rotation']['origin'][2] = round(e['rotation']['origin'][2] - 2.2, 3)
+    grin[-2] = _b((3.0, 14.4, 0.7), (13.0, 15.8, 15.1), 'stk_skin')
+    grin[-1] = _b((3.0, 8.0, 14.5), (13.0, 15.8, 15.1), 'stk_shade')
     return {'stalker_grin': grin}
 
 
