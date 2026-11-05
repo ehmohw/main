@@ -186,11 +186,26 @@ def holds(iid, extra=''):
     return f'*[minecraft:custom_data~{{bm:"{iid}"}}{extra}]'
 
 
+def _tex_ok(sprite):
+    import os
+    ns_, p = sprite.split(':', 1)
+    if ns_ == 'minecraft':
+        return os.path.exists(f'/home/claude/mc263/client/assets/minecraft/textures/{p}.png')
+    root = os.environ.get('BM_OUT') or '/home/claude/bm_build/out_p2'
+    rp = f'{root}/BlackMarket_RP/assets/{ns_}/textures/{p}.png'
+    return os.path.exists(rp) or not os.path.isdir(f'{root}/BlackMarket_RP')      # (no resource pack built: trust the name)
+
+
 def icon(iid, col='white'):
     iid = real(iid)
     mdl = ITEMS[iid]['comps'].get('minecraft:item_model', f'minecraft:{ITEMS[iid]["base"].split(":")[-1]}')
     ns_, p = mdl.split(':', 1) if ':' in mdl else ('minecraft', mdl)
     if ns_ == 'minecraft' and p in ('compass', 'recovery_compass', 'clock'): p += '_00'
+    if ns_ == 'bm' and not _tex_ok(f'bm:item/{p}'):       # (a 3D model has no flat sprite: the base item's own picture)
+        ns_, p = 'minecraft', ITEMS[iid]['base'].split(':')[-1]
+        if p in ('compass', 'recovery_compass', 'clock'): p += '_00'
+        if p == 'crossbow': p = 'crossbow_standby'
+        if not _tex_ok(f'minecraft:item/{p}'): p = 'totem_of_undying'
     return {'type': 'object', 'object': 'atlas', 'atlas': 'minecraft:items', 'sprite': f'{ns_}:item/{p}', 'fallback': {'text': '◆', 'color': col}}
 
 
