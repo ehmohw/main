@@ -399,6 +399,14 @@ def _fourth_thread(G):
     k = next(i for i, l in enumerate(J) if 'unless function bm:p58/full at @s run function bm:p254/summon' in l)
     J[k] = J[k].replace('unless function bm:p58/full at @s run', 'at @s run')
     J[:] = [l for l in J if not ('if function bm:p58/full' in l and 'tellraw' in l)]     # (3.0u: rigpet's 'three out already' note - never so for it)
+    # (3.0v: Raid Crew has its own count (phase98: three alone, one each in a party) - and it counted the Keeper too, so the owner's
+    #  crew filled with it along. Out of that count, and its own crew call never asks for room)
+    rc = G.FUNCS['p98/count']
+    n0 = len(rc); rc[:] = [l for l in rc if 'tag=bm.tkpet' not in l]
+    assert len(rc) == n0 - 1, 'phase98 no longer counts the Keeper the way the Fourth Thread expects'
+    ck = G.FUNCS.get('p98/call/keeper')
+    if ck is not None:
+        ck[:] = [l for l in ck if 'unless function bm:p98/room' not in l]
     for f, L in G.FUNCS.items():                # (nothing else of its own may still ask)
         if f.startswith('p254/'):
             assert not any('p58/full' in l for l in L), f
