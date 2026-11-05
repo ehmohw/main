@@ -7,8 +7,7 @@ from nbt import snbt, B, F, Int
 # (weight, type, extra NBT). Every type is checked against vanilla-mcdoc 26.x in check262_nbt.py.
 # Piglins/hoglins would zombify after 15 s in the overworld, hence IsImmuneToZombification.
 # Summons with NBT skip vanilla's spawn equipment, so the armed ones get their weapon here.
-NETHER = [
-    (22, 'blaze', {}),
+NETHER = [                      # (3.0y: no blazes - the owner: "they burn down everything")
     (22, 'wither_skeleton', {'equipment': {'mainhand': {'id': 'minecraft:stone_sword', 'count': Int(1)}}, 'drop_chances': {'mainhand': F(0)}}),
     (16, 'magma_cube', {'Size': Int(1)}),
     (12, 'piglin_brute', {'IsImmuneToZombification': B(1), 'equipment': {'mainhand': {'id': 'minecraft:golden_axe', 'count': Int(1)}},

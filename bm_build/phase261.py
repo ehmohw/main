@@ -32,6 +32,8 @@ PAGERS = {
     'wh': ('p179/w/open', 'bm:tmp pw.acts', None, 'function bm:p259/w/rows', 24, 3440, 3441, 'p179/w/act', 1, 'p179/w/open', 3),
 }
 CUR = 4094
+JUMP = {'wh': (3240, 12)}                    # (3.0y: the Partners page's page picker: 3240 opens it, 3241-3252 pages 1-12, 3253 back)
+MENU_OF = {'wh': 3350}
 TIP = {'sit': 'Sit down where they stand - or get up and follow you again.',
        'home': 'They go home. Call them again with their item or the wheel.',
        'call': 'They come to your side - unless they\'re still resting after a faint.'}
@@ -43,7 +45,7 @@ def generate(G):
     fn = G.fn
     F = G.FUNCS
     rep = {}
-    objs = [f'bm.pg_{k}' for k in PAGERS]
+    objs = [f'bm.pg_{k}' for k in PAGERS] + [f'bm.pgn_{k}' for k in PAGERS]
     F['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
 
@@ -64,7 +66,7 @@ def generate(G):
     fn('p261/pg/step', ['execute unless data storage bm:ui pg.src[0] run return 0',
                         'execute if score #pgi bm.rng >= #pgs bm.rng if score #pgi bm.rng < #pge bm.rng run data modify storage bm:ui pg.out append from storage bm:ui pg.src[0]',
                         'data remove storage bm:ui pg.src[0]', 'scoreboard players add #pgi bm.rng 1', 'function bm:p261/pg/step'])
-    dim = lambda txt, w: snbt(P28.btn([T(txt, 'dark_gray')], None, width=w, tooltip=T('(no more this way)', 'dark_gray')))
+    dim = lambda txt, w, code: snbt(P28.btn([T(txt, 'dark_gray')], code, width=w, tooltip=T('(no more this way)', 'dark_gray')))     # (3.0y: with its code - an action-less button closes the dialog)
     for key, (fname, S, anchor, after, per, prv, nxt, rtr, keep, reopen, cols) in PAGERS.items():
         L = F[fname]
         if anchor:
@@ -76,16 +78,16 @@ def generate(G):
         a_prev = snbt(P28.btn([T('‹ Previous', 'white')], prv, width=w, tooltip=T('The page before.', 'gray')))
         a_next = P28.btn([T('Next ›', 'white'), T('  $(p)/$(n)', 'gray')], nxt, width=w, tooltip=T('The next page.', 'gray'))
         nav = ['execute if score #pgp bm.rng matches 1.. run data modify storage bm:ui pg.out append value ' + a_prev,
-               'execute if score #pgp bm.rng matches ..0 run data modify storage bm:ui pg.out append value ' + dim('‹ Previous', w)]
+               'execute if score #pgp bm.rng matches ..0 run data modify storage bm:ui pg.out append value ' + dim('‹ Previous', w, prv)]
         if cols == 3:
-            nav.append('$data modify storage bm:ui pg.out append value ' + snbt(P28.btn([T('Page $(p) of $(n)', 'gray')], None, width=w)))
+            nav.append('$data modify storage bm:ui pg.out append value ' + snbt(P28.btn([T('Page $(p) of $(n)', 'gray'), T('  ▾', 'dark_gray')], JUMP[key][0], width=w, tooltip=T('Jump to any page.', 'gray'))))
             a_next = P28.btn([T('Next ›', 'white')], nxt, width=w, tooltip=T('The next page.', 'gray'))
         nav += ['$execute if score #pgp bm.rng < #pgl bm.rng run data modify storage bm:ui pg.out append value ' + snbt(a_next),
-                'execute if score #pgp bm.rng >= #pgl bm.rng run data modify storage bm:ui pg.out append value ' + dim('Next ›', w)]
+                'execute if score #pgp bm.rng >= #pgl bm.rng run data modify storage bm:ui pg.out append value ' + dim('Next ›', w, nxt)]
         fn(f'p261/pg/nav_{key}', [l if l[0] != '$' or '$(' in l else l[1:] for l in nav])
         fn(f'p261/pg/{key}', [f'scoreboard players operation #pgp bm.rng = @s bm.pg_{key}', f'scoreboard players set #pgN bm.rng {per}',
                               f'data modify storage bm:ui pg.src set from storage {S}', 'function bm:p261/pg/run',
-                              f'scoreboard players operation @s bm.pg_{key} = #pgp bm.rng',
+                              f'scoreboard players operation @s bm.pg_{key} = #pgp bm.rng', f'scoreboard players operation @s bm.pgn_{key} = #pgn bm.rng',
                               f'execute if score #pgn bm.rng matches 2.. run function bm:p261/pg/nav_{key} with storage bm:ui pg',
                               f'data modify storage {S} set from storage bm:ui pg.out'])
         fn(f'p261/pg/{key}_prev', [f'scoreboard players remove @s bm.pg_{key} 1', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2', f'function bm:{reopen}'])
@@ -93,6 +95,26 @@ def generate(G):
         R = F[rtr]
         R[keep:keep] = [f'execute if score #act bm.pay matches {prv} run return run function bm:p261/pg/{key}_prev',
                         f'execute if score #act bm.pay matches {nxt} run return run function bm:p261/pg/{key}_next']
+        if cols == 3:
+            j0, jmax = JUMP[key]
+            pick = [f'scoreboard players set @s bm.menu {MENU_OF[key]}', 'data modify storage bm:tmp pgj.acts set value []']
+            for k in range(1, jmax + 1):
+                lab = lambda c: snbt(P28.btn([T(f'Page {k}', c)], j0 + k, width=100, tooltip=T(f'Go to page {k}.', 'gray')))
+                pick += [f'execute if score @s bm.pgn_{key} matches {k}.. if score @s bm.pg_{key} matches {k - 1} run data modify storage bm:tmp pgj.acts append value ' +
+                         snbt(P28.btn([T('● ', '#ffd37a'), T(f'Page {k}', 'white')], j0 + k, width=100, tooltip=T('The page you were on.', 'gray'))),
+                         f'execute if score @s bm.pgn_{key} matches {k}.. unless score @s bm.pg_{key} matches {k - 1} run data modify storage bm:tmp pgj.acts append value ' + lab('white')]
+            pick += ['data modify storage bm:tmp pgj.acts append value ' + snbt(P28.btn([T('« Back', 'gray')], j0 + jmax + 1, width=100, tooltip=T('Back to the list.', 'gray'))),
+                     f'function bm:p261/pg/{key}_pickshow with storage bm:tmp pgj', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2']
+            fn(f'p261/pg/{key}_pick', pick)
+            fn(f'p261/pg/{key}_pickshow', ['$dialog show @s ' + snbt({'type': 'minecraft:multi_action', 'title': [T('THE RAT PACK', '#b48cff', bold=True), T('  ·  Go to a page', 'gray')],
+                                                                      'actions': '__ACTS__', 'columns': 4, 'exit_action': {'label': T('Close')}, 'pause': False,
+                                                                      'after_action': 'close'}).replace('"__ACTS__"', '$(acts)').replace("'__ACTS__'", '$(acts)')])
+            R[keep:keep] = [f'execute if score #act bm.pay matches {j0} run return run function bm:p261/pg/{key}_pick'] + \
+                           [f'execute if score #act bm.pay matches {j0 + k} run return run function bm:p261/pg/{key}_go {{p:{k - 1}}}' for k in range(1, jmax + 1)] + \
+                           [f'execute if score #act bm.pay matches {j0 + jmax + 1} run return run function bm:{reopen}']
+            fn(f'p261/pg/{key}_go', [f'$scoreboard players set @s bm.pg_{key} $(p)', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2', f'function bm:{reopen}'])
+            ra = F['p28/act']; kk = next(i for i, l in enumerate(ra) if 'run return run function bm:' + rtr in l)
+            ra.insert(kk, f'execute if score #act bm.pay matches {j0}..{j0 + jmax + 1} run return run function bm:{rtr}')
     rep['pagers'] = len(PAGERS)
 
     # ================================================================== THE WHEEL: its global switches are on Your settings

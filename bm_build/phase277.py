@@ -61,7 +61,8 @@ B_ROW0 = 9200                                      # (9200 + kind*10 + slot: a b
 # ------------------------------------------------------------------ what goes where (keyed by item id in storage and scores: no numbering to keep)
 POCKET = ['bm_handbook', 'fixers_ledger', 'particle_toggler', 'waytoken', 'crew_flare', 'courier_whistle', 'fixers_card', 'renewal_key',
           'ender_pouch', 'wayfarers_lodestar', 'enchanted_sundial', 'merchants_bell', 'lodestone_locket', 'bond_compass', 'chorus_compass',
-          'surface_charm', 'lava_wader_charm']
+          'surface_charm', 'lava_wader_charm',
+          'bankers_card', 'ring_burrows', 'pocket_rift', 'fair_weather_bell']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
 KEYS = ['market_key', 'silver_key', 'gold_key', 'rat_king_key', 'mail_key', 'trial_key_fob'] + \
        [f'key_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep')] + \
        [f'vkey_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
@@ -77,6 +78,8 @@ MAPS = ['sealed_map_market', 'sealed_map_graveyard', 'sealed_map_frog', 'sealed_
         'sealed_map_dread', 'sealed_map_kingdom', 'sealed_explorer_map', 'sealed_map_db_snow', 'sealed_map_db_witch', 'sealed_map_db_shark',
         'sealed_map_brood', 'sealed_map_frost', 'sealed_map_tide', 'sealed_map_hex', 'sealed_map_keep', 'hive_coords', 'message_bottle']
 MOUNTS = ['mecha_remote', 'ember_call', 'void_call']
+# (3.0y) the carrot-on-a-stick tools phase29 dispatches from the main hand (not in useitem.HOLD): used from a row the same way
+CARROT = {'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
 CATS = {'pocket': POCKET, 'keys': KEYS, 'charms': CHARMS, 'maps': MAPS, 'mounts': MOUNTS}
 HELD = {'bond_compass'}                            # (checked "in either hand" - weapon.* - too)
 # the Pack's auto-pack kinds: (key, label, default on)
@@ -192,6 +195,7 @@ def generate(G):
             if hb: use, how = 'bm:p276/hb_open', 'fn'
             elif cat != 'keys' and kind == 'item':
                 if iid in HOLD: use, how = HOLD[iid], 'hold'
+                elif iid in CARROT: use, how = CARROT[iid], 'hold'
                 else:
                     import json, os
                     p = G.path('data', 'bm', 'advancement', 'consume', f'{iid}.json')
@@ -483,14 +487,14 @@ def generate(G):
                              'data modify storage bm:ui pg.src set from storage bm:tmp rq.acts', 'function bm:p261/pg/run',
                              f'scoreboard players operation @s bm.pg_rp{c} = #pgp bm.rng', 'data modify storage bm:tmp rq.acts set from storage bm:ui pg.out',
                              'execute if score #pgn bm.rng matches 2.. run function bm:p277/nav with storage bm:ui pg'])
-    dim = lambda txt: P28.btn([T(txt, 'dark_gray')], None, width=150, tooltip=T('(no more this way)', 'dark_gray'))
+    dim = lambda txt, code: P28.btn([T(txt, 'dark_gray')], code, width=150, tooltip=T('(no more this way)', 'dark_gray'))     # (3.0y: with its code: the pager holds you on the end page - an action-less button closes the dialog)
     fn('p277/nav', ['execute if score #pgp bm.rng matches 1.. run data modify storage bm:tmp rq.acts append value ' +
                     snbt(P28.btn([T('‹ Previous', 'white')], B_PREV, width=150, tooltip=T('The page before.', 'gray'))),
-                    'execute if score #pgp bm.rng matches ..0 run data modify storage bm:tmp rq.acts append value ' + snbt(dim('‹ Previous')),
+                    'execute if score #pgp bm.rng matches ..0 run data modify storage bm:tmp rq.acts append value ' + snbt(dim('‹ Previous', B_PREV)),
                     '$execute if score #pgp bm.rng < #pgl bm.rng run data modify storage bm:tmp rq.acts append value ' +
                     snbt(P28.btn([T('Next ›', 'white'), T('  $(p)/$(n)', 'gray')], B_NEXT, width=150, tooltip=T('The next page.', 'gray'))),
                     '$execute if score #pgp bm.rng >= #pgl bm.rng run data modify storage bm:tmp rq.acts append value ' +
-                    snbt(P28.btn([T('Next ›', 'dark_gray'), T('  $(p)/$(n)', 'dark_gray')], None, width=150, tooltip=T('(no more this way)', 'dark_gray')))])
+                    snbt(P28.btn([T('Next ›', 'dark_gray'), T('  $(p)/$(n)', 'dark_gray')], B_NEXT, width=150, tooltip=T('(no more this way)', 'dark_gray')))])
     mode_use = P28.btn([T('Press to: ', 'gray'), T('Use', 'white', bold=True)], B_MODE, width=150,
                        tooltip=T('Pressing a row uses it. Press here: pressing a row takes it back off the Pack instead.', 'gray'))
     mode_take = P28.btn([T('Press to: ', 'gray'), T('Take back', '#ffb070', bold=True)], B_MODE, width=150,
