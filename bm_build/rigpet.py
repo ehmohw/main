@@ -539,6 +539,8 @@ def build(C, G, abilities, encounter):
                              f'execute as {X.here} at @s run function bm:{pfx}/enc/gone',
                              'execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
                              f'{sel_pet} run tag @s add {sel2}', f'execute unless entity @e[type=minecraft:wolf,tag={sel2}] unless function bm:p58/full at @s run function bm:{pfx}/summon',
+                             # (3.0u: three already out - say so, instead of nothing happening: the owner thought the new one never came)
+                             f'execute unless entity @e[type=minecraft:wolf,tag={sel2}] if function bm:p58/full run tellraw @s ' + snbt([T(f'(You have three out already - {C.NAME} waits in {ITEMS[C.ITEM]["name"]}. Send one home, then use it to call {C.pron}.)', 'gray', italic=True)]),
                              f'tag @e[tag={sel2}] remove {sel2}'])
     G.wjson(f'bm/advancement/story/{W}_friend.json', {'parent': 'bm:story/root', 'criteria': {'done': {'trigger': 'minecraft:impossible'}},
             'display': {'icon': {'id': TOTEM, 'components': {'minecraft:item_model': f'bm:{C.ITEM}'}},
