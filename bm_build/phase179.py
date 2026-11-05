@@ -397,6 +397,8 @@ def generate(G):
     c_out = lambda i: WMENU + 40 + i if i < 30 else WMENU3 + 40 + i - 30
     c_menu = lambda i: WMENU2 + i if i < 30 else WMENU3 + 80 + i - 30
     assert len(PW) <= 70, f'{len(PW)} partners: the second bank is full'
+    fn('p179/w/reopen', ['execute as @a[tag=bm.pwreo] at @s run function bm:p179/w/reopen_me'])
+    fn('p179/w/reopen_me', ['tag @s remove bm.pwreo', f'execute if score @s bm.menu matches {WMENU} run function bm:p179/w/open'])
     act = [f'execute unless score @s bm.menu matches {WMENU} run return run function bm:p28/stale',
            f'execute if score #act bm.pay matches {KEEP} run return run function bm:p179/k/toggle']
     for i, (w, nm, col, host, tag, try_, home, iid) in enumerate(PW):
@@ -426,7 +428,10 @@ def generate(G):
                                'scoreboard players set @s bm.gvhc 0', 'tag @s add bm.pwsneak', f'function bm:{use_fn}', 'tag @s remove bm.pwsneak'])
         fn(f'p179/w/call{i}', [f'execute unless score @s bm.pw{i} matches 1 run return run function bm:p28/stale',
                                'scoreboard players operation #me bm.pid = @s bm.pid'] + on +
-           [f'execute if score #pwon bm.rng matches 1 run return run function bm:{home}', f'function bm:{try_}'])
+           [f'execute if score #pwon bm.rng matches 1 run function bm:{home}', f'execute if score #pwon bm.rng matches 0 run function bm:{try_}',
+            # (3.0y: the owner - the Partners page stays open after a call / a send-home, on the same page, so the next one is a press
+            #  away. Reopened next tick, so the row reads the partner's new state - out, or gone home)
+            'tag @s add bm.pwreo', 'schedule function bm:p179/w/reopen 2t append'])
         fn(f'p179/w/add{i}', [f'execute if score @s bm.pw{i} matches 1 run return run ' + say(f'{cap(nm)} is on your wheel already.'),
                               'function bm:p179/w/pid', f'function bm:p179/w/addm{i} with storage bm:tmp pw',
                               'item replace entity @s weapon.offhand with minecraft:air', f'scoreboard players set @s bm.pw{i} 1', f'tag @s add bm.pw_{w}',
