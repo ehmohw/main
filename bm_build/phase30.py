@@ -33,7 +33,7 @@ LOTS = [
     ('merc_contract', 'Mercenary Contract', '#c0392b', 'head', 35, 'player', [('merc_contract', 1)], False),
     # 2.13: on the Phase 2 build the Golden Donado left the Auction - it is found in the Gilded Roost ('base': base pack only)
     ('golden_donado', 'Golden Donado', '#ffd700', 'head', 30, 'world', [('golden_donado', 1)], 'base'),
-    ('ring_burrows', 'Ring of Three Burrows', '#d4a35a', 'head', 30, 'player', [('ring_burrows', 1)], False),
+    ('ring_burrows', 'Ring of Ten Burrows', '#d4a35a', 'head', 30, 'player', [('ring_burrows', 1)], False),
     ('pocket_rift', 'Pocket Rift', '#4fd6c4', 'head', 25, None, [('pocket_rift', 1)], False),
     ('rat_king_signet', "Rat King's Signet", '#ffb300', 'head', 25, 'world', [('rat_king_signet', 1)], False),
     ('auroral_crown', 'Auroral Crown', '#7fffd4', 'relic', 20, None, [('auroral_crown', 1)], False),

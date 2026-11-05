@@ -3,7 +3,7 @@ and by the Concierge (phase31). None of them reuse an existing armour set, weapo
 
 Right-click goods are carrot-on-a-stick based (the click the grappling hook already uses), so their data stays in
 the hand while they work:
-- RING OF THREE BURROWS: three homes, any dimension. Right-click: a menu to set a burrow where you stand or travel to
+- RING OF TEN BURROWS (3.0y: was three): ten homes per ring, any dimension, each ring its own ten. Right-click: a menu to set a burrow where you stand or travel to
   one (3 seconds standing still; moving or getting hurt cancels; 2-minute recharge; never in dungeons or the Hollow).
 - POCKET RIFT: three charges; right-click to raise a lit End portal (frame, eyes and all) 3 blocks ahead. Sneak +
   right-click next to one you made to fold it back up (the charge returns); sneak + right-click elsewhere with 4 Eyes
@@ -42,8 +42,9 @@ def _use(sound, secs=0.6, anim='none'):
 
 
 # ===================================================================== ITEMS
-coas('ring_burrows', 'Ring of Three Burrows', '#d4a35a',
-     ['A brass ring with three tiny doors.', ('Set up to three burrows - any dimension -', 'blue'), ('and slip home to any of them.', 'blue'),
+coas('ring_burrows', 'Ring of Ten Burrows', '#d4a35a',
+     ['A brass ring with ten tiny doors.', ('Set up to ten burrows - any dimension -', 'blue'), ('and slip home to any of them.', 'blue'),
+      ('Each ring keeps its own ten.', 'blue'),
       ('3 seconds standing still; 2-minute recharge.', 'gray'), ("Won't open in dungeons or the Hollow.", 'dark_gray')], 'bm:ring_burrows', bold=True)
 coas('pocket_rift', 'Pocket Rift', '#4fd6c4',
      ['A folded tear in the world.', ('Right-click: raise a lit End portal', 'blue'), ('3 blocks ahead (needs a clear 5x5 space).', 'blue'),
@@ -126,7 +127,7 @@ def generate(G):
     ident = [F(0), F(0), F(0), F(1)]
     import phase28 as P28
 
-    objs = ['bm.bcd dummy', 'bm.bwarm dummy', 'bm.bslot dummy', 'bm.bhurt minecraft.custom:minecraft.damage_taken', 'bm.magnet dummy',
+    objs = ['bm.bcd dummy', 'bm.bwarm dummy', 'bm.bslot dummy', 'bm.brid dummy', 'bm.bhurt minecraft.custom:minecraft.damage_taken', 'bm.magnet dummy',
             'bm.bellday dummy', 'bm.kills minecraft.custom:minecraft.mob_kills', 'bm.walk minecraft.custom:minecraft.walk_one_cm',
             'bm.mstate dummy', 'bm.mpurse dummy', 'bm.mdays dummy', 'bm.mmode dummy', 'bm.mgen dummy', 'bm.mday dummy', 'bm.dtimer dummy',
             'bm.ftimer dummy', 'bm.rcd2 dummy', 'bm.mshot dummy', 'bm.p29t dummy']
@@ -149,31 +150,45 @@ def generate(G):
                             f'execute if dimension bm:hollow_throne run {deny("What the Hollow takes, it keeps.")}']
 
     # ================================================================== RING OF THREE BURROWS
+    # (3.0y: the owner - "increase it to 10 homes per coin. And allow up to 5 to be added to the Rat Pack". Ten burrows a ring,
+    #  and each ring its own: a ring is given a number (custom_data bm_rid) the first time it's used, and its burrows live at
+    #  bm:burrow r<rid>. The burrows a player set before - kept per player, at bm:burrow p<pid> - go to the first ring they use.
+    #  Using it records which ring (bm.brid), so the menu's buttons work for a ring used from the Rat Pack, not held)
+    NB = 10
     fn('p29/burrow/use', ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid'] + no_zone('The ring') + [
+        'execute unless data entity @s SelectedItem.components."minecraft:custom_data".bm_rid run function bm:p29/burrow/newid',
+        'execute store result score @s bm.brid run data get entity @s SelectedItem.components."minecraft:custom_data".bm_rid',
         f'scoreboard players set @s bm.menu {P28.MENU["burrow"]}', 'data remove storage bm:ui br',
-        'execute store result storage bm:ui br.pid int 1 run scoreboard players get @s bm.pid',
+        'execute store result storage bm:ui br.rid int 1 run scoreboard players get @s bm.brid',
         'function bm:p29/burrow/menu with storage bm:ui br'])
-    menu = ['$data modify storage bm:ui br.s set from storage bm:burrow p$(pid)']
-    for k in (1, 2, 3):
+    fn('p29/burrow/newid', ['execute unless score #ringid bm.bm matches 1.. run scoreboard players set #ringid bm.bm 0',
+                            'scoreboard players add #ringid bm.bm 1',
+                            'execute store result storage bm:tmp brn.rid int 1 run scoreboard players get #ringid bm.bm',
+                            'execute store result storage bm:tmp brn.pid int 1 run scoreboard players get @s bm.pid',
+                            'function bm:p29/burrow/newid2 with storage bm:tmp brn'])
+    fn('p29/burrow/newid2', ['$item modify entity @s weapon.mainhand {function:"minecraft:set_custom_data",tag:{bm_rid:$(rid)}}',
+                             '$data modify storage bm:burrow r$(rid) set from storage bm:burrow p$(pid)',
+                             '$data remove storage bm:burrow p$(pid)'])
+    menu = ['$data modify storage bm:ui br.s set from storage bm:burrow r$(rid)']
+    for k in range(1, NB + 1):
         menu += [f'data modify storage bm:ui br.t{k} set value "(empty)"',
                  f'execute if data storage bm:ui br.s.b{k} run function bm:p29/burrow/label{k} with storage bm:ui br.s.b{k}']
         fn(f'p29/burrow/label{k}', [f'$data modify storage bm:ui br.t{k} set value "$(dn)  $(bx), $(by), $(bz)"'])
     menu += ['execute store result storage bm:ui br.cd int 1 run scoreboard players get @s bm.bcd', 'function bm:p29/burrow/dlg with storage bm:ui br']
     fn('p29/burrow/menu', menu)
-    dlg = P28.multi([T('Ring of Three Burrows', '#d4a35a', bold=True)],
+    dlg = P28.multi([T('Ring of Ten Burrows', '#d4a35a', bold=True)],
                     [P28.body([T('Travel takes 3 seconds standing still. Moving or getting hurt cancels it.', 'gray')]),
                      P28.body([T('Recharge: ', 'dark_gray'), T('$(cd)', 'white'), T(' s', 'dark_gray')])],
-                    [P28.btn([T('Go: ', 'gold'), T('$(t1)', 'white')], 6001, width=200), P28.btn([T('Set burrow 1 here', 'gray')], 6011, width=130),
-                     P28.btn([T('Go: ', 'gold'), T('$(t2)', 'white')], 6002, width=200), P28.btn([T('Set burrow 2 here', 'gray')], 6012, width=130),
-                     P28.btn([T('Go: ', 'gold'), T('$(t3)', 'white')], 6003, width=200), P28.btn([T('Set burrow 3 here', 'gray')], 6013, width=130)],
+                    [b for k in range(1, NB + 1) for b in (P28.btn([T(f'{k}. Go: ', 'gold'), T(f'$(t{k})', 'white')], 6000 + k, width=200),
+                                                            P28.btn([T(f'Set burrow {k} here', 'gray')], 6010 + k, width=130))],
                     columns=2)
     fn('p29/burrow/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
     act = G.FUNCS['p28/act']
     act.append('execute if score #act bm.pay matches 6001..6099 run return run function bm:p29/burrow/act')
     fn('p29/burrow/act', [f'execute unless score @s bm.menu matches {P28.MENU["burrow"]} run return run function bm:p28/stale',
-                          'execute unless items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"ring_burrows"}] run ' + deny('Hold the ring.'),
-                          'execute if score #act bm.pay matches 6011..6013 run return run function bm:p29/burrow/set',
-                          'execute if score #act bm.pay matches 6001..6003 run return run function bm:p29/burrow/go'])
+                          'execute unless score @s bm.brid matches 1.. run ' + deny('Use the ring again.'),
+                          f'execute if score #act bm.pay matches 6011..{6010 + NB} run return run function bm:p29/burrow/set',
+                          f'execute if score #act bm.pay matches 6001..{6000 + NB} run return run function bm:p29/burrow/go'])
     dims = [('minecraft:overworld', 'Overworld'), ('minecraft:the_nether', 'Nether'), ('minecraft:the_end', 'End')]
     fn('p29/burrow/set', no_zone('The ring') + [
         'data remove storage bm:tmp b', 'data modify storage bm:tmp b.dn set value "Elsewhere"'] +
@@ -185,17 +200,17 @@ def generate(G):
         'execute store result storage bm:tmp b.bx int 1 run data get entity @s Pos[0]',
         'execute store result storage bm:tmp b.by int 1 run data get entity @s Pos[1]',
         'execute store result storage bm:tmp b.bz int 1 run data get entity @s Pos[2]',
-        'execute store result storage bm:tmp b.pid int 1 run scoreboard players get @s bm.pid',
+        'execute store result storage bm:tmp b.rid int 1 run scoreboard players get @s bm.brid',
         'scoreboard players operation #k bm.pay = #act bm.pay', 'scoreboard players remove #k bm.pay 6010',
         'execute store result storage bm:tmp b.k int 1 run scoreboard players get #k bm.pay',
         'function bm:p29/burrow/save with storage bm:tmp b',
         'playsound minecraft:block.wooden_trapdoor.close player @s ~ ~ ~ 1 1.2', 'particle minecraft:happy_villager ~ ~0.5 ~ 0.4 0.2 0.4 0 10',
         title('@s', 'actionbar', [T('Burrow ', 'gold'), {'score': {'name': '#k', 'objective': 'bm.pay'}, 'color': 'white'}, T(' dug here.', 'gold')])])
-    fn('p29/burrow/save', ['$data modify storage bm:burrow p$(pid).b$(k) set value {dim:"$(dim)",dn:"$(dn)",x:$(x)d,y:$(y)d,z:$(z)d,bx:$(bx),by:$(by),bz:$(bz)}'])
+    fn('p29/burrow/save', ['$data modify storage bm:burrow r$(rid).b$(k) set value {dim:"$(dim)",dn:"$(dn)",x:$(x)d,y:$(y)d,z:$(z)d,bx:$(bx),by:$(by),bz:$(bz)}'])
     fn('p29/burrow/go', no_zone('The ring') + [
         'execute if score @s bm.bcd matches 1.. run ' + deny('The ring is still warm. Give it a moment.'),
         'scoreboard players operation @s bm.bslot = #act bm.pay', 'scoreboard players remove @s bm.bslot 6000',
-        'data remove storage bm:tmp b', 'execute store result storage bm:tmp b.pid int 1 run scoreboard players get @s bm.pid',
+        'data remove storage bm:tmp b', 'execute store result storage bm:tmp b.rid int 1 run scoreboard players get @s bm.brid',
         'execute store result storage bm:tmp b.k int 1 run scoreboard players get @s bm.bslot',
         'function bm:p29/burrow/load with storage bm:tmp b',
         'execute unless data storage bm:tmp b.t run ' + deny('That burrow is empty. Set it first.'),
@@ -205,7 +220,7 @@ def generate(G):
         'scoreboard players operation @s bm.p29t += #z bm.pay',
         'playsound minecraft:block.portal.trigger player @s ~ ~ ~ 0.3 1.8',
         title('@s', 'actionbar', T('The ring turns... stand still.', '#d4a35a'))])
-    fn('p29/burrow/load', ['$data modify storage bm:tmp b.t set from storage bm:burrow p$(pid).b$(k)'])
+    fn('p29/burrow/load', ['$data modify storage bm:tmp b.t set from storage bm:burrow r$(rid).b$(k)'])
     tick.append('execute as @a[tag=bm.bwarming] at @s run function bm:p29/burrow/warm')
     fn('p29/burrow/warm', [
         'execute store result score #x bm.pay run data get entity @s Pos[0] 10', 'execute store result score #z bm.pay run data get entity @s Pos[2] 10',
@@ -218,7 +233,7 @@ def generate(G):
                              title('@s', 'actionbar', T('The ring goes still. (You moved.)', 'gray'))])
     fn('p29/burrow/jump', [
         'tag @s remove bm.bwarming', 'scoreboard players set @s bm.bcd 120',
-        'data remove storage bm:tmp b', 'execute store result storage bm:tmp b.pid int 1 run scoreboard players get @s bm.pid',
+        'data remove storage bm:tmp b', 'execute store result storage bm:tmp b.rid int 1 run scoreboard players get @s bm.brid',
         'execute store result storage bm:tmp b.k int 1 run scoreboard players get @s bm.bslot', 'function bm:p29/burrow/load with storage bm:tmp b',
         # where we were, in case the burrow is now buried
         'data remove storage bm:tmp bo', 'data modify storage bm:tmp bo.dim set value "minecraft:overworld"'] +
