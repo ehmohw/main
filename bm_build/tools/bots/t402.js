@@ -237,6 +237,14 @@ const { bot, rcon, sleep } = require('./lib_resp');
   ok('...Withdraw all: back in his pocket, the jar empty', (await num('clear TestRat minecraft:rotten_flesh 0')) === 10 &&
      !/rotten_flesh/.test(await run(`data get storage bm:pw p${pid}.rb_sj[0].it.components."minecraft:container"`)));
 
+  // "Deposit all they take" never takes a pack item: the Rat Pack (a totem underneath) and a follower's item stay; the flesh goes in
+  await run('item replace entity TestRat hotbar.5 with minecraft:air'); await run('loot replace entity TestRat hotbar.5 loot bm:items/emma_ribbon');
+  await run('give TestRat minecraft:rotten_flesh 6');
+  await openP(); await A.press(/Collectors/); await A.press(/Deposit all they take/); await sleep(600);
+  ok('Collectors: "Deposit all they take" - the flesh into the jar, the Rat Pack and Emma\'s Ribbon still in his pocket', (await has('partner_wheel')) === 1 &&
+     (await has('emma_ribbon')) === 1 && (await num('clear TestRat minecraft:rotten_flesh 0')) <= 0 &&
+     /rotten_flesh/.test(await run(`data get storage bm:pw p${pid}.rb_sj[0].it.components."minecraft:container"`)));
+  await run('item replace entity TestRat hotbar.5 with minecraft:air');
   // ...unfolded in a market (where a satchel's plain rule refuses: the careful way, plain air over solid floor), folded back by sneaking
   await run('give TestRat minecraft:bone 7'); await openP(); await A.press(/Collectors/); await A.press(/Spirit Jar 1/); await A.press(/Deposit/); await sleep(400);
   await run('tp TestRat 280 140 270'); await sleep(4000);
