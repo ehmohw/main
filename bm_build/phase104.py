@@ -249,24 +249,27 @@ def generate(G):
     tick.append('execute as @a[scores={bm.lgo=1..}] run function bm:p104/login')
     # (3.0y: the owner - "players with extra hearts from armour buffs or heartstones - upon disconnecting and rejoining, their
     #  health is depleted, even at full health". The game loads a player's health before the hearts their armour and the pack's
-    #  buffs add are back, so it's cut to 10 hearts. Each second their health is noted (x100, bm.hpk); two seconds after they're
-    #  back - every bonus heart in place again - it's topped up to what it was: Instant Health, the biggest steps first)
+    #  buffs add are back, so it's cut to 10 hearts. Each second their health is noted (bm.hpk); two seconds after they're
+    #  back - every bonus heart in place again - it's topped up to what it was: Instant Health, the biggest steps first.
+    #  3.0z: the note is a copy of phase67's bm.hp - the game's own 'health' scoreboard, kept up by the game for free - not a
+    #  read of the player's data, which saves the whole player each time)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.hpk dummy', 'scoreboard objectives add bm.hprt dummy']
     G.OBJECTIVES += ['bm.hpk', 'bm.hprt']
-    second.append('execute as @a[tag=!bm.hprs,gamemode=!spectator] unless score @s bm.lgo matches 1.. store result score @s bm.hpk run data get entity @s Health 100')
+    second.append('execute as @a[tag=!bm.hprs,gamemode=!spectator] unless score @s bm.lgo matches 1.. run scoreboard players operation @s bm.hpk = @s bm.hp')
     tick.append('execute as @a[tag=bm.hprs] run function bm:p104/hp/wait')
     fn('p104/hp/wait', ['scoreboard players remove @s bm.hprt 1', 'execute if score @s bm.hprt matches 1.. run return 0',
-                        'tag @s remove bm.hprs', 'execute unless score @s bm.hpk matches 1.. run return 0',
-                        'execute store result score #hpc bm.rng run data get entity @s Health 100',
+                        'tag @s remove bm.hprs', 'execute if score @s bm.hpk matches 1000.. run scoreboard players operation @s bm.hpk /= #100 bm.pay',      # (a 3.0y note, x100)
+                        'execute unless score @s bm.hpk matches 1.. run return 0',
+                        'scoreboard players operation #hpc bm.rng = @s bm.hp',
                         'execute if score #hpc bm.rng matches ..0 run return 0',
                         'scoreboard players operation #hpd bm.rng = @s bm.hpk', 'scoreboard players operation #hpd bm.rng -= #hpc bm.rng',
                         'execute if score #hpd bm.rng matches 1.. run function bm:p104/hp/heal'])
-    fn('p104/hp/heal', ['execute if score #hpd bm.rng matches 3200.. run effect give @s minecraft:instant_health 1 3 true',
-                        'execute if score #hpd bm.rng matches 3200.. run return run function bm:p104/hp/again {n:3200}',
-                        'execute if score #hpd bm.rng matches 1600.. run effect give @s minecraft:instant_health 1 2 true',
-                        'execute if score #hpd bm.rng matches 1600.. run return run function bm:p104/hp/again {n:1600}',
-                        'execute if score #hpd bm.rng matches 800.. run effect give @s minecraft:instant_health 1 1 true',
-                        'execute if score #hpd bm.rng matches 800.. run return run function bm:p104/hp/again {n:800}',
+    fn('p104/hp/heal', ['execute if score #hpd bm.rng matches 32.. run effect give @s minecraft:instant_health 1 3 true',
+                        'execute if score #hpd bm.rng matches 32.. run return run function bm:p104/hp/again {n:32}',
+                        'execute if score #hpd bm.rng matches 16.. run effect give @s minecraft:instant_health 1 2 true',
+                        'execute if score #hpd bm.rng matches 16.. run return run function bm:p104/hp/again {n:16}',
+                        'execute if score #hpd bm.rng matches 8.. run effect give @s minecraft:instant_health 1 1 true',
+                        'execute if score #hpd bm.rng matches 8.. run return run function bm:p104/hp/again {n:8}',
                         'effect give @s minecraft:instant_health 1 0 true'])
     fn('p104/hp/again', ['$scoreboard players remove #hpd bm.rng $(n)', 'execute if score #hpd bm.rng matches 1.. run function bm:p104/hp/heal'])
     fn('p104/login', ['scoreboard players reset @s bm.lgo', 'tag @s add bm.hprs', 'scoreboard players set @s bm.hprt 40', 'tag @s remove bm.lkch', 'scoreboard players reset @s bm.lkch', 'tag @s remove bm.exon', 'tag @s remove bm.exask',
