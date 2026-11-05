@@ -182,7 +182,7 @@ WISP.DRAFT = ['idle_a', 'idle_b', 'move_0', 'move_1', 'happy', 'happy_b', 'frame
 BY = 3.0
 BP = {'body': (0, BY, 0), 'wr': (0.45, BY + 0.35, -0.5), 'wl': (-0.45, BY + 0.35, -0.5), 'ant': (0, BY + 0.5, -2.2)}
 BPAR = {'body': None, 'wr': 'body', 'wl': 'body', 'ant': 'body'}
-FLY = Rig('guib_', 0.6, BP, BPAR, (), face_part='body')
+FLY = Rig('guib_', 0.69, BP, BPAR, (), face_part='body')        # (0.6 x 1.15: the owner's call - a touch bigger)
 RAINBOW = ('#8a5cff', '#3a9cff', '#3fd07a', '#ffe03a', '#ff9a2a', '#ff4a62')       # (root out: violet, blue, green, yellow, orange, red)
 INK, DOT, INK_L = '#2a1d52', '#ffffff', '#5a4a9e'
 
@@ -528,8 +528,8 @@ BOOK.POSES.update({
     'idle_b': KPOSE(0.6, T(0, 0, -2), 28, 9, 19, T(0, 0, 6)),
     'move_0': KPOSE(0.3, T(14), 16, 4, 9, T(-26)),
     'move_1': KPOSE(0.0, T(10), 30, 10, 22, T(-14)),
-    'happy': KPOSE(2.2, T(-14, 0, 10), 56, 24, 40, T(24, 0, 10), _face='happy'),
-    'happy_b': KPOSE(1.0, T(-6, 0, -10), 44, 16, 32, T(-12, 0, -10), _face='happy'),
+    'happy': KPOSE(2.2, T(-14, 0, 10), 25, 9, 17, T(24, 0, 10), _face='happy'),
+    'happy_b': KPOSE(1.0, T(-6, 0, -10), 30, 11, 21, T(-12, 0, -10), _face='happy'),
     'frame': BOOK.ground(KPOSE(0.0, None, 16, 4, 9, None), 0.0),
 })
 BOOK.POSES['blink'] = dict(BOOK.POSES['idle_a'], _face='blink')

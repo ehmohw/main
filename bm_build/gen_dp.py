@@ -1555,6 +1555,7 @@ def build(out_dir):
     print('2.88: the chatter switch in %d follower menus and on the wheel' % R123.finalize_chat(sys.modules[__name__]))
     if PHASE2: print('3.0j: handbook, settings -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
     if PHASE2: print('3.0k: the menus tidied -', __import__('phase261').generate(sys.modules[__name__]))      # (after phase260: it pages and words its menus too)
+    if PHASE2: print('3.1: the guide -', __import__('phase276').generate(sys.modules[__name__]))      # (after phase260/261: its button joins the Handbook's front page)
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
