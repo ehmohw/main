@@ -119,10 +119,10 @@ SEC.update({'rpow': ('⚡', 'Powers', '#ff7a5a'), 'rpas': ('❂', 'Passives', '#
 # bags and collectors: (key, item, page, name, phase33 kind, collects: (range, how many a pass, filter run as the item), switch)
 BAGK = [('bp', 'backpack', 'bags', 'Backpack', 'pack', None, None),
         ('vs', 'vacuum_satchel', 'bags', 'Vacuum Satchel', 'box', (6, 4, 'unless items entity @s contents @@BAG@@'), 'vac'),
-        ('sj', 'spirit_jar', 'cols', 'Spirit Jar', 'mobcol', (8, 16, 'if items entity @s contents #bm:p174_mob[!minecraft:custom_data]'), 'rpoff'),
-        ('om', 'ore_magnet', 'cols', 'Ore Magnet', 'orecol', (8, 16, 'if items entity @s contents #bm:p174_ore[!minecraft:custom_data]'), 'rpoff'),
+        # (3.1, the owner: the Spirit Jar and the Ore Magnet are accounts now, one each on the Pack - phase278; their old lists rb_sj / rb_om are migrated there)
         ('pc', 'prime_cooler', 'cols', 'Prime Cooler', 'cool', (6, 16, 'if function bm:p148/cool/prime'), 'coff')]
 BAGMAX = 10
+PCK = 2                                            # (the Prime Cooler's place in BAGK)
 # (3.0y: the owner - "the crew flare shouldn't be able to go on the rat pack": it's a heist tool, and the Pack waits at the coat
 #  check. Kept in POCKET so no code after it moves; it can't be put on or auto-packed, and one already on is handed back)
 NOPACK = {'crew_flare'}
@@ -963,7 +963,7 @@ def generate(G):
     fn('p277/b/conv_tog', ['data remove storage bm:rpc c', '$data modify storage bm:rpc c set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:custom_data"', '$execute if data storage bm:rpc {c:{bm_cconv:1b}} run return run data modify storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:custom_data".bm_cconv set value 0b',
                            '$data modify storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:custom_data" merge value {bm_coff:0b,bm_cconv:1b}',
                            '$data modify storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:enchantment_glint_override" set value 1b'])
-    fn('p277/b/do_conv', ['function bm:p277/b/sel', click, 'execute unless score @s bm.rbk matches 4 run return run function bm:p28/stale',
+    fn('p277/b/do_conv', ['function bm:p277/b/sel', click, f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                           'function bm:p277/b/conv_tog with storage bm:rp s', 'function bm:p277/b/page'])
     fn('p277/b/take_m', ['$execute unless data storage bm:pw p$(pid).rb_$(k)[$(j)] run return 0',
                          'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
@@ -1018,7 +1018,7 @@ def generate(G):
     cut_sel = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{c}"}}' for c in P148.PRIME_CUTS) + ']'
     # (3.0y: the owner - "depositing all items into the collectors category eats your rat pack": the Pack's own items are made on a
     #  totem of undying, which the Spirit Jar's list takes (an evoker drops one). A collector takes plain vanilla items only now)
-    dfilt = {'sj': '#bm:p174_mob[!minecraft:custom_data]', 'om': '#bm:p174_ore[!minecraft:custom_data]', 'pc': cut_sel}
+    dfilt = {'pc': cut_sel}
     for k, flt in dfilt.items():
         fn(f'p277/d/{k}', ['$data modify storage bm:tmp vac.c set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"',
                            'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []', 'scoreboard players set #rqd bm.rng 0'] +
@@ -1036,7 +1036,7 @@ def generate(G):
                        'execute if entity @e[type=minecraft:item,tag=bm.rqdep,distance=..1] run function bm:p277/d/left with storage bm:rp d',
                        'kill @e[type=minecraft:item,tag=bm.rqdep]'])
     fn('p277/d/left', ['$item modify entity @s container.$(s) {function:"minecraft:set_count",count:$(n)}'])
-    fn('p277/d/do', ['function bm:p277/b/sel', 'execute unless score @s bm.rbk matches 2..4 run return run function bm:p28/stale',
+    fn('p277/d/do', ['function bm:p277/b/sel', f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                      'scoreboard players set #rqd bm.rng 0'] +
        [f'execute if score @s bm.rbk matches {ki} run function bm:p277/d/{b[0]} with storage bm:rp s' for ki, b in enumerate(BAGK) if b[0] in dfilt] +
        ['execute if score #rqd bm.rng matches 0 run ' + say('Nothing in your inventory it takes (or it\'s full).'),
@@ -1061,13 +1061,13 @@ def generate(G):
                      '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0].item',
                      'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
                      'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0]', 'return 1'])
-    fn('p277/w1/do', ['function bm:p277/b/sel', 'execute unless score @s bm.rbk matches 2..4 run return run function bm:p28/stale',
+    fn('p277/w1/do', ['function bm:p277/b/sel', f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                       'execute store result score #rqd bm.rng run function bm:p277/w1/m with storage bm:rp s',
                       'execute if score #rqd bm.rng matches 0 run ' + say('It\'s empty.'), 'execute if score #rqd bm.rng matches 1 run playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.6 1.2',
                       'function bm:p277/b/page'])
     fn('p277/w1/all', ['execute store result score #rqw bm.rng run function bm:p277/w1/m with storage bm:rp s', 'execute if score #rqw bm.rng matches 1 run scoreboard players add #rqd bm.rng 1',
                        'execute if score #rqw bm.rng matches 1 if score #rqd bm.rng matches ..27 run function bm:p277/w1/all'])
-    fn('p277/w1/doall', ['function bm:p277/b/sel', 'execute unless score @s bm.rbk matches 2..4 run return run function bm:p28/stale',
+    fn('p277/w1/doall', ['function bm:p277/b/sel', f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                          'scoreboard players set #rqd bm.rng 0', 'function bm:p277/w1/all',
                          'execute if score #rqd bm.rng matches 0 run ' + say('It\'s empty.'), 'execute if score #rqd bm.rng matches 1.. run playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.6 1.2',
                          'function bm:p277/b/page'])

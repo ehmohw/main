@@ -268,6 +268,7 @@ if PHASE2:
     import p2  # registers Phase 2 items on import
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
     import phase277 as R277   # 3.1: the Rat Pack (after every item is registered: it renames the wheel, lists what goes on it)
+    import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
 VERSION2 = 'v3.0y'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
@@ -533,6 +534,7 @@ def all_offers():
     R248.extend_offers(O, offer)       # (2.99a: the Backpack at the Fence's)
     NOP.extend_offers(O, offer)        # (3.0b: the Particle Toggler at the Fence's)
     if PHASE2: R260.extend_offers(O, offer)      # (3.0j: the Handbook at the Fence's)
+    if PHASE2: R278.extend_offers(O, offer)      # (3.1: the Stone Collector and the Wood Box at the Fence's)
     R202.extend_offers(O, offer)       # (2.92: Leo's Trident and the Bloomheart leave Cecil for the Royal Steward)
     # 2.82: follower cosmetics are raid exclusives (the Tailor in the den) - no overworld trader sells one
     global COS_OFF_MARKET
@@ -1559,7 +1561,8 @@ def build(out_dir):
     if PHASE2: print('3.0j: handbook, settings -', R260.generate(sys.modules[__name__]))      # (after the chatter switch: it takes its place on the follower menus)
     if PHASE2: print('3.0k: the menus tidied -', __import__('phase261').generate(sys.modules[__name__]))      # (after phase260: it pages and words its menus too)
     if PHASE2: print('3.1: the guide -', __import__('phase276').generate(sys.modules[__name__]))      # (after phase260/261: its button joins the Handbook's front page)
-    if PHASE2: print('3.1: the Rat Pack -', R277.generate(sys.modules[__name__]))      # (after the guide and every check of an item it holds; before the finalizers)
+    if PHASE2: print('3.1: the Rat Pack -', R277.generate(sys.modules[__name__]))
+    if PHASE2: print('3.1: collector accounts -', R278.generate(sys.modules[__name__]))      # (after the Rat Pack: its Collectors page and auto-pack)      # (after the guide and every check of an item it holds; before the finalizers)
     if PHASE2: print('3.0d: companion size - %d rig functions twinned (Apophiss, Omega)' % __import__('compsize').finalize(sys.modules[__name__]))
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])

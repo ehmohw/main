@@ -973,6 +973,8 @@ if __name__ == '__main__':
     phase226.rp(sys.modules[__name__])
     import phase248                           # (2.99a: the Backpack)
     phase248.rp(sys.modules[__name__])
+    import phase278                           # (3.1: the Stone Collector and the Wood Box)
+    phase278.rp(sys.modules[__name__])
     import noparts                            # (3.0b: the Particle Toggler)
     noparts.rp(sys.modules[__name__])
     import phase250                           # (2.99a: [market music hook] the market's theme, bm:music.market_theme)
