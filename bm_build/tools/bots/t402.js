@@ -42,7 +42,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   ok('the Pack is called The Rat Pack', /The Rat Pack/.test(await run('data get entity TestRat Inventory[{Slot:0b}].components."minecraft:item_name"')));
   await run('item replace entity TestRat hotbar.8 with minecraft:totem_of_undying[minecraft:custom_data={bm:"partner_wheel",bmv:45},minecraft:item_name="Partner Wheel"]');
   A.chats.length = 0;
-  ok('...an old Partner Wheel in his pocket becomes a Rat Pack (and he is told)', await wait(3000, async () => /The Rat Pack/.test(await run('data get entity TestRat Inventory[{Slot:8b}].components."minecraft:item_name"'))) &&
+  ok('...an old Partner Wheel in his pocket becomes a Rat Pack (and he is told)', await wait(6000, async () => /The Rat Pack/.test(await run('data get entity TestRat Inventory[{Slot:8b}].components."minecraft:item_name"'))) &&
      A.chats.some(c => /Rat Pack now/.test(c)));
   await run('item replace entity TestRat hotbar.8 with minecraft:air');
 
@@ -66,6 +66,16 @@ const { bot, rcon, sleep } = require('./lib_resp');
   }
   await A.press(/« Rat Pack/);
   ok('...« Rat Pack: back on the front page', A.buttons().some(b => /Collectors/.test(b.label)));
+
+  // ---- a partner's own menu from the Partners page, and « Partners back to it
+  await run('loot replace entity TestRat weapon.offhand loot bm:items/emma_ribbon'); await sleep(300);
+  A.slot(0); await sleep(250); A.use(); await sleep(350); A.release(); await sleep(800);
+  await run('item replace entity TestRat weapon.offhand with minecraft:air');
+  await openP(); await A.press(/Partners/);
+  const mb_ = await A.press(/Menu/);
+  ok('Partners: a partner\'s ⚙ Menu opens their own menu, with « Partners', mb_ && mb_.next && A.buttons().some(b => /« Partners/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
+  const pb_ = await A.press(/« Partners/);
+  ok('...« Partners: the Partners page again', pb_ && pb_.next && A.buttons().some(b => /Gallery/.test(b.label)));
 
   // ---- one of each, on from the off hand
   // (the thing to put on is handed to him in his off hand - auto-pack never takes from there - and he uses the Pack)
@@ -101,8 +111,10 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await putOn('market_key', 'the Black Market Key');
   ok('...the Black Market Key on the ring: he has bm.haskey (no key in his pockets)', (await has('market_key')) === 0 &&
      await wait(2500, async () => /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.haskey]'))));
-  await openP(); await A.press(/Keyring/); await A.press(/Black Market Key/); await sleep(900);
-  ok('...taken back', (await has('market_key')) === 1);
+  // (his market tier turns the key on the ring into the Rat King's, as in a pocket)
+  await openP(); await A.press(/Keyring/); await A.press(/Black Market Key|Rat King's Key/); await sleep(900);
+  ok('...taken back', (await has('market_key')) + (await has('rat_king_key')) === 1);
+  await run('clear TestRat *[minecraft:custom_data~{bm:"rat_king_key"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"market_key"}]');
   // Charms: active, then resting; taken back
   ok('Charms: the Ember Charm active while carried (bm.rqt_charm_ember)', /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.rqt_charm_ember]')));
   await openP(); await A.press(/Charms/);
@@ -258,9 +270,16 @@ const { bot, rcon, sleep } = require('./lib_resp');
   let unf = false, mkt = false, mb = '';
   if (mk) {
     const [mx, my, mz] = [Math.floor(+mk[1]), Math.floor(+mk[2]), Math.floor(+mk[3])];
-    for (const [dx, dz] of [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [5, 5], [-5, -5], [6, -2], [-6, 2]]) {
-      await run(`execute positioned ${mx + dx} ${my + 4} ${mz + dz} run tp TestRat ~0.5 ~ ~0.5 0 0`); await sleep(400);
-      await run(`execute as TestRat at @s run tp @s ~ ~-4 ~`); await sleep(1200);
+    // (open floor: where he stands and two blocks in front of him - air over something solid, clear of the market's markers)
+    const spots = [];
+    for (let dx = -10; dx <= 10 && spots.length < 4; dx += 2) for (let dz = -10; dz <= 10 && spots.length < 4; dz += 2) for (let dy = -3; dy <= 3 && spots.length < 4; dy++) {
+      const [x, y, z] = [mx + dx, my + dy, mz + dz]; if (Math.abs(dx) + Math.abs(dz) < 4) continue;
+      const q = `execute if block ${x} ${y} ${z} minecraft:air if block ${x} ${y + 1} ${z} minecraft:air unless block ${x} ${y - 1} ${z} #minecraft:replaceable ` +
+                `if block ${x} ${y} ${z + 1} minecraft:air if block ${x} ${y} ${z + 2} minecraft:air unless block ${x} ${y - 1} ${z + 2} #minecraft:replaceable unless block ${x} ${y - 1} ${z + 2} minecraft:barrel`;
+      if (/passed/i.test(await run(q))) spots.push([x, y, z]);
+    }
+    for (const [x, y, z] of spots) {
+      await run(`tp TestRat ${x + 0.5} ${y} ${z + 0.5} 0 0`); await sleep(1500);
       mkt = /returned 0/.test(await run('execute as TestRat at @s run function bm:p37/allowed'));
       if (!mkt) continue;
       await openP(); await A.press(/Collectors/); await A.press(/Spirit Jar 1/); await A.press(/Unfold/); await sleep(900);

@@ -246,6 +246,7 @@ def carry_patch(G, E, patched, dec_needed):
             for i, l in enumerate(L):
                 out.append(l)
                 if f' {H}' not in l: continue
+                if f'if {Tq}' in l: continue                     # (a twin of ours, from the first pass: left be)
                 # "doesn't have it": nor on the Pack
                 if not worn and f'unless {cont}' in l and f'if {off}' not in l and f'unless {Tq}' not in l:
                     if f'unless {cont} unless {off}' in l: out[-1] = l.replace(f'unless {cont} unless {off}', f'unless {cont} unless {off} unless {Tq}', 1)
