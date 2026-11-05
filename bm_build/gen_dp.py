@@ -1562,6 +1562,7 @@ def build(out_dir):
     print('3.0g: protected ground - %d ways-in words rate-limited, %d places\' tags guarded' % __import__('guard').generate(sys.modules[__name__]))      # (after every place's way in is written)
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
+    if PHASE2: print('3.1: the Rat Pack, late - %d more checks take the Pack' % R277.late(sys.modules[__name__]))      # (after the market rebuild and R28's finalize: their checks too)
     useitem.generate(sys.modules[__name__])
     R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

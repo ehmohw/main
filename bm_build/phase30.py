@@ -310,7 +310,7 @@ def generate(G):
     fn('p30/idle', ['execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data remove entity @s item',
                     'execute as @e[type=minecraft:item_display,tag=bm.apedestal] run data modify entity @s Glowing set value 0b',
                     f'execute as @e[type=minecraft:text_display,tag=bm.aboard] run data modify entity @s text set value {idle_board}'])
-    second.append('execute unless score #state bm.auc matches 2..3 as @e[type=minecraft:item_display,tag=bm.apedestal,limit=1] if data entity @s item run function bm:p30/idle')
+    second.append('execute unless score #state bm.auc matches 2..3 as @e[type=minecraft:item_display,tag=bm.apedestal] if data entity @s item run function bm:p30/idle')
     fn('p30/close', ['scoreboard players set #state bm.auc 0', 'scoreboard players set #aopen bm.auc 0', 'scoreboard players set #hb bm.auc 0',
                      'scoreboard players set #usebank bm.pay 0', 'bossbar set bm:auction visible false', 'function bm:p30/ped_clear',
                      'scoreboard players add #pgen bm.auc 1', 'tag @a remove bm.gotpad',

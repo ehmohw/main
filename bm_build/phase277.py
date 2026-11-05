@@ -166,6 +166,109 @@ def stack_of(iid):
     return int(ITEMS[iid]['comps'].get('minecraft:max_stack_size', 64 if ITEMS[iid]['base'] != TOTEM else 1))
 
 
+def carry_patch(G, E, patched, dec_needed):
+    """every check of an entry's item also takes the Pack (run once in generate, and again late - after the finalizers that
+    write checks of their own, the market's bm.haskey among them). Idempotent: a line already taught is left be."""
+    F = G.FUNCS
+    BY = {e['iid']: e for e in E}
+    skip = ('p277/', 'p179/', 'admin/', 'p18/', 'p129/', 'p84/lk/', 'p72/', 'p121/strip', 'p80/kit/', 'p104/key/', 'p28/key/', 'p175/',
+            'p145/hand_free', 'p276/', 'p249/w/', 'p242/ms/upgrade', 'p173/ledger/', 'h3g/', 'p155/')
+    bad_run = re.compile(r'run (?:.* )?(?:item replace entity @s|item modify entity @s|clear @s)')
+    for name in list(F):
+        if name.startswith(skip): continue
+        L = F[name]
+        ids = set(re.findall(r'custom_data~\{bm:"([a-z0-9_]+)"\}\]', '\n'.join(L)))
+        if not ids & set(BY): continue
+        changed = False
+        for e in E:
+            if e['iid'] not in ids: continue
+            H = holds(e['iid'])
+            if not any(f' {H}' in l for l in L): continue
+            cont, off, wpn = f'items entity @s container.* {H}', f'items entity @s weapon.offhand {H}', f'items entity @s weapon.* {H}'
+            Tq = f'entity @s[tag={e["tag"]}]'
+            worn = e['kind'] == 'worn'
+            out, n0 = [], 0
+            for i, l in enumerate(L):
+                out.append(l)
+                if f' {H}' not in l: continue
+                # "doesn't have it": nor on the Pack
+                if not worn and f'unless {cont}' in l and f'if {off}' not in l and f'unless {Tq}' not in l:
+                    if f'unless {cont} unless {off}' in l: out[-1] = l.replace(f'unless {cont} unless {off}', f'unless {cont} unless {off} unless {Tq}', 1)
+                    else: out[-1] = l.replace(f'unless {cont}', f'unless {cont} unless {Tq}', 1)
+                    n0 += 1; continue
+                if worn and f'unless {off}' in l and f'unless {Tq}' not in l:
+                    out[-1] = l.replace(f'unless {off}', f'unless {off} unless {Tq}', 1); n0 += 1; continue
+                if e['iid'] in HELD and f'unless {wpn}' in l and f'unless {Tq}' not in l:
+                    out[-1] = l.replace(f'unless {wpn}', f'unless {wpn} unless {Tq}', 1); n0 += 1; continue
+                if bad_run.search(l.split(f' {H}', 1)[1]): continue
+                # "has it": a twin line for the Pack (never both: the twin asks that it isn't in the pockets or the off hand)
+                if not worn and f'if {cont}' in l and f'unless {cont}' not in l:
+                    tw = l.replace(f'if {cont}', f'if {Tq} unless {cont} unless {off}', 1)
+                    if tw not in L: out.append(tw); n0 += 1
+                    continue
+                if f'if {off}' in l and f'unless {cont} if {off}' not in l:
+                    if not worn and (l.replace(f'if {off}', f'if {cont}') in L): continue          # (its pockets line has the twin)
+                    tw = l.replace(f'if {off}', f'if {Tq} unless {off}' + ('' if worn else f' unless {cont}'), 1)
+                    if tw not in L: out.append(tw); n0 += 1
+                    continue
+                if e['iid'] in HELD and f'if {wpn}' in l:
+                    tw = l.replace(f'if {wpn}', f'if {Tq} unless {wpn}', 1)
+                    if tw not in L: out.append(tw); n0 += 1
+                    continue
+            if n0:
+                # (a check that uses one up takes it off the Pack when it isn't in the pockets)
+                out2 = []
+                for l in out:
+                    m = re.search(r'(?:^|run )clear @s ' + re.escape(H) + r'(?: (\d+))?$', l)
+                    if m and 'store result' not in l and not worn and (not out2 or 'p277/q/dec_' not in out2[-1]):
+                        out2.append(f'execute if {Tq} unless {cont} unless {off} run function bm:p277/q/dec_{e["iid"]}'); dec_needed.add(e['iid'])
+                    out2.append(l)
+                L[:] = out2; changed = True
+                patched.setdefault(e['iid'], []).append(name)
+        if changed: F[name] = L
+
+
+_ST = {}
+
+
+def carry_finish(G):
+    """the functions the patched checks call: one off the Pack for a check that used one up; the market key turning on the Pack"""
+    F, fn, title = G.FUNCS, G.fn, G.title
+    E, dec_needed = _ST['E'], _ST['dec']
+    BY = {e['iid']: e for e in E}
+    pid = 'execute store result storage bm:rp t.pid int 1 run scoreboard players get @s bm.pid'
+    for iid in sorted(dec_needed):
+        e = BY[iid]
+        fn(f'p277/q/dec_{iid}', [pid, f'data modify storage bm:rp t.k set value "{e["path"][1:]}"', 'function bm:p277/s/dec with storage bm:rp t',
+                                 f'execute store result score @s {e["obj"]} run function bm:p277/s/cnt with storage bm:rp t',
+                                 'function bm:p277/tg'])
+    # (the market key turning in your pocket as your tier grows: on the Pack too - the key there becomes the new one)
+    KUP = {2: 'silver_key', 3: 'gold_key', 4: 'rat_king_key'}
+    for name in ('loop/second', 'loop/fast'):
+        L = F[name]
+        for i, l in enumerate(L):
+            m = re.search(r'if entity @s\[tag=bm\.rqt_(\w+)\] .* run function bm:p28/key/to_(\d)$', l)
+            if not m: continue
+            src, nn = m.group(1), int(m.group(2))
+            dst = KUP[nn]
+            L[i] = l[:l.rindex('run function ')] + f'run function bm:p277/kup/{src}_{nn}'
+            if f'p277/kup/{src}_{nn}' in F: continue
+            fn(f'p277/kup/{src}_{nn}', [pid, f'data modify storage bm:rp t.k set value "{BY[src]["path"][1:]}"', 'function bm:p277/s/rm with storage bm:rp t',
+                                        f'scoreboard players set @s {BY[src]["obj"]} 0',
+                                        f'execute unless score @s {BY[dst]["obj"]} matches 1.. run function bm:p277/kup/put_{dst} with storage bm:rp t',
+                                        f'scoreboard players set @s {BY[dst]["obj"]} 1', 'function bm:p277/tg',
+                                        'playsound minecraft:block.bell.use player @s ~ ~ ~ 1 1.3',
+                                        title('@s', 'actionbar', T(f'The key on your Rat Pack turns... it is now the {ITEMS[dst]["name"]}.', 'aqua'))])
+            fn(f'p277/kup/put_{dst}', [f'$data modify storage bm:pw p$(pid).{BY[dst]["path"]} set value {snbt(G.stack(dst))}'])
+
+
+def late(G):
+    """(3.1) after the finalizers (the market rebuild's bm.haskey, R28's): teach the checks written since generate"""
+    n0 = sum(len(v) for v in _ST['patched'].values())
+    carry_patch(G, _ST['E'], _ST['patched'], _ST['dec'])
+    carry_finish(G)
+    return sum(len(v) for v in _ST['patched'].values()) - n0
+
 def generate(G):
     import phase28 as P28
     import phase148 as P148
@@ -239,81 +342,15 @@ def generate(G):
             'p145/hand_free', 'p276/', 'p249/w/', 'p242/ms/upgrade', 'p173/ledger/', 'h3g/', 'p155/')
     bad_run = re.compile(r'run (?:.* )?(?:item replace entity @s|item modify entity @s|clear @s)')
     patched, dec_needed = {}, set()
-    for name in list(F):
-        if name.startswith(skip): continue
-        L = F[name]
-        ids = set(re.findall(r'custom_data~\{bm:"([a-z0-9_]+)"\}\]', '\n'.join(L)))
-        if not ids & set(BY): continue
-        changed = False
-        for e in E:
-            if e['iid'] not in ids: continue
-            H = holds(e['iid'])
-            if not any(f' {H}' in l for l in L): continue
-            cont, off, wpn = f'items entity @s container.* {H}', f'items entity @s weapon.offhand {H}', f'items entity @s weapon.* {H}'
-            Tq = f'entity @s[tag={e["tag"]}]'
-            worn = e['kind'] == 'worn'
-            out, n0 = [], 0
-            for i, l in enumerate(L):
-                out.append(l)
-                if f' {H}' not in l: continue
-                # "doesn't have it": nor on the Pack
-                if not worn and f'unless {cont}' in l and f'if {off}' not in l and f'unless {Tq}' not in l:
-                    if f'unless {cont} unless {off}' in l: out[-1] = l.replace(f'unless {cont} unless {off}', f'unless {cont} unless {off} unless {Tq}', 1)
-                    else: out[-1] = l.replace(f'unless {cont}', f'unless {cont} unless {Tq}', 1)
-                    n0 += 1; continue
-                if worn and f'unless {off}' in l and f'unless {Tq}' not in l:
-                    out[-1] = l.replace(f'unless {off}', f'unless {off} unless {Tq}', 1); n0 += 1; continue
-                if e['iid'] in HELD and f'unless {wpn}' in l:
-                    out[-1] = l.replace(f'unless {wpn}', f'unless {wpn} unless {Tq}', 1); n0 += 1; continue
-                if bad_run.search(l.split(f' {H}', 1)[1]): continue
-                # "has it": a twin line for the Pack (never both: the twin asks that it isn't in the pockets or the off hand)
-                if not worn and f'if {cont}' in l and f'unless {cont}' not in l:
-                    out.append(l.replace(f'if {cont}', f'if {Tq} unless {cont} unless {off}', 1)); n0 += 1; continue
-                if f'if {off}' in l and f'unless {cont} if {off}' not in l:
-                    if not worn and (l.replace(f'if {off}', f'if {cont}') in L): continue          # (its pockets line has the twin)
-                    out.append(l.replace(f'if {off}', f'if {Tq} unless {off}' + ('' if worn else f' unless {cont}'), 1)); n0 += 1; continue
-                if e['iid'] in HELD and f'if {wpn}' in l:
-                    out.append(l.replace(f'if {wpn}', f'if {Tq} unless {wpn}', 1)); n0 += 1; continue
-            if n0:
-                # (a check that uses one up takes it off the Pack when it isn't in the pockets)
-                out2 = []
-                for l in out:
-                    m = re.search(r'(?:^|run )clear @s ' + re.escape(H) + r'(?: (\d+))?$', l)
-                    if m and 'store result' not in l and not worn:
-                        out2.append(f'execute if {Tq} unless {cont} unless {off} run function bm:p277/q/dec_{e["iid"]}'); dec_needed.add(e['iid'])
-                    out2.append(l)
-                L[:] = out2; changed = True
-                patched.setdefault(e['iid'], []).append(name)
-        if changed: F[name] = L
+    carry_patch(G, E, patched, dec_needed)
     # the grave charm: a grave if it was on the Pack (the Pack among what you dropped)
     gd = F['p50/grave/died']
     k = next(i for i, l in enumerate(gd) if 'bm:"grave_charm"' in l and '#gc bm.rng 1' in l)
     gd.insert(k + 1, f'execute if entity @s[tag=bm.rqt_grave_charm] as @e[type=minecraft:item,tag=bm.gfresh,distance=..4] '
                      f'if items entity @s contents {holds("partner_wheel")} run scoreboard players set #gc bm.rng 1')
     patched.setdefault('grave_charm', []).append('p50/grave/died')
-    for iid in sorted(dec_needed):
-        e = BY[iid]
-        fn(f'p277/q/dec_{iid}', [pid, f'data modify storage bm:rp t.k set value "{e["path"][1:]}"', 'function bm:p277/s/dec with storage bm:rp t',
-                                 f'execute store result score @s {e["obj"]} run function bm:p277/s/cnt with storage bm:rp t',
-                                 'function bm:p277/tg'])
-    # (the market key turning in your pocket as your tier grows: on the Pack too - the key there becomes the new one)
-    KUP = {2: 'silver_key', 3: 'gold_key', 4: 'rat_king_key'}
-    for name in ('loop/second', 'loop/fast'):
-        L = F[name]
-        for i, l in enumerate(L):
-            m = re.search(r'if entity @s\[tag=bm\.rqt_(\w+)\] .* run function bm:p28/key/to_(\d)$', l)
-            if not m: continue
-            src, nn = m.group(1), int(m.group(2))
-            dst = KUP[nn]
-            L[i] = l[:l.rindex('run function ')] + f'run function bm:p277/kup/{src}_{nn}'
-            if f'p277/kup/{src}_{nn}' in F: continue
-            fn(f'p277/kup/{src}_{nn}', [pid, f'data modify storage bm:rp t.k set value "{BY[src]["path"][1:]}"', 'function bm:p277/s/rm with storage bm:rp t',
-                                        f'scoreboard players set @s {BY[src]["obj"]} 0',
-                                        f'execute unless score @s {BY[dst]["obj"]} matches 1.. run function bm:p277/kup/put_{dst} with storage bm:rp t',
-                                        f'scoreboard players set @s {BY[dst]["obj"]} 1', 'function bm:p277/tg',
-                                        'playsound minecraft:block.bell.use player @s ~ ~ ~ 1 1.3',
-                                        title('@s', 'actionbar', T(f'The key on your Rat Pack turns... it is now the {ITEMS[dst]["name"]}.', 'aqua'))])
-            fn(f'p277/kup/put_{dst}', [f'$data modify storage bm:pw p$(pid).{BY[dst]["path"]} set value {snbt(G.stack(dst))}'])
+    _ST.update(E=E, patched=patched, dec=dec_needed)
+    carry_finish(G)
     rep['items counted as carried'] = len(patched)
     rep['checks patched'] = sum(len(v) for v in patched.values())
     G.RQ_PATCHED = patched                        # (for the report)
