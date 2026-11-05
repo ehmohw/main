@@ -3841,6 +3841,13 @@ In 1-9999, outside every route of `p28/act` and on no button.
   those routes stay with no button.
 - (3.1) A row whose meaning follows a switch (Use / Take back) keeps ONE code - its handler reads the switch (tag bm.rqtb) - so the
   legend shows both words on it. The pager's arrows share a code across lists; each list's menu picks the list.
+- 3.1 (Relics, the owner): the front page's "♛ Relics ›" is 8688 (menu 8660) and opens the Relics page (menu 8698): 8990 Powers,
+  8991 Passives, 8992 Materials, 8993 Arms & Armour (each routed only under menu 8698), « Rat Pack 8672. The four pages are menus
+  8694-8697; their rows are 8700+n like every other list (n now runs to 202: the Pocket's five Ring of Ten Burrows places are
+  five rows); "« Relics" is 8994 (routed for menus 8694-8697). Powers has the Use / Take back switch (8682); Passives, Materials and
+  Arms & Armour only take back, as the Keyring does. The two new auto-pack switches are 8686 (Relics) and 8687 (Arms & armour) -
+  NOT 8682/8683, which the switch and the pager hold: the settings page maps its switches through phase277.AP_CODE.
+  8689 and 8995-8999 stay free.
 <!-- /notes -->
 
 ## Revision log

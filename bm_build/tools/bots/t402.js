@@ -108,6 +108,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   ok('...and only once (still one key)', (await has('rat_king_key')) === 1);
   // the Black Market Key on the ring: the market's own "has a key" (bm.haskey) with no key in his pockets
   await run('scoreboard players set TestRat bm.rq_market_key 0'); await run(`data remove storage bm:pw p${pid}.rq_market_key`);
+  await run('clear TestRat *[minecraft:custom_data~{bm:"rat_king_key"}]');
   await putOn('market_key', 'the Black Market Key');
   ok('...the Black Market Key on the ring: he has bm.haskey (no key in his pockets)', (await has('market_key')) === 0 &&
      await wait(2500, async () => /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.haskey]'))));

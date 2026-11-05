@@ -986,7 +986,7 @@ def generate(G):
                                  'data remove storage bm:tmp vac.c', f'$data modify storage bm:tmp vac.c set from storage {rb(k, j)}.it.components."minecraft:container"',
                                  'execute unless data storage bm:tmp vac.c run data modify storage bm:tmp vac.c set value []',
                                  'scoreboard players set #vtak bm.rng 0', 'scoreboard players set #vfull bm.rng 0',
-                                 f'execute as @e[type=minecraft:item,distance=..{R},nbt={{PickupDelay:0s}},limit={LIM},sort=nearest] {filt} at @s run function bm:p33/vac/take',
+                                 f'execute as @e[type=minecraft:item,distance=..{R},tag=!bm.rqwd,nbt={{PickupDelay:0s}},limit={LIM},sort=nearest] {filt} at @s run function bm:p33/vac/take',
                                  f'$execute if score #vtak bm.rng matches 1.. run data modify storage {rb(k, j)}.it.components."minecraft:container" set from storage bm:tmp vac.c',
                                  'execute if score #vtak bm.rng matches 1.. run playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.4 0.6'])
         fn(f'p277/c/{k}', [pid] + [f'function bm:p277/c/{k}{j} with storage bm:rp t' for j in range(BAGMAX)])
@@ -1057,7 +1057,7 @@ def generate(G):
            'function bm:p277/b/cols']
     fn('p277/d/all', da)
     fn('p277/w1/m', ['$execute unless data storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0] run return 0',
-                     'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                     'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout","bm.rqwd"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
                      '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0].item',
                      'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
                      'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0]', 'return 1'])
