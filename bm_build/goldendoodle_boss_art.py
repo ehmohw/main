@@ -46,7 +46,7 @@ import goldendoodle_pet_art as GQ
 import dread_sovereign_art as DSA
 
 PIVOT = {'body': (0, 21.0, 3.0), 'tail': (0, 20.0, 15.0), 'neck1': (0, 27.0, -6.5), 'neck2': (0, 34.0, -10.5), 'neck3': (0, 41.0, -12.0),
-         'head': (0, 46.5, -13.0), 'jaw': (0, 47.0, -18.5), 'neckb': (-1.6, 38.5, -11.6), 'headb': (-11.6, 44.0, -16.6),
+         'head': (0, 46.5, -13.0), 'jaw': (0, 47.0, -18.5), 'neckb': (-1.6, 38.5, -11.6), 'headb': (-13.0, 45.0, -12.0),
          'wr': (8.0, 28.0, -1.0), 'wl': (-8.0, 28.0, -1.0), 'wr2': (27.0, 36.0, 3.0), 'wl2': (-27.0, 36.0, 3.0),
          'legr': (5.6, 15.0, 3.0), 'legl': (-5.6, 15.0, 3.0), 'footr': (6.2, 2.6, 1.6), 'footl': (-6.2, 2.6, 1.6),
          'beam': (0, 51.0, -20.0), 'shriek': (0, 47.0, -26.0), 'eggs': (0, 0, 0), 'curse': (0, 0, 0), 'shard': (0, 52.0, -17.0), 'aura': (0, 30.0, 0)}
@@ -211,13 +211,13 @@ def zslab(part, z0, z1, hw, hh, tex, c=(0.0, 0.0), k=0.7, light=0):
             B(part, (x - hw * k, y - hh, z0), (x + hw * k, y - hh * k, z1), tex, light=light)]
 
 
-def zegg(part, z0, z1, r, tex, yc, n=9, sq=0.84, blunt=1.35, power=1.2, under=None, top=None):
+def zegg(part, z0, z1, r, tex, yc, n=9, sq=0.84, blunt=1.35, power=1.2, under=None, top=None, cx=0.0):
     out = []
     for i in range(n):
         t0, t1 = i / n, (i + 1) / n; t = (t0 + t1) / 2
         u = (t - 0.36) / (0.64 if t > 0.36 else 0.36)
         w = max(0.6, r * max(0.0, 1 - abs(u) ** (blunt if u < 0 else 1.6)) ** (0.5 / power))
-        es = zslab(part, z0 + (z1 - z0) * t0, z0 + (z1 - z0) * t1, w, w * sq, tex(t) if callable(tex) else tex, c=(0.0, yc(t)), k=0.7)
+        es = zslab(part, z0 + (z1 - z0) * t0, z0 + (z1 - z0) * t1, w, w * sq, tex(t) if callable(tex) else tex, c=(cx, yc(t)), k=0.7)
         if under:
             for f in es[2]['faces'].values(): f['texture'] = '#' + under
         out += es
@@ -340,10 +340,10 @@ for part, pts, sx in (('neck1', N1, 1), ('neck2', N2, -1), ('neck2', N2, 1), ('n
         w = 2.0 if part == 'neck1' else 1.75
         eye_plate(part, (c[0] + sx * w, c[1], c[2] - 0.2), 1.0 + 0.2 * k, 'east' if sx > 0 else 'west', 'eye')
 # THE SPLIT: a second neck branching to its left, ending in a head with no beak - a four-petal mandible, a cluster of eyes
-NB = [(-1.6, 38.5, -11.6), (-5.0, 40.2, -13.0), (-8.6, 42.2, -14.8), (-11.6, 44.0, -16.6)]     # (3.0t: longer, set out from the main neck)
+NB = [(-1.6, 38.5, -11.6), (-5.4, 40.6, -11.8), (-9.4, 43.0, -12.0), (-13.0, 45.0, -12.0)]     # (3.0u: out to her side, not in front of her face)
 neck('neckb', NB, [3.4, 3.2, 3.0, 3.0])
 hx, hy, hz = PIVOT['headb']
-zegg('headb', hz - 5.6, hz + 1.8, 3.8, lambda t: 'gcr' if t < 0.6 else 'flesh', lambda t: hy + 0.6, n=5, sq=0.95, blunt=1.0)
+zegg('headb', hz - 5.6, hz + 1.8, 3.4, lambda t: 'gcr' if t < 0.6 else 'flesh', lambda t: hy + 0.6, n=5, sq=0.95, blunt=1.0, cx=hx)   # (3.0u: on ITS head - it sat on her midline)
 for k, (dx, dy) in enumerate(((1, 1), (-1, 1), (1, -1), (-1, -1))):                         # (the four petals, splayed open, toothed)
     base = (hx + dx * 1.1, hy + 0.6 + dy * 1.1, hz - 4.8)
     mid = (hx + dx * 2.8, hy + 0.6 + dy * 2.6, hz - 7.2)
@@ -355,6 +355,10 @@ for k, (dx, dy) in enumerate(((1, 1), (-1, 1), (1, -1), (-1, -1))):             
         s = 0.15 + j * 0.22; c = tuple(base[i] + (mid[i] - base[i]) * s * 1.6 for i in range(3)) if j < 3 else tuple(mid[i] + (tip[i] - mid[i]) * 0.5 for i in range(3))
         R.seg('headb', c, (c[0] - dx * 0.75, c[1] - dy * 0.75, c[2] - 0.2), 0.3, 0.3, 'tooth')
 B('headb', (hx - 1.8, hy - 1.0, hz - 5.75), (hx + 1.8, hy + 2.4, hz - 5.55), 'mouth', light=3)
+for (dx, dy, dz, s_, face) in ((0.0, 1.4, 1.95, 0.9, 'south'), (-1.4, 2.6, 1.6, 0.6, 'south'), (1.3, 0.2, 1.7, 0.55, 'south'),    # (3.0u: eyes all over
+                               (-3.45, 1.2, -1.6, 0.8, 'west'), (-3.4, 2.8, -3.4, 0.55, 'west'), (3.45, 1.4, -2.2, 0.7, 'east'),      #  its skull: from any
+                               (3.4, 0.0, -0.4, 0.5, 'east'), (-0.6, 3.3, -1.8, 0.7, 'up'), (1.2, 3.25, -3.2, 0.5, 'up')):              #  side, a Dread head)
+    eye_plate('headb', (hx + dx, hy + 0.6 + dy, hz + dz), s_, face, 'eye')
 for (dx, dy, s) in ((0, 1.6, 1.0), (-1.3, 2.4, 0.7), (1.2, 2.5, 0.75), (-2.0, 1.2, 0.6), (2.0, 0.9, 0.6), (0.2, 3.1, 0.55)):     # (eyes where its face should be)
     eye_plate('headb', (hx + dx * 0.75, hy + 0.6 + dy * 0.9, hz - 5.85), s * 1.5, 'north', 'eye')
 

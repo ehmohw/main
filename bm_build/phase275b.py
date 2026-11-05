@@ -295,9 +295,9 @@ def build(G, X, C):
     # ================================================================== THE CAMERA (as phase238's: held, turned to the look marker, a 3-tick lease - p238/cam/lease
     # gives the body back - never a gamemode change, never Darkness)
     look = 'bm.gqlook'
-    fn('p275g/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3', 'function bm:p176/nodark',
-                          f'execute at @s if entity @e[type=minecraft:marker,tag={look},distance=..48] run tp @s ~ ~ ~ facing entity @e[type=minecraft:marker,tag={look},distance=..48,sort=nearest,limit=1] feet',
-                          'effect give @s minecraft:slowness 2 255 true', 'effect give @s minecraft:resistance 2 255 true', 'effect give @s minecraft:jump_boost 2 200 true'])
+    # (3.0u: the owner's call - no forced cutscene. The scenes play, but the player keeps the camera and can move: no turning
+    #  them to the look marker, no Slowness or Jump-lock. Kept: Resistance while a scene plays, and no Darkness)
+    fn('p275g/cam/hold', ['function bm:p176/nodark', 'effect give @s minecraft:resistance 2 255 true'])
     fn('p275g/cam/follow', [f'execute if score @s bm.gdpl matches 1 positioned ~ ~1.2 ~ as @e[type=minecraft:marker,tag={look},distance=..32] run tp @s ~ ~ ~',
                             f'execute if score @s bm.gdpl matches 2 positioned ~ ~4.5 ~ as @e[type=minecraft:marker,tag={look},distance=..32] run tp @s ~ ~ ~'])
     cine = lambda h: ['tag @s add bm.gdcine', 'data modify entity @s Invulnerable set value 1b', 'data modify entity @s NoAI set value 1b', 'scoreboard players set @s bm.gdt 0',
