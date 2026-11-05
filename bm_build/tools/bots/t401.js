@@ -24,7 +24,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/bm_handbook'); A.slot(0); await sleep(300);
   const openB = async () => { await run('scoreboard players set TestRat bm.gvhc 0'); const n0 = A.dialogN.length; A.use(); await sleep(350); A.release();
     await wait(2500, async () => A.dialogN.length > n0); return A.dialogN.length > n0; };
-  const count = async (sel) => +(((await run(`execute as TestRat at @s if entity ${sel}`)).match(/count: (\d+)/) || [0, 0])[1]);
+  const count = async (sel) => +(((await run(`execute as TestRat at @s if entity ${sel}`)).match(/count: (\d+)/i) || [0, 0])[1]);
   const parts = (d = 4) => count(`@e[type=minecraft:item_display,tag=bm.gdp,distance=..${d}]`);
   const model = async (p) => ((await run(`data get entity @e[type=minecraft:item_display,tag=bm.gdp,tag=bm.gdk_${p},limit=1] item.components."minecraft:item_model"`)).match(/"bm:([a-z_]+)"/) || [0, ''])[1];
   const num = async (sel, path) => +(((await run(`data get entity ${sel} ${path}`)).match(/: (-?[\d.]+)/) || [0, NaN])[1]);

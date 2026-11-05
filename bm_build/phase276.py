@@ -93,7 +93,7 @@ def generate(G):
 
     # ---------------------------------------------------------------- each tick: follow, move, place
     tick += ['execute as @e[type=minecraft:marker,tag=bm.gd] at @s run function bm:p276/tick',
-             'execute as @e[type=minecraft:interaction,tag=bm.gdh] if data entity @s interaction run function bm:p276/click',
+             'execute as @e[type=minecraft:interaction,tag=bm.gdh] if data entity @s interaction at @s run function bm:p276/click',
              'execute as @e[type=minecraft:interaction,tag=bm.gdh] if data entity @s attack run data remove entity @s attack']
     fn('p276/tick', ['scoreboard players operation #p bm.pay = @s bm.pid',
                      f'execute as @e[type=minecraft:player,tag=bm.hasgd,distance=..{LOST + 8}] if score @s bm.pid = #p bm.pay run tag @s add bm.gdo',
