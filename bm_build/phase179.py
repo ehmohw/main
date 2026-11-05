@@ -670,3 +670,59 @@ def repair_wheel(G, PW, holds):
     fn('p179/fix/drop', ['summon minecraft:item ~ ~ ~ {Item:{id:"minecraft:stone",count:1},Tags:["bm.pwfixd"],PickupDelay:0s}',
                          'data modify entity @e[type=minecraft:item,tag=bm.pwfixd,limit=1] Item set from storage bm:tmp pwfix.cur.it', 'scoreboard players add #pwmv bm.rng 1',
                          'tag @e[type=minecraft:item,tag=bm.pwfixd] remove bm.pwfixd'])
+
+
+B_PBACK = 3438                    # (3.0y) « Partners: back from a partner's own menu to the Rat Pack's Partners page
+
+
+def late(G):
+    """(3.0y: the owner - "if I open a follower's menu from the Rat Pack's follower menu, I can't go back to the follower list
+    ... ensure the new back button is only visible if the follower has been added to the rat pack".) Every partner's own
+    menu - the dialogs its item's sneak + use shows (its menu / plain / dlg functions and what they call, three deep) - has
+    its bottom button (the exit action, "Close") become « Partners while that partner is on your Pack (bm.pw<i> 1): the
+    Partners page, as the Pack left it. A dialog more than one partner's menu reaches is left alone. Run after every
+    follower is made. Returns (partners patched, dialogs patched)."""
+    import phase28 as P28
+    F = G.FUNCS
+    EX = re.compile(r'exit_action:\{label:("(?:[^"\\]|\\.)*"|\{[^{}]*\})\}')
+    back = snbt(P28.btn([T('« ', 'gray'), T('Partners', PURPLE)], B_PBACK,
+                        tooltip=T('Back to the Rat Pack\'s Partners page', 'gray'), width=150))
+    chains = {}
+    i = 0
+    while f'p179/w/menu{i}' in F:
+        use = next(re.search(r'function bm:([\w/]+)', l).group(1) for l in F[f'p179/w/menu{i}'] if 'function bm:' in l and 'p28/stale' not in l)
+        front = [m for l in F.get(use, []) for m in re.findall(r'function bm:([\w/]+)', l) if re.search(r'menu|plain|dlg', m)]
+        seen, hits = set(), []
+        for _d in range(3):
+            nxt = []
+            for f in front:
+                if f in seen or f not in F: continue
+                seen.add(f)
+                if any('dialog show @s' in l and EX.search(l) for l in F[f]): hits.append(f)
+                nxt += [m for l in F[f] for m in re.findall(r'function bm:([\w/]+)', l)]
+            front = nxt
+        chains[i] = hits
+        i += 1
+    count = {}
+    for hits in chains.values():
+        for f in hits: count[f] = count.get(f, 0) + 1
+    np_, nd = 0, 0
+    for i, hits in chains.items():
+        mine = [f for f in hits if count[f] == 1]
+        if mine: np_ += 1
+        for f in mine:
+            out = []
+            for l in F[f]:
+                if 'dialog show @s' in l and EX.search(l):
+                    mac = l.startswith('$')
+                    body = l[1:] if mac else l
+                    alt = EX.sub(lambda m: 'exit_action:' + back, body, count=1)
+                    out += [('$' if mac else '') + f'execute if score @s bm.pw{i} matches 1 run {alt}',
+                            ('$' if mac else '') + f'execute unless score @s bm.pw{i} matches 1 run {body}']
+                    nd += 1
+                else:
+                    out.append(l)
+            F[f] = out
+    F['p179/w/act'].insert(0, f'execute if score #act bm.pay matches {B_PBACK} run return run function bm:p179/w/back')
+    G.fn('p179/w/back', ['dialog clear @s', 'function bm:p179/w/open'])
+    return np_, nd
