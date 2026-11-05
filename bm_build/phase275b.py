@@ -124,7 +124,7 @@ def build(G, X, C):
                           'execute unless score #lnight bm.bm matches 1 run return 0',
                           'particle minecraft:wax_on ~ ~0.5 ~ 4 0.3 4 0 6', 'particle minecraft:end_rod ~ ~0.2 ~ 4 0.1 4 0.005 3',
                           'execute store result score #gt bm.rng run time query gametime', 'execute if score #gt bm.rng < @s bm.gdr run return 0',
-                          'execute as @a[distance=..6,gamemode=!spectator,gamemode=!creative] at @s run function bm:p275g/pond/try'])
+                          'execute as @a[distance=..7.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p275g/pond/try'])
     fn('p275g/pond/stone', [f'summon minecraft:item_display ~ ~-0.5 ~ {stone}', f'summon minecraft:interaction ~ ~-0.5 ~ {stone_hit}'])
     trio = lambda: ['scoreboard players operation #o bm.rng = @s bm.pid', 'scoreboard players set #ta bm.rng 0', 'scoreboard players set #tb bm.rng 0', 'scoreboard players set #tc bm.rng 0'] + \
         [f'execute as @e[type=minecraft:wolf,tag={t},distance=..12] if score @s bm.pid = #o bm.rng run scoreboard players set {s} bm.rng 1'
@@ -138,7 +138,7 @@ def build(G, X, C):
                            'execute store result score #gt bm.rng run time query gametime',
                            'execute if score #gt bm.rng < @e[type=minecraft:marker,tag=bm.gdpond,distance=..3,limit=1] bm.gdr run return run ' + hint('The stone sleeps. It was woken not long ago - it will stir again tomorrow.'),
                            'execute unless score @s bm.pid matches 1.. run function bm:p21/pid'] + trio() +
-       ['execute if score #ta bm.rng matches 1 if score #tb bm.rng matches 1 if score #tc bm.rng matches 1 run return run ' + hint('The stone is warm under your hand. All three hollows glow. Stand in the clover ring...'),
+       ['execute if score #ta bm.rng matches 1 if score #tb bm.rng matches 1 if score #tc bm.rng matches 1 run return run ' + hint('The stone is warm under your hand. All three hollows glow. Stay by the pond - anywhere on the clover round it - and it will wake.'),
         'execute if score #ta bm.rng matches 0 run tellraw @s ' + snbt([T('The SUN hollow is dark.', GOLD, italic=True)]),
         'execute if score #tb bm.rng matches 0 run tellraw @s ' + snbt([T('The THREAD hollow is empty.', GOLD, italic=True)]),
         'execute if score #tc bm.rng matches 0 run tellraw @s ' + snbt([T('The CROWN hollow is cold.', GOLD, italic=True)]),
