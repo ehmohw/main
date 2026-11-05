@@ -32,7 +32,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   const pid = await sc('bm.pid');
   // (a clean Pack: nothing on it from an earlier run)
   await run(`data remove storage bm:pw p${pid}.rq_particle_toggler`); await run(`data remove storage bm:pw p${pid}.rq_fixers_ledger`);
-  for (const o of ['particle_toggler', 'fixers_ledger', 'rat_king_key', 'vkey_brood', 'vkey_frost', 'charm_ember', 'sealed_explorer_map', 'ember_call']) {
+  for (const o of ['particle_toggler', 'fixers_ledger', 'rat_king_key', 'vkey_brood', 'vkey_frost', 'market_key', 'fire_extinguisher', 'ravenous_heart', 'power_cell', 'sov_edge', 'charm_ember', 'sealed_explorer_map', 'ember_call']) {
     await run(`scoreboard players set TestRat bm.rq_${o} 0`); await run(`data remove storage bm:pw p${pid}.rq_${o}`); }
   for (const k of ['bp', 'vs', 'sj', 'om', 'pc']) { await run(`scoreboard players set TestRat bm.rb_${k} 0`); await run(`data remove storage bm:pw p${pid}.rb_${k}`); }
   await run('scoreboard players reset TestRat bm.rqap_keys'); await run('scoreboard players reset TestRat bm.rqo_charm_ember');
@@ -85,10 +85,18 @@ const { bot, rcon, sleep } = require('./lib_resp');
   // Keyring: counts as carried at the market's gate; taken back once
   ok('Keyring: the Rat King\'s Key counts as carried at the market gate (the den\'s)', /returned 1/.test(await run('execute as TestRat run function bm:p28/gate/has_den_in')));
   await openP(); await A.press(/Keyring/);
+  const kb = A.buttons().find(b => /Rat King's Key/.test(b.label));
   await A.press(/Rat King's Key/); await sleep(900);
   ok('...pressed: the key is back in his pocket, off the Pack', (await has('rat_king_key')) === 1 && (await sc('bm.rq_rat_king_key')) === 0);
-  A.cmd('trigger bm.act set ' + (8700 + 22 + 3));     // (the Pocket's 22 entries, then the Keyring: market, silver, gold, rat king) await sleep(700);
+  if (kb) A.cmd(kb.command.replace(/^\//, '')); await sleep(700);     // (the same button's command again)
   ok('...and only once (still one key)', (await has('rat_king_key')) === 1);
+  // the Black Market Key on the ring: the market's own "has a key" (bm.haskey) with no key in his pockets
+  await run('scoreboard players set TestRat bm.rq_market_key 0'); await run(`data remove storage bm:pw p${pid}.rq_market_key`);
+  await putOn('market_key', 'the Black Market Key');
+  ok('...the Black Market Key on the ring: he has bm.haskey (no key in his pockets)', (await has('market_key')) === 0 &&
+     await wait(2500, async () => /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.haskey]'))));
+  await openP(); await A.press(/Keyring/); await A.press(/Black Market Key/); await sleep(900);
+  ok('...taken back', (await has('market_key')) === 1);
   // Charms: active, then resting; taken back
   ok('Charms: the Ember Charm active while carried (bm.rqt_charm_ember)', /passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.rqt_charm_ember]')));
   await openP(); await A.press(/Charms/);
@@ -126,6 +134,40 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run('loot give TestRat loot bm:items/vkey_frost'); await sleep(2200);
   ok('...and a Rime Key given now stays in his pocket', (await has('vkey_frost')) === 1);
   await A.press(/^Keys:/);
+
+  // ---- RELICS: the front page's Relics ›, its four pages; a power used from its row, a passive working from the Pack, a stack and a weapon kept exactly
+  await openP(); await A.press(/Relics/);
+  ok('Relics ›: its page - Powers, Passives, Materials, Arms & Armour, « Rat Pack', ['Powers', 'Passives', 'Materials', 'Arms & Armour', '« Rat Pack'].every(n => A.buttons().some(b => b.label.includes(n))),
+     A.buttons().map(b => b.label).join(' | '));
+  await putOn('fire_extinguisher', 'the Fire Extinguisher');
+  await run('scoreboard players set TestRat bm.extcd -1000');
+  await openP(); await A.press(/Relics/); await A.press(/Powers/);
+  ok('Powers: the Fire Extinguisher listed (with « Relics)', A.buttons().some(b => /Fire Extinguisher/.test(b.label)) && A.buttons().some(b => /« Relics/.test(b.label)));
+  await A.press(/Fire Extinguisher/); await sleep(800);
+  ok('...pressed: used as if right-clicked (its pressure spent: bm.extcd set), still on the Pack', (await sc('bm.rq_fire_extinguisher')) === 1 && (await sc('bm.extcd')) > 0);
+  await putOn('ravenous_heart', 'the Ravenous Heart'); await sleep(1300);
+  ok('Passives: the Ravenous Heart works from the Pack (monst/has_heart), none in his pockets', (await has('ravenous_heart')) === 0 &&
+     /returned 1/.test(await run('execute as TestRat run function bm:monst/has_heart')));
+  await run('loot replace entity TestRat weapon.offhand loot bm:items/power_cell'); await run('item modify entity TestRat weapon.offhand {type:"minecraft:set_count",count:5}');
+  A.chats.length = 0; A.slot(0); await sleep(250); A.use(); await sleep(350); A.release(); await sleep(700);
+  ok('Materials: 5 Vorn Power Cells go on the Pack', (await has('power_cell')) === 0 && (await sc('bm.rq_power_cell')) === 5);
+  await openP(); await A.press(/Relics/); await A.press(/Materials/);
+  ok('...listed "Vorn Power Cell ×5"', A.buttons().some(b => /Vorn Power Cell ×5/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  await A.press(/Vorn Power Cell/); await sleep(900);
+  ok('...pressed: the stack of 5 back in his pocket', (await has('power_cell')) === 5 && (await sc('bm.rq_power_cell')) === 0);
+  await run('loot replace entity TestRat weapon.offhand loot bm:items/sov_edge');
+  await run('item modify entity TestRat weapon.offhand [{type:"minecraft:set_enchantments",enchantments:{"minecraft:knockback":2},add:true},{type:"minecraft:set_damage",damage:0.8}]');
+  const before = await run('data get entity TestRat equipment.offhand.components');
+  A.slot(0); await sleep(250); A.use(); await sleep(350); A.release(); await sleep(700);
+  ok('Arms & Armour: the Sovereign\'s Edge goes on the Pack', (await has('sov_edge')) === 0 && (await sc('bm.rq_sov_edge')) === 1);
+  await openP(); await A.press(/Relics/); await A.press(/Arms & Armour/); await A.press(/Sovereign's Edge/); await sleep(900);
+  const after = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm:"sov_edge"}}}].components');
+  ok('...taken back exactly as it was: its added Knockback II and its wear kept', (await has('sov_edge')) === 1 && /knockback": 2/.test(after) && /damage": (\d+)/.test(after) &&
+     (after.match(/damage": (\d+)/) || [0, 'x'])[1] === (before.match(/damage": (\d+)/) || [0, 'y'])[1], after.slice(0, 160));
+  await openP(); await A.press(/Relics/); await A.press(/Passives/); await A.press(/Ravenous Heart/); await sleep(700);
+  await openP(); await A.press(/Relics/); await A.press(/Powers/); await A.press(/Press to:/); await A.press(/Fire Extinguisher/); await sleep(700);
+  ok('...the Heart and the Extinguisher taken back', (await has('ravenous_heart')) === 1 && (await has('fire_extinguisher')) === 1);
+  await run('clear TestRat *[minecraft:custom_data~{bm:"sov_edge"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"power_cell"}]');
 
   // ---- bags: two Backpacks, each its own load
   const load = (slot, items) => run(`item modify entity TestRat ${slot} {type:"minecraft:set_components",components:{"minecraft:container":[${items.map(([id, n], i) => `{slot:${i},item:{id:"minecraft:${id}",count:${n}}}`).join(',')}]}}`);
@@ -176,6 +218,29 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await A.press(/Withdraw all/); await sleep(1200);
   ok('...Withdraw all: back in his pocket, the jar empty', (await num('clear TestRat minecraft:rotten_flesh 0')) === 10 &&
      !/rotten_flesh/.test(await run(`data get storage bm:pw p${pid}.rb_sj[0].it.components."minecraft:container"`)));
+
+  // ...unfolded in a market (where a satchel's plain rule refuses: the careful way, plain air over solid floor), folded back by sneaking
+  await run('give TestRat minecraft:bone 7'); await openP(); await A.press(/Collectors/); await A.press(/Spirit Jar 1/); await A.press(/Deposit/); await sleep(400);
+  await run('tp TestRat 280 140 270'); await sleep(4000);
+  const mk = (await run('execute positioned 304 0 288 run data get entity @e[type=minecraft:marker,tag=bm.zone_m,limit=1,sort=nearest] Pos')).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
+  let unf = false, mkt = false, mb = '';
+  if (mk) {
+    const [mx, my, mz] = [Math.floor(+mk[1]), Math.floor(+mk[2]), Math.floor(+mk[3])];
+    for (const [dx, dz] of [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [5, 5], [-5, -5], [6, -2], [-6, 2]]) {
+      await run(`execute positioned ${mx + dx} ${my + 4} ${mz + dz} run tp TestRat ~0.5 ~ ~0.5 0 0`); await sleep(400);
+      await run(`execute as TestRat at @s run tp @s ~ ~-4 ~`); await sleep(1200);
+      mkt = /returned 0/.test(await run('execute as TestRat at @s run function bm:p37/allowed'));
+      if (!mkt) continue;
+      await openP(); await A.press(/Collectors/); await A.press(/Spirit Jar 1/); await A.press(/Unfold/); await sleep(900);
+      mb = await run('execute as TestRat at @s as @e[type=minecraft:marker,tag=bm.bxm,distance=..4,limit=1] at @s run data get block ~ ~ ~ Items');
+      if (/bone/.test(mb)) { unf = true; break; }
+    }
+  }
+  ok('a Spirit Jar unfolded from the Collectors page in the market (p37/allowed 0): a barrel with its bones', mkt && unf, mb.slice(0, 120));
+  A.input({ shift: true }); await sleep(900); A.input({}); await sleep(1200);
+  ok('...sneaking folds it back onto the Pack, its bones still in it', unf && !/bone/.test(await run('execute as TestRat at @s as @e[type=minecraft:marker,tag=bm.bxm,distance=..6,limit=1] at @s run data get block ~ ~ ~ Items')) &&
+     /bone/.test(await run(`data get storage bm:pw p${pid}.rb_sj[0].it.components."minecraft:container"`)) && !/out/.test(await run(`data get storage bm:pw p${pid}.rb_sj[0]`)));
+  await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); await sleep(1500);
 
   // ---- the heist: the Pack at the coat check, a Heist Ledger in, dropped - back, gone on leaving
   const HL = '*[minecraft:custom_data~{bm:"fixers_ledger",bm_hl:1b}]';

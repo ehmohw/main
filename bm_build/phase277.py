@@ -53,7 +53,7 @@ M_CAT = {'pocket': 8690, 'keys': 8691, 'charms': 8692, 'maps': 8693, 'mounts': 5
 M_REL = 8698                                       # (the Relics page: its four sub-pages)
 B_REL, B_RBACK = 8688, 8994                        # (the front page's Relics ›; a relic page's « Relics)
 B_RSUB = {'rpow': 8990, 'rpas': 8991, 'rmat': 8992, 'rarm': 8993}
-B_SEC = {'partners': 8661, 'pocket': 8662, 'keys': 8663, 'charms': 8664, 'maps': 8665, 'mounts': 8666, 'bags': 8667,
+B_SEC = {'relics': B_REL, 'partners': 8661, 'pocket': 8662, 'keys': 8663, 'charms': 8664, 'maps': 8665, 'mounts': 8666, 'bags': 8667,
          'cols': 8668, 'settings': 8669, 'handbook': 8670, 'guide': 8671}
 B_BACK, B_MODE, B_PREV, B_NEXT, B_YOURS = 8672, 8682, 8683, 8684, 8685
 B_AP0 = 8674                                       # (8674-8681: the auto-pack switches; 8686/8687 the Relics' two)
@@ -336,7 +336,7 @@ def generate(G):
                           tag='bm.pw_hb' if hb else f'bm.rqt_{iid}', use=use, how=how, stack=stack_of(iid), kind=kind,
                           name=ITEMS[iid]['name'], col=colour(iid)))
     BY = {e['iid']: e for e in E}
-    assert len(E) <= 200, len(E)
+    assert len(E) <= 280, len(E)           # (8700+n stays clear of the Relics page's 8990-8994)
     objs += [e['obj'] for e in E if e['obj'] != 'bm.pwhb'] + [f'bm.rqo_{i}' for i in CARRY_CHARMS] + [f'bm.rb_{k}' for k, *_r in BAGK]
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
@@ -511,7 +511,7 @@ def generate(G):
         lab = lambda pre: [icon(iid, col), T(pre, 'white'), T(nm, col)] + cnt()
         code = B_E0 + n
         verb = {'pocket': 'Use it - as using the item', 'maps': 'Open it - the seal breaks (one is used up)',
-                'mounts': 'Call it - as using the item'}.get(e['cat'], '')
+                'mounts': 'Call it - as using the item', 'rpow': 'Use it - as using the item'}.get(e['cat'], '')
         b_take = P28.btn(lab(' ↩ '), code, width=150, tooltip=T(f'Take {nm} back off the Pack (at your feet)', 'gray'))
         rows = []
         if e['cat'] in TAKE_ONLY:
@@ -572,7 +572,12 @@ def generate(G):
             'keys': ('Every key on the ring counts as carried while the Pack is with you. Press one: it comes back off.', 'Hold a key in your off hand - the market keys, a dungeon\'s, a vault\'s, a victor\'s - and use the Rat Pack: it goes on the ring.'),
             'charms': ('● active / ○ resting - press one to switch it. The off-hand charms are worn one at a time.', 'Hold a charm in your off hand and use the Rat Pack: it goes in the pouch, active.'),
             'maps': ('Sealed maps, kept flat. Press one to break its seal - as opening it.', 'Hold a sealed map in your off hand and use the Rat Pack: it goes in the case.'),
-            'mounts': ('Your mounts\' calls. Press one: as using it.', 'Hold a mount\'s call - a Vorn Skiff or Mothership Key, the Mecha Rex Remote, a rat\'s call - in your off hand and use the Rat Pack: it goes on this page.')}
+            'mounts': ('Your mounts\' calls. Press one: as using it.', 'Hold a mount\'s call - a Vorn Skiff or Mothership Key, the Mecha Rex Remote, a rat\'s call - in your off hand and use the Rat Pack: it goes on this page.'),
+            'rpow': ('Boss drops that DO something. Press one: as using it.', 'Hold one in your off hand - the Fire Extinguisher, the Dread Ember, the Echo of the Hollow King, the Shard of the Hollow Throne, a summons - and use the Rat Pack: it goes on this page.'),
+            'rpas': ('They work just as if carried while the Pack is with you. Press one: it comes back off.', 'Hold one in your off hand - the Talisman of the Three Nights, the Ravenous Heart, a mantle, a dungeon relic - and use the Rat Pack: it goes on this page.'),
+            'rmat': ('Kept a stack each, counts and all. Press one: the stack comes back off.', 'Hold a stack in your off hand - Vorn Power Cells, Heartstones, Fallen Stars, Skiff parts, the elemental Gems - and use the Rat Pack: it goes on this page.'),
+            'rarm': ('The bosses\' arms and armour, kept exactly as they were. Press one: it comes back off.', 'Hold one in your off hand - the Sovereign\'s Edge, the Black Crown, the Hollow King\'s set... - and use the Rat Pack: it goes on this page. (Auto-pack leaves these be unless you switch it on.)')}
+    back_rel = P28.btn([T('« Relics', 'gray')], B_RBACK, width=150, tooltip=T('Back to the Relics page', 'gray'))
     for c, L in CATS.items():
         sym, title_, scol = SEC[c]
         menu = M_CAT[c]
@@ -588,13 +593,15 @@ def generate(G):
                           f'execute if score @s {e["obj"]} matches 1.. run function bm:p277/r/{iid} with storage bm:rp rc']
             else:
                 build.append(f'execute if score @s {e["obj"]} matches 1.. run function bm:p277/r/{iid}')
-        empty = P28.multi(head(title_), [P28.body([T(f'Nothing on this page yet. ', 'white'), T(how, 'gray')], 300)], [back_btn], columns=2)
+        bk = back_rel if c in RELICS else back_btn
+        ttl = head(f'Relics » {title_}') if c in RELICS else head(title_)
+        empty = P28.multi(ttl, [P28.body([T(f'Nothing on this page yet. ', 'white'), T(how, 'gray')], 300)], [bk], columns=2)
         build += [f'execute unless data storage bm:tmp rq.acts[0] run return run dialog show @s {snbt(empty)}', f'function bm:p277/pgr/{c}']
-        if c != 'keys':
+        if c not in TAKE_ONLY:
             build += [f'execute if entity @s[tag=bm.rqtb] run data modify storage bm:tmp rq.acts append value {snbt(mode_take)}',
                       f'execute unless entity @s[tag=bm.rqtb] run data modify storage bm:tmp rq.acts append value {snbt(mode_use)}']
-        build += [f'data modify storage bm:tmp rq.acts append value {snbt(back_btn)}', f'function bm:p277/pg/{c}_show with storage bm:tmp rq', page_turn]
-        full = P28.multi(head(title_), [P28.body([T(tip, 'gray')], 300)], '@@ACTS@@', columns=2)
+        build += [f'data modify storage bm:tmp rq.acts append value {snbt(bk)}', f'function bm:p277/pg/{c}_show with storage bm:tmp rq', page_turn]
+        full = P28.multi(ttl, [P28.body([T(tip, 'gray')], 300)], '@@ACTS@@', columns=2)
         fn(f'p277/pg/{c}_show', ['$dialog show @s ' + snbt(full).replace('"@@ACTS@@"', '$(acts)')])
         if c == 'mounts':
             M_ = F['p249/m/open']
@@ -631,6 +638,9 @@ def generate(G):
     for pg in ('bags', 'cols'):
         cnt += ['scoreboard players set #rqf bm.rng 0'] + [f'scoreboard players operation #rqf bm.rng += @s bm.rb_{b[0]}' for b in BAGK if b[2] == pg] + \
                [f'execute store result storage bm:tmp rqf.{pg} int 1 run scoreboard players get #rqf bm.rng']
+    # (the Relics: the four sub-pages added up)
+    cnt += ['scoreboard players set #rqf bm.rng 0'] + [f'execute if score @s {BY[i]["obj"]} matches 1.. run scoreboard players add #rqf bm.rng 1' for c in RELICS for i in CATS[c]] + \
+           ['execute store result storage bm:tmp rqf.relics int 1 run scoreboard players get #rqf bm.rng']
     sec_btn = lambda key, sym, word, col, tip: P28.btn([T(sym + ' ', col), T(word, 'white'), T(' ›', 'gray'), T(f'  $({key})', 'dark_gray')], B_SEC[key], width=150, tooltip=T(tip, 'gray'))
     fbtns = [sec_btn('partners', '❖', 'Partners', PURPLE, 'Your partners: call them, send them home, their menus - the old wheel'),
              sec_btn('pocket', '✦', 'Pocket', '#e8c070', 'Your everyday tools: the Handbook, the Ledger, the toggler, tokens, flares, compasses'),
@@ -640,6 +650,7 @@ def generate(G):
              sec_btn('mounts', '◈', 'Mounts', '#7ad8ff', 'Your skiff\'s key and your mounts\' calls'),
              sec_btn('bags', '▣', 'Bags', '#c08a52', 'Up to ten Backpacks and ten Vacuum Satchels, each with its own load'),
              sec_btn('cols', '⚒', 'Collectors', '#9ae8c8', 'Spirit Jars, Ore Magnets and Prime Coolers - they keep collecting from here'),
+             sec_btn('relics', '♛', 'Relics', '#ffb070', 'The major boss drops and important things: powers, passives, materials, arms and armour'),
              P28.btn([T('⚙ ', '#e8c070'), T('Settings', 'white'), T(' ›', 'gray')], B_SEC['settings'], width=150, tooltip=T('Auto-pack: what goes on the Pack by itself. And your own settings.', 'gray'))]
     b_hb = P28.btn([icon('bm_handbook', '#e8c070'), T(' Handbook', '#e8c070')], B_SEC['handbook'], width=150, tooltip=T('Open your Black Market Handbook (it\'s in the Pocket)', 'gray'))
     b_gd = P28.btn([T('✦ ', '#e8c070'), T('Guide', 'white'), T(' ›', 'gray')], B_SEC['guide'], width=150, tooltip=T('Your guide: on or off, and how it looks', 'gray'))
@@ -688,6 +699,22 @@ def generate(G):
         txt = '\n'.join('\n'.join(v) for k_, v in F.items() if k_ != nm_)
         if f'bm:{nm_}' not in txt: del F[nm_]
 
+    # ---------------------------------------------------------------- the Relics page: its four sub-pages
+    rc = []
+    for c in RELICS:
+        rc += ['scoreboard players set #rqf bm.rng 0'] + [f'execute if score @s {BY[i]["obj"]} matches 1.. run scoreboard players add #rqf bm.rng 1' for i in CATS[c]] + \
+              [f'execute store result storage bm:tmp rqr.{c} int 1 run scoreboard players get #rqf bm.rng']
+    RTIP = {'rpow': 'Boss drops you use: the Fire Extinguisher, the Dread Ember, the Hollow King\'s Echo, the Throne\'s Shard, the summonses',
+            'rpas': 'They work just as if carried: the Three Nights\' Talisman, the Ravenous Heart, the mantles, the dungeon relics...',
+            'rmat': 'Kept a stack each: Power Cells, Heartstones, Fallen Stars and the stars and hearts, Skiff parts, the elemental Gems',
+            'rarm': 'The bosses\' arms and armour, kept exactly as they were (enchantments, wear and all)'}
+    rbtns = [P28.btn([T(SEC[c][0] + ' ', SEC[c][2]), T(SEC[c][1], 'white'), T(' ›', 'gray'), T(f'  $({c})', 'dark_gray')], B_RSUB[c], width=150, tooltip=T(RTIP[c], 'gray'))
+             for c in RELICS] + [P28.btn([T('« Rat Pack', 'gray')], B_BACK, width=150, tooltip=T('Back to the Rat Pack\'s front page', 'gray'))]
+    rd = P28.multi(head('Relics'), [P28.body([T('The major boss drops and the things that matter. ', 'gray'),
+                                              T('Hold one in your off hand and use the Pack: it goes on the page it belongs to.', 'white')], 300)], rbtns, columns=2)
+    fn('p277/rel/dlg', [f'$dialog show @s {snbt(rd)}'])
+    fn('p277/rel/open', [f'scoreboard players set @s bm.menu {M_REL}', 'tag @s remove bm.rqtb'] + rc + ['function bm:p277/rel/dlg with storage bm:tmp rqr', page_turn])
+
     # ---------------------------------------------------------------- ⚙ Settings: auto-pack, and your own settings
     st = ['data remove storage bm:ui rqs']
     for key, lbl, dflt in AP:
@@ -696,7 +723,7 @@ def generate(G):
                f'execute if score @s bm.rqap_{key} matches 2 run data modify storage bm:ui rqs.r_{key} set value {snbt(off_txt)}']
     sd = P28.multi(head('settings'), [P28.body([T('Auto-pack: once a second, a thing of a kind switched on that\'s in your own inventory goes on the Pack, '
                                                   'and chat says so. Never your off hand, a chest or a bundle; never in a heist.', 'gray')], 300)],
-                   [P28.btn([T(f'{lbl}: ', 'gray'), f'@@RAW:r_{key}@@'], B_AP0 + i, width=150,
+                   [P28.btn([T(f'{lbl}: ', 'gray'), f'@@RAW:r_{key}@@'], AP_CODE[i], width=150,
                             tooltip=T(f'Auto-pack {lbl.lower()}: found in your inventory, they go on the Pack by themselves ({PAGE_OF[key]} page).', 'gray'))
                     for i, (key, lbl, dflt) in enumerate(AP)] +
                    [P28.btn([T('⚙ ', '#e8c070'), T('Your settings', 'white')], B_YOURS, width=150, tooltip=T('Music, chatter, screen shake, keep up, particles - yours alone.', 'gray')),
@@ -1066,10 +1093,11 @@ def generate(G):
             body += ['function bm:p277/tg', pull(e['name'], e['col'], PAGE_OF[c])]
             if x: body.append('data remove storage bm:rp a.l')
             fn(f'p277/ap/e_{iid}', body)
-            ca.append(' '.join(['execute'] + ([cond] if cond else []) + [f'if items entity @s container.* {holds(iid, x + NOPK)} run function bm:p277/ap/e_{iid}']))
+            ca.append(' '.join(['execute'] + ([cond] if cond else []) + [f'unless items entity @s weapon.mainhand {holds(iid)}',
+                                                                         f'if items entity @s container.* {holds(iid, x + NOPK)} run function bm:p277/ap/e_{iid}']))
         anyc = '*[' + '|'.join(f'minecraft:custom_data~{{bm:"{iid}"}}' for iid in L) + ']'
         fn(f'p277/ap/k_{c}', ca)
-        run.append(f'execute {on_(c, dfl[c])} if items entity @s container.* {anyc} run function bm:p277/ap/k_{c}')
+        run.append(f'execute {on_(AP_KEY.get(c, c), dfl[AP_KEY.get(c, c)])} if items entity @s container.* {anyc} run function bm:p277/ap/k_{c}')
     fn('p277/ap/cnt', ['$execute store result score #rqt bm.rng run data get entity @s Inventory[{Slot:$(s)b}].count'])
     fn('p277/ap/cnt1', ['$execute store result score #rqt bm.rng run data get storage bm:pw p$(pid).r$(k).count'])
     for c in CATS:
@@ -1149,15 +1177,18 @@ def generate(G):
            f'execute if score #act bm.pay matches {B_SEC["bags"]} if score @s bm.menu matches {M_FRONT} run return run function bm:p277/b/bags',
            f'execute if score #act bm.pay matches {B_SEC["cols"]} if score @s bm.menu matches {M_FRONT} run return run function bm:p277/b/cols']
     for c in CATS:
-        act.append(f'execute if score #act bm.pay matches {B_SEC[c]} if score @s bm.menu matches {M_FRONT} run return run function bm:p277/go/{c}')
+        if c in RELICS: act.append(f'execute if score #act bm.pay matches {B_RSUB[c]} if score @s bm.menu matches {M_REL} run return run function bm:p277/go/{c}')
+        else: act.append(f'execute if score #act bm.pay matches {B_SEC[c]} if score @s bm.menu matches {M_FRONT} run return run function bm:p277/go/{c}')
         fn(f'p277/go/{c}', ['tag @s remove bm.rqtb', f'scoreboard players set @s bm.pg_rp{c} 0', f'function bm:{page_fn[c]}'])
-    back_menus = [M_SET, M_BAGS, M_COLS, 3350] + list(M_CAT.values())
+    act.append(f'execute if score #act bm.pay matches {B_REL} if score @s bm.menu matches {M_FRONT} run return run function bm:p277/rel/open')
+    act += [f'execute if score #act bm.pay matches {B_RBACK} if score @s bm.menu matches {M_CAT[c]} run return run function bm:p277/rel/open' for c in RELICS]
+    back_menus = [M_SET, M_BAGS, M_COLS, 3350, M_REL] + [m for c, m in M_CAT.items() if c not in RELICS]
     act += [f'execute if score #act bm.pay matches {B_BACK} if score @s bm.menu matches {m} run return run function bm:p277/open' for m in back_menus]
-    act += [f'execute if score #act bm.pay matches {B_AP0 + i} if score @s bm.menu matches {M_SET} run return run function bm:p277/ap/tog_{key}' for i, (key, *_r) in enumerate(AP)]
+    act += [f'execute if score #act bm.pay matches {AP_CODE[i]} if score @s bm.menu matches {M_SET} run return run function bm:p277/ap/tog_{key}' for i, (key, *_r) in enumerate(AP)]
     act += [f'execute if score #act bm.pay matches {B_YOURS} if score @s bm.menu matches {M_SET} run return run function bm:p260/ps/from_wh']
     for c in CATS:
         m = M_CAT[c]
-        if c != 'keys':
+        if c not in TAKE_ONLY:
             act.append(f'execute if score #act bm.pay matches {B_MODE} if score @s bm.menu matches {m} run return run function bm:p277/mode/{c}')
             fn(f'p277/mode/{c}', [click, 'execute if entity @s[tag=bm.rqtb] run tag @s add bm.rqtb2', 'tag @s add bm.rqtb',
                                   'execute if entity @s[tag=bm.rqtb2] run tag @s remove bm.rqtb', 'tag @s remove bm.rqtb2', f'function bm:{page_fn[c]}'])
