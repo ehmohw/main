@@ -121,7 +121,6 @@ def build(G, X, C):
     stone_hit = snbt({'Tags': ['bm.gdstoneh'], 'width': F(1.2), 'height': F(1.4), 'response': B(1)})
     fn('p275g/pond/sec', ['execute if entity @e[type=minecraft:husk,tag=bm.gdb,distance=..48] run return 0',
                           'execute unless entity @e[type=minecraft:item_display,tag=bm.gdstone,distance=..1] run function bm:p275g/pond/stone',
-                          'execute unless score #lnight bm.bm matches 1 run return 0',
                           'particle minecraft:wax_on ~ ~0.5 ~ 4 0.3 4 0 6', 'particle minecraft:end_rod ~ ~0.2 ~ 4 0.1 4 0.005 3',
                           'execute store result score #gt bm.rng run time query gametime', 'execute if score #gt bm.rng < @s bm.gdr run return 0',
                           'execute as @a[distance=..7.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p275g/pond/try'])
@@ -134,8 +133,7 @@ def build(G, X, C):
     fast.append('execute as @e[type=minecraft:interaction,tag=bm.gdstoneh] if data entity @s interaction at @s run function bm:p275g/pond/click')
     fn('p275g/pond/click', ['execute on target run function bm:p275g/pond/hint', 'data remove entity @s interaction'])
     hint = lambda txt: title('@s', 'actionbar', T(txt, GOLD, italic=True))
-    fn('p275g/pond/hint', ['execute unless score #lnight bm.bm matches 1 run return run ' + hint('The gilded stone is cold. Three hollows round it: a sun, a thread, a crown. It only stirs on a Lucky Night.'),
-                           'execute store result score #gt bm.rng run time query gametime',
+    fn('p275g/pond/hint', ['execute store result score #gt bm.rng run time query gametime',
                            'execute if score #gt bm.rng < @e[type=minecraft:marker,tag=bm.gdpond,distance=..3,limit=1] bm.gdr run return run ' + hint('The stone sleeps. It was woken not long ago - it will stir again tomorrow.'),
                            'execute unless score @s bm.pid matches 1.. run function bm:p21/pid'] + trio() +
        ['execute if score #ta bm.rng matches 1 if score #tb bm.rng matches 1 if score #tc bm.rng matches 1 run return run ' + hint('The stone is warm under your hand. All three hollows glow. Stay by the pond - anywhere on the clover round it - and it will wake.'),
@@ -466,4 +464,4 @@ def build(G, X, C):
                                        'kill @e[type=minecraft:item_display,tag=bm.gdstone]', 'kill @e[type=minecraft:interaction,tag=bm.gdstoneh]',
                                        'kill @e[type=minecraft:marker,tag=bm.gdsig]', f'kill @e[type=minecraft:marker,tag={look}]', f'tp {HOST} ~ -300 ~', 'bossbar remove bm:gdoodle']
     fn('admin/gdoodle_boss', ['scoreboard players operation #o bm.rng = @s bm.pid', 'execute positioned ^ ^ ^6 run function bm:p275g/wake'])
-    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/gdoodle_boss', 'yellow'), T('  the Golden Doodle\'s fight, here (the Clover Pond: the Gilded Roost, on a Lucky Night, with the trio)', 'gray')]))
+    G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/gdoodle_boss', 'yellow'), T('  the Golden Doodle\'s fight, here (the Clover Pond: the Gilded Roost, any time, with the trio)', 'gray')]))

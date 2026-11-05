@@ -44,7 +44,7 @@ the wrong crown and turned into **the Gilded Eldritch**. The Lightbringer cured 
     golden egg) on its island.
   - Three hollows are carved round the stone: a **sun**, a **thread** and a **crown**. Right-click the stone and it tells you
     which hollow is still dark.
-  - On a **Lucky Night** the pond shimmers. Stand in the clover ring with the right three of your own followers out, and the
+  - Any time, day or night: stand in the clover ring with the right three of your own followers out, and the
     stone hatches.
 - **Her fight.**
   - **The entrance:** the pond fizzes, a lucky rainbow arcs over it, and a gold geyser bursts up. She is flung out of it and

@@ -175,7 +175,7 @@ def build():
 
     # ================================================================ 3.1: THE CLOVER POND (phase275b) - off the Counting House's east wall
     # a still golden pond in a ring of clover; on its island the gilded stone (a great golden egg - the marker bm.gdpond); three
-    # hollows carved round it: a sun, a thread, a crown. On a Lucky Night, the right three brought here wake what sleeps in it.
+    # hollows carved round it: a sun, a thread, a crown. The right three brought here wake what sleeps in it (any time - 3.0u).
     if __import__('fol5').on('gdoodle'):
         room(37, 32, 49, 52, 13)
         cx, cz = 43, 42
@@ -198,7 +198,7 @@ def build():
         for z in range(41, 44):                                                # the doorway, gilded
             for y in range(GY, GY + 4): B.set(37, y, z, 'air')
             B.set(37, GY + 4, z, TRIM)
-        B.sign(36, GY + 5, 42, 'birch_wall_sign[facing=west,waterlogged=false]', ['THE CLOVER', 'POND', 'it stirs on a', 'Lucky Night'], color='gold', glow=True)
+        B.sign(36, GY + 5, 42, 'birch_wall_sign[facing=west,waterlogged=false]', ['THE CLOVER', 'POND', 'bring the sun,', 'thread & crown'], color='gold', glow=True)
         for (x, z) in [(39, 34), (47, 34), (39, 50), (47, 50)]:
             B.set(x, 13, z, 'lantern[hanging=true,waterlogged=false]')
         B.fx(cx, 9, cz); B.zone(cx, 6, cz)
