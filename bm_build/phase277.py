@@ -62,7 +62,7 @@ B_ROW0 = 9200                                      # (9200 + kind*10 + slot: a b
 POCKET = ['bm_handbook', 'fixers_ledger', 'particle_toggler', 'waytoken', 'crew_flare', 'courier_whistle', 'fixers_card', 'renewal_key',
           'ender_pouch', 'wayfarers_lodestar', 'enchanted_sundial', 'merchants_bell', 'lodestone_locket', 'bond_compass', 'chorus_compass',
           'surface_charm', 'lava_wader_charm',
-          'bankers_card', 'ring_burrows', 'pocket_rift', 'fair_weather_bell']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
+          'bankers_card', 'ring_burrows', 'pocket_rift', 'fair_weather_bell', 'champion_ribbon']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
 KEYS = ['market_key', 'silver_key', 'gold_key', 'rat_king_key', 'mail_key', 'trial_key_fob'] + \
        [f'key_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep')] + \
        [f'vkey_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
