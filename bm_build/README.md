@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.0u: the Golden Doodle, fixed up
+
+- **The Clover Pond wakes any time,** day or night; it no longer waits for a Lucky Night. Stand anywhere on the clover ring
+  round the pond (or closer) with your Lightbringer, Keeper of Bonds and Bound Sovereign out, and the egg hatches. (The ring's
+  outer edge didn't count before.) The door sign now reads "bring the sun, thread & crown".
+- **You always get her.** If one big blow (a Piercing Blow, a mace smash) killed her before the Lightbringer's cure could start,
+  nothing was paid. Now everyone who fought her past the crown bite still gets the first-win spoils and the Doodle Egg.
+- **"Three out already."** When a new follower joins while you already have three out, you're told it waits in its item (send
+  one home, then call it), instead of nothing happening. If you won before this and have no egg, run
+  `/loot give @s loot bm:items/doodle_egg`.
+- **No more locked cutscenes in her fight.** Her entrance, the crown bite and the cure still play, but you keep your camera and
+  can move. You're still shielded while they play.
+- **Her second head is fixed.** Its skull sat on her midline, in front of her face (the odd ball) while its jaws floated off to
+  the side. It now sits on the end of its own neck, out to her side, with eyes round the back and sides.
+
 ## New in 3.0t: the Gilded Eldritch, tidied
 
 - **Her wings fold properly.** Folded, the gilded-bone wings now lie snug along her flanks, the fingers swept back and down. They
