@@ -304,15 +304,14 @@ def generate(G):
     # ---- PAYDAY: each new day, a day's wage out of his purse (as each player who's hired him)
     G.FUNCS['loop/second'].append('execute as @a[tag=bm.rumet] unless score @s bm.mday = #day bm.bm run function bm:p228/payday')
     pd = ['scoreboard players operation @s bm.mday = #day bm.bm',
-          'execute unless score @s bm.mpurse matches 1.. run return run ' + tellraw('@s', PREFIX + [T(f'{NAME}: ', RU_C, bold=True),
-              T('"No wages in the purse today, boss. I\'m still here - a contract\'s a contract - but the extras cost extra."', RU_LINE),
-              T(' (Pay a week from his menu: sneak + use the contract.)', 'dark_gray')]),
+          # (3.1b: the owner disliked Rufus Gnaw's daily Black Market message - the empty-purse line each new day and the
+          #  one-day-left warning are gone; his menu still shows what's in the purse)
+          'execute unless score @s bm.mpurse matches 1.. run return 0',
           'scoreboard players remove @s bm.mpurse 1', 'scoreboard players add @s bm.mdays 1', 'scoreboard players operation @s bm.mpaid = #day bm.bm']
     for days, nm, col, hp in RANKS[1:]:
         pd.append(f'execute if score @s bm.mdays matches {days} run ' + tellraw('@s', PREFIX + [T(f'{NAME} is a ', 'gray'), T(nm, col, bold=True),
                                                                                                 T(' now: tougher, harder-hitting.', 'gray')]))
-    pd += ['execute if score @s bm.mpurse matches 1 run ' + tellraw('@s', PREFIX + [T(f'{NAME}: ', RU_C, bold=True), T('"One day left in the purse, boss. Just saying."', RU_LINE)]),
-           'execute unless entity @s[tag=bm.hush] run ' + say('"Payday. Pleasure doing business."')]
+    pd += ['execute unless entity @s[tag=bm.hush] run ' + say('"Payday. Pleasure doing business."')]
     fn('p228/payday', pd)
     fn('p228/pay', P28.pay_lines('token', WEEK_COST, 'function bm:p28/back/broke {m:"A week costs 4 Tokens."}') +
        [f'scoreboard players add @s bm.mpurse {WEEK_DAYS}', 'playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 1 0.8',

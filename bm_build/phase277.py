@@ -66,10 +66,11 @@ B_UNFOLD, B_TAKE, B_AUTO, B_CONV, B_DEP, B_WD1, B_WDA, B_BBACK, B_DEPALL = 9162,
 B_ROW0 = 9200                                      # (9200 + kind*10 + slot: a bag's / collector's row)
 
 # ------------------------------------------------------------------ what goes where (keyed by item id in storage and scores: no numbering to keep)
-POCKET = ['bm_handbook', 'fixers_ledger', 'particle_toggler', 'waytoken', 'crew_flare', 'courier_whistle', 'fixers_card', 'renewal_key',
+POCKET = ['bm_handbook', 'bankers_card', 'fixers_ledger',      # (3.1b: the owner - the Banker's Card on the Pocket's first page)
+           'particle_toggler', 'waytoken', 'crew_flare', 'courier_whistle', 'fixers_card', 'renewal_key',
           'ender_pouch', 'wayfarers_lodestar', 'enchanted_sundial', 'merchants_bell', 'lodestone_locket', 'bond_compass', 'chorus_compass',
           'surface_charm', 'lava_wader_charm',
-          'bankers_card', 'ring_burrows', 'ring_burrows2', 'ring_burrows3', 'ring_burrows4', 'ring_burrows5', 'pocket_rift', 'fair_weather_bell', 'champion_ribbon']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
+          'ring_burrows', 'ring_burrows2', 'ring_burrows3', 'ring_burrows4', 'ring_burrows5', 'pocket_rift', 'fair_weather_bell', 'champion_ribbon']     # (3.0y: the owner - the Banker's Card was missed; so were phase29's other right-click tools)
 KEYS = ['market_key', 'silver_key', 'gold_key', 'rat_king_key', 'mail_key', 'trial_key_fob'] + \
        [f'key_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep')] + \
        [f'vkey_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
@@ -384,6 +385,7 @@ def generate(G):
                           tag='bm.pw_hb' if hb else f'bm.rqt_{iid}', use=use, how=how, stack=stack_of(iid), kind=kind,
                           name=ITEMS[ri]['name'] + (f' {GROUP[ri].index(iid) + 1}' if ri in GROUP else ''), col=colour(iid), real=ri))
     BY = {e['iid']: e for e in E}
+    G.RQ_ENTRIES = E                          # (3.1b: for late_back)
     # (3.1a) THE FIXER'S RECOVERY - for whoever lost something to the Pack: /function bm:admin/rp_dump lists every entry the Pack
     #  still keeps for you (whatever its rows or scores say); /function bm:admin/rp_restore hands every one of them back
     #  (inventory first, then at your feet) and clears its row
@@ -1373,3 +1375,54 @@ def generate(G):
     fn('admin/rat_pack', [give('partner_wheel')] + [give(e['iid']) for e in E if e['iid'] not in ALIAS] + [give(b[1]) for b in BAGK])
     F['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.rqh]', 'kill @e[type=minecraft:item_display,tag=bm.rqhold]']
     return rep
+
+
+B_RPBACK = 8689                   # (3.1b) « Rat Pack: back from an item's own menu (used from the Pack) to the Pack's front page
+
+
+def late_back(G):
+    """(3.1b: the owner - "a «Rat Pack button to return to the main UI on items like the bank card, ONLY IF they've been added
+    to the Rat Pack".) Every Pack row that opens its item's own menu (a 'hold' or 'fn' use - the Banker's Card, the Ring, the
+    Toggler, the Handbook...): the dialogs that use shows (its function and what it calls, three deep) have their bottom button
+    (the exit action, "Close") become « Rat Pack while that item is on your Pack. A dialog more than one row reaches, the
+    Pack's own pages and the partners' menus are left alone. Run after everything is made. Returns (rows, dialogs) patched."""
+    import re as _re
+    import phase28 as P28
+    F = G.FUNCS
+    EX = _re.compile(r'exit_action:\{label:("(?:[^"\\]|\\.)*"|\{[^{}]*\})\}')
+    back = snbt(P28.btn([T('« ', 'gray'), T('Rat Pack', PURPLE)], B_RPBACK, tooltip=T('Back to the Rat Pack', 'gray'), width=150))
+    chains = {}
+    for e in G.RQ_ENTRIES:
+        if not e['use'] or e['how'] not in ('hold', 'fn'): continue
+        front, seen, hits = [e['use'].split(':', 1)[1]], set(), []
+        for _d in range(4):
+            nxt = []
+            for f in front:
+                if f in seen or f not in F or f.startswith(('p277/', 'p278/', 'p179/', 'p28/')): continue
+                seen.add(f)
+                if any('dialog show @s' in l and EX.search(l) for l in F[f]): hits.append(f)
+                nxt += [m for l in F[f] for m in _re.findall(r'function bm:([\w/]+)', l)]
+            front = nxt
+        chains[e['iid']] = (e['obj'], hits)
+    count = {}
+    for _o, hits in chains.values():
+        for f in hits: count[f] = count.get(f, 0) + 1
+    nr = nd = 0
+    for iid, (obj, hits) in chains.items():
+        mine = [f for f in hits if count[f] == 1]
+        if mine: nr += 1
+        for f in mine:
+            out = []
+            for l in F[f]:
+                if 'dialog show @s' in l and EX.search(l):
+                    mac = l.startswith('$'); body = l[1:] if mac else l
+                    alt = EX.sub(lambda m: 'exit_action:' + back, body, count=1)
+                    out += [('$' if mac else '') + f'execute if score @s {obj} matches 1.. run {alt}',
+                            ('$' if mac else '') + f'execute unless score @s {obj} matches 1.. run {body}']
+                    nd += 1
+                else:
+                    out.append(l)
+            F[f] = out
+    F['p277/act'].insert(0, f'execute if score #act bm.pay matches {B_RPBACK} run return run function bm:p277/back_front')
+    G.fn('p277/back_front', ['dialog clear @s', 'function bm:p277/open'])
+    return nr, nd
