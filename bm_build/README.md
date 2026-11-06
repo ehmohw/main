@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1g: the Bound Sovereign's three forms
+
+- **The Bound Sovereign's Form button** (yours once you've felled the Sovereign a second time) now cycles **Bound → Armored → Broken → True → Bound**. Each is the form as it stood against you, at its full size, in that form's own armour: the Broken with its torn plate, the True larger and burning. It walks, idles and fights in each. A Bound Sovereign that was already Unbound comes up Armored, as before.
+
 ## New in 3.1f: hard mode hits back
 
 **Restart your server (or reload the world) after installing: this adds a new damage type.**
