@@ -209,8 +209,13 @@ def generate(G):
                                 'execute unless score #nt bm.rng matches 13000..22999 run return 0',
                                 'execute at @s unless biome ~ ~ ~ #minecraft:is_forest run return 0',
                                 'execute at @s if entity @e[type=minecraft:interaction,tag=bm.boenc,distance=..48] run return 0',
-                                'execute at @s positioned ^ ^ ^5 if block ~ ~ ~ #bm:grap_pass if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass run return run function bm:p191/enc/watch',
-                                'execute at @s positioned ^ ^ ^3 run function bm:p191/enc/watch'])
+                                # (3.1a: the owner - "Bloo spawns in the ground when planting a sapling": the spot was ^ ^ ^5 along your LOOK -
+                                #  and planting, you look down. Now along the ground (rotated ~ 0), a few distances and heights, the first spot
+                                #  with room for him over solid ground; failing all of them, beside you)
+                                ] + [f'execute at @s rotated ~ 0 positioned ^ ^{dy} ^{d} align xyz positioned ~0.5 ~ ~0.5 if block ~ ~ ~ #bm:grap_pass '
+                                     f'if block ~ ~1 ~ #bm:grap_pass if block ~ ~2 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:p191/enc/watch'
+                                     for d in (5, 4, 6, 3) for dy in (0, 1, -1, 2, -2)] + [
+                                'execute at @s run function bm:p191/enc/watch'])
         fn('p191/enc/watch', ['function bm:p191/enc/spawn', 'particle minecraft:cherry_leaves ~ ~2 ~ 1 1 1 0.05 40',
                               'playsound minecraft:entity.ravager.ambient neutral @a[distance=..24] ~ ~ ~ 1 0.8', 'playsound minecraft:block.azalea_leaves.break neutral @a[distance=..24] ~ ~ ~ 1 0.6',
                               X.tellraw('@s', [T('The leaves part. ', BL_LINE, italic=True),
