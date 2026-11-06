@@ -259,12 +259,15 @@ def generate(G):
         comps = '{"minecraft:trim":{material:"minecraft:%s",pattern:"minecraft:silence"}}' % mat
         # (2.94: never on a piece with its own art - the Seraph's: a trim has no texture for its own equipment, and by day the
         #  carapace's wings and the plate showed the missing-texture checks)
-        own = ''.join(f' unless items entity @s {{sl}} *[minecraft:custom_data~{{{{bm:"{i}"}}}}]' for i in sorted(OWN_ART))
+        # (3.0z+: the owner - the holy wings on his back showed the missing texture: the Wings of the Damned, purified, were trimmed
+        #  by day like the plate - and a trim has no texture on an elytra's wings. They're never trimmed now, and any trim on is taken off)
+        NO_TRIM = sorted(OWN_ART | {WINGS})
+        own = ''.join(f' unless items entity @s {{sl}} *[minecraft:custom_data~{{{{bm:"{i}"}}}}]' for i in NO_TRIM)
         fn(f'p182/wake_{t}', [f'execute if items entity @s {sl} {ANGEL}{own.format(sl=sl)} run item modify entity @s {sl} {{function:"minecraft:set_components",components:{comps}}}'
                               for sl in slots.values()] + [title('@s', 'actionbar', T(msg, col, italic=True))])
     # (2.94: and a trim already put on one - before this fix - taken off again)
     unt = [f'execute if items entity @s {sl} *[minecraft:custom_data~{{bm:"{i}"}},minecraft:trim] run item modify entity @s {sl} '
-           '{function:"minecraft:set_components",components:{"!minecraft:trim":{}}}' for sl in slots.values() for i in sorted(OWN_ART)]
+           '{function:"minecraft:set_components",components:{"!minecraft:trim":{}}}' for sl in slots.values() for i in NO_TRIM]
     # (2.94c: and every second, whoever wears one - a smithing table's trim too, not only a wake's: it has no texture there)
     fn('p182/untrim', unt)
     second.append('execute as @a if items entity @s armor.* *[minecraft:trim] run function bm:p182/untrim')
