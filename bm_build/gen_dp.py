@@ -271,7 +271,7 @@ if PHASE2:
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
-VERSION2 = 'v3.1d'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.1e'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 

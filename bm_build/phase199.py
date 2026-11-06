@@ -258,22 +258,42 @@ def generate(G):
     # (3.0h, the owner: "totally invisible - new players wouldn't have a clue") a sign over each side of the throne room: the
     # Royal Treasury's barrels (the steward's side: a tribute a day) and the Request Stand's lectern (the other: items for pearls).
     # Hung by their click-boxes, once each - kingdoms built before get them too; and gone with them
-    lbl = lambda tag, text: {'Tags': ['bm.klabel', tag], 'billboard': 'center', 'shadow': B(1), 'line_width': Int(220), 'view_range': F(0.4),
+    # (3.1d, the owner: "the text displays cut into the wall. And wherever you're supposed to click to interact is still not
+    #  clear". The signs are smaller now and drawn through the walls they used to sink into; and over each thing to click floats a
+    #  bobbing "▼ Right-click" with a sparkle round it while you're near. Kingdoms built before get the new ones (bm.klbl2))
+    lbl = lambda tag, text: {'Tags': ['bm.klabel', tag], 'billboard': 'center', 'shadow': B(1), 'line_width': Int(170), 'view_range': F(0.4),
+                             'see_through': B(1), 'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
+                                                                      'translation': [F(0), F(0), F(0)], 'scale': [F(0.6), F(0.6), F(0.6)]},
                              'background': Int(0x70000000), 'brightness': {'block': Int(15), 'sky': Int(15)}, 'text': [T('')] + text}
+    ptr = lambda tag: {'Tags': ['bm.klabel', 'bm.kptr', tag], 'billboard': 'center', 'shadow': B(1), 'view_range': F(0.3), 'see_through': B(1),
+                       'background': Int(0), 'brightness': {'block': Int(15), 'sky': Int(15)},
+                       'text': [T(''), T('▼ ', GOLD, bold=True), T('Right-click', 'white', bold=True), T(' ▼', GOLD, bold=True)]}
     trib_sign = lbl('bm.klabel_trib', [T('THE ROYAL TREASURY', GOLD, bold=True),
                                        T('\nRight-click the Steward\'s barrels\nonce a day for a tribute of\n', 'gray'), T('Royal Pearls', PEARL_C), T(' and a gift', 'gray'),
                                        T('\n(+1 pearl for each royal with you)', 'dark_gray')])
     req_sign = lbl('bm.klabel_req', [T('THE REQUEST STAND', KC, bold=True),
                                      T('\nRight-click the lectern to see\ntoday\'s royal request - bring it\nhere for ', 'gray'), T('Royal Pearls', PEARL_C),
                                      T(' and favour', 'gray'), T('\n(a new request every day)', 'dark_gray')])
-    fn('p199/k/label_trib', ['tag @s add bm.klbl', 'kill @e[type=minecraft:text_display,tag=bm.klabel_trib,distance=..4]',
-                             f'summon minecraft:text_display ~ ~1.7 ~1 {snbt(trib_sign)}'])
-    fn('p199/k/label_req', ['tag @s add bm.klbl', 'kill @e[type=minecraft:text_display,tag=bm.klabel_req,distance=..4]',
-                            f'summon minecraft:text_display ~ ~2.3 ~1 {snbt(req_sign)}'])
-    second += ['execute as @e[type=minecraft:interaction,tag=bm.ktrib,tag=!bm.klbl] at @s run function bm:p199/k/label_trib',
-               'execute as @e[type=minecraft:interaction,tag=bm.kboard,tag=!bm.klbl] at @s run function bm:p199/k/label_req',
+    fn('p199/k/label_trib', ['tag @s add bm.klbl2', 'kill @e[type=minecraft:text_display,tag=bm.klabel_trib,distance=..4]',
+                             'kill @e[type=minecraft:text_display,tag=bm.kptr_trib,distance=..3]',
+                             f'summon minecraft:text_display ~ ~1.75 ~ {snbt(trib_sign)}', f'summon minecraft:text_display ~ ~0.95 ~ {snbt(ptr("bm.kptr_trib"))}'])
+    fn('p199/k/label_req', ['tag @s add bm.klbl2', 'kill @e[type=minecraft:text_display,tag=bm.klabel_req,distance=..4]',
+                            'kill @e[type=minecraft:text_display,tag=bm.kptr_req,distance=..3]',
+                            f'summon minecraft:text_display ~ ~2.65 ~ {snbt(req_sign)}', f'summon minecraft:text_display ~ ~1.85 ~ {snbt(ptr("bm.kptr_req"))}'])
+    second += ['execute as @e[type=minecraft:interaction,tag=bm.ktrib,tag=!bm.klbl2] at @s run function bm:p199/k/label_trib',
+               'execute as @e[type=minecraft:interaction,tag=bm.kboard,tag=!bm.klbl2] at @s run function bm:p199/k/label_req',
+               # (the pointers bob, and the things to click sparkle while someone is near)
+               'execute as @e[type=minecraft:text_display,tag=bm.kptr] at @s if entity @a[distance=..10] run function bm:p199/k/ptr_bob',
+               'execute as @e[type=minecraft:interaction,tag=bm.kbox] at @s if entity @a[distance=..8] run particle minecraft:wax_on ~ ~0.5 ~ 0.35 0.3 0.35 0 4',
+               # (the Steward is a trader under the rat: should his invisibility ever be cleared, it's put back)
+               'effect give @e[type=minecraft:wandering_trader,tag=bm.kstew,predicate=!bm:p126/invis] minecraft:invisibility infinite 0 true',
+               'execute as @e[type=minecraft:text_display,tag=bm.kptr_trib] at @s unless entity @e[type=minecraft:interaction,tag=bm.ktrib,distance=..2] run kill @s',
+               'execute as @e[type=minecraft:text_display,tag=bm.kptr_req] at @s unless entity @e[type=minecraft:interaction,tag=bm.kboard,distance=..3] run kill @s',
                'execute as @e[type=minecraft:text_display,tag=bm.klabel_trib] at @s unless entity @e[type=minecraft:interaction,tag=bm.ktrib,distance=..3] run kill @s',
                'execute as @e[type=minecraft:text_display,tag=bm.klabel_req] at @s unless entity @e[type=minecraft:interaction,tag=bm.kboard,distance=..3] run kill @s']
+    fn('p199/k/ptr_bob', ['execute store result score #kb bm.rng run time query gametime', 'scoreboard players operation #kb bm.rng %= #40 bm.rng',
+                          'execute if score #kb bm.rng matches 0..19 run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{translation:[0f,0.15f,0f]}}',
+                          'execute if score #kb bm.rng matches 20.. run data merge entity @s {start_interpolation:0,interpolation_duration:20,transformation:{translation:[0f,0f,0f]}}'])
     fn('p199/k/make_heart', [f'summon minecraft:item_display ~ ~1 ~ {snbt(heart)}', box('bm.kheart', 0.9, 1.2, 1)])
     # the Royal Steward: a frozen trader (the shop) under a rat in royal blue; his treasury barrels pay the tribute
     trader = {'NoAI': B(1), 'Invulnerable': B(1), 'PersistenceRequired': B(1), 'Silent': B(1), 'DespawnDelay': Int(0),

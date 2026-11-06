@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1e: the Underwater Kingdom's throne room, clearer
+
+- **The Royal Steward is invisible again** under his rat. If anything ever clears his invisibility, it's put back within a second.
+- **The signs no longer sink into the walls.** The Royal Treasury and Request Stand signs are smaller, sit right over what they describe, and are drawn through the walls around them.
+- **What to click is marked.** A bobbing "▼ Right-click ▼" floats over the Steward's barrels (the daily tribute) and over the Request Stand's lectern. Everything you can click in the kingdom (the barrels, the lectern, the Tide Font, the Dome Heart and the alcove's plinth) sparkles while you're near.
+
 ## New in 3.1d: the Safekeeper, and the Underwater Kingdom set down deep
 
 (3.1c was withdrawn: start from 3.1b or this.)
