@@ -168,7 +168,12 @@ def generate(G, builds):
             return lines
 
         def fail(n, extra_reset):
-            fn(f'p2/{d}/pz{n}_fail', extra_reset + fl['fail'] + [
+            # (3.1f, the owner: "like 15 wither skeletons spawn in the undercrown if you get the target puzzle wrong" - a struck
+            #  target stays lit a second; the reset untagged it, the next check saw it lit again and failed again, and again.
+            #  One mistake, one punishment: a fail within 3 s of the last is let go)
+            fn(f'p2/{d}/pz{n}_fail', ['execute store result score #gt bm.rng run time query gametime', 'scoreboard players operation #gd bm.rng = #gt bm.rng',
+                                      'scoreboard players operation #gd bm.rng -= @s bm.pfc', 'execute if score #gd bm.rng matches 0..60 run return 0',
+                                      'scoreboard players operation @s bm.pfc = #gt bm.rng'] + extra_reset + fl['fail'] + [
                 title('@a[distance=..16]', 'actionbar', T(fl['failmsg'], 'red')),
                 f'playsound {fl["failsnd"]} hostile @a[distance=..12] ~ ~ ~ 1 0.8',
                 'playsound minecraft:block.note_block.bass block @a[distance=..12] ~ ~ ~ 1 0.5'])

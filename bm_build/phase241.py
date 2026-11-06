@@ -382,6 +382,11 @@ def generate(G):
           'item replace entity @s weapon.mainhand with minecraft:air', 'item replace entity @s weapon.offhand with minecraft:air',
           'item replace entity @s armor.head with minecraft:air'])
     tick.append('execute as @e[tag=bm.avorn,tag=!bm.adone] run function bm:p241/dress')
+    # (3.1f) an Armada built before: the Hive Vault's stair had lost its last step (x88, walk 48 - the step at y 47): put back, once
+    sx, sy, sz = W(88, 47, 166)
+    fn('p241/fix/vstep', [f'execute in {END} run setblock {sx} {sy} {sz + dz} minecraft:polished_blackstone_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]' for dz in (-1, 0, 1)] +
+       ['scoreboard players set #avstep bm.p2 1'])
+    second.append(f'execute unless score #avstep bm.p2 matches 1 if score #aver bm.p2 matches 1.. in {END} if loaded {sx} {sy} {sz} run function bm:p241/fix/vstep')
     tick.append('execute as @e[type=minecraft:husk,tag=bm.avorn,tag=bm.adone,tag=!bm.agear] run function bm:p241/dress/gear')
 
     # ---- the hive's voice: one line to each player, the first time they come near

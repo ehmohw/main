@@ -979,6 +979,7 @@ if __name__ == '__main__':
     noparts.rp(sys.modules[__name__])
     import phase250                           # (2.99a: [market music hook] the market's theme, bm:music.market_theme)
     phase250.rp(sys.modules[__name__])
+    LANG.update({'death.attack.bm.sunder': '%1$s was sundered by Admiral Vexis', 'death.attack.bm.sunder.player': '%1$s was sundered by %2$s'})      # (3.1f)
     LANG.update({'death.attack.bm.plasma': '%1$s was vaporised by Vorn plasma', 'death.attack.bm.plasma.player': '%1$s was vaporised by %2$s',
                  'death.attack.bm.quake': '%1$s was flattened by a shockwave', 'death.attack.bm.quake.player': '%1$s was flattened by %2$s'})
     if PHASE2:

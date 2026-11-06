@@ -314,7 +314,8 @@ def generate(G):
         a = 1.6 * (1 - k / 4)
         dx, dy = a * rs.choice((-1, 1)), a * 0.6 * rs.choice((-1, 1))
         shk.append((dx, dy))
-    fn('p238/c/shake', [f'execute as {FIGHT} at @s run rotate @s ~{dx:.2f} ~{dy:.2f}' for dx, dy in shk[:2]])
+    fn('p238/c/shake', [f'execute as {FIGHT} at @s run particle minecraft:block{{block_state:"minecraft:blackstone"}} ~ ~0.2 ~ 1.2 0.1 1.2 0 14',
+                        f'execute as {FIGHT} at @s run playsound minecraft:entity.iron_golem.step hostile @s ~ ~ ~ 0.6 0.4'])     # (3.1f: felt, not forced - the view is the player's own)
     # ---- (3.0a) THE CAMERA, one hold for every cinematic (the coming, each form's entrance, the Last Light): each tick, each
     # fighter is turned to the look marker (bm.svlook), held still (the slowness is also the forced zoom), unhurt; anyone too
     # close to what is being shown (a keep-out marker: bm.svko 14, bm.svkos 9) glides back from it over the floor (never off
@@ -323,14 +324,12 @@ def generate(G):
     # its fighter dead, gone from the hall, logged out and back - and cam/release gives them their body back at once (the
     # lock's own slowness / jump / resistance cleared, nothing else). No gamemode is ever changed, no camera entity spectated.
     fn('p238/cam/all', [f'execute as {FIGHT} at @s run function bm:p238/cam/hold'])
-    fn('p238/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3', 'function bm:p176/nodark',      # (3.0g: no Darkness, no Blindness while held)
-                         'execute if entity @e[type=minecraft:marker,tag=bm.svko,distance=..14] facing entity @e[type=minecraft:marker,tag=bm.svko,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
-                         'execute if entity @e[type=minecraft:marker,tag=bm.svkos,distance=..9] facing entity @e[type=minecraft:marker,tag=bm.svkos,sort=nearest,limit=1] feet rotated ~ 0 run function bm:p238/cam/back',
-                         'execute at @s if entity @e[type=minecraft:marker,tag=bm.svlook] run tp @s ~ ~ ~ facing entity @e[type=minecraft:marker,tag=bm.svlook,limit=1] feet',
-                         'effect give @s minecraft:slowness 2 255 true', 'effect give @s minecraft:resistance 2 255 true', 'effect give @s minecraft:jump_boost 2 200 true'])
+    # (3.1f, the owner: "the player's camera should be free" - as Vexis's (3.0v). The hold no longer turns, stills or slides
+    #  anyone: while a cinematic plays they're only kept unhurt and out of the Darkness; their view and their feet are their own)
+    fn('p238/cam/hold', ['tag @s add bm.svcam', 'scoreboard players set @s bm.svcm 3', 'function bm:p176/nodark',
+                         'effect give @s minecraft:resistance 2 255 true'])
     # (a carpet - the throne's red runner - is walked over, not into: bm:cam_pass is grap_pass and the carpets, at the feet)
     wjson('bm/tags/block/cam_pass.json', {'values': ['#bm:grap_pass', '#minecraft:wool_carpets', 'minecraft:moss_carpet', 'minecraft:pale_moss_carpet']})
-    fn('p238/cam/back', ['execute if block ^ ^ ^-0.7 #bm:cam_pass if block ^ ^1 ^-0.7 #bm:grap_pass unless block ^ ^-0.6 ^-0.7 #bm:grap_pass run tp @s ^ ^ ^-0.7'])
     fn('p238/cam/release', ['tag @s remove bm.svcam', 'scoreboard players reset @s bm.svcm',
                             'execute if predicate bm:p238/cam_slow run effect clear @s minecraft:slowness',
                             'execute if predicate bm:p238/cam_jump run effect clear @s minecraft:jump_boost',

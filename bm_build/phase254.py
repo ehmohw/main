@@ -65,6 +65,7 @@ item('bond_thread', TOTEM, 'The Bond Thread', COL,
 
 
 class Keeper(RP.Cfg):
+    BUTTONS = ((6, 'Gifts: on / off', 'His little gifts every minute or so. Off: none (your pockets stay tidy).', 'p280/gift/kb'),)
     W, NAME, COL, LINE, pfx, ab, q = 'keeper', 'The Keeper of Bonds', COL, LINE, 'p254', 'tk', 'qb'
     A = RF2.art(KA)
     MENU, PET_HP, PET_CD, ITEM = 5250, 40, 120, 'bond_thread'
@@ -248,7 +249,7 @@ def _abilities(G, X):
              (['give @s minecraft:emerald 2'], '(a little gift: two emeralds it found in the hem of its robe)'),
              (['effect give @s minecraft:speed 120 0 true', 'effect give @s minecraft:haste 120 0 true'], '(a little gift: it ties a thread round your wrist - your step is lighter)'),
              (['effect give @s minecraft:luck 300 0 true', 'effect give @s minecraft:hero_of_the_village 120 0 true'], '(a little gift: a kind word, woven into your cloak - folk will be kind to you)')]
-    fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] at @s run function bm:p254/gift_you'])
+    fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8,tag=!bm.nogift_kb] at @s run function bm:p254/gift_you'])
     fn('p254/gift_you', [f'execute store result score #r bm.rng run random value 1..{len(GIFTS)}'] +
        [f'execute if score #r bm.rng matches {i + 1} run function bm:p254/gift/{i + 1}' for i in range(len(GIFTS))] +
        ['particle minecraft:end_rod ~ ~1.4 ~ 0.3 0.3 0.3 0.02 10', 'playsound minecraft:entity.allay.item_given player @s ~ ~ ~ 1 1.1'])

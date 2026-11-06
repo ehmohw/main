@@ -15,7 +15,7 @@ for _name in ('frost', 'tide', 'hex', 'keep', 'hollow', 'lucky'):
     except ModuleNotFoundError:
         pass
 BUILT = {}
-OBJ = ['bm.conq', 'bm.pz', 'bm.done', 'bm.code', 'bm.klen', 'bm.step', 'bm.pt', 'bm.gs', 'bm.gt', 'bm.seen', 'bm.bs', 'bm.bt',
+OBJ = ['bm.pfc', 'bm.conq', 'bm.pz', 'bm.done', 'bm.code', 'bm.klen', 'bm.step', 'bm.pt', 'bm.gs', 'bm.gt', 'bm.seen', 'bm.bs', 'bm.bt',
        'bm.ba', 'bm.at', 'bm.at2', 'bm.acd', 'bm.p2', 'bm.rx', 'bm.ry', 'bm.rz', 'bm.ret', 'bm.wv', 'bm.wt', 'bm.wage', 'bm.wab', 'bm.rd', 'bm.wpc', 'bm.wlcd', 'bm.wlg']
 
 

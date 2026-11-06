@@ -1572,7 +1572,10 @@ def build(out_dir):
     if PHASE2: print('3.1b: « Rat Pack on %d rows\' own menus (%d dialogs)' % R277.late_back(sys.modules[__name__]))
     if PHASE2:
         import phase279 as R279       # 3.1c: the Safekeeper - the Pack ID registry, the guard, the snapshots (after every objective is made)
-        print('3.1c: the Safekeeper keeps %d objectives per player (%d chunks)' % R279.late(sys.modules[__name__]))      # (after every item's menu is made)
+        print('3.1c: the Safekeeper keeps %d objectives per player (%d chunks)' % R279.late(sys.modules[__name__]))
+        import phase280 as R280       # 3.1f: hard mode hits back - Nullify (bosses, knights, mires, the Dread's mobs, the Armada's Vorn), Sunder, gift switches
+        R280.generate(sys.modules[__name__])
+        print('3.1f: Nullify in; Sunder on %d of Vexis\'s blows' % R280.late(sys.modules[__name__]))      # (after every item's menu is made)
     useitem.generate(sys.modules[__name__])
     R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command

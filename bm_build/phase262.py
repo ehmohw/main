@@ -90,7 +90,8 @@ class RatKing(RP.Cfg):
     SCALE, HIT = HOST_BIG, HIT_BIG
     BOX_FIT = True
     BUTTONS = ((6, 'Companion Size: on / off', 'The Rat King at a companion\'s size - about a head shorter than you (his ego, as tall as ever). '
-                                               'Off: as large and imposing as he sat on his throne.', 'p262/csz/toggle'),)
+                                               'Off: as large and imposing as he sat on his throne.', 'p262/csz/toggle'),
+               (7, 'Gifts: on / off', 'His loans now and then, and the King\'s Cut from your kills. Off: none (your pockets stay tidy).', 'p280/gift/rk'))
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
                        (None, [(0, 'happy')]),
                        {7: (None, [(0, 'swat_up'), (4, 'swat')]),
@@ -218,7 +219,7 @@ def _abilities(G, X):
              (['give @s minecraft:golden_carrot 4'], '"Golden carrots. The cheese is MINE, but these you can have."'),
              (['effect give @s minecraft:luck 300 0 true', 'effect give @s minecraft:hero_of_the_village 120 0 true'], '"I put in a word for you. The rats will treat you like family."'),
              (['effect give @s minecraft:haste 120 0 true'], '"Dig, dig. A good hoard doesn\'t find itself."')]
-    fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8] at @s run function bm:p262/loan'])
+    fn(f'{pfx}/kind', ['execute on owner if entity @s[distance=..8,tag=!bm.nogift_rk] at @s run function bm:p262/loan'])
     fn('p262/loan', [f'execute store result score #r bm.rng run random value 1..{len(LOANS)}'] +
        [f'execute if score #r bm.rng matches {i + 1} run function bm:p262/loan/{i + 1}' for i in range(len(LOANS))] +
        ['particle minecraft:wax_on ~ ~1.4 ~ 0.3 0.3 0.3 0 10', 'playsound minecraft:entity.allay.item_given player @s ~ ~ ~ 1 0.8'])
@@ -453,7 +454,7 @@ def generate(G):
     second += ['execute as @a[scores={bm.rwmk=1..}] at @s run function bm:p262/cut/you']
     fn('p262/cut/you', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #rk bm.rng 0',
                         'execute as @e[type=minecraft:wolf,tag=bm.rwpet,tag=!bm.ffpet,distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #rk bm.rng 1',
-                        'execute if score #rk bm.rng matches 1 if score @s bm.rwmk matches 1.. run function bm:p262/cut/one',
+                        'execute if score #rk bm.rng matches 1 if score @s bm.rwmk matches 1.. unless entity @s[tag=bm.nogift_rk] run function bm:p262/cut/one',
                         'scoreboard players set @s bm.rwmk 0'])
     fn('p262/cut/one', ['scoreboard players remove @s bm.rwmk 1', 'execute store result score #r bm.rng run random value 1..300',
                         'execute if score #r bm.rng matches 1 run return run function bm:p262/cut/token',

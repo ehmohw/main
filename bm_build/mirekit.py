@@ -204,11 +204,13 @@ def fight(G, C):
                        f'execute if score @s bm.mt matches 6..30 as @a[tag={C.GRAB},distance=2.6..] at @s facing entity {ME} feet positioned ^ ^ ^0.3 run tp @s ~ ~ ~',
                        f'execute if score @s bm.mt matches 6..30 as @a[tag={C.GRAB}] at @s run particle minecraft:falling_dust{{block_state:"{C.DRIP_BLOCK}"}} ~ ~1 ~ 0.3 0.5 0.3 0 2',
                        at(30, f'execute as @a[tag={C.GRAB}] run damage @s {C.GRAB_DMG} {C.DMG} by {ME}'),
+                       at(30, f'execute as @a[tag={C.GRAB}] at @s run function bm:p280/mire'),      # (3.1f: Nullified)
                        at(30, snd('lash', 1.0, 0.6)), at(31, f'tag @a remove {C.GRAB}'),
                        at(40, 'scoreboard players set @s bm.ms 2'), at(40, 'scoreboard players set @s bm.ma 0'), at(40, 'scoreboard players set @s bm.mt 0')])
     fn(f'{P}/stab0', ['scoreboard players set @s bm.ms 4', 'scoreboard players set @s bm.mt 0', face, f'function bm:{P}/pose/stab_0', snd('idle', 1.4, 0.6)])
     fn(f'{P}/s/stab', [at(14, f'function bm:{P}/pose/stab_1'), at(15, snd('lash', 1.6, 0.8)),
                        at(17, f'execute positioned ^ ^ ^3.5 as @a[distance=..2.4,{FOES}] run damage @s {C.STAB_DMG} {C.DMG} by {ME}'),
+                       at(17, f'execute positioned ^ ^ ^3.5 as @a[distance=..2.4,{FOES}] at @s run function bm:p280/mire'),
                        at(17, f'execute positioned ^ ^ ^3.5 run particle {C.INK} ~ ~0.3 ~ 0.8 0.2 0.8 0.1 30'),
                        at(17, f'execute positioned ^ ^ ^3.5 run particle minecraft:dust{{color:[{C.STAB_DUST}],scale:1.6}} ~ ~0.3 ~ 1 0.1 1 0 20'),
                        at(32, 'scoreboard players set @s bm.ms 2'), at(32, 'scoreboard players set @s bm.ma 0'), at(32, 'scoreboard players set @s bm.mt 0')])

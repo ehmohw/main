@@ -1434,7 +1434,8 @@ def flag(k):
         if x <= 81:
             for z in range(164, 169): s(x, W + 4, z, 'gold_block' if z in (164, 168) else 'black_concrete')
     k.room(sh, 90, 47, 159, 100, 51, 173, wall=FLAG_WALL, floor=FLAG_FLOOR)
-    k.air(88, 47, 165, 89, 50, 167)
+    k.air(88, 48, 165, 89, 50, 167)          # (3.1f, the owner: from 48 - at 47 it took the stair's last step, and without jump boost there was no way back up)
+    k.air(89, 47, 165, 89, 47, 167)
     B.hive_vault(79, W, 166, 'z', 1, 4, 'gilded_blackstone')
     for dz in (-2, 2): s(78, W, 166 + dz, 'gold_block'); s(78, W + 1, 166 + dz, GL)
     k.sign(77, W, 166, 12, ['THE HIVE VAULT', 'Six sigils of', 'forgotten rooms', 'open it.'], color='lime', wall=False)

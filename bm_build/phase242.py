@@ -287,7 +287,10 @@ def generate(G):
     import random
     rs = random.Random(242)
     shk = [(1.4 * (1 - k / 3) * rs.choice((-1, 1)), 0.8 * (1 - k / 3) * rs.choice((-1, 1))) for k in range(2)]
-    fn('p242/c/shake', [f'execute as {FIGHT} at @s run rotate @s ~{dx:.2f} ~{dy:.2f}' for dx, dy in shk])
+    # (3.1f, the owner: "the player's camera should be free" - the shake turned everyone's view a little, again and again: now it
+    #  is felt, not forced - dust and a rumble round each of them, their view their own)
+    fn('p242/c/shake', [f'execute as {FIGHT} at @s run particle minecraft:block{{block_state:"minecraft:polished_deepslate"}} ~ ~0.2 ~ 1.2 0.1 1.2 0 14',
+                        f'execute as {FIGHT} at @s run playsound minecraft:entity.iron_golem.step hostile @s ~ ~ ~ 0.6 0.4'])
     # (the systems lighting, section by section: legs, reactor, arms, cockpit - sparks and a hum at each)
     sect = [(1.2, 'legs'), (4.0, 'reactor'), (6.5, 'arms'), (8.5, 'cockpit')]
     for k, (yy, _nm) in enumerate(sect):
