@@ -383,6 +383,24 @@ def generate(G):
                           tag='bm.pw_hb' if hb else f'bm.rqt_{iid}', use=use, how=how, stack=stack_of(iid), kind=kind,
                           name=ITEMS[ri]['name'] + (f' {GROUP[ri].index(iid) + 1}' if ri in GROUP else ''), col=colour(iid), real=ri))
     BY = {e['iid']: e for e in E}
+    # (3.1a) THE FIXER'S RECOVERY - for whoever lost something to the Pack: /function bm:admin/rp_dump lists every entry the Pack
+    #  still keeps for you (whatever its rows or scores say); /function bm:admin/rp_restore hands every one of them back
+    #  (inventory first, then at your feet) and clears its row
+    dump, rest = ['function bm:p179/w/pid', pid, tellraw('@s', PRE + [T('What the Pack keeps for you:', 'white')])], ['function bm:p179/w/pid', pid]
+    for e in E:
+        if e['iid'] == 'bm_handbook': continue
+        P_ = e['path']
+        fn(f'p277/fix/d_{e["iid"]}', [f'$execute if data storage bm:pw p$(pid).{P_} run ' + tellraw('@s', [T('  · ', 'dark_gray'), T(e['name'], e['col'])])])
+        dump.append(f'function bm:p277/fix/d_{e["iid"]} with storage bm:rp t')
+        fn(f'p277/fix/r_{e["iid"]}', [f'$execute unless data storage bm:pw p$(pid).{P_} run return 0',
+                                      f'data modify storage bm:rp t.k set value "{P_[1:]}"', f'data modify storage bm:rp t.id set value "{e["real"]}"',
+                                      'execute store result score #rqg bm.rng run function bm:p277/s/give with storage bm:rp t',
+                                      f'execute if score #rqg bm.rng matches 1 run scoreboard players set @s {e["obj"]} 0',
+                                      f'execute if score #rqg bm.rng matches 1 run tag @s remove {e["tag"]}',
+                                      'execute if score #rqg bm.rng matches 1 run ' + tellraw('@s', PRE + [T(e['name'], e['col'], bold=True), T(' handed back.', 'gray')])])
+        rest.append(f'function bm:p277/fix/r_{e["iid"]} with storage bm:rp t')
+    fn('admin/rp_dump', dump)
+    fn('admin/rp_restore', rest + ['function bm:p277/tg'])
     assert len(E) <= E_CAP, len(E)         # (8700+n up to 8979, then 9704-9799 - ecode)
     objs += [e['obj'] for e in E if e['obj'] != 'bm.pwhb'] + [f'bm.rqo_{i}' for i in CARRY_CHARMS] + [f'bm.rb_{k}' for k, *_r in BAGK]
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
@@ -455,16 +473,22 @@ def generate(G):
        [f'execute if score #rqs bm.rng matches -1 unless items entity @s container.{n} * run scoreboard players set #rqs bm.rng {n}' for n in range(36)] +
        ['execute if score #rqs bm.rng matches 0.. run return run function bm:p277/s/give_inv with storage bm:rp t',
         'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                       '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).r$(k)',
-                       'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
-                       'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
-                       'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
+        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).r$(k)',
+        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
+        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+        '$execute as @e[type=minecraft:item,tag=bm.rqout,limit=1] unless items entity @s contents *[minecraft:custom_data~{bm:"$(id)"}] run kill @s',
+        'execute unless entity @e[type=minecraft:item,tag=bm.rqout] run return run function bm:p277/s/give_fail',
+        'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
     fn('p277/s/give_inv', ['execute store result storage bm:rp t.s int 1 run scoreboard players get #rqs bm.rng', 'function bm:p277/sw/holder',
                            '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
                            'data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data".bm_rpno set value 1b',
                            'function bm:p277/s/give_slot with storage bm:rp t',
                            'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                           # (only once it's really in your hands is the Pack's copy let go - else kept, and you're told)
+                           '$execute unless items entity @s container.$(s) *[minecraft:custom_data~{bm:"$(id)"}] run return run function bm:p277/s/give_fail',
                            '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
+    fn('p277/s/give_fail', [tellraw('@s', PRE + [T('That one wouldn\'t come off - it stays safe on your Rat Pack. ', '#ff8a8a'), T('(Tell the Fixer: /function bm:admin/rp_dump lists what the Pack holds.)', 'gray')]),
+                            'return fail'])
     fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents'])
     # (the main-hand swap: the Pack's item into your hand for its use, then back - your own item restored)
     fn('p277/sw/in', ['$execute if data storage bm:pw p$(pid).rqmh run function bm:p277/sw/lost {pid:$(pid)}', '$data remove storage bm:pw p$(pid).rqmh', '$data modify storage bm:pw p$(pid).rqmh set from entity @s SelectedItem',
