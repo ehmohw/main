@@ -372,7 +372,17 @@ def generate(G):
                       'data merge entity @s[type=minecraft:phantom] {size:5}'])
     fn('p241/dress/trooper', ['effect give @s minecraft:invisibility infinite 0 true', 'effect give @s minecraft:fire_resistance infinite 0 true',
                               'execute at @s run function bm:vrg/make'])      # (3.0k: the Vorn's jointed rig - vorn_rig; it used to be one stiff body that never turned)
+    # (3.1b) the waves' husks are summoned holding a sword, axe or crossbow and some in an iron helmet; the host is invisible
+    # under the rig, but its gear isn't, so a crossbow, a helmet or a sword floated about the Vorn. The gear comes off, and
+    # what it gave (its damage, the helmet's armour) goes onto the husk itself. Already-dressed Vorn in a world are swept too.
+    GEAR = [('diamond_sword', 9), ('iron_sword', 8), ('iron_axe', 11), ('stone_sword', 7), ('stone_axe', 12), ('netherite_sword', 10)]
+    fn('p241/dress/gear', ['tag @s add bm.agear']
+       + [f'execute if items entity @s weapon.mainhand minecraft:{w} run attribute @s minecraft:attack_damage base set {d}' for w, d in GEAR]
+       + ['execute if items entity @s armor.head minecraft:iron_helmet run attribute @s minecraft:armor base set 4',
+          'item replace entity @s weapon.mainhand with minecraft:air', 'item replace entity @s weapon.offhand with minecraft:air',
+          'item replace entity @s armor.head with minecraft:air'])
     tick.append('execute as @e[tag=bm.avorn,tag=!bm.adone] run function bm:p241/dress')
+    tick.append('execute as @e[type=minecraft:husk,tag=bm.avorn,tag=bm.adone,tag=!bm.agear] run function bm:p241/dress/gear')
 
     # ---- the hive's voice: one line to each player, the first time they come near
     for key in sorted({v[0] for v in M['voices']}):
