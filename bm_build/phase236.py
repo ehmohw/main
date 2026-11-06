@@ -567,7 +567,11 @@ def generate(G):
         X.second.append('execute as @a[tag=!bm.pymet,gamemode=!spectator] at @s if dimension minecraft:overworld if predicate bm:p236/pale_night run function bm:p236p/enc/check')
         fn('p236p/enc/check', ['execute store result score #r bm.rng run random value 1..150', 'execute unless score #r bm.rng matches 1 run return 0',
                                'execute if entity @e[type=minecraft:interaction,tag=bm.pyenc,distance=..64] run return 0',
-                               'execute positioned ^ ^ ^4 run function bm:p236p/enc/place'])
+                               # (3.1a: along the ground, not along your look - looking down, ^ ^ ^4 was in the moss; the first spot with room
+                               #  for her over solid ground, as Bloo's)
+                               ] + [f'execute rotated ~ 0 positioned ^ ^{dy} ^{d} align xyz positioned ~0.5 ~ ~0.5 if block ~ ~ ~ #bm:grap_pass '
+                                    f'if block ~ ~1 ~ #bm:grap_pass unless block ~ ~-1 ~ #bm:grap_pass run return run function bm:p236p/enc/step'
+                                    for d in (4, 3, 5, 2) for dy in (0, 1, -1, 2, -2)])
         place('p236p')
         fn('p236p/enc/step', ['function bm:p236p/enc/spawn', 'particle minecraft:spore_blossom_air ~ ~1 ~ 1 0.6 1 0 40',
                               'playsound minecraft:block.creaking_heart.idle neutral @a[distance=..24] ~ ~ ~ 0.6 1.6',
