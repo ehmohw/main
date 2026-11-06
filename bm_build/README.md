@@ -21,6 +21,29 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1a: safer Rat Pack hand-backs, more Relics, and a round of fixes
+
+### The Rat Pack
+
+- **Taking things back is safe now.** What you take off the Pack goes straight into your inventory's first empty slot, or at your feet only if you're full, where no satchel or collector takes it. The Pack lets go of its copy only once the item is really in your hands; if it can't hand it back, the item stays on the Pack and you're told. Before, a hand-back could be filled into a stray item left somewhere else in the world, and the item - Regalia, Heartstones, anything - was lost.
+- **Getting lost items back.** `/function bm:admin/rp_dump` lists everything the Pack keeps for you, even items whose row has gone; `/function bm:admin/rp_restore` hands every one of them back.
+- **Using a row that moves you** (the Smuggler's Waytoken) no longer loses the Pack from your hand.
+- **95 more Relics.**
+  - **Arms & Armour:** KillerWatt's Tendrils and the Ethereal Tendrils; Tullius's Blunderbuss and Harpoon; the six roaming bosses' weapons and every variant (the Horseman's heads, the Crooks, the Talons, the Branches, the Gauntlets, the Scepters); the Kingdom's armoury (Leo's Aegis, Emma's Crescent, the Tide-Breaker, Leo's Trident, the Tidewarden and Pearlguard sets); the Serpent King's Mace in every form; Apophiss's crowns and the 8-Bit Crown; the Scythe, the Count's Cane, the Gutter King's Cutlass, the Treasurer's Scepter; the Wings of the Rat King; the Dread, Eldritch and Starforged sets; the Vorn blades.
+  - **Powers:** the six roaming bosses' summons and the Smouldering Gourd, the Tidecaller Shell, and the Warpstone of the Hollow Throne.
+  - **Passives:** the Sea-Glass Locket, the Regent's Seal, Emma's Bloomheart and the Ethereal Gem.
+  - **Materials:** Tide Scales and the six bosses' Essences.
+- **Royal Pearls** go into the Rat Bank with the Banker's Card's auto-deposit too, everywhere but the Kingdom (where the Steward trades for them from your pockets). Every pearl price paid by menu - Ava's honours, the Tide's Haste, the dome's mending, the armoury's again - counts your bank's pearls too.
+- **Send all home** keeps the Partners page open.
+
+### Fixes
+
+- **Ashur looks like Ashur again.** The Cairn's model shared her internal name prefix, so its head, arms, legs and face overwrote hers in the resource pack (and its face was hers). They each have their own now. A Cairn already out may need calling again.
+- **The heist's bell room works.** The hook rings a bell whether it strikes the bell or the target block under it (it used to meet the bell first and say it "won't bite").
+- **Bloo and the Pale Dryad step out onto the ground**, not into it - their spot was measured along your look, and planting a sapling or standing in the moss you look down.
+- **The Holy Wings** - the Wings of the Damned, purified - are called the **Holy Wings of Blessing**, and no longer show the missing-texture checks on your back by day (the purified Regalia's daytime trim had no texture on wings; it's left off them now).
+- **Saving your health for a rejoin** copies the game's own health score instead of reading the player's data each second - next to free.
+
 ## New in 3.0z: the Stone Collector and the Wood Box, and collectors that work like a bank
 
 **Two new collectors at the Fence (16 Tokens each): the Stone Collector and the Wood Box.** They work like the Banker's Card: each is the key to an account kept for you, not in the item. Any copy opens the same account, and nothing in it is lost if the item is. **Dennis's Ore Magnet and Pistachio's Spirit Jar work the same way now**, and Dennis and Pistachio still sell them.
