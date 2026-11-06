@@ -1569,7 +1569,10 @@ def build(out_dir):
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     if PHASE2: print('3.1: the Rat Pack, late - %d more checks take the Pack' % R277.late(sys.modules[__name__]))      # (after the market rebuild and R28's finalize: their checks too)
-    if PHASE2: print('3.1b: « Rat Pack on %d rows\' own menus (%d dialogs)' % R277.late_back(sys.modules[__name__]))      # (after every item's menu is made)
+    if PHASE2: print('3.1b: « Rat Pack on %d rows\' own menus (%d dialogs)' % R277.late_back(sys.modules[__name__]))
+    if PHASE2:
+        import phase279 as R279       # 3.1c: the Safekeeper - the Pack ID registry, the guard, the snapshots (after every objective is made)
+        print('3.1c: the Safekeeper keeps %d objectives per player (%d chunks)' % R279.late(sys.modules[__name__]))      # (after every item's menu is made)
     useitem.generate(sys.modules[__name__])
     R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
