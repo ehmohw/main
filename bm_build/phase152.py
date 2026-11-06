@@ -36,6 +36,8 @@ def who(G):
     out = list(WHO)
     if G.PHASE2:
         import phase150
+        import phase275b  # noqa: F401  (3.1h, the owner: "golden doodle's boss music doesn't play" - it adds its themes to WHO_LATE
+        #                    when it's imported, and phase275 imported it only after this list was read)
         out += [(4, f'type=minecraft:{ent},tag=bm.boss_{dn}') for dn, (ent, *_r) in phase150.DG.items() if dn != 'hollow']
     return out + WHO_LATE
 

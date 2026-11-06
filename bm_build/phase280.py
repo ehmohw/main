@@ -125,4 +125,11 @@ def late(G):
         for i, l in enumerate(L):
             if isinstance(l, str) and 'damage @s 14 minecraft:in_fire by' in l: L[i] = l.replace('minecraft:in_fire', 'bm:sunder'); n += 1
     assert n >= 3, n
+    # (3.1h, the owner: "there is no lucky horse shoe in the hidden room" - Fishy's Cabinet's riddle sends you to the Gilded
+    #  Roost's secret room, Whiskers' Stash; its chest's table never had one. Now one, always)
+    p = G.path('data', 'bm', 'loot_table', 'p2', 'lucky', 'hidden.json')
+    lt = json.load(open(p))
+    if not any('lucky_horseshoe' in json.dumps(pl) for pl in lt.get('pools', [])):
+        lt.setdefault('pools', []).append({'rolls': 1, 'entries': [G.loot_entry('lucky_horseshoe')]})
+        G.wjson('bm/loot_table/p2/lucky/hidden.json', lt)
     return n

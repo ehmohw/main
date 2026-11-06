@@ -66,6 +66,17 @@ def rp(R):
 def build(G, X, C):
     fn, title, tellraw, give = G.fn, G.title, G.tellraw, G.give
     tick, fast, second = G.FUNCS['tick'], G.FUNCS['loop/fast'], G.FUNCS['loop/second']
+    # (3.1h, the owner: "she can get stuck in the walls during the boss fight") - once a second, a goose found in a wall (her feet
+    #  or her head - and, as the giant, the blocks beside her) is set back in the middle of her pond
+    second.append('execute as @e[type=minecraft:husk,tag=bm.gdb] at @s unless function bm:p275g/clear run function bm:p275g/unstick')
+    G.fn('p275g/clear', ['execute unless block ~ ~ ~ #bm:grap_pass run return 0', 'execute unless block ~ ~1 ~ #bm:grap_pass run return 0',
+                         'execute if entity @s[tag=bm.gdp2] unless block ~ ~3 ~ #bm:grap_pass run return 0',
+                         'execute if entity @s[tag=bm.gdp2] unless block ~1 ~1 ~ #bm:grap_pass run return 0', 'execute if entity @s[tag=bm.gdp2] unless block ~-1 ~1 ~ #bm:grap_pass run return 0',
+                         'execute if entity @s[tag=bm.gdp2] unless block ~ ~1 ~1 #bm:grap_pass run return 0', 'execute if entity @s[tag=bm.gdp2] unless block ~ ~1 ~-1 #bm:grap_pass run return 0',
+                         'return 1'])
+    G.fn('p275g/unstick', ['execute unless entity @e[type=minecraft:marker,tag=bm.gdarena,distance=..64] run return 0',
+                           'tp @s @e[type=minecraft:marker,tag=bm.gdarena,distance=..64,sort=nearest,limit=1]',
+                           'particle minecraft:poof ~ ~1 ~ 0.6 0.6 0.6 0.05 20'])
     P = G.PREFIX
     import hitcap
     hitcap.install(G)
