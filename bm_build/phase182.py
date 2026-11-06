@@ -117,8 +117,12 @@ def holy_twins(G):
     return len(twins)
 
 
+ANGEL_NAME = {WINGS: 'Wings of Blessing'}        # (3.0z+: the owner - purified, they're "Holy Wings of Blessing", not "of the Damned")
+
+
 def angel_name(iid):
-    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Holy ', 'color': ROYAL, 'bold': True}, {'text': ITEMS[iid]['name'], 'color': HOLY, 'bold': True},
+    return {'text': '', 'italic': False, 'extra': [{'text': '✦ ', 'color': HOLY_D}, {'text': 'Holy ', 'color': ROYAL, 'bold': True},
+                                                   {'text': ANGEL_NAME.get(iid, ITEMS[iid]['name']), 'color': HOLY, 'bold': True},
                                                    {'text': ' ✦', 'color': HOLY_D}]}
 
 
@@ -151,12 +155,21 @@ def generate(G):
         up, down = ({k: v for k, v in d.items() if v is not None} for d in (up, down))     # (None: that component isn't set at all)
         bow_up = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:withering_shot': 0, 'bm:p182/searing_shot': 1}}] if iid == 'conq_bow' else []
         bow_down = [{'function': 'minecraft:set_enchantments', 'enchantments': {'bm:p182/searing_shot': 0, 'bm:withering_shot': 1}}] if iid == 'conq_bow' else []
-        wjson(f'bm/item_modifier/p182/up_{iid}.json', bow_up + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b}'},
+        wjson(f'bm/item_modifier/p182/up_{iid}.json', bow_up + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:1b,bm_hwn:1b}' if iid == WINGS else '{bm_angel:1b}'},
                                                        {'function': 'minecraft:set_components', 'components': up},
                                                        {'function': 'minecraft:set_lore', 'mode': 'insert', 'offset': 0, 'lore': PURE}])
         wjson(f'bm/item_modifier/p182/down_{iid}.json', bow_down + [{'function': 'minecraft:set_custom_data', 'tag': '{bm_angel:0b}'},
                                                          {'function': 'minecraft:set_components', 'components': down},
                                                          {'function': 'minecraft:set_lore', 'mode': 'replace_section', 'offset': 0, 'size': len(PURE), 'lore': []}])
+    # (3.0z+) wings purified before the rename: their name set anew, once (bm_hwn), wherever on you they are - worn, held or carried
+    wjson('bm/item_modifier/p182/rename_wings.json', [{'function': 'minecraft:set_custom_data', 'tag': '{bm_hwn:1b}'},
+                                                      {'function': 'minecraft:set_components', 'components': {'minecraft:item_name': angel_name(WINGS)}}])
+    old_hw = f'*[minecraft:custom_data~{{bm:"{WINGS}",bm_angel:1b}},!minecraft:custom_data~{{bm_hwn:1b}}]'
+    slots = ['armor.chest', 'weapon.offhand'] + [f'container.{n}' for n in range(36)]
+    second.append(f'execute as @a if items entity @s armor.chest {old_hw} run function bm:p182/rename_wings')
+    second.append(f'execute as @a if items entity @s container.* {old_hw} run function bm:p182/rename_wings')
+    second.append(f'execute as @a if items entity @s weapon.offhand {old_hw} run function bm:p182/rename_wings')
+    fn('p182/rename_wings', [f'execute if items entity @s {sl} {old_hw} run item modify entity @s {sl} bm:p182/rename_wings' for sl in slots])
     fn('p182/up', [f'execute if items entity @s contents {holds(i)} run return run item modify entity @s contents bm:p182/up_{i}' for i in IDS])
     fn('p182/down', [f'execute if items entity @s contents {holds(i)} run return run item modify entity @s contents bm:p182/down_{i}' for i in IDS])
 
