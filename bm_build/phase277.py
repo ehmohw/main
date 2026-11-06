@@ -482,14 +482,16 @@ def generate(G):
     fn('p277/s/give_inv', ['execute store result storage bm:rp t.s int 1 run scoreboard players get #rqs bm.rng', 'function bm:p277/sw/holder',
                            '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
                            'data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data".bm_rpno set value 1b',
-                           'function bm:p277/s/give_slot with storage bm:rp t',
+                           'execute store result score #rqg bm.rng run function bm:p277/s/give_slot with storage bm:rp t',
                            'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
                            # (only once it's really in your hands is the Pack's copy let go - else kept, and you're told)
-                           '$execute unless items entity @s container.$(s) *[minecraft:custom_data~{bm:"$(id)"}] run return run function bm:p277/s/give_fail',
+                           'execute unless score #rqg bm.rng matches 1 run return run function bm:p277/s/give_fail',
                            '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
     fn('p277/s/give_fail', [tellraw('@s', PRE + [T('That one wouldn\'t come off - it stays safe on your Rat Pack. ', '#ff8a8a'), T('(Tell the Fixer: /function bm:admin/rp_dump lists what the Pack holds.)', 'gray')]),
                             'return fail'])
-    fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents'])
+    fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
+                            '$execute if items entity @s container.$(s) *[minecraft:custom_data~{bm:"$(id)"}] run return 1',
+                            '$item replace entity @s container.$(s) with minecraft:air', 'return 0'])      # (not it: the slot emptied again, the Pack keeps it)
     # (the main-hand swap: the Pack's item into your hand for its use, then back - your own item restored)
     fn('p277/sw/in', ['$execute if data storage bm:pw p$(pid).rqmh run function bm:p277/sw/lost {pid:$(pid)}', '$data remove storage bm:pw p$(pid).rqmh', '$data modify storage bm:pw p$(pid).rqmh set from entity @s SelectedItem',
                       'function bm:p277/sw/holder',
