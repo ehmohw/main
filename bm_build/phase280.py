@@ -40,7 +40,7 @@ def generate(G):
     F['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     wjson('bm/predicate/p280/shield.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
-                                            'predicate': {'effects': {'minecraft:resistance': {'amplifier': {'min': 4}}}}})
+                                            'predicate': {'minecraft:effects': {'minecraft:resistance': {'amplifier': {'min': 4}}}}})
 
     # ---- NULLIFIED: #nd ticks (at least), as the player
     fn('p280/on', [f'execute unless entity @s[{PLAYERS}] run return 0',
