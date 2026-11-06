@@ -205,6 +205,7 @@ def _icon(pal=None):
 
 def rp(R):
     W5.rp(Cairn, R, _icon(), A0)
+    R.TEXTURE_MODS.append(_GolemTex)        # (3.1a: the whole golem's own textures - see textures() below)
     for i, p in enumerate(PAL):
         R.ICONS[FRAMES[i]] = _icon(p)
     # (the whole golem's models - its figure and doll - textured from the game's own block textures, never copied into the pack)
@@ -217,8 +218,14 @@ def rp(R):
         R.HATS[name] = (t2, els)
 
 
+class _GolemTex:
+    textures = staticmethod(lambda: AR.R.textures())
+
+
 def textures():
-    return A0.textures()
+    # (3.1a: the whole golem's own textures too - its face first of all: the figure and the doll wear them, and until now found
+    #  them only because Ashur's rig wrote textures under the same names - as_face, its prefix's - and the two overwrote each other)
+    return {**AR.R.textures(), **A0.textures()}
 
 
 # ---------------------------------------------------------------------------------------------------- its blocks: block_displays on its joints

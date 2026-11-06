@@ -385,7 +385,9 @@ def generate(G):
                 'execute if score #ghit bm.rng matches 3 run return run ' + title('@s', 'actionbar', T("The hook won't bite on that - only the lamps.", 'gray'))]
     use.append('execute if score @s bm.gvhk matches 1.. run function bm:p115/hook/used')
     ray = G.FUNCS['p21/grap/ray']
-    ray.insert(0, 'execute if score @s bm.gvhk matches 1.. unless block ~ ~ ~ #bm:grap_pass unless block ~ ~ ~ minecraft:target run return run scoreboard players set #ghit bm.rng 3')
+    # (3.1a: the owner - "the heist room with the bells on top of target blocks doesn't work": the hook's ray met the BELL first - it
+    #  stands on its target - and "won't bite on that". A bell takes the hook as its target does, and rings)
+    ray.insert(0, 'execute if score @s bm.gvhk matches 1.. unless block ~ ~ ~ #bm:grap_pass unless block ~ ~ ~ minecraft:target unless block ~ ~ ~ minecraft:bell run return run scoreboard players set #ghit bm.rng 3')
     hit = G.FUNCS['p21/grap/hit']
     hit[0:0] = ['execute if score @s bm.gvhb matches 1 run return run function bm:p115/hook/bell',
                 'execute if score @s bm.gvhk matches 1.. align xyz positioned ~0.5 ~-0.5 ~0.5 run return run function bm:p115/hook/snap']
@@ -399,7 +401,7 @@ def generate(G):
     fn('p115/hook/used', ['execute if score #ghit bm.rng matches 1 run scoreboard players remove @s bm.gvhu 1',
                           'execute if score #ghit bm.rng matches 1 if score @s bm.gvhu matches 0..9 run ' + title('@s', 'actionbar', [T('Hooks left: ', GOLD), {'score': {'name': '@s', 'objective': 'bm.gvhu'}, 'color': 'white', 'bold': True}])])
     fn('p115/hook/bell', ['scoreboard players set #ghit bm.rng 2',
-                          'execute align xyz positioned ~0.5 ~0.5 ~0.5 as @e[type=minecraft:marker,tag=bm.gvbell,distance=..0.6,limit=1] at @s run function bm:p115/grapple/ring',
+                          'execute align xyz positioned ~0.5 ~0.5 ~0.5 as @e[type=minecraft:marker,tag=bm.gvbell,distance=..1.2,sort=nearest,limit=1] at @s run function bm:p115/grapple/ring',      # (its target, or the bell on it - a block above the marker)
                           'execute unless entity @e[type=minecraft:marker,tag=bm.gvbell,distance=..2] run scoreboard players set #ghit bm.rng 3'])
     G.FUNCS['tick'].append('scoreboard players remove @a[scores={bm.gvhk=1..}] bm.gvhk 1')
     def lamp(x, y, z, top=14):
