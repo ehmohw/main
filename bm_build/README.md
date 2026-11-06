@@ -21,6 +21,10 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1c: old keys come off the Keyring
+
+- **Keys put on the Rat Pack long ago now come off.** Some vault keys and Victor's Keys that went on the Keyring before 3.1a were kept in a form the Pack could no longer hand back, and every try said "that one wouldn't come off". Now, when a key's stored copy won't come back, you get a fresh one instead, made exactly as the dungeons make it, in the same number. Keys hold nothing of their own, so nothing is lost. If your inventory is full, you're asked to make room first.
+
 ## New in 3.1b: keys come off the Keyring again, « Rat Pack on item menus
 
 - **Keys (and everything else) come off the Rat Pack again.** A take-back needs a little holder kept in the gutter. In a world where the gutter's chunk wasn't loaded, nothing could be handed back, and every key on the Keyring said "that one wouldn't come off". Now, when the gutter's holder can't be reached, one is made where you stand for that hand-off and cleared right after.

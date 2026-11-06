@@ -490,7 +490,12 @@ def generate(G):
                            # (only once it's really in your hands is the Pack's copy let go - else kept, and you're told)
                            'execute unless score #rqg bm.rng matches 1 run return run function bm:p277/s/give_fail',
                            '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
-    fn('p277/s/give_fail', [tellraw('@s', PRE + [T('That one wouldn\'t come off - it stays safe on your Rat Pack. ', '#ff8a8a'), T('(Tell the Fixer: /function bm:admin/rp_dump lists what the Pack holds.)', 'gray')]),
+    fn('p277/s/fresh', ['scoreboard players set #rqs bm.rng -1'] +
+       [f'execute if score #rqs bm.rng matches -1 unless items entity @s container.{n} * run scoreboard players set #rqs bm.rng {n}' for n in range(36)] +
+       ['execute if score #rqs bm.rng matches -1 run return run function bm:p277/s/fresh_full',
+        'execute store result storage bm:rp t.s int 1 run scoreboard players get #rqs bm.rng', 'return 3'])        # (3: a slot - the key's own p277/s/fr/<iid> fills it)
+    fn('p277/s/fresh_full', [tellraw('@s', PRE + [T('Make room in your inventory first.', '#ff8a8a')]), 'return 0'])
+    fn('p277/s/give_fail', ['execute if data storage bm:rp t.fr run return fail', tellraw('@s', PRE + [T('That one wouldn\'t come off - it stays safe on your Rat Pack. ', '#ff8a8a'), T('(Tell the Fixer: /function bm:admin/rp_dump lists what the Pack holds.)', 'gray')]),
                             'return fail'])
     fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
                             '$execute if items entity @s container.$(s) *[minecraft:custom_data~{bm:"$(id)"}] run return 1',
@@ -585,11 +590,27 @@ def generate(G):
                  pid, 'execute store result score #rqg bm.rng run function bm:p277/s/givehb with storage bm:rp t',
                  f'execute if score #rqg bm.rng matches 0 run {give("bm_handbook")}', 'scoreboard players set @s bm.pwhb 0', 'tag @s remove bm.pw_hb']
         else:
+            # (3.1c: the owner - "keys still don't come off": vault and Victor's Keys put on long before 3.1a. A key holds nothing of
+            #  its own, so when the Pack's stored copy won't hand back, a fresh one (its own loot table: as the dungeons make it) in
+            #  the same number comes off instead - p277/s/fresh)
+            fr = e['cat'] == 'keys'
             o = [f'execute unless score @s {O} matches 1.. run return run function bm:p28/stale'] + setk + \
-                ['execute store result score #rqg bm.rng run function bm:p277/s/give with storage bm:rp t',
-                 'execute unless score #rqg bm.rng matches 1..2 run return 0',       # (3.1a: it didn't come off - the row and the Pack's copy stay)
+                (['data modify storage bm:rp t.fr set value 1b', f'execute store result storage bm:rp t.c int 1 run scoreboard players get @s {O}'] if fr else []) + \
+                ['execute store result score #rqg bm.rng run function bm:p277/s/give with storage bm:rp t'] + \
+                (['data remove storage bm:rp t.fr',
+                  'execute unless score #rqg bm.rng matches 1..2 store result score #rqg bm.rng run function bm:p277/s/fresh',
+                  f'execute if score #rqg bm.rng matches 3 store result score #rqg bm.rng run function bm:p277/s/fr/{iid} with storage bm:rp t',
+                  'execute unless score #rqg bm.rng matches 1..2 run function bm:p277/s/give_fail'] if fr else []) + \
+                ['execute unless score #rqg bm.rng matches 1..2 run return 0',       # (3.1a: it didn't come off - the row and the Pack's copy stay)
                  f'scoreboard players set @s {O} 0', f'tag @s remove {T_}']
             if e['kind'] == 'worn': o += [f'tag @s remove bm.rqw_{iid}']
+            if fr:
+                fn(f'p277/s/fr/{iid}', [f'$loot replace entity @s container.$(s) loot bm:items/{e["real"]}',
+                                        '$item modify entity @s container.$(s) {type:"minecraft:set_count",count:$(c)}',
+                                        '$item modify entity @s container.$(s) {type:"minecraft:set_custom_data",tag:"{bm_rpno:1b}"}',
+                                        f'$execute unless items entity @s container.$(s) *[minecraft:custom_data~{{bm:"{e["real"]}"}}] run item replace entity @s container.$(s) with minecraft:air',
+                                        f'$execute unless items entity @s container.$(s) *[minecraft:custom_data~{{bm:"{e["real"]}"}}] run return 0',
+                                        '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
         fn(f'p277/o/{iid}', o + ['playsound minecraft:item.armor.equip_chain player @s ~ ~ ~ 0.6 1.4',
                                  tellraw('@s', PRE + [T(nm, col, bold=True), T(' comes off your Rat Pack.', 'gray')]), 'function bm:p277/tg', f'function bm:{page_fn[e["cat"]]}'])
         # use: as using the item
