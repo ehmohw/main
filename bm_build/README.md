@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1b: keys come off the Keyring again, « Rat Pack on item menus
+
+- **Keys (and everything else) come off the Rat Pack again.** A take-back needs a little holder kept in the gutter. In a world where the gutter's chunk wasn't loaded, nothing could be handed back, and every key on the Keyring said "that one wouldn't come off". Now, when the gutter's holder can't be reached, one is made where you stand for that hand-off and cleared right after.
+- **« Rat Pack on item menus.** An item's own menu (the Banker's Card's, for example) has a « Rat Pack button that takes you back to the Pack, but only while that item is on the Pack. Opened from the item in your hand, the menu is as it was.
+- **The Banker's Card is on Pocket page 1.**
+- **Rufus Gnaw no longer sends his daily messages** about an empty or nearly-empty purse. The Payday notice stays.
+- **The Spirit Jar always leaves you one arrow.** With auto-collect on, it takes plain arrows from your pack but keeps one on you, so your bow is never left empty. Arrows in your hotbar are never touched, as before.
+
 ## New in 3.1a: safer Rat Pack hand-backs, more Relics, and a round of fixes
 
 ### The Rat Pack
