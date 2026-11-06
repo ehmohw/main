@@ -1547,7 +1547,6 @@ def build(out_dir):
     for _m in (F5PH if PHASE2 else ()): getattr(_m, 'late', lambda G: None)(sys.modules[__name__])      # 3.1: what the new followers change of what's made after them (the Atomic Rex: phase249's mount)
     if PHASE2: print('3.0y: the Tide\'s Haste - on %d followers\' faint timers' % R201.late(sys.modules[__name__]))      # (after every follower is called in: phase98.CALLED)
     if PHASE2: print('3.0y: « Partners on %d partners\' own menus (%d dialogs)' % R179.late(sys.modules[__name__]))      # (after every follower's menu is made)
-    if PHASE2: print('3.1b: « Rat Pack on %d rows\' own menus (%d dialogs)' % R277.late_back(sys.modules[__name__]))      # (after every item's menu is made)
     if PHASE2: print('3.1a: Royal Pearl prices count the Rat Bank - %d counts, %d takes' % R199.late(sys.modules[__name__]))      # (after every pearl spender)
     if PHASE2: print('2.99a: the lockout - %d / %d boxes a second at most (the Undercrown / the Armada)' % R251.generate(sys.modules[__name__]))      # [lockout hook] (after phase237/241/245: it hooks their out, builds, solves and knights)
     if PHASE2: print('3.0a: no spawns in the deep - %d risers kept out of the boxes, %d mob rolls take a natural spawn there first' % R255.generate(sys.modules[__name__]))      # [no-spawn hook] (after phase237/241/246/181/32/82 and every mobs/init patch)
@@ -1570,6 +1569,7 @@ def build(out_dir):
     R28.finalize(sys.modules[__name__])
     print('market rebuild: %d entity tags cleared, %d per-market lines wait for the new town' % R168.finalize(sys.modules[__name__]))
     if PHASE2: print('3.1: the Rat Pack, late - %d more checks take the Pack' % R277.late(sys.modules[__name__]))      # (after the market rebuild and R28's finalize: their checks too)
+    if PHASE2: print('3.1b: « Rat Pack on %d rows\' own menus (%d dialogs)' % R277.late_back(sys.modules[__name__]))      # (after every item's menu is made)
     useitem.generate(sys.modules[__name__])
     R129.check(sys.modules[__name__])                     # 2.76: no menu button is shadowed by an earlier route
     if hasattr(sys.modules[__name__], 'HELP_BUILDER'): FUNCS['admin/help'] = HELP_BUILDER()      # 2.29: lists every admin command
