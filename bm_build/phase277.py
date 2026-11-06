@@ -89,7 +89,8 @@ MOUNTS = ['mecha_remote', 'ember_call', 'void_call']
 CARROT = {'lodestone_locket': 'bm:p29/locket/use', 'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
 # (3.1, the owner) RELICS: the major boss drops and important items - four sub-pages off "Relics ›"
 RELIC_POW = ['fire_extinguisher', 'dread_ember', 'hollow_echo', 'hollow_summons', 'hollow_gate', 'serpent_summons', 'dread_bell'] + \
-            ['tidecaller_shell'] + [f'sum_{b}' for b in ('horseman', 'pharaoh', 'roc', 'treant', 'colossus', 'voidwalker', 'lantern')]    # (used from a row)
+            ['tidecaller_shell'] + [f'sum_{b}' for b in ('horseman', 'pharaoh', 'roc', 'treant', 'colossus', 'voidwalker', 'lantern')] + \
+            ['hollow_warpstone']                     # (3.1a: the owner's "hollow shard" - the Warpstone wears the Shard's look)    # (used from a row)
 RELIC_PAS = ['three_nights_talisman', 'ravenous_heart', 'scorching_heart', 'forgeheart', 'void_totem', 'dread_totem', 'sov_heart',
              'ember_mantle', 'void_mantle', 'three_skies_mantle', 'star_cloak', 'obsidian_skull'] + \
             [f'relic_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
