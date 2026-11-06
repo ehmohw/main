@@ -468,7 +468,7 @@ def generate(G):
     #  item was set down at your feet - and a Vacuum Satchel on the Pack, its vacuum on, pulled it straight in. Now it goes into
     #  your inventory's first empty slot (through the swap's holder, phase277 sw/holder); only with no room is it set at your
     #  feet - marked bm_rpno, which no satchel or collector takes)
-    fn('p277/s/give', ['$execute unless data storage bm:pw p$(pid).r$(k) run return 0',
+    fn('p277/s/give', ['$execute unless data storage bm:pw p$(pid).r$(k) run return 2',       # (2: nothing kept there - a row with nothing behind it)
                        'scoreboard players set #rqs bm.rng -1'] +
        [f'execute if score #rqs bm.rng matches -1 unless items entity @s container.{n} * run scoreboard players set #rqs bm.rng {n}' for n in range(36)] +
        ['execute if score #rqs bm.rng matches 0.. run return run function bm:p277/s/give_inv with storage bm:rp t',
@@ -577,7 +577,9 @@ def generate(G):
                  f'execute if score #rqg bm.rng matches 0 run {give("bm_handbook")}', 'scoreboard players set @s bm.pwhb 0', 'tag @s remove bm.pw_hb']
         else:
             o = [f'execute unless score @s {O} matches 1.. run return run function bm:p28/stale'] + setk + \
-                ['function bm:p277/s/give with storage bm:rp t', f'scoreboard players set @s {O} 0', f'tag @s remove {T_}']
+                ['execute store result score #rqg bm.rng run function bm:p277/s/give with storage bm:rp t',
+                 'execute unless score #rqg bm.rng matches 1..2 run return 0',       # (3.1a: it didn't come off - the row and the Pack's copy stay)
+                 f'scoreboard players set @s {O} 0', f'tag @s remove {T_}']
             if e['kind'] == 'worn': o += [f'tag @s remove bm.rqw_{iid}']
         fn(f'p277/o/{iid}', o + ['playsound minecraft:item.armor.equip_chain player @s ~ ~ ~ 0.6 1.4',
                                  tellraw('@s', PRE + [T(nm, col, bold=True), T(' comes off your Rat Pack.', 'gray')]), 'function bm:p277/tg', f'function bm:{page_fn[e["cat"]]}'])
