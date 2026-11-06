@@ -27,6 +27,7 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **« Rat Pack on item menus.** An item's own menu (the Banker's Card's, for example) has a « Rat Pack button that takes you back to the Pack, but only while that item is on the Pack. Opened from the item in your hand, the menu is as it was.
 - **The Banker's Card is on Pocket page 1.**
 - **Rufus Gnaw no longer sends his daily messages** about an empty or nearly-empty purse. The Payday notice stays.
+- **The Armada's Vorn no longer have crossbows, iron helmets and diamond swords floating about them.** Their bodies are invisible hosts under the Vorn model, and the hosts' gear showed through. The gear is gone, and its damage and armour are kept on the Vorn themselves, so they hit just as hard. Vorn already in your world are fixed too.
 - **The Spirit Jar always leaves you one arrow.** With auto-collect on, it takes plain arrows from your pack but keeps one on you, so your bow is never left empty. Arrows in your hotbar are never touched, as before.
 
 ## New in 3.1a: safer Rat Pack hand-backs, more Relics, and a round of fixes
