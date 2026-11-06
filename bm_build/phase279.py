@@ -41,7 +41,11 @@ def late(G):
     # ---- the UUID key and the Pack ID, in bm:safe t
     uid = [f'execute store result storage bm:safe t.{c} int 1 run data get entity @s UUID[{i}]' for i, c in enumerate('abcd')]
     fn('p279/id/key', uid + ['execute store result storage bm:safe t.pid int 1 run scoreboard players get @s bm.pid'])
-    fn('p279/id/rec', ['function bm:p279/id/key', 'function bm:p279/id/recm with storage bm:safe t'])
+    fn('p279/id/rec', ['function bm:p279/id/key', 'function bm:p279/id/recm with storage bm:safe t',
+                       # (the highest Pack ID known: never handed out again)
+                       'execute store result score #snx bm.rng run data get storage bm:safe nx',
+                       'execute if score @s bm.pid > #snx bm.rng store result storage bm:safe nx int 1 run scoreboard players get @s bm.pid',
+                       'execute if score #next bm.pid > #snx bm.rng if score #next bm.pid > @s bm.pid store result storage bm:safe nx int 1 run scoreboard players get #next bm.pid'])
     fn('p279/id/recm', ['$data modify storage bm:safe id."u$(a)_$(b)_$(c)_$(d)" set value $(pid)'])
     # (the registry's Pack ID for this player -> #sid (0: none))
     fn('p279/id/get', ['scoreboard players set #sid bm.rng 0', 'function bm:p279/id/key', 'function bm:p279/id/getm with storage bm:safe t'])
@@ -53,7 +57,8 @@ def late(G):
                       'execute if score #sid bm.rng matches 1.. run return run function bm:p279/back',
                       # (not in the registry yet: a Pack ID of their own goes in it)
                       'execute if score @s bm.pid matches 1.. run function bm:p279/id/rec'])
-    fn('p279/back', ['scoreboard players operation @s bm.pid = #sid bm.rng', 'function bm:p279/restore',
+    # (the restore is a few thousand commands: it runs in a function of its own, scheduled - never inside the tick's own budget)
+    fn('p279/back', ['scoreboard players operation @s bm.pid = #sid bm.rng', 'tag @s add bm.sfrest', 'schedule function bm:p279/rest_due 1t append',
                      tellraw('@s', PRE + [T('Your Pack ID had gone missing - it\'s back, and with it your partners, your Rat Pack and the '
                                             'rest of what you had. ', 'gray'), T('(Nothing was lost.)', 'dark_gray')])])
     pid = F['p21/pid']
@@ -96,6 +101,8 @@ def late(G):
     # ---- THE RESTORE: lost scores (unset only), lost tags, the Pack's rows
     for k, ch in enumerate(chunks):
         fn(f'p279/rest/c{k}', [f'execute unless score @s {o} matches -2147483648.. if data storage bm:safe w.s.{q(o)} store result score @s {o} run data get storage bm:safe w.s.{q(o)}' for o in ch])
+    fn('p279/rest_due', ['execute as @a[tag=bm.sfrest] run function bm:p279/rest_one'])
+    fn('p279/rest_one', ['tag @s remove bm.sfrest', 'function bm:p279/restore'])
     fn('p279/restore', ['function bm:p279/id/key', 'data remove storage bm:safe w', 'function bm:p279/rest/get with storage bm:safe t',
                         'execute unless data storage bm:safe w.s run return 0'] +
        [f'function bm:p279/rest/c{k}' for k in range(N)] +

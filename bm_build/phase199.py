@@ -44,7 +44,8 @@ SPECIALS = [(('royal_pearl', 18), ('enchanted_golden_apple', 1)), (('royal_pearl
 BREACH_SECS, BREACH_REST, CRACKS, SHATTER_AT = 60, 600, 4, 3
 # (3.0g) the sea: its surface's first air (sea level 63); the highest a seed builds at (its dome's top is the seed + 27: 3 under
 # the surface); how far round the dome's middle the old over-the-sea water is let go (its settled square, and a block)
-SEA_Y, SEED_MAX, KF = 63, 33, 46
+SEA_Y, SEED_MAX, KF = 63, 22, 46
+KCUT = 18                           # (3.1c: the rings of sea floor cut back round it, 1:1 - phase203)
 PQ_DROP = 3                         # (3.0g) % a monster drops a Royal Pearl, killed by one whose Queen Pearl is honoured to rank III
 
 
@@ -195,18 +196,29 @@ def generate(G):
     Bk.export(G.path('data', 'bm', 'structure', 'p199_kingdom.nbt'))
     K.restored_crop().export(G.path('data', 'bm', 'structure', 'p199_kingdom_restored.nbt'))
     OX, OY, OZ = -35, -K.FY, -35                                                      # the template's corner, from the seed's block
-    corners = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (OX, OX + K.SX - 1) for z in (OZ, OZ + K.SZ - 1))
+    corners = ' '.join(f'if loaded ~{x} ~ ~{z}' for x in (OX - KCUT, OX + K.SX - 1 + KCUT) for z in (OZ - KCUT, OZ + K.SZ - 1 + KCUT))
     second.append(f'execute as @e[type=minecraft:marker,tag=bm.kseed] at @s if entity @a[distance=..112] {corners} run function bm:p199/k/seed')
     # (the sea floor's height: the dome's top must stay under the sea, so a seed up a slope is set down - 3.0g: to SEED_MAX (33,
     #  was 34), so its top (the seed + 27) is at y 60, under two blocks of sea, and nothing of it - nor the water its settling cuts
     #  round it (phase203, which keeps its cut under y 60 too) - ever stands above the sea)
-    fn('p199/k/seed', [f'execute if entity @s[y={SEED_MAX + 1},dy=400] run tp @s ~ {SEED_MAX} ~', 'execute at @s run function bm:p199/k/build', 'kill @s'])
+    # (3.1c: the height read off the seed itself - `@s[y=..,dy=..]` never matched it: a marker has no size, and a volume that
+    #  starts at its own point doesn't take it in. So no kingdom was ever set down: each stood wherever the sea floor was, and
+    #  on a high one its dome and its square of water came up out of the sea)
+    fn('p199/k/seed', ['execute store result score #ky bm.rng run data get entity @s Pos[1]',
+                       f'execute if score #ky bm.rng matches {SEED_MAX + 1}.. at @s run tp @s ~ {SEED_MAX} ~', 'execute at @s run function bm:p199/k/build', 'kill @s'])
     # (3.0g) a kingdom settled before 3.0g could have water cut above the sea round it (a "watery square" over the surface): once
     # each, round its dome, every water block above the sea's surface is let go
     kfix = [f'fill ~-{KF} {y} ~-{KF} ~{KF} {min(y + 2, SEA_Y + 12)} ~{KF} minecraft:air replace minecraft:water' for y in range(SEA_Y, SEA_Y + 13, 3)]
     fn('p199/k/unflood', [f'execute positioned ~ ~ ~{35 - CORE[2]:.1f} run {l}' for l in kfix] + ['tag @s add bm.k30g'])
     second.append(f'execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.k30g] at @s positioned ~ ~ ~{35 - CORE[2]:.1f} if loaded ~-{KF} ~ ~-{KF} '
                   f'if loaded ~{KF} ~ ~{KF} if loaded ~-{KF} ~ ~{KF} if loaded ~{KF} ~ ~-{KF} positioned ~ ~ ~{CORE[2] - 35:.1f} run function bm:p199/k/unflood')
+    # (3.1c, the owner: "a massive rectangle of floating water" over a kingdom - one set down before 3.0g, its square of water
+    #  standing out of the sea past 3.0g's sweep. Once each: every water block above the sea, 80 round its dome, up to y 100)
+    KW = 80
+    kfix2 = [f'fill ~-{KW} {y} ~-{KW} ~{KW} {y} ~{KW} minecraft:air replace minecraft:water' for y in range(SEA_Y, 101)]
+    fn('p199/k/unflood2', [f'execute positioned ~ ~ ~{35 - CORE[2]:.1f} run {l}' for l in kfix2] + ['tag @s add bm.k31c'])
+    second.append(f'execute as @e[type=minecraft:marker,tag=bm.kingdom,tag=!bm.k31c] at @s positioned ~ ~ ~{35 - CORE[2]:.1f} if loaded ~-{KW} ~ ~-{KW} '
+                  f'if loaded ~{KW} ~ ~{KW} if loaded ~-{KW} ~ ~{KW} if loaded ~{KW} ~ ~-{KW} positioned ~ ~ ~{CORE[2] - 35:.1f} run function bm:p199/k/unflood2')
     wjson('bm/tags/block/p199_soft.json', {'values': ['minecraft:sand', 'minecraft:gravel', 'minecraft:clay', 'minecraft:dirt', 'minecraft:stone',
                                                       'minecraft:red_sand', 'minecraft:mud', 'minecraft:andesite', 'minecraft:diorite', 'minecraft:granite',
                                                       'minecraft:deepslate', 'minecraft:tuff', 'minecraft:seagrass', 'minecraft:tall_seagrass',
@@ -288,7 +300,7 @@ def generate(G):
     fn('admin/kingdom', ['execute align xyz positioned ~0.5 ~ ~0.5 run function bm:p199/k/build_here',
                          tellraw('@s', P + [T('The Underwater Kingdom rises here (its gate faces north; the Tide Door is 34 blocks north).', KC)])])
     fn('p199/k/build_here', ['summon minecraft:marker ~ ~-1 ~ {Tags:["bm.kseed","bm.kadm"]}',     # (3.0h: in the sea floor's top block, as worldgen sets a seed)
-                             'execute as @e[type=minecraft:marker,tag=bm.kadm,distance=..1.5,limit=1] at @s run function bm:p199/k/build',
+                             'execute as @e[type=minecraft:marker,tag=bm.kadm,distance=..1.5,limit=1] at @s run function bm:p199/k/seed',      # (3.1c: set down as deep as worldgen's)
                              'kill @e[type=minecraft:marker,tag=bm.kadm]'])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/kingdom', 'yellow'), T('  build an Underwater Kingdom here (on the sea floor)', 'gray')]))
 

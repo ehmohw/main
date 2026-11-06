@@ -100,11 +100,22 @@ def generate(G):
     # (3.0g: high 16, was 20 - its water cut reached the seed + 30, above the sea for a kingdom set down at y 34: a "watery
     #  square" standing out of the surface. Now its top is the seed + 26: y 59 at most, the seed being 33 at most - phase199)
     import phase199 as P199
-    KHIGH = 16
-    assert P199.SEED_MAX + 1 + 9 + KHIGH < P199.SEA_Y - 3, 'the kingdom\'s settling would cut water above the sea'
-    settle.make(G, 'kingdom', K.SX, K.SZ, cut=10, fill=8, under=True, water=True, deep=12, high=KHIGH, clear='water')
+    # (3.1c, the owner: "the kingdom needs to sit deep enough ... and it should naturally mix with the terrain as it digs a hole
+    #  into the ocean floor". It's set down to SEED_MAX 22 now (its top at y 50 at most: twelve blocks of sea over it). First its
+    #  whole square is cleared of the sea floor to water, up to its top (the template only sets the dome: the bed it was sunk
+    #  into stood round the dome, up its sides); then 18 rings round it are cut back 1:1 to water - a crater, its slopes the
+    #  sea floor's own, down to the dome)
+    KHIGH, KCAP = 18, P199.SEA_Y - 4 - (P199.SEED_MAX + 1)        # (every ring cleared up to y 59 at most: never water above the sea)
+    assert P199.SEED_MAX + 1 + KCAP < P199.SEA_Y - 3, 'the kingdom\'s settling would cut water above the sea'
+    assert P199.SEED_MAX - K.FY + K.SY < P199.SEA_Y - 10, 'the kingdom\'s top must stand well under the sea'
+    settle.make(G, 'kingdom', K.SX, K.SZ, cut=P199.KCUT, fill=8, under=True, water=True, deep=12, high=KHIGH, clear='water', steep=9, cap=KCAP, sub='minecraft:sandstone')
     f = G.FUNCS['p199/k/build']
-    f[1:1] = settle.run('kingdom', -35, 1, -35)
+    per = max(1, 32768 // (K.SX * K.SZ))
+    pre = [f'fill ~-35 ~{y} ~-35 ~{K.SX - 36} ~{min(y + per - 1, KCAP + 1)} ~{K.SZ - 36} minecraft:water replace #bm:settle_wet'
+           for y in range(1, KCAP + 2, per)][::-1]          # (top-down: the sea floor's sand never left hanging over a cleared layer)
+    f[0:0] = pre
+    j = next(n for n, l in enumerate(f) if l.startswith('place template bm:p199_kingdom '))
+    f[j + 1:j + 1] = settle.run('kingdom', -35, 1, -35)
 
     # (3.0h) the Omega Palace: its own skirt of stone under it, and now the land round it settled too - the dark wood's hills cut
     # back from its walls, its trees off them, the ground banked to its edge (the floor: the seed's block + 1, where it builds)

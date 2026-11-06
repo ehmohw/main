@@ -21,6 +21,30 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1d: the Safekeeper, and the Underwater Kingdom set down deep
+
+(3.1c was withdrawn: start from 3.1b or this.)
+
+### The Safekeeper: your progress can't be lost again
+
+Everything you own in this pack is filed under your Pack ID: your Rat Pack, your partners, your collectors, every unlock. If your scores were ever lost (a new name, a scoreboard reset, a lost scoreboard file), the Pack ID went with them. The next menu then handed you a new one, and your whole history looked gone, though it was all still there. Now:
+
+- **A registry** keeps your Pack ID under your account's UUID, in a file of its own. If your Pack ID ever goes missing or changes, it's put back at once, with a message. Your lost scores, tags and Rat Pack rows come back with it.
+- **Snapshots**, every 10 minutes, of every score the pack keeps on you, your tags and a copy of your Rat Pack. They're light: about 100 values a second for 35 seconds, then nothing until the next one.
+- **No reused IDs:** the highest Pack ID ever handed out is remembered, so no new player is ever given an old one.
+- **By hand:**
+  - `/function bm:admin/safe_restore`: your Pack ID, every score and tag you lost, and your Rat Pack's rows, from the last snapshot.
+  - `/function bm:admin/safe_pack`: puts back anything your Rat Pack held at the last snapshot and no longer holds. Anything you took out since then comes back too.
+  - `/function bm:admin/safe_status`: your Pack ID, what the registry holds for you, and the snapshot clock.
+  - `/function bm:admin/rp_relink`: rebuilds your Rat Pack's rows from what it keeps.
+- **Not kept:** advancements (granting them again would hand out their rewards again) and the world's own counters.
+
+### The Underwater Kingdom
+
+- **It sits deep now.** The check that was meant to set a kingdom down below the waves never worked: kingdoms were built wherever the sea floor was, and on a high one the dome and a square of water stood out of the sea. Now every new kingdom is set down to y 22, with its dome's top at y 48 or lower: at least 15 blocks of sea over it.
+- **It's dug into the sea floor.** Its square is cleared of the sea bed up to just under the surface, and the ground round it is cut back in a crater, 1:1 near the dome and steeper further out, until it meets the sea floor. Ridges are cut back too. The banks are sand over sandstone, so nothing collapses into the caves underneath.
+- **Kingdoms already in your world:** any water standing above the sea within 80 blocks of one is cleared, once.
+
 ## New in 3.1b: keys come off the Keyring again, « Rat Pack on item menus
 
 - **Keys (and everything else) come off the Rat Pack again.** A take-back needs a little holder kept in the gutter. In a world where the gutter's chunk wasn't loaded, nothing could be handed back, and every key on the Keyring said "that one wouldn't come off". Now, when the gutter's holder can't be reached, one is made where you stand for that hand-off and cleared right after.

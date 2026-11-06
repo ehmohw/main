@@ -76,7 +76,14 @@ def _strips(x0, z0, x1, z1, d):
     return [(a, b, c, b), (a, e, c, e), (a, b + 1, a, e - 1), (c, b + 1, c, e - 1)]
 
 
-def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, under=False, base=0, clear='air', cutset='#bm:settle_cut'):
+def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, under=False, base=0, clear='air', cutset='#bm:settle_cut',
+          steep=None, cap=None, sub=None):
+    # (3.1c) steep: past that ring, the slope rises two a ring (a deep pit's sides reach the sea floor); cap: every ring is cleared
+    # up to that height over the floor (a ridge standing over the slope is cut back too), not just `high` over the slope
+    rise = lambda r: r - 1 if steep is None or r <= steep else steep - 1 + 2 * (r - steep)
+    # sub: what fills the holes under the floor (not the biome's own: an ocean's is sand, and under a deep sea floor's caves and
+    # ravines every block of it fell - thousands of falling blocks at once)
+    SUB = sub or '$(sub)'
     x0, z0, x1, z1 = 0, 0, w - 1, d - 1
     hole = '#bm:settle_hole_w' if water else '#bm:settle_hole'
     F = lambda a, y0, y1, blk, rep: f'$fill ~{a[0]} ~{y0} ~{a[1]} ~{a[2]} ~{y1} ~{a[3]} {blk} replace {rep}'
@@ -88,19 +95,19 @@ def _body(w, d, *, cut=12, fill=8, deep=16, high=28, water=False, inside=None, u
         out += [F(a, 0, high, f'minecraft:{clear}', inside).replace('$fill', 'fill', 1) for a in slabs(0, high)]
     if under:       # holes under the floor
         if base:    # (under the template's own underground part)
-            out += [F(a, -base - deep, -base - 1, '$(sub)', hole) for a in slabs(-base - deep, -base - 1)]
+            out += [F(a, -base - deep, -base - 1, SUB, hole) for a in slabs(-base - deep, -base - 1)]
         else:
+            out += [F(a, -deep, -2, SUB, hole) for a in slabs(-deep, -2)]
             out += [F(a, -1, -1, '$(top)', hole) for a in slabs(-1, -1)]
-            out += [F(a, -deep, -2, '$(sub)', hole) for a in slabs(-deep, -2)]
     for r in range(1, max(cut, fill) + 1):
         for s in _strips(x0, z0, x1, z1, r):
-            if r <= cut:
-                out.append(F(s, r - 1, r - 1 + high, f'minecraft:{clear}', cutset).replace('$fill', 'fill', 1))
+            if r <= cut and (cap is None or rise(r) <= cap):
+                out.append(F(s, rise(r), cap if cap is not None else rise(r) + high, f'minecraft:{clear}', cutset).replace('$fill', 'fill', 1))
                 if clear == 'air': out.append(F(s, r - 2, r - 2, '$(top)', 'minecraft:dirt'))
-            if r <= fill:
+            if r <= fill:      # (3.1c: the layers under first, then the top: sand set over a hole fell, a column at a time)
+                if r < deep: out.append(F(s, -deep, -r - 1, SUB, hole))
                 out.append(F(s, -r, -r, '$(top)', hole))
-                if r < deep: out.append(F(s, -deep, -r - 1, '$(sub)', hole))
-    return out
+    return [l[1:] if l.startswith('$') and '$(' not in l else l for l in out]      # (a macro line must use a macro: a fixed `sub` doesn't)
 
 
 def make(G, name, w, d, turn=False, **kw):
