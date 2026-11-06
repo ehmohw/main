@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1h: the Golden Doodle's fight, Heartstones kept
+
+- **The Golden Doodle's boss music plays** (her themes were added to the boss music's list after it had been read).
+- **She can't get stuck in the walls of her pond any more:** found in a wall, she's set back in the middle of it.
+- **The Gilded Roost's secret room (Whiskers' Stash) has the Horseshoe Charm** that Fishy's Cabinet's riddle sends you for (luck for your off hand).
+- **Heartstones can't be forgotten:** your count can never fall below the bonus hearts you really have; if it was lost, it's put right from them.
+
 ## New in 3.1g: the Bound Sovereign's three forms
 
 - **The Bound Sovereign's Form button** (yours once you've felled the Sovereign a second time) now cycles **Bound → Armored → Broken → True → Bound**. Each is the form as it stood against you, at its full size, in that form's own armour: the Broken with its torn plate, the True larger and burning. It walks, idles and fights in each. A Bound Sovereign that was already Unbound comes up Armored, as before.
