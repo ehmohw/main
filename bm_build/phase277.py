@@ -136,7 +136,7 @@ SEC.update({'rpow': ('⚡', 'Powers', '#ff7a5a'), 'rpas': ('❂', 'Passives', '#
             'rarm': ('⚔', 'Arms & Armour', '#c8c8ff')})
 # bags and collectors: (key, item, page, name, phase33 kind, collects: (range, how many a pass, filter run as the item), switch)
 BAGK = [('bp', 'backpack', 'bags', 'Backpack', 'pack', None, None),
-        ('vs', 'vacuum_satchel', 'bags', 'Vacuum Satchel', 'box', (6, 4, 'unless items entity @s contents @@BAG@@'), 'vac'),
+        ('vs', 'vacuum_satchel', 'bags', 'Vacuum Satchel', 'box', (6, 4, 'unless items entity @s contents @@BAG@@ unless items entity @s contents *[minecraft:custom_data~{bm_rpno:1b}]'), 'vac'),
         # (3.1, the owner: the Spirit Jar and the Ore Magnet are accounts now, one each on the Pack - phase278; their old lists rb_sj / rb_om are migrated there)
         ('pc', 'prime_cooler', 'cols', 'Prime Cooler', 'cool', (6, 16, 'if function bm:p148/cool/prime'), 'coff')]
 BAGMAX = 10
@@ -446,12 +446,26 @@ def generate(G):
                          '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).hb', 'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
                          'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
                          'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).hb', 'return 1'])
+    # (3.1a: the owner - "the Rat Pack ate my final boss weapons, and they're lost when I tried to get them back". Taken back, an
+    #  item was set down at your feet - and a Vacuum Satchel on the Pack, its vacuum on, pulled it straight in. Now it goes into
+    #  your inventory's first empty slot (through the swap's holder, phase277 sw/holder); only with no room is it set at your
+    #  feet - marked bm_rpno, which no satchel or collector takes)
     fn('p277/s/give', ['$execute unless data storage bm:pw p$(pid).r$(k) run return 0',
-                       'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                       'scoreboard players set #rqs bm.rng -1'] +
+       [f'execute if score #rqs bm.rng matches -1 unless items entity @s container.{n} * run scoreboard players set #rqs bm.rng {n}' for n in range(36)] +
+       ['execute if score #rqs bm.rng matches 0.. run return run function bm:p277/s/give_inv with storage bm:rp t',
+        'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
                        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).r$(k)',
                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
                        'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
+    fn('p277/s/give_inv', ['execute store result storage bm:rp t.s int 1 run scoreboard players get #rqs bm.rng', 'function bm:p277/sw/holder',
+                           '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
+                           'data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data".bm_rpno set value 1b',
+                           'function bm:p277/s/give_slot with storage bm:rp t',
+                           'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                           '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
+    fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents'])
     # (the main-hand swap: the Pack's item into your hand for its use, then back - your own item restored)
     fn('p277/sw/in', ['$execute if data storage bm:pw p$(pid).rqmh run function bm:p277/sw/lost {pid:$(pid)}', '$data remove storage bm:pw p$(pid).rqmh', '$data modify storage bm:pw p$(pid).rqmh set from entity @s SelectedItem',
                       'function bm:p277/sw/holder',

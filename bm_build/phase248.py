@@ -252,5 +252,5 @@ def generate(G):
     old = 'unless items entity @s contents *[minecraft:custom_data~{bm:"vacuum_satchel"}]'
     ks = [i for i, l in enumerate(pl) if old in l]
     assert len(ks) == 1, ks
-    pl[ks[0]] = pl[ks[0]].replace(old, f'unless items entity @s contents {BAG}')
+    pl[ks[0]] = pl[ks[0]].replace(old, f'unless items entity @s contents {BAG} unless items entity @s contents *[minecraft:custom_data~{{bm_rpno:1b}}]')      # (3.1a: nor what the Rat Pack hands back)
     return guarded
