@@ -403,10 +403,10 @@ def generate(G):
                                 f'scoreboard players set @s bm.rcb_{k} 0', 'tag @s remove bm.cbfp', 'playsound minecraft:item.armor.equip_chain player @s ~ ~ ~ 0.6 1.4',
                                 tellraw('@s', PRE + [T(ITEMS[iid]['name'], col, bold=True), T(' comes off your Rat Pack (its account stays yours).', 'gray')]), 'function bm:p277/b/cols'])
         fn(f'p278/pk/give_{k}', [f'$execute unless data storage bm:pw p$(pid).rcb_{k} run return run {G.give(iid)}',
-                                 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                                 f'$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rcb_{k}',
-                                 'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
-                                 'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+                                 'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                                 f'$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).rcb_{k}',
+                                 'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
+                                 'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                                  'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', f'$data remove storage bm:pw p$(pid).rcb_{k}'])
         # auto-pack (the Pack's "Collectors" switch): one, if none is on
         fn(f'p278/pk/ap_{k}', [f'data modify storage bm:rp a.id set value "{iid}"', 'execute unless function bm:p277/ap/find run return 0',
@@ -494,9 +494,9 @@ def generate(G):
                                  'data remove storage bm:rp mk'])
         fn(f'p278/mig/pkkeep_{k}', [f'$data modify storage bm:pw p$(pid).rcb_{k} set from storage bm:pw p$(pid).{lst}[$(j)].it', f'scoreboard players set @s bm.rcb_{k} 1',
                                     'data modify storage bm:rp mk set value 1b'])
-        fn(f'p278/mig/pkback_{k}', ['summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                                    f'$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).{lst}[$(j)].it',
-                                    'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+        fn(f'p278/mig/pkback_{k}', ['tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                                    f'$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).{lst}[$(j)].it',
+                                    'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                                     'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'scoreboard players add #cbe bm.rng 1'])
     fn('p278/mig/now', [pid] + [f'function bm:p278/mig/pk_{k} with storage bm:rp c' for k in PK] + ['scoreboard players set @s bm.cbmig 1'])
     second.append('execute as @a[scores={bm.pid=1..}] unless score @s bm.cbmig matches 1 at @s run function bm:p278/mig/now')

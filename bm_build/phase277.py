@@ -460,9 +460,9 @@ def generate(G):
                       '$execute if score #rqt bm.rng matches ..0 run return run data remove storage bm:pw p$(pid).r$(k)',
                       '$execute store result storage bm:pw p$(pid).r$(k).count int 1 run scoreboard players get #rqt bm.rng'])
     fn('p277/s/givehb', ['$execute unless data storage bm:pw p$(pid).hb run return 0',
-                         'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                         '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).hb', 'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
-                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+                         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                         '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).hb', 'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
+                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                          'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).hb', 'return 1'])
     # (3.1a: the owner - "the Rat Pack ate my final boss weapons, and they're lost when I tried to get them back". Taken back, an
     #  item was set down at your feet - and a Vacuum Satchel on the Pack, its vacuum on, pulled it straight in. Now it goes into
@@ -472,12 +472,12 @@ def generate(G):
                        'scoreboard players set #rqs bm.rng -1'] +
        [f'execute if score #rqs bm.rng matches -1 unless items entity @s container.{n} * run scoreboard players set #rqs bm.rng {n}' for n in range(36)] +
        ['execute if score #rqs bm.rng matches 0.. run return run function bm:p277/s/give_inv with storage bm:rp t',
-        'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).r$(k)',
-        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
-        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
-        '$execute as @e[type=minecraft:item,tag=bm.rqout,limit=1] unless items entity @s contents *[minecraft:custom_data~{bm:"$(id)"}] run kill @s',
-        'execute unless entity @e[type=minecraft:item,tag=bm.rqout] run return run function bm:p277/s/give_fail',
+        'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).r$(k)',
+        'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
+        'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
+        '$execute as @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] unless items entity @s contents *[minecraft:custom_data~{bm:"$(id)"}] run kill @s',
+        'execute unless entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5] run return run function bm:p277/s/give_fail',
         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
     fn('p277/s/give_inv', ['execute store result storage bm:rp t.s int 1 run scoreboard players get #rqs bm.rng', 'function bm:p277/sw/holder',
                            '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
@@ -513,18 +513,18 @@ def generate(G):
     #  wherever you are, in any world. Made on first use, again if it's ever lost)
     import phase84 as _P84
     # (what an earlier swap couldn't put back in your hand - kept, not overwritten: at your feet, yours)
-    fn('p277/sw/lost', ['summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rqmh',
-                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+    fn('p277/sw/lost', ['tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).rqmh',
+                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout'])
     fn('p277/sw/holder', ['execute if entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] run return 1',
                           f'execute in bm:gutter run forceload add {_P84.HX} {_P84.HZ}',
                           f'execute in bm:gutter run summon minecraft:item_display {_P84.HX + 0.5} 1 {_P84.HZ + 0.5} {{Tags:["bm.rqhold"],view_range:0f}}',
                           'return 1'])
     # (whatever the use left in your hand that isn't the Pack's item - yours, at your feet)
-    fn('p277/sw/spill', ['summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from entity @s SelectedItem',
-                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+    fn('p277/sw/spill', ['tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from entity @s SelectedItem',
+                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                          'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout'])
 
     # ================================================================== PER ENTRY: on, use, take back, its row
@@ -1038,10 +1038,10 @@ def generate(G):
     fn('p277/b/do_conv', ['function bm:p277/b/sel', click, f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                           'function bm:p277/b/conv_tog with storage bm:rp s', 'function bm:p277/b/page'])
     fn('p277/b/take_m', ['$execute unless data storage bm:pw p$(pid).rb_$(k)[$(j)] run return 0',
-                         'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                         '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it',
-                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
-                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+                         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                         '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it',
+                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
+                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                          'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).rb_$(k)[$(j)]'])
 
     # ---------------------------------------------------------------- collecting from the Pack (as carried: the same items, the same range)
@@ -1130,8 +1130,8 @@ def generate(G):
     fn('p277/d/all', da)
     fn('p277/w1/m', ['$execute unless data storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0] run return 0',
                      'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout","bm.rqwd"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
-                     '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0].item',
-                     'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+                     '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0].item',
+                     'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                      'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).rb_$(k)[$(j)].it.components."minecraft:container"[0]', 'return 1'])
     fn('p277/w1/do', ['function bm:p277/b/sel', f'execute unless score @s bm.rbk matches {PCK} run return run function bm:p28/stale',
                       'execute store result score #rqd bm.rng run function bm:p277/w1/m with storage bm:rp s',
