@@ -94,7 +94,7 @@ PIVOT = {b[0]: b[2] for b in BLOCKS}
 PARENT = {b[0]: b[1] for b in BLOCKS}
 for k, (par, pv) in EXTRA.items(): PIVOT[k] = pv; PARENT[k] = par
 FACES = ('happy', 'blink', 'focus', 'hurt', 'sleepy', 'dim')
-R = Rig('as_', 0.8, PIVOT, PARENT, FACES, face_part='head', opt=('fling', 'storm'))
+R = Rig('cn_', 0.8, PIVOT, PARENT, FACES, face_part='head', opt=('fling', 'storm'))      # (3.1a: was 'as_' - Ashur's prefix: the Cairn's head, arms and legs overwrote hers)
 BLOCK_PARTS = tuple(b[0] for b in BLOCKS if b[3])
 
 # ---- textures: the slots per biome (vanilla), the heart, the eyes

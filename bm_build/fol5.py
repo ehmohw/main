@@ -147,11 +147,11 @@ SPEC['spawner'] = dict(
 _ca = {1: ('Stained Glass', ('#0a1a3a', '#5a8ae0', '#d0e8ff')), 2: ('Mossy', ('#0e2a0e', '#4a8a3a', '#b8e0a0')), 3: ('Snowcap', ('#1a2a3a', '#a8c8e0', '#ffffff')),
        4: ('Gilded Blocks', GOLD), 5: ('Diamond Blocks', DIAMOND), 6: ('Netherite Blocks', NETHERITE)}
 SPEC['cairn'] = dict(
-    shiny_name='Shiny Gilded Cairn', NAME='The Cairn', pron='it', COL='#ffb040', LINE='#fff0d0', ab='ax', q='jx', pfx='p268', item='waystone_heart', prefix='as_',
+    shiny_name='Shiny Gilded Cairn', NAME='The Cairn', pron='it', COL='#ffb040', LINE='#fff0d0', ab='ax', q='jx', pfx='p268', item='waystone_heart', prefix='cn_',
     word='Blocks', looks=_ca, dyes=_dyes('Blocks', 'light_blue', 'green', 'white', _ca), words='its blocks', plain='The land itself', base=5920,
     aura=('Orbit', '#ffb040', 1.4, 0.95, 'minecraft:end_rod',
           ['particle minecraft:falling_dust{block_state:"minecraft:diamond_ore"} ~ ~1.6 ~ 0.5 0.3 0.5 0 1', f'particle {_dust(1.0, 0.69, 0.25, 0.6)} ~ ~0.8 ~ 0.4 0.4 0.4 0 2']),
-    anchors=('eyes', 'as_eyes', 'heart', 'as_heart'),
+    anchors=('eyes', 'cn_eyes', 'heart', 'cn_heart'),
     champ=(None, [], False, ['minecraft:falling_dust{block_state:"minecraft:gold_block"} ~ ~1.5 ~ 0.3 0.2 0.3 0 1', _dust(1.0, 0.69, 0.25, 0.8) + ' ~ ~0.8 ~ 0.4 0.5 0.4 0 2']),
     gift=('Resistance and Haste', [f'effect give {P8} minecraft:resistance 15 0 true', f'effect give {P8} minecraft:haste 15 0 true']),
     trib=[('minecraft:cobblestone', 64), ('minecraft:mossy_cobblestone', 32), ('minecraft:amethyst_shard', 16), ('minecraft:diamond', 4), ('heartstone', 4)],

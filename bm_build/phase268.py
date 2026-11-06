@@ -210,7 +210,7 @@ def rp(R):
     # (the whole golem's models - its figure and doll - textured from the game's own block textures, never copied into the pack)
     names = set(A0.models())
     for name, (tex, els) in AR.R.models().items():
-        p = name[len('as_'):]
+        p = name[len('cn_'):]
         if name in names or p not in AR.R.PARTS or '_x' in p or any(name.endswith(b) for b in AR.R._skins):
             continue
         t2 = {k: (f'minecraft:block/{VAN[v.split("/")[-1][3:]]}' if v.split('/')[-1][3:] in VAN else v) for k, v in tex.items()}

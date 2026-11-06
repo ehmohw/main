@@ -151,7 +151,7 @@ def _cairn():
     import assembler_pet_art as AR
     from fol5_kit import Rig
     pv = dict(AR.PIVOT, eyes=AR.PIVOT['head']); par = dict(AR.PARENT, eyes='head')
-    R = Rig('as_', AR.R.RIG_SCALE, pv, par, AR.FACES, face_part='eyes')
+    R = Rig('cn_', AR.R.RIG_SCALE, pv, par, AR.FACES, face_part='eyes')
     for k in ('eyes', 'heart', 'heartglow') + tuple(f'eyes_{f}' for f in AR.FACES):
         R.tex(k, AR.R._tex[k])
     R._els['eyes'] = [e for e in AR.R._els['head'] if any(f['texture'] == '#EYES' for f in e['faces'].values())]
