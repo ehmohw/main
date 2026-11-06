@@ -230,9 +230,16 @@ def generate(G):
 
     # ---------------- Heartstones: a scoreboard count re-applied as one attribute modifier (survives death/respawn)
     G.consume_adv('heartstone', 'bm:p17/heartstone')
+    # (3.1h, the owner: "the bonus hearts from heartstones don't seem to save ... i had used 3 last night and now it's back to
+    #  1/10" - the count lives in a score, and a lost score lost it. The hearts themselves (the max_health modifier, two points
+    #  a heart) are kept on the player: whichever is higher wins, so the count can't fall below what you really have)
+    fn('p17/hearts_sync', ['execute unless score @s bm.hearts matches 0.. run scoreboard players set @s bm.hearts 0',
+                           'execute store result score #hm bm.rng run attribute @s minecraft:max_health modifier value get bm:hearts 0.5',
+                           'execute if score #hm bm.rng > @s bm.hearts run scoreboard players operation @s bm.hearts = #hm bm.rng'])
+    second.append('execute as @a run function bm:p17/hearts_sync')
     fn('p17/heartstone', [
         'advancement revoke @s only bm:consume/heartstone',
-        'execute unless score @s bm.hearts matches 0.. run scoreboard players set @s bm.hearts 0',
+        'function bm:p17/hearts_sync',
         f'execute if score @s bm.hearts matches {HEART_CAP}.. run ' + deny('heartstone', 'Your heart can grow no stronger (two full rows).'),
         'scoreboard players add @s bm.hearts 1',
         'function bm:p17/hearts_apply',
