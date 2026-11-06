@@ -21,6 +21,25 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1f: hard mode hits back
+
+**Restart your server (or reload the world) after installing: this adds a new damage type.**
+
+### Nullify
+Followers' blessings and potions made hard mode's fights easy. Now its foes can strip them.
+- **Nullified:** for as long as it lasts, every positive effect is stripped, every tick. That means followers', potions', beacons' and gear's: Regeneration, Strength, Resistance, Absorption, Speed, Fire Resistance, Water Breathing, Night Vision and the rest. None can be put back until it ends. The action bar counts it down, and you're told when your strength returns.
+- **Bosses** (hard mode): every boss, plus every awake Statue Knight. Friendly knights at home never do it. Every 45 seconds of a fight it warns you ("NULLIFY in 2 s!", a dark ring), then pulses: everyone within 28 blocks is Nullified for 25 seconds. Never during its cutscenes.
+- **The Mires:** a Dread Mire's or Brood-Mire's grab or stab that lands, 20 seconds.
+- **Dread mobs** (the Overworld's and the Undercrown's) and **the Armada's own Vorn and guards:** one blow in four, 15 seconds, then they can't do it to you again for 45 seconds. Not in the Dread Sovereign's fight, where its own pulse is enough.
+
+### More
+- **Admiral Vexis's Solar Lance, star-flares and ring shockwave now Sunder:** they go past armour and Protection (the Dread's own blows already did).
+- **Free cameras:** the Dread Sovereign's and Admiral Vexis's cutscenes no longer turn, slow (the zooming) or slide you, and their shake is a rumble, not a jolt to your view.
+- **Gifts: on / off** in the Keeper of Bonds' and the Rat King's menus (the Keeper's gifts; the King's loans and the King's Cut), for tidier pockets.
+- **The Hive Vault's stair** has its last step back (it couldn't be climbed out of without jump boost). Your Armada's is fixed in place.
+- **A wrong answer in a dungeon puzzle** now calls one punishment, not a dozen: a struck target stays lit a moment, and was being counted wrong again and again.
+- **The Malevolent Snowbeast's model** (and any Dread boss's) no longer stays behind when its boss is gone.
+
 ## New in 3.1e: the Underwater Kingdom's throne room, clearer
 
 - **The Royal Steward is invisible again** under his rat. If anything ever clears his invisibility, it's put back within a second.
