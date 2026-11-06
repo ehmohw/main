@@ -58,7 +58,9 @@ B_SEC = {'relics': B_REL, 'partners': 8661, 'pocket': 8662, 'keys': 8663, 'charm
 B_BACK, B_MODE, B_PREV, B_NEXT, B_YOURS = 8672, 8682, 8683, 8684, 8685
 B_AP0 = 8674                                       # (8674-8681: the auto-pack switches; 8686/8687 the Relics' two)
 AP_CODE = [8674, 8675, 8676, 8677, 8678, 8679, 8680, 8681, 8686, 8687]
-B_E0 = 8700                                        # (8700+n: an entry's row)
+B_E0 = 8700                                        # (8700+n: an entry's row - the 281st on, 9704+: ecode)
+B_E1, E_CAP0, E_CAP = 9704, 280, 376
+ecode = lambda n: B_E0 + n if n < E_CAP0 else B_E1 + n - E_CAP0     # (3.1a: past 8979 the rows go on in 9704-9799, clear of the Relics page's 8990s)
 M_BAGS, M_COLS, M_BAG = 9160, 9161, 9170
 B_UNFOLD, B_TAKE, B_AUTO, B_CONV, B_DEP, B_WD1, B_WDA, B_BBACK, B_DEPALL = 9162, 9163, 9164, 9165, 9166, 9167, 9168, 9169, 9172
 B_ROW0 = 9200                                      # (9200 + kind*10 + slot: a bag's / collector's row)
@@ -86,18 +88,34 @@ MOUNTS = ['mecha_remote', 'ember_call', 'void_call']
 # (3.0y) the carrot-on-a-stick tools phase29 dispatches from the main hand (not in useitem.HOLD): used from a row the same way
 CARROT = {'lodestone_locket': 'bm:p29/locket/use', 'bankers_card': 'bm:p31/bank/card', 'ring_burrows': 'bm:p29/burrow/use', 'pocket_rift': 'bm:p29/rift/use', 'fair_weather_bell': 'bm:p29/bell/use'}
 # (3.1, the owner) RELICS: the major boss drops and important items - four sub-pages off "Relics ›"
-RELIC_POW = ['fire_extinguisher', 'dread_ember', 'hollow_echo', 'hollow_summons', 'hollow_gate', 'serpent_summons', 'dread_bell']    # (used from a row)
+RELIC_POW = ['fire_extinguisher', 'dread_ember', 'hollow_echo', 'hollow_summons', 'hollow_gate', 'serpent_summons', 'dread_bell'] + \
+            ['tidecaller_shell'] + [f'sum_{b}' for b in ('horseman', 'pharaoh', 'roc', 'treant', 'colossus', 'voidwalker', 'lantern')]    # (used from a row)
 RELIC_PAS = ['three_nights_talisman', 'ravenous_heart', 'scorching_heart', 'forgeheart', 'void_totem', 'dread_totem', 'sov_heart',
              'ember_mantle', 'void_mantle', 'three_skies_mantle', 'star_cloak', 'obsidian_skull'] + \
-            [f'relic_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')]                                     # (they work by being carried)
+            [f'relic_{d}' for d in ('brood', 'frost', 'tide', 'hex', 'keep', 'hollow', 'lucky')] + \
+            ['sea_glass_locket', 'regent_seal', 'bloomheart_gem', 'ethereal_gem']      # (3.1a: the owner - the Kingdom's treasures too)    # (they work by being carried)
 RELIC_MAT = ['power_cell', 'heartstone', 'fallen_star', 'starheart', 'emberheart', 'voidheart', 'hellstar', 'voidstar'] + \
             [f'skiff_{p}' for p in ('hull', 'dome', 'coil', 'core', 'emitter', 'reactor')] + \
-            [f'gem_{g}' for g in ('fire', 'water', 'poison', 'earth', 'electric', 'rock', 'air', 'grass', 'ice')]                      # (kept, a stack each)
+            [f'gem_{g}' for g in ('fire', 'water', 'poison', 'earth', 'electric', 'rock', 'air', 'grass', 'ice')] + \
+            ['tide_scale'] + [f'essence_{b}' for b in ('horseman', 'pharaoh', 'roc', 'treant', 'colossus', 'voidwalker')]               # (kept, a stack each)
 RELIC_ARM = ['sov_edge', 'black_crown', 'sov_wings', 'sov_wings_holy', 'starfire_lance', 'hive_breaker', 'admiral_crown', 'singularity_launcher',
              'conq_blade', 'conq_axe', 'conq_bow', 'conq_pick', 'conq_shovel', 'conq_helmet', 'conq_chestplate', 'conq_leggings', 'conq_boots',
              'sepulchre', 'hollow_wings', 'hollow_crown', 'archmage_staff', 'bobbery_axe', 'broodfang', 'frost_longbow', 'tyrant_trident',
              'lucky_sword', 'lucky_axe', 'lucky_pick', 'lucky_shovel', 'lucky_helmet', 'lucky_chestplate', 'lucky_leggings', 'lucky_boots',
-             'apo_mace', 'eld_maw', 'eld_axe', 'eld_pick', 'eld_shovel', 'dread_carapace', 'crown_of_the_deep']                       # (kept whole: enchantments, wear and all)
+             'apo_mace', 'eld_maw', 'eld_axe', 'eld_pick', 'eld_shovel', 'dread_carapace', 'crown_of_the_deep'] + \
+            [  # (3.1a: the owner - "a lot of custom arms are missing: tendrils, blunderbuss, harpoon, the 6 random bosses' weapons and
+               #  their variants" - and the Kingdom's armoury, the Serpent King's Mace in every form, the Starforge's and the Dread's sets)
+             'killerwatt_tendrils', 'ethereal_tendrils', 'tul_blunderbuss', 'tul_harpoon',
+             'horseman_head', 'soul_head', 'venom_head', 'hallowed_head', 'pharaoh_crook', 'crook_sands', 'crook_sun', 'crook_ra',
+             'storm_talon', 'talon_static', 'talon_chain', 'talon_wind', 'heartwood_branch', 'branch_bark', 'branch_seed', 'branch_bloom',
+             'molten_gauntlet', 'gauntlet_obsidian', 'gauntlet_magma', 'gauntlet_hearth', 'void_scepter', 'scepter_phase', 'scepter_star', 'scepter_rift',
+             'leo_aegis', 'emma_crescent', 'tide_breaker', 'leo_trident', 'leo_spear', 'tidewarden_head', 'tidewarden_chest', 'tidewarden_legs',
+             'tidewarden_feet', 'pearlguard_head', 'pearlguard_chest', 'pearlguard_legs', 'pearlguard_feet',
+             'apo_mace_sword', 'apo_mace_axe', 'apo_mace_pickaxe', 'apo_mace_shovel', 'apo_mace_hoe', 'apo_mace_trident',
+             'apophiss_crown', 'apo_true_crown', 'apo_unbound_crown', 'px_crown', 'demo_scythe', 'blob_cane', 'gutter_cutlass', 'treasurers_scepter',
+             'wings_rat_king', 'dread_visage', 'dread_greaves', 'dread_treads', 'unbound_helm', 'chainwhip',
+             'eld_helmet', 'eld_chestplate', 'eld_leggings', 'eld_boots', 'starforged_helmet', 'starforged_chestplate', 'starforged_leggings', 'starforged_boots',
+             'plasma_cutter', 'graviton_edge', 'phase_saber', 'vorn_annihilator', 'graviton_pick']                                  # (kept whole: enchantments, wear and all)
 RELICS = ('rpow', 'rpas', 'rmat', 'rarm')
 TAKE_ONLY = {'keys', 'rpas', 'rmat', 'rarm'}        # (a row takes it back: there's nothing to press)
 NOCARRY = {'rmat', 'rarm'}                          # (kept, not "carried": nothing checks them)
@@ -365,7 +383,7 @@ def generate(G):
                           tag='bm.pw_hb' if hb else f'bm.rqt_{iid}', use=use, how=how, stack=stack_of(iid), kind=kind,
                           name=ITEMS[ri]['name'] + (f' {GROUP[ri].index(iid) + 1}' if ri in GROUP else ''), col=colour(iid), real=ri))
     BY = {e['iid']: e for e in E}
-    assert len(E) <= 280, len(E)           # (8700+n stays clear of the Relics page's 8990-8994)
+    assert len(E) <= E_CAP, len(E)         # (8700+n up to 8979, then 9704-9799 - ecode)
     objs += [e['obj'] for e in E if e['obj'] != 'bm.pwhb'] + [f'bm.rqo_{i}' for i in CARRY_CHARMS] + [f'bm.rb_{k}' for k, *_r in BAGK]
     load[-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
@@ -562,7 +580,7 @@ def generate(G):
         cnt = (lambda: [T(' ×$(c)', 'gray')]) if e['stack'] > 1 else (lambda: [])
         nmc = '@@NM@@' if e['real'] in GROUP else T(nm, col)          # (a ring's row: its own name, if it has one - phase277 rn/)
         lab = lambda pre: [icon(iid, col), T(pre, 'white'), nmc] + cnt()
-        code = B_E0 + n
+        code = ecode(n)
         verb = {'pocket': 'Use it - as using the item', 'maps': 'Open it - the seal breaks (one is used up)',
                 'mounts': 'Call it - as using the item', 'rpow': 'Use it - as using the item'}.get(e['cat'], '')
         b_take = P28.btn(lab(' ↩ '), code, width=150, tooltip=T(f'Take {nm} back off the Pack (at your feet)', 'gray'))
@@ -1271,9 +1289,10 @@ def generate(G):
         fn(f'p277/pv/{c}', [f'scoreboard players remove @s bm.pg_rp{c} 1', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2', f'function bm:{target}'])
         fn(f'p277/nx/{c}', [f'scoreboard players add @s bm.pg_rp{c} 1', 'playsound minecraft:item.book.page_turn player @s ~ ~ ~ 0.6 1.2', f'function bm:{target}'])
     for e in E:
-        act.append(f'execute if score #act bm.pay matches {B_E0 + e["n"]} if score @s bm.menu matches {M_CAT[e["cat"]]} run return run function bm:p277/e/{e["iid"]}')
+        act.append(f'execute if score #act bm.pay matches {ecode(e["n"])} if score @s bm.menu matches {M_CAT[e["cat"]]} run return run function bm:p277/e/{e["iid"]}')
     fn('p277/act', act + ['function bm:p28/stale'])
     F['p28/act'].append(f'execute if score #act bm.pay matches {M_FRONT}..8999 run return run function bm:p277/act')
+    F['p28/act'].append(f'execute if score #act bm.pay matches {B_E1}..{B_E1 + E_CAP - E_CAP0 - 1} run return run function bm:p277/act')     # (3.1a: the rows past the 280th)
     # (the bags' and collectors' block)
     bact = [f'execute if score #act bm.pay matches {B_DEPALL} if score @s bm.menu matches {M_COLS} run return run function bm:p277/d/all']
     for ki, b in enumerate(BAGK):
