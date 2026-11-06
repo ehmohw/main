@@ -402,6 +402,21 @@ def generate(G):
                                       f'execute if score #rqg bm.rng matches 1 run tag @s remove {e["tag"]}',
                                       'execute if score #rqg bm.rng matches 1 run ' + tellraw('@s', PRE + [T(e['name'], e['col'], bold=True), T(' handed back.', 'gray')])])
         rest.append(f'function bm:p277/fix/r_{e["iid"]} with storage bm:rp t')
+    # (3.1d) THE FIXER'S RELINK - "it completely cleared my rat pack": the rows are scores, the things are kept in storage. Should
+    #  the scores ever be lost while the storage stands, /function bm:admin/rp_relink puts every row back from what the Pack keeps
+    rel = ['function bm:p179/w/pid', pid, 'scoreboard players set #rql bm.rng 0']
+    for e in E:
+        if e['iid'] == 'bm_handbook' or e['obj'] == 'bm.pwhb': continue
+        P_ = e['path']
+        cnt = (f'scoreboard players set @s {e["obj"]} 1' if e['stack'] == 1 else
+               f'execute store result score @s {e["obj"]} run function bm:p277/s/cnt with storage bm:rp t')
+        fn(f'p277/fix/l_{e["iid"]}', [f'$execute unless data storage bm:pw p$(pid).{P_} run return 0',
+                                      f'execute if score @s {e["obj"]} matches 1.. run return 0',
+                                      f'data modify storage bm:rp t.k set value "{P_[1:]}"', cnt, 'scoreboard players add #rql bm.rng 1'])
+        rel.append(f'function bm:p277/fix/l_{e["iid"]} with storage bm:rp t')
+    fn('admin/rp_relink', rel + ['function bm:p277/tg',
+                                 tellraw('@s', PRE + [{'score': {'name': '#rql', 'objective': 'bm.rng'}, 'color': 'white'},
+                                                      T(' rows put back on your Rat Pack, from what it keeps for you.', 'gray')])])
     fn('admin/rp_dump', dump)
     fn('admin/rp_restore', rest + ['function bm:p277/tg'])
     assert len(E) <= E_CAP, len(E)         # (8700+n up to 8979, then 9704-9799 - ecode)
