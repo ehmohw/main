@@ -59,7 +59,8 @@ class Sovereign(RP.Cfg):
               ('The Dread Bow', 'while it is out, the Dread near it (10) are weakened: they know whose it was')]
     INTRO = [T('The Bound Sovereign', COL, bold=True), T(' - what is left of the Dread Sovereign, bound by its own chains. ', 'gray'),
              T('Somewhere in it, Aurel is listening.', '#fff4d0', italic=True)]
-    BUTTONS = ((6, 'Unbound / Bound', 'Its Unbound form - as vast as it stood against you (yours once you fell the Sovereign a second time)', 'p239/unb/toggle'),)
+    BUTTONS = ((6, 'Form: Bound / Armored / Broken / True', 'Its three forms as it stood against you - Armored, Broken, True - as vast as it was, '
+                                                              'or Bound, its own size (yours once you fell the Sovereign a second time)', 'p239/unb/toggle'),)
     BURST = ['particle minecraft:sculk_soul ~ ~1.4 ~ 0.4 0.8 0.4 0.03 20', 'particle minecraft:dust{color:[0.82,0.1,0.18],scale:1.4} ~ ~1.2 ~ 0.5 0.8 0.5 0 20',
              'particle minecraft:block{block_state:"minecraft:iron_chain"} ~ ~1 ~ 0.4 0.6 0.4 0 16']
     FADE_SOUND = 'playsound minecraft:block.chain.break neutral @a[distance=..20] ~ ~ ~ 1 0.6'
@@ -181,22 +182,42 @@ def _unbound(G):
     import phase238 as P238
     from nbt import F, Int
     fn, title = G.fn, G.title
-    A, SC = DA, P238.SCALE['armored']
+    # (3.1g, the owner: "you can't cycle thru the sovereign's 3 forms like u can Vexis's ... you can only make him giant". Its
+    #  three forms as it stood against you - Armored, Broken, True - each its own rig (every part's model per form) at the boss's
+    #  scale for that form; bm.xvub: 0 Bound, 1 Armored, 2 Broken, 3 True. A pose a form hasn't (the Broken and the True never
+    #  sat dormant) stands in its idle)
+    A = DA
+    UF = ('armored', 'broken', 'true')
     usel = lambda p: f'@e[type=minecraft:item_display,tag=bm.xvusel,tag=bm.xvu_{p}]'
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in ('bm.xvub', 'bm.xvuf', 'bm.xvus')]
     G.OBJECTIVES += ['bm.xvub', 'bm.xvuf', 'bm.xvus']
-    rig = [f'summon minecraft:item_display ~ ~ ~ {RFol.part_nbt(A, p, ["bm.xvu", f"bm.xvu_{p}", "bm.xvunew"], SC, model=A.model_name(p, A.BOSS_POSES["armored"]["idle_a"]), extra=dict(view_range=F(4.0)))}'
-           for p in A.PARTS]
-    fn('p239u/place', RFol.place(A, SC / 16, usel))
-    for name in {pz for _per, frames in UNB_CYC.values() for _t, pz in frames}:
-        fn(f'p239u/pose/{name}', RFol.pose(A, A.BOSS_POSES['armored'][name], SC, P238.DUR.get(name, 6), usel, swap=tuple(A.PARTS)))
-    RFol.cycles(fn, 'p239u', UNB_CYC, 'bm.xvuf', 'bm.xvus', lambda p: f'p239u/pose/{p}')
+    names = {pz for _per, frames in UNB_CYC.values() for _t, pz in frames}
+    for i, f in enumerate(UF, 1):
+        SC = P238.SCALE[f]
+        BP = A.BOSS_POSES[f]
+        rig = [f'summon minecraft:item_display ~ ~ ~ {RFol.part_nbt(A, p, ["bm.xvu", f"bm.xvu_{p}", f"bm.xvuk_{f}", "bm.xvunew"], SC, model=A.model_name(p, BP["idle_a"]), extra=dict(view_range=F(4.0)))}'
+               for p in A.PARTS]
+        fn(f'p239u/{f}/place', RFol.place(A, SC / 16, usel))
+        for name in names:
+            fn(f'p239u/{f}/pose/{name}', RFol.pose(A, BP.get(name, BP['idle_a']), SC, P238.DUR.get(name, 6), usel, swap=tuple(A.PARTS)))
+        RFol.cycles(fn, f'p239u/{f}', UNB_CYC, 'bm.xvuf', 'bm.xvus', lambda p, f=f: f'p239u/{f}/pose/{p}')
+        fn(f'p239u/{f}/raise', rig + ['execute as @e[type=minecraft:item_display,tag=bm.xvunew] run scoreboard players operation @s bm.pid = #me bm.pid',
+                                      'tag @e[type=minecraft:item_display,tag=bm.xvunew] add bm.xvusel', 'tag @e[type=minecraft:item_display,tag=bm.xvunew] remove bm.xvunew',
+                                      'particle minecraft:sculk_soul ~ ~5 ~ 2 4 2 0.05 120', 'particle minecraft:large_smoke ~ ~4 ~ 2 3 2 0.05 60',
+                                      'playsound minecraft:entity.warden.emerge neutral @a[distance=..32] ~ ~ ~ 1.5 0.5', 'playsound minecraft:block.chain.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
     G.FUNCS['load'][-1:-1] = [f'scoreboard players set #{n} bm.rng {n}' for n in RFol.periods(UNB_CYC)]
+    fn('p239u/anim', [f'execute if score #ub bm.rng matches {i} run function bm:p239u/{f}/anim' for i, f in enumerate(UF, 1)])
+    fn('p239u/place', [f'execute if score #ub bm.rng matches {i} run function bm:p239u/{f}/place' for i, f in enumerate(UF, 1)])
+    fn('p239u/raise', [f'execute if score #ub bm.rng matches {i} run function bm:p239u/{f}/raise' for i, f in enumerate(UF, 1)])
+    # (a rig of another form than the one chosen: let go, and the chosen one raised)
+    fn('p239u/swap', [f'execute if score #ub bm.rng matches {i} if entity @e[type=minecraft:item_display,tag=bm.xvusel,tag=!bm.xvuk_{f}] run kill @e[type=minecraft:item_display,tag=bm.xvusel]'
+                      for i, f in enumerate(UF, 1)])
     # (as the host, each tick: its owner's choice)
     G.FUNCS['p239/tick'][-2:-2] = ['scoreboard players set #ub bm.rng 0', 'execute on owner run scoreboard players operation #ub bm.rng = @s bm.xvub',
-                                   'execute if score #ub bm.rng matches 1 run function bm:p239u/on',
-                                   'execute unless score #ub bm.rng matches 1 if entity @e[type=minecraft:item_display,tag=bm.xvu,distance=..12] run function bm:p239u/off']
+                                   'execute if score #ub bm.rng matches 1..3 run function bm:p239u/on',
+                                   'execute unless score #ub bm.rng matches 1..3 if entity @e[type=minecraft:item_display,tag=bm.xvu,distance=..12] run function bm:p239u/off']
     fn('p239u/on', ['execute as @e[type=minecraft:item_display,tag=bm.xvu] if score @s bm.pid = #me bm.pid run tag @s add bm.xvusel',
+                    'function bm:p239u/swap',
                     'execute unless entity @e[type=minecraft:item_display,tag=bm.xvusel] run function bm:p239u/raise',
                     'execute as @e[type=minecraft:item_display,tag=bm.xvsel] run data modify entity @s view_range set value 0f',
                     'scoreboard players set #us bm.rng 0'] +
@@ -212,10 +233,6 @@ def _unbound(G):
      fn('p239/size_small', ['tag @s remove bm.xvbig'] + CS.resize('bm.xvhit', *Sovereign.HIT, scale=Sovereign.SCALE))
      fn('p239/box_fit', ['execute if entity @s[tag=bm.xvbig] run function bm:p239/size_big'])
      G.FUNCS['p239u/on'].insert(0, 'execute unless entity @s[tag=bm.xvbig] run function bm:p239/size_big')
-    fn('p239u/raise', rig + ['execute as @e[type=minecraft:item_display,tag=bm.xvunew] run scoreboard players operation @s bm.pid = #me bm.pid',
-                             'tag @e[type=minecraft:item_display,tag=bm.xvunew] add bm.xvusel', 'tag @e[type=minecraft:item_display,tag=bm.xvunew] remove bm.xvunew',
-                             'particle minecraft:sculk_soul ~ ~5 ~ 2 4 2 0.05 120', 'particle minecraft:large_smoke ~ ~4 ~ 2 3 2 0.05 60',
-                             'playsound minecraft:entity.warden.emerge neutral @a[distance=..32] ~ ~ ~ 1.5 0.5', 'playsound minecraft:block.chain.break neutral @a[distance=..32] ~ ~ ~ 1.5 0.5'])
     fn('p239u/off', ['execute as @e[type=minecraft:item_display,tag=bm.xvu] if score @s bm.pid = #me bm.pid run kill @s',
                      'execute as @e[type=minecraft:item_display,tag=bm.xvsel] run data modify entity @s view_range set value 1.6f',
                      'particle minecraft:sculk_soul ~ ~4 ~ 2 3 2 0.05 60'] + (['function bm:p239/size_small'] if rkflag.ON else []))
@@ -225,8 +242,8 @@ def _unbound(G):
                      'execute as @e[type=minecraft:wolf,tag=bm.xvpet] if score @s bm.pid = #me2 bm.pid run return 1', 'return 0'])
     fn('p239/unb/toggle', ['execute unless entity @s[tag=bm.xvunb] run return run ' + title('@s', 'actionbar', [T('It does not remember that yet. ', COL, italic=True),
                                                                                                          T('(Fell the Dread Sovereign a second time.)', 'gray')]),
-                           'execute if score @s bm.xvub matches 1 run return run function bm:p239/unb/bound',
-                           'scoreboard players set @s bm.xvub 1',
-                           title('@s', 'actionbar', [T('The Bound Sovereign: ', COL, bold=True), T('"...as I was, then." (Unbound)', '#ff9a9a')])])
-    fn('p239/unb/bound', ['scoreboard players set @s bm.xvub 0', title('@s', 'actionbar', [T('The Bound Sovereign: ', COL, bold=True), T('"Bound. As you will." (its chains draw it small again)', '#ff9a9a')])])
+                           'scoreboard players add @s bm.xvub 1', 'execute unless score @s bm.xvub matches 0..3 run scoreboard players set @s bm.xvub 0'] +
+       [f'execute if score @s bm.xvub matches {i} run return run ' + title('@s', 'actionbar', [T('The Bound Sovereign: ', COL, bold=True), T(line, '#ff9a9a')])
+        for i, line in ((1, '"...as I was, then." (Armored)'), (2, '"As you broke me." (Broken)'), (3, '"As I truly was." (True)'),
+                        (0, '"Bound. As you will." (its chains draw it small again)'))])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.xvu]']
