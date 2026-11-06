@@ -24,6 +24,7 @@ XS_EXTRA = []                                        # (2.84a) more account swap
 ACCT_EXTRA = []                                      # (2.84b) more buttons on the account page: (label components, code, tooltip, function)
 SAVE_PER_OF = {}                                     # (2.84a) a currency's own rate: 1 a day per this many kept (Dread Tokens: 50 - 2%)
 AUTO_SKIP = set()                                    # (3.0g) currencies auto-deposit leaves in your pockets (Royal Pearls: Ava and the Steward take them from there)
+AUTO_AWAY = {}                                       # (3.1a) currencies auto-deposit takes only under a condition (its execute subcommand: Royal Pearls away from the Kingdom)
 BANK = [('token', 'bm.bk_tok', 'Tokens', 'gold'), ('lucky_token', 'bm.bk_luck', 'Lucky Tokens', 'green'),
         ('medallion', 'bm.bk_med', 'Medallions', 'light_purple'), ('trophy', 'bm.bk_tro', 'Trophies', '#ffb300')]
 COUNTERS = {'concierge': ([(50, BF + 1, 5), (51, BF + 1, 5), (52, BF + 1, 5)], 'minecraft:dark_oak_planks'),
@@ -139,6 +140,10 @@ def generate(G):
         if cur in AUTO_SKIP: continue
         if cur == 'token':
             auto += [f'execute store result score #n bm.pay run clear @s {has} 0', f'execute if score #n bm.pay matches {KEEP_TOK + 1}.. run function bm:p31/bank/auto_tok']
+            continue
+        if cur in AUTO_AWAY:
+            fn(f'p31/bank/auto_{cur}', [f'execute store result score #n bm.pay run clear @s {has}', f'scoreboard players operation @s {obj} += #n bm.pay', 'scoreboard players operation #atot bm.pay += #n bm.pay'])
+            auto.append(f'execute {AUTO_AWAY[cur]} if items entity @s container.* {has} run function bm:p31/bank/auto_{cur}')
             continue
         auto += [f'execute store result score #n bm.pay run clear @s {has}', f'scoreboard players operation @s {obj} += #n bm.pay', 'scoreboard players operation #atot bm.pay += #n bm.pay']
     auto += ['execute if score #atot bm.pay matches 1.. run playsound minecraft:block.chain.place player @s ~ ~ ~ 0.3 1.8']

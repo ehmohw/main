@@ -469,8 +469,10 @@ def generate(G):
         fn(f'p179/w/sa{i}', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #pwon bm.rng 0',
                              f'execute as @e[type=minecraft:{host},tag={tag}] if score @s bm.pid = #me bm.pid run scoreboard players set #pwon bm.rng 1',
                              'execute if score #pwon bm.rng matches 0 run return 0', 'scoreboard players add #pwsa bm.rng 1', f'function bm:{home}'])
+    # (3.1a: the owner - "clicking Send all home shouldn't close the menu out": the Partners page comes back, as after a call)
     fn('p179/w/sendall', ['scoreboard players set #pwsa bm.rng 0'] + [f'function bm:p179/w/sa{i}' for i in range(len(PW))] +
-       ['execute if score #pwsa bm.rng matches 0 run return run ' + say('None of your followers are out.'),
+       ['tag @s add bm.pwreo', 'schedule function bm:p179/w/reopen 2t append',
+        'execute if score #pwsa bm.rng matches 0 run return run ' + say('None of your followers are out.'),
         'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.7 0.8', 'particle minecraft:enchant ~ ~1.2 ~ 0.4 0.5 0.4 0.8 30',
         'execute if score #pwsa bm.rng matches 1 run return run ' + say('The wheel turns - your follower heads home.', PURPLE),
         say('The wheel turns - all your followers head home.', PURPLE)])

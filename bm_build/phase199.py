@@ -104,7 +104,11 @@ import phase31 as _P31
 _P31.BANK.append(('royal_pearl', 'bm.bk_rp', 'Royal Pearls', PEARL_C))
 _P31.SAVE_CAP['royal_pearl'] = 2
 _P31.SAVE_PER_OF['royal_pearl'] = 50
-_P31.AUTO_SKIP.add('royal_pearl')                   # (Ava's honours and the Steward are paid from your pockets: auto-deposit leaves them there)
+# (3.1a: the owner - "make sure royal pearls work too" with the Banker's Card's auto-deposit. Away from the Kingdom they go in;
+#  in it - where the Steward trades for them from your pockets - they stay on you. And every pearl price paid by menu (Ava's
+#  honours, the Tide's Haste, the dome's mending, the armoury's again) counts the bank's pearls too, and takes from it what
+#  your pockets don't cover: late(), below)
+_P31.AUTO_AWAY['royal_pearl'] = 'unless entity @e[type=minecraft:marker,tag=bm.kingdom,distance=..96]'
 
 
 # ================================================================================================ art: icons, the steward
@@ -787,3 +791,39 @@ def generate(G):
     G.FUNCS['tick'] += tick
     G.FUNCS['loop/fast'][-1:-1] = fast
     G.FUNCS['loop/second'][-1:-1] = second
+
+
+def late(G):
+    """(3.1a) every pearl price a menu takes: what you hold and what the Rat Bank keeps (bm.bk_rp) both count, and the bank pays
+    what your pockets can't. Run after every pearl spender is made. Returns (counts, takes) rewritten."""
+    import re as _re
+    F = G.FUNCS
+    P = '*[minecraft:custom_data~{bm:"royal_pearl"}]'
+    cnt = f'execute store result score #c bm.rng run clear @s {P} 0'
+    show = _re.compile(r'^execute store result storage (\S+) (\S+) int 1 run clear @s ' + _re.escape(P) + r' 0$')
+    take = _re.compile(r'^clear @s ' + _re.escape(P) + r' (\d+)$')
+    nc = nt = 0
+    for name in list(F):
+        if name.startswith('p31/'): continue
+        L = F[name]
+        if not any(P in l for l in L): continue
+        out = []
+        for l in L:
+            m = show.match(l); t = take.match(l)
+            if l == cnt:
+                out += [l, 'scoreboard players operation #c bm.rng += @s bm.bk_rp']; nc += 1
+            elif m:
+                out += [f'execute store result score #rpc bm.rng run clear @s {P} 0', 'scoreboard players operation #rpc bm.rng += @s bm.bk_rp',
+                        f'execute store result storage {m.group(1)} {m.group(2)} int 1 run scoreboard players get #rpc bm.rng']; nc += 1
+            elif t:
+                out.append(f'function bm:p31/rp/take {{n:{t.group(1)}}}'); nt += 1
+            else:
+                out.append(l)
+        F[name] = out
+    G.fn('p31/rp/take', ['$scoreboard players set #rpn bm.rng $(n)', f'execute store result score #rph bm.rng run clear @s {P} 0',
+                         'scoreboard players operation #rpt bm.rng = #rpn bm.rng', 'scoreboard players operation #rpt bm.rng < #rph bm.rng',
+                         'execute store result storage bm:tmp rpt.n int 1 run scoreboard players get #rpt bm.rng',
+                         'execute if score #rpt bm.rng matches 1.. run function bm:p31/rp/clr with storage bm:tmp rpt',
+                         'scoreboard players operation #rpn bm.rng -= #rpt bm.rng', 'scoreboard players operation @s bm.bk_rp -= #rpn bm.rng'])
+    G.fn('p31/rp/clr', [f'$clear @s {P} $(n)'])
+    return nc, nt
