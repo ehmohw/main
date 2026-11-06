@@ -435,20 +435,36 @@ def generate(G):
                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
                        'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
     # (the main-hand swap: the Pack's item into your hand for its use, then back - your own item restored)
-    fn('p277/sw/in', ['$data remove storage bm:pw p$(pid).rqmh', '$data modify storage bm:pw p$(pid).rqmh set from entity @s SelectedItem',
-                      'summon minecraft:item_display ~ ~ ~ {Tags:["bm.rqh"]}',
-                      '$data modify entity @e[type=minecraft:item_display,tag=bm.rqh,limit=1,distance=..1] item set from storage bm:pw p$(pid).r$(k)',
-                      'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqh,limit=1,distance=..1] contents',
-                      'kill @e[type=minecraft:item_display,tag=bm.rqh,distance=..1]'])
+    fn('p277/sw/in', ['$execute if data storage bm:pw p$(pid).rqmh run function bm:p277/sw/lost {pid:$(pid)}', '$data remove storage bm:pw p$(pid).rqmh', '$data modify storage bm:pw p$(pid).rqmh set from entity @s SelectedItem',
+                      'function bm:p277/sw/holder',
+                      '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
+                      'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
+                      'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item'])
     fn('p277/sw/out', ['$data remove storage bm:pw p$(pid).r$(k)',
                        '$execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"$(id)"}] run data modify storage bm:pw p$(pid).r$(k) set from entity @s SelectedItem',
                        '$data remove storage bm:pw p$(pid).r$(k).Slot',
                        '$execute unless items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"$(id)"}] if items entity @s weapon.mainhand * run function bm:p277/sw/spill',
                        '$execute unless data storage bm:pw p$(pid).rqmh run return run item replace entity @s weapon.mainhand with minecraft:air',
-                       'summon minecraft:item_display ~ ~ ~ {Tags:["bm.rqh"]}',
-                       '$data modify entity @e[type=minecraft:item_display,tag=bm.rqh,limit=1,distance=..1] item set from storage bm:pw p$(pid).rqmh',
-                       'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqh,limit=1,distance=..1] contents',
-                       'kill @e[type=minecraft:item_display,tag=bm.rqh,distance=..1]', '$data remove storage bm:pw p$(pid).rqmh'])
+                       'function bm:p277/sw/holder',
+                       '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).rqmh',
+                       'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
+                       'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                       '$execute if items entity @s weapon.mainhand * run data remove storage bm:pw p$(pid).rqmh'])
+    # (3.0z+: the owner - "using the Smuggler's Waytoken from the Rat Pack deleted my pack and replaced it with the token". The swap
+    #  went through an item display summoned where you stood - and the Waytoken (or any row that moves you) had taken you
+    #  somewhere not loaded yet by the time the Pack went back into your hand: no display there, the token left in your hand,
+    #  the Pack gone. Now one display does every swap, kept in the gutter's force-loaded chunk (phase84's Locker Hall): found
+    #  wherever you are, in any world. Made on first use, again if it's ever lost)
+    import phase84 as _P84
+    # (what an earlier swap couldn't put back in your hand - kept, not overwritten: at your feet, yours)
+    fn('p277/sw/lost', ['summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
+                        '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from storage bm:pw p$(pid).rqmh',
+                        'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID',
+                        'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout'])
+    fn('p277/sw/holder', ['execute if entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] run return 1',
+                          f'execute in bm:gutter run forceload add {_P84.HX} {_P84.HZ}',
+                          f'execute in bm:gutter run summon minecraft:item_display {_P84.HX + 0.5} 1 {_P84.HZ + 0.5} {{Tags:["bm.rqhold"],view_range:0f}}',
+                          'return 1'])
     # (whatever the use left in your hand that isn't the Pack's item - yours, at your feet)
     fn('p277/sw/spill', ['summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
                          'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item set from entity @s SelectedItem',
@@ -1293,5 +1309,5 @@ def generate(G):
     rep['lines reworded'] = nw
     G.FUNCS['admin/help'] += [tellraw('@s', [T('/function bm:admin/rat_pack', 'yellow'), T('  the Rat Pack, and one of every tool, key, charm, map and call it holds', 'gray')])]
     fn('admin/rat_pack', [give('partner_wheel')] + [give(e['iid']) for e in E if e['iid'] not in ALIAS] + [give(b[1]) for b in BAGK])
-    F['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.rqh]']
+    F['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.rqh]', 'kill @e[type=minecraft:item_display,tag=bm.rqhold]']
     return rep
