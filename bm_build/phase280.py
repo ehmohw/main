@@ -89,6 +89,9 @@ def generate(G):
                         f'execute store result score #r bm.rng run random value 1..{MOB_CHANCE}', 'execute unless score #r bm.rng matches 1 run return 0',
                         f'scoreboard players set @s bm.nulm {MOB_CD}', f'scoreboard players set #nd bm.rng {MOB_T}', 'function bm:p280/on'])
     second.append('scoreboard players remove @a[scores={bm.nulm=1..}] bm.nulm 1')
+    # (3.1f, the owner: "the model of the malevolent snowbeast in the undercrown doesn't despawn") a Dread boss's model with no
+    # boss under it (an echo gone, a fall cut short) is cleared
+    second.append('execute as @e[type=minecraft:item_display,tag=bm.dbr] at @s unless entity @e[tag=bm.db,distance=..16] run kill @s')
 
     # ---- THE MIRES: a grab or a stab that lands (mirekit calls p280/mire)
     fn('p280/mire', [f'scoreboard players set #nd bm.rng {MIRE_T}', 'function bm:p280/on'])
