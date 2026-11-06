@@ -241,6 +241,18 @@ def generate(G):
                          'execute store result score #cbc bm.rng run data get entity @s Item.count', 'scoreboard players operation #cbn bm.rng += #cbc bm.rng',
                          'function bm:p278/add with storage bm:rp c', 'kill @s'])
     # (one inventory slot -> the account)
+    # (3.1b: the owner - "always leave at least 1 regular arrow in the player's inventory when the Spirit Jar's auto-collect is
+    #  on": #arw, the plain arrows on you; a stack the jar would take is taken whole only while another arrow stays on you, else
+    #  all but one)
+    ARROW = 'minecraft:arrow[!minecraft:custom_data]'
+    fn('p278/take_arrow', ['$execute store result score #cbc bm.rng run data get entity @s Inventory[{Slot:$(s)b}].count',
+                           'scoreboard players operation #arl bm.rng = #arw bm.rng', 'scoreboard players operation #arl bm.rng -= #cbc bm.rng',
+                           'execute if score #arl bm.rng matches ..0 run scoreboard players remove #cbc bm.rng 1',
+                           'execute if score #cbc bm.rng matches ..0 run return 0',
+                           'scoreboard players operation #arw bm.rng -= #cbc bm.rng', 'scoreboard players operation #cbn bm.rng += #cbc bm.rng',
+                           'data modify storage bm:rp c.n set value "arrow"', 'function bm:p278/add with storage bm:rp c',
+                           '$execute if score #arl bm.rng matches ..0 run return run item modify entity @s container.$(s) {type:"minecraft:set_count",count:1}',
+                           '$item replace entity @s container.$(s) with minecraft:air'])
     fn('p278/take_slot', ['$data modify storage bm:rp c.n set string entity @s Inventory[{Slot:$(s)b}].id 10',
                           '$execute store result score #cbc bm.rng run data get entity @s Inventory[{Slot:$(s)b}].count',
                           'scoreboard players operation #cbn bm.rng += #cbc bm.rng',
@@ -258,7 +270,10 @@ def generate(G):
                       f'unless dimension bm:gutter run function bm:p278/c/{k}')
         fn(f'p278/c/{k}', [pid, f'data modify storage bm:rp c.k set value "{k}"', 'scoreboard players set #cbn bm.rng 0',
                            f'execute as @e[type=minecraft:item,distance=..8,tag=!bm.rqwd,nbt={{PickupDelay:0s}}] if items entity @s contents {has_(k)} run function bm:p278/take_ent'] +
-           [f'execute if items entity @s container.{s} {has_(k)} run function bm:p278/take_slot {{s:{s}}}' for s in range(9, 36)] +
+           ([f'execute store result score #arw bm.rng run clear @s {ARROW} 0'] if k == 'mob' else []) +
+           [l for s in range(9, 36) for l in ([f'execute if items entity @s container.{s} {ARROW} run function bm:p278/take_arrow {{s:{s}}}'] if k == 'mob' else []) +
+            [f'execute if items entity @s container.{s} {has_(k)}' + (f' unless items entity @s container.{s} {ARROW}' if k == 'mob' else '') +
+             f' run function bm:p278/take_slot {{s:{s}}}']] +
            ['execute if score #cbn bm.rng matches 1.. run playsound minecraft:entity.item.pickup player @s ~ ~ ~ 0.3 0.7'])
 
     # ---------------------------------------------------------------- THE ACCOUNT: front page

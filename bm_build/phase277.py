@@ -486,7 +486,7 @@ def generate(G):
                            '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
                            'data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data".bm_rpno set value 1b',
                            'execute store result score #rqg bm.rng run function bm:p277/s/give_slot with storage bm:rp t',
-                           'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                           'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item', 'function bm:p277/sw/done',
                            # (only once it's really in your hands is the Pack's copy let go - else kept, and you're told)
                            'execute unless score #rqg bm.rng matches 1 run return run function bm:p277/s/give_fail',
                            '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
@@ -500,7 +500,7 @@ def generate(G):
                       'function bm:p277/sw/holder',
                       '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
                       'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
-                      'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item'])
+                      'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item', 'function bm:p277/sw/done'])
     fn('p277/sw/out', ['$data remove storage bm:pw p$(pid).r$(k)',
                        '$execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"$(id)"}] run data modify storage bm:pw p$(pid).r$(k) set from entity @s SelectedItem',
                        '$data remove storage bm:pw p$(pid).r$(k).Slot',
@@ -509,7 +509,7 @@ def generate(G):
                        'function bm:p277/sw/holder',
                        '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).rqmh',
                        'item replace entity @s weapon.mainhand from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
-                       'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                       'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item', 'function bm:p277/sw/done',
                        '$execute if items entity @s weapon.mainhand * run data remove storage bm:pw p$(pid).rqmh'])
     # (3.0z+: the owner - "using the Smuggler's Waytoken from the Rat Pack deleted my pack and replaced it with the token". The swap
     #  went through an item display summoned where you stood - and the Waytoken (or any row that moves you) had taken you
@@ -522,10 +522,16 @@ def generate(G):
                         '$data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from storage bm:pw p$(pid).rqmh',
                         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
                         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout'])
+    # (3.1b: the owner - "none of the keys come off the key ring": in his world the gutter's holder couldn't be reached (its chunk
+    #  not loaded there), so every hand-back failed - safely, the Pack kept them. Now, when the gutter's holder can't be had, a
+    #  holder is made where you stand (always loaded) for this one hand-off, and taken away straight after: p277/sw/done)
     fn('p277/sw/holder', ['execute if entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] run return 1',
                           f'execute in bm:gutter run forceload add {_P84.HX} {_P84.HZ}',
                           f'execute in bm:gutter run summon minecraft:item_display {_P84.HX + 0.5} 1 {_P84.HZ + 0.5} {{Tags:["bm.rqhold"],view_range:0f}}',
+                          'execute if entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] run return 1',
+                          'summon minecraft:item_display ~ ~ ~ {Tags:["bm.rqhold","bm.rqtmp"],view_range:0f}',
                           'return 1'])
+    fn('p277/sw/done', ['kill @e[type=minecraft:item_display,tag=bm.rqtmp]'])
     # (whatever the use left in your hand that isn't the Pack's item - yours, at your feet)
     fn('p277/sw/spill', ['tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', 'summon minecraft:item ~ ~0.4 ~ {Tags:["bm.rqout"],PickupDelay:0s,Item:{id:"minecraft:paper",count:1}}',
                          'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Item set from entity @s SelectedItem',
