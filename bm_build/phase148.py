@@ -303,8 +303,8 @@ def generate(G):
     G.FUNCS['tick'].append('scoreboard players remove @a[scores={bm.gvhl=1..}] bm.gvhl 1')
     G.FUNCS['loop/second'].append(f'execute in bm:gutter as @e[type=minecraft:item] if items entity @s contents {rh} run kill @s')
     ray = G.FUNCS['p21/grap/ray']
-    assert 'unless block ~ ~ ~ minecraft:target run return run scoreboard players set #ghit bm.rng 3' in ray[0], ray[0]
-    ray[0] = ray[0].replace('unless block ~ ~ ~ minecraft:target run', 'unless block ~ ~ ~ minecraft:target unless block ~ ~ ~ minecraft:iron_chain run')
+    assert 'unless block ~ ~ ~ minecraft:target ' in ray[0] and ray[0].endswith('run return run scoreboard players set #ghit bm.rng 3'), ray[0]      # (3.1a: phase115's line now passes bells too)
+    ray[0] = ray[0].replace('unless block ~ ~ ~ minecraft:target ', 'unless block ~ ~ ~ minecraft:target unless block ~ ~ ~ minecraft:iron_chain ', 1)
     ray.insert(1, 'execute if score @s bm.gvhk matches 1.. if block ~ ~ ~ minecraft:iron_chain unless entity @e[type=minecraft:marker,tag=bm.gvswing,distance=..5] run return run scoreboard players set #ghit bm.rng 3')
     hit = G.FUNCS['p21/grap/hit']
     hit.insert(1, 'execute if score @s bm.gvhk matches 1.. if entity @e[type=minecraft:marker,tag=bm.gvswing,distance=..5] at @e[type=minecraft:marker,tag=bm.gvswing,distance=..5,sort=nearest,limit=1] positioned ~ ~-0.5 ~ run return run function bm:p115/hook/snap')
