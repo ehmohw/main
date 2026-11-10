@@ -2,9 +2,9 @@
 import sys, os, glob, shutil, json, random
 from PIL import Image, ImageDraw, ImageFilter
 S, G = sys.argv[1], sys.argv[2]
-SRC = {'emma': S + '/emma_test/Idle', 'leo': S + '/gen/out/leo/Idle', 'bender': S + '/gen/out/bender/Idle',
+SRC = {'emma': S + '/emma_test/Idle', 'leo': S + '/gen/out/leo/Idle', 'bender': S + '/gen/out/bender/Idle', 'cecil': S + '/gen/out/cecil/Idle',
        'lantern': S + '/bm_build/ref/pixellab/chars/lantern/Idle', 'stalker': S + '/bm_build/ref/pixellab/chars/stalker/Idle'}
-HERO = ('emma', 'leo', 'bender')
+HERO = ('emma', 'leo', 'bender', 'cecil')
 data = {}
 for who, src in SRC.items():
     if not os.path.isdir(src):

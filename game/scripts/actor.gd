@@ -2,7 +2,7 @@ class_name Actor
 extends CharacterBody2D
 ## Anything that walks, fights and can be hurt: heroes and enemies.
 
-var game: Node            # the Main node
+var game: Main
 var who := ""             # sprite set name in Manifest
 var team := 0             # 0 = heroes, 1 = enemies
 var max_hp := 10.0
@@ -16,9 +16,15 @@ var four_dir := false     # heroes have east/west art; enemies only south/north
 var radius := 14.0
 var sprite: AnimatedSprite2D
 var base_modulate := Color.WHITE
-var _flash := 0.0
 var stun_guard := 0.0     # after a stun wears off, a spell of immunity so nothing is stun-locked
 var guard_time := 1.6
+var poison_t := 0.0
+var poison_dps := 0.0
+# what the network last told us, for actors simulated on another machine
+var net_pos := Vector2.ZERO
+var net_moving := false
+var _flash := 0.0
+var _poison_acc := 0.0
 var _stars: Label
 
 func build(who_: String, sprite_scale := 1.0, shadow_w := 22.0) -> void:
@@ -72,6 +78,14 @@ func play_anim(moving: bool, action := "") -> void:
 	if sprite.animation != name_ or not sprite.is_playing():
 		sprite.play(name_)
 
+func show_stun(on: bool) -> void:
+	_stars.visible = on
+
+## Follow the position the network gave us (for actors another machine simulates).
+func follow_net(delta: float) -> void:
+	global_position = global_position.lerp(net_pos, minf(1.0, delta * 14.0))
+	play_anim(net_moving)
+
 func tick_status(delta: float) -> bool:
 	## Returns true when the actor may act this frame.
 	if _flash > 0.0:
@@ -79,6 +93,17 @@ func tick_status(delta: float) -> bool:
 		sprite.modulate = Color(3, 3, 3) if _flash > 0.0 else base_modulate
 	knock = knock.move_toward(Vector2.ZERO, 900.0 * delta)
 	stun_guard -= delta
+	if poison_t > 0.0 and game.is_host and not dead:
+		poison_t -= delta
+		_poison_acc += delta
+		if _poison_acc >= 0.5:
+			_poison_acc = 0.0
+			hp -= poison_dps * 0.5
+			game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.6), str(int(round(poison_dps * 0.5))), Color(0.6, 1.0, 0.4))
+			if hp <= 0.0:
+				hp = 0.0
+				die()
+				return false
 	if stun > 0.0:
 		stun -= delta
 		_stars.visible = stun > 0.0
@@ -87,6 +112,7 @@ func tick_status(delta: float) -> bool:
 		return false
 	return true
 
+## Only ever called on the host, which decides all damage.
 func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 0.0) -> void:
 	if dead:
 		return
@@ -94,15 +120,22 @@ func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 
 		amount *= 1.5       # Emma's stun opens a weak point
 	hp -= amount
 	_flash = 0.09
-	knock = (global_position - from).normalized() * knockback
+	var k := (global_position - from).normalized() * knockback
+	var st := 0.0
 	if stun_time > 0.0 and stun_guard <= 0.0:
-		stun = stun_time
+		st = stun_time
 		stun_guard = stun_time + guard_time
+	apply_hit(k, st)
 	game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.6), str(int(round(amount))),
 		Color(1, 0.4, 0.35) if team == 0 else Color(1, 1, 0.8))
 	if hp <= 0.0:
 		hp = 0.0
 		die()
+
+func apply_hit(k: Vector2, stun_time: float) -> void:
+	knock = k
+	if stun_time > 0.0:
+		stun = stun_time
 
 func die() -> void:
 	dead = true

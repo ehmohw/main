@@ -1,15 +1,18 @@
 class_name Enemy
 extends Actor
-## Arachno-Lanterns, Stalkers, egg sacs and the Brood Lantern boss.
+## Arachno-Lanterns, Stalkers, egg sacs and the Brood Lantern boss. The host simulates them; other machines show puppets.
 
+const KINDS := ["lantern", "stalker", "sac", "boss"]
 const STATS := {
 	"lantern": {"who": "lantern", "hp": 64.0, "speed": 104.0, "dmg": 12.0, "range": 40.0, "cd": 1.0, "xp": 12, "scale": 1.0, "embers": 2},
 	"stalker": {"who": "stalker", "hp": 80.0, "speed": 150.0, "dmg": 16.0, "range": 44.0, "cd": 1.3, "xp": 20, "scale": 1.0, "embers": 3},
 	"sac": {"who": "", "hp": 22.0, "speed": 0.0, "dmg": 0.0, "range": 0.0, "cd": 0.0, "xp": 6, "scale": 1.0, "embers": 1},
-	"boss": {"who": "lantern", "hp": 720.0, "speed": 84.0, "dmg": 16.0, "range": 92.0, "cd": 1.8, "xp": 200, "scale": 2.6, "embers": 30},
+	"boss": {"who": "lantern", "hp": 900.0, "speed": 84.0, "dmg": 16.0, "range": 92.0, "cd": 1.8, "xp": 200, "scale": 2.6, "embers": 30},
 }
 
+var id := 0
 var kind := ""
+var puppet := false
 var dmg := 1.0
 var attack_range := 40.0
 var attack_cd := 1.0
@@ -17,6 +20,7 @@ var cooldown := 0.6
 var xp := 0
 var embers := 0
 var hatch_in := -1.0        # egg sacs only
+var shaking := false
 var sac_sprite: Sprite2D
 # boss
 var special_in := 4.0
@@ -26,12 +30,14 @@ var charge_dir := Vector2.ZERO
 var summons_left := 2
 var _hit_in_charge := {}
 
-func setup(game_: Node, kind_: String) -> void:
+func setup(game_: Main, kind_: String, id_: int, puppet_: bool) -> void:
 	game = game_
 	kind = kind_
+	id = id_
+	puppet = puppet_
 	team = 1
 	var s: Dictionary = STATS[kind]
-	max_hp = s["hp"]
+	max_hp = s["hp"] * (1.0 + 0.15 * maxi(0, Session.humans() - 1))
 	hp = max_hp
 	speed = s["speed"] * randf_range(0.9, 1.1)
 	dmg = s["dmg"]
@@ -73,9 +79,7 @@ func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 
 			return
 		hp -= amount
 		game.float_text(global_position + Vector2(0, -50), str(int(round(amount))), Color(1, 1, 0.8))
-		var t := create_tween()
-		t.tween_property(sac_sprite, "scale", Vector2(1.2, 0.85), 0.05)
-		t.tween_property(sac_sprite, "scale", Vector2.ONE, 0.1)
+		game.emit_fx("lunge_e", [id, Vector2.ZERO, 0.0])
 		if hp <= 0.0:
 			die()
 		return
@@ -84,22 +88,38 @@ func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 
 		stun_time *= 0.6
 	super.take_damage(amount, from, knockback, stun_time)
 
+func squash() -> void:
+	var t := create_tween()
+	t.tween_property(sac_sprite, "scale", Vector2(1.2, 0.85), 0.05)
+	t.tween_property(sac_sprite, "scale", Vector2.ONE, 0.1)
+
 func _physics_process(delta: float) -> void:
 	if dead or game.over:
 		return
 	if kind == "sac":
+		if shaking:
+			sac_sprite.position.x = sin(Time.get_ticks_msec() / 25.0) * 2.5
+		if puppet:
+			global_position = net_pos
+			return
 		if hatch_in > 0.0:
 			hatch_in -= delta
-			if hatch_in < 1.2:
-				sac_sprite.position.x = sin(hatch_in * 40.0) * 2.5
+			shaking = hatch_in < 1.2
 			if hatch_in <= 0.0:
 				game.spawn_enemy("lantern", global_position)
 				dead = true
 				game.enemy_gone(self, false)
 				queue_free()
 		return
+	if puppet:
+		if _flash > 0.0:
+			_flash -= delta
+			sprite.modulate = Color(3, 3, 3) if _flash > 0.0 else base_modulate
+		follow_net(delta)
+		return
 	cooldown -= delta
 	if not tick_status(delta):
+		net_moving = false
 		return
 	if kind == "boss":
 		_boss(delta)
@@ -109,6 +129,7 @@ func _physics_process(delta: float) -> void:
 		velocity = knock
 		move_and_slide()
 		play_anim(false)
+		net_moving = false
 		return
 	var off := target.global_position - global_position
 	var dist := off.length()
@@ -117,12 +138,13 @@ func _physics_process(delta: float) -> void:
 	if dist > attack_range * 0.8:
 		move = facing
 		# a little weaving so packs don't stack on one spot
-		move = (move + facing.orthogonal() * sin(Time.get_ticks_msec() / 400.0 + get_instance_id() % 7) * 0.35).normalized()
+		move = (move + facing.orthogonal() * sin(Time.get_ticks_msec() / 400.0 + id % 7) * 0.35).normalized()
 	elif cooldown <= 0.0:
 		_bite(target)
 	velocity = move * speed + knock
 	move_and_slide()
-	play_anim(move.length() > 0.1)
+	net_moving = move.length() > 0.1
+	play_anim(net_moving)
 
 func _pick_target() -> Hero:
 	var best: Hero = null
@@ -140,8 +162,7 @@ func _pick_target() -> Hero:
 
 func _bite(target: Hero) -> void:
 	cooldown = attack_cd
-	lunge(facing, 14.0)
-	play_anim(false, "attack")
+	game.emit_fx("lunge_e", [id, facing, 14.0])
 	if global_position.distance_to(target.global_position) <= attack_range + target.radius + 6.0:
 		target.take_damage(dmg, global_position, 140.0)
 
@@ -151,6 +172,7 @@ func _boss(delta: float) -> void:
 		return
 	var off := target.global_position - global_position
 	state_t -= delta
+	net_moving = false
 	# call the brood at two thirds and one third health
 	if summons_left > 0 and hp < max_hp * (summons_left / 3.0):
 		summons_left -= 1
@@ -168,7 +190,8 @@ func _boss(delta: float) -> void:
 				_bite(target)
 			velocity = move * speed + knock
 			move_and_slide()
-			play_anim(move.length() > 0.1)
+			net_moving = move.length() > 0.1
+			play_anim(net_moving)
 			if special_in <= 0.0:
 				special_in = randf_range(4.0, 6.0)
 				if randf() < 0.5:
@@ -178,14 +201,14 @@ func _boss(delta: float) -> void:
 					state = "wind_charge"
 					state_t = 0.85
 					charge_dir = off.normalized()
-					game.telegraph(global_position, charge_dir, 420.0)
+					game.emit_fx("tele", [global_position, charge_dir, 420.0])
 		"wind_spit":
 			facing = off.normalized()
 			sprite.modulate = Color(1.6, 0.9, 0.5) if int(state_t * 12) % 2 == 0 else base_modulate
 			if state_t <= 0.0:
 				sprite.modulate = base_modulate
 				for i in range(-3, 4):
-					game.spawn_projectile(global_position + Vector2(0, -50), facing.rotated(i * 0.2), 1, 10.0, "fire")
+					game.emit_fx("proj", [global_position + Vector2(0, -50), facing.rotated(i * 0.2), 1, 10.0, "fire"])
 				state = "chase"
 		"wind_charge":
 			sprite.modulate = Color(1.8, 0.6, 0.6) if int(state_t * 14) % 2 == 0 else base_modulate
@@ -198,6 +221,7 @@ func _boss(delta: float) -> void:
 			facing = charge_dir
 			velocity = charge_dir * 520.0
 			move_and_slide()
+			net_moving = true
 			play_anim(true)
 			for h: Hero in game.heroes:
 				if not h.down and not _hit_in_charge.has(h) and h.global_position.distance_to(global_position) < radius + 26.0:
@@ -210,6 +234,10 @@ func _boss(delta: float) -> void:
 func die() -> void:
 	dead = true
 	game.enemy_gone(self, true)
+	fade_out()
+
+func fade_out() -> void:
+	dead = true
 	if kind == "sac":
 		queue_free()
 		return

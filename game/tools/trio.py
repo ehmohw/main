@@ -1,4 +1,4 @@
-"""Leo and Bender for the demo, matching the Emma test (PixelLab). python3 trio.py <pl dir> <out dir> <owner art dir> <who>"""
+"""Leo, Bender and Cecil for the demo, matching the Emma test (PixelLab). python3 trio.py <pl dir> <out dir> <owner art dir> <who>"""
 import sys, io, zipfile, urllib.request, os
 sys.path.insert(0, sys.argv[1]); import pl
 from PIL import Image
@@ -14,6 +14,13 @@ if WHO == 'leo':
             'image_size': {'width': 128, 'height': 128}, 'method': 'create_from_concept', 'concept_image': pl.b64(im), 'view': 'low top-down',
             'template_id': 'mannequin', 'style_character_id': EMMA, 'style_description': STYLE, 'seed': 1111, 'no_background': True}
     anims = [('idle', 'standing at attention, breathing gently', 4, ['south']), ('walk', 'marching forward steadily', 8, DIRS)]
+elif WHO == 'cecil':
+    im = Image.open(os.path.join(ART, 'cecil.png')).convert('RGBA'); im.thumbnail((1024, 1024))
+    body = {'description': "Cecil, a small hunched hooded mage: a deep purple hooded robe with a ragged hem, a shadowed black face with two glowing yellow eyes and a jagged grin, "
+            "black clawed hands, carrying a wooden staff topped with a gold crescent holding a glowing pink crystal",
+            'image_size': {'width': 128, 'height': 128}, 'method': 'create_from_concept', 'concept_image': pl.b64(im), 'view': 'low top-down',
+            'template_id': 'mannequin', 'style_character_id': EMMA, 'style_description': STYLE, 'seed': 1111, 'no_background': True}
+    anims = [('walk', 'shuffling forward, leaning on his staff', 8, DIRS)]
 else:
     body = {'description': "Bender, a friendly tan dog: short tan fur, big upright pointed ears, a black muzzle, a white chest and white paws, a dark collar, a wagging tail",
             'image_size': {'width': 64, 'height': 64}, 'method': 'create_with_style', 'view': 'low top-down', 'template_id': 'dog',

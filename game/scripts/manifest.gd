@@ -44,6 +44,20 @@ const DATA := {
 			"idle_west": 1
 		}
 	},
+	"cecil": {
+		"foot": 44,
+		"size": 128,
+		"anims": {
+			"walk_south": 9,
+			"idle_south": 1,
+			"walk_east": 9,
+			"idle_east": 1,
+			"walk_north": 9,
+			"idle_north": 1,
+			"walk_west": 9,
+			"idle_west": 1
+		}
+	},
 	"lantern": {
 		"foot": 24,
 		"size": 96,
