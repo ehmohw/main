@@ -54,6 +54,15 @@ var _pickups := {}
 var _next_pick := 1
 var _snap_t := 0.0
 var _prev_keys := {}
+# cutscenes
+var cut := false
+var _intro_t := -1.0
+var _cut_steps: Array = []
+var _cut_i := 0
+var _cut_done := Callable()
+var _cut_cam: Variant = null
+var _cut_wait := -1.0
+var _cut_chars := 0.0
 # automated playtests
 var _shots_dir := ""
 var _shot_t := 0.0
@@ -91,7 +100,7 @@ func _ready() -> void:
 	elif _shots_dir != "" and _net_test == "":
 		play_local()
 		Session.seats[0] = {"peer": 1, "dev": 0}
-		begin()
+		start_from_lobby()
 	elif _net_test == "host":
 		host_game()
 		claim(0, 0)
@@ -232,12 +241,28 @@ func sync_seats(seats: Array) -> void:
 func start_from_lobby() -> void:
 	if not is_host or started or Session.humans() == 0:
 		return
-	begin()
+	# the party is three heroes, or four when four people play: every player's pick, then the computer's in roster order
+	var chosen: Array = []
+	for i in Session.KINDS.size():
+		if Session.seats[i]["peer"] != 0:
+			chosen.append(i)
+	for i in Session.KINDS.size():
+		if chosen.size() < 3 and not chosen.has(i):
+			chosen.append(i)
+	chosen.sort()
+	var party: Array = []
+	var seats: Array = []
+	for i: int in chosen:
+		party.append(Session.KINDS[i])
+		seats.append(Session.seats[i])
 	if networked:
-		begin.rpc()
+		begin.rpc(party, seats)
+	begin(party, seats)
 
 @rpc("authority", "call_remote", "reliable")
-func begin() -> void:
+func begin(party: Array, seats: Array) -> void:
+	Session.party = party
+	Session.seats = seats
 	Session.in_game = true
 	_begin_game()
 
@@ -249,7 +274,7 @@ func _begin_game() -> void:
 	_build_party()
 	_build_hud()
 	sync_seats(Session.seats)
-	_do_fx("toast", ["Omega Island. The wreck is behind you. Find a way through the woods.", 6.0])
+	_intro_t = 0.8
 
 @rpc("authority", "call_remote", "reliable")
 func restart() -> void:
@@ -455,7 +480,7 @@ func _near_gate(x: float, margin: float) -> bool:
 	return false
 
 func _build_party() -> void:
-	for i in Session.KINDS.size():
+	for i in Session.party.size():
 		var h := Hero.new()
 		_world.add_child(h)
 		h.setup(self, i)
@@ -493,13 +518,16 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
+	var root := Control.new()
+	layer.add_child(root)
+	_hud["play"] = root
 	_hud["panels"] = []
 	for i in heroes.size():
 		var h := heroes[i]
 		var panel := ColorRect.new()
 		panel.position = Vector2(10, 10 + i * 44)
 		panel.size = Vector2(200, 40)
-		layer.add_child(panel)
+		root.add_child(panel)
 		var face := TextureRect.new()
 		face.texture = load("res://assets/chars/%s/idle_south/0.png" % h.kind)
 		face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -510,21 +538,44 @@ func _build_hud() -> void:
 		var name_l := label(panel, Vector2(42, 0), h.display_name, 13)
 		var bar := _bar(panel, Vector2(42, 22), Vector2(150, 12), Color(0.35, 0.85, 0.45))
 		_hud["panels"].append({"panel": panel, "bar": bar, "name": name_l})
-	_hud["level"] = label(layer, Vector2(770, 8), "Level 1", 14, Color(1, 0.9, 0.5))
-	_hud["xp"] = _bar(layer, Vector2(770, 31), Vector2(180, 7), Color(0.55, 0.5, 1.0))
-	_hud["embers"] = label(layer, Vector2(770, 44), "Soul embers: 0", 13, Color(0.7, 0.9, 1.0))
-	_hud["goal"] = label(layer, Vector2(230, 10), "Head east through the woods", 14, Color(1, 0.95, 0.8))
+	_hud["level"] = label(root, Vector2(770, 8), "Level 1", 14, Color(1, 0.9, 0.5))
+	_hud["xp"] = _bar(root, Vector2(770, 31), Vector2(180, 7), Color(0.55, 0.5, 1.0))
+	_hud["embers"] = label(root, Vector2(770, 44), "Soul embers: 0", 13, Color(0.7, 0.9, 1.0))
+	_hud["goal"] = label(root, Vector2(230, 10), "Head east through the woods", 14, Color(1, 0.95, 0.8))
 	_hud["goal"].size = Vector2(500, 20)
 	_hud["goal"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["toast"] = label(layer, Vector2(130, 440), "", 15)
+	_hud["toast"] = label(root, Vector2(130, 440), "", 15)
 	_hud["toast"].size = Vector2(700, 50)
 	_hud["toast"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hud["toast"].autowrap_mode = TextServer.AUTOWRAP_WORD
-	_hud["hint"] = label(layer, Vector2(10, 516), "Move: WASD / arrows / stick    Attack: Space, click or A    Switch hero: Tab, Q / E or bumpers", 11, Color(0.8, 0.8, 0.9))
-	_hud["boss_name"] = label(layer, Vector2(280, 478), "The Brood Lantern", 14, Color(1, 0.7, 0.4))
+	_hud["hint"] = label(root, Vector2(10, 516), "Move: WASD / arrows / stick    Attack: Space, click or A    Switch hero: Tab, Q / E or bumpers", 11, Color(0.8, 0.8, 0.9))
+	_hud["boss_name"] = label(root, Vector2(280, 478), "The Brood Lantern", 14, Color(1, 0.7, 0.4))
 	_hud["boss_name"].size = Vector2(400, 20)
 	_hud["boss_name"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["boss"] = _bar(layer, Vector2(280, 500), Vector2(400, 12), Color(0.95, 0.45, 0.15))
+	_hud["boss"] = _bar(root, Vector2(280, 500), Vector2(400, 12), Color(0.95, 0.45, 0.15))
+	# cutscenes: letterbox bars and a dialogue box
+	var cutbox := Control.new()
+	cutbox.visible = false
+	layer.add_child(cutbox)
+	_hud["cut"] = cutbox
+	for r: Rect2 in [Rect2(0, 0, 960, 50), Rect2(0, 396, 960, 144)]:
+		var band := ColorRect.new()
+		band.color = Color(0.02, 0.02, 0.04)
+		band.position = r.position
+		band.size = r.size
+		cutbox.add_child(band)
+	var face2 := TextureRect.new()
+	face2.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	face2.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	face2.position = Vector2(24, 408)
+	face2.size = Vector2(120, 120)
+	cutbox.add_child(face2)
+	_hud["cut_face"] = face2
+	_hud["cut_who"] = label(cutbox, Vector2(160, 404), "", 16, Color(1, 0.9, 0.5))
+	_hud["cut_text"] = label(cutbox, Vector2(160, 430), "", 15)
+	_hud["cut_text"].size = Vector2(760, 84)
+	_hud["cut_text"].autowrap_mode = TextServer.AUTOWRAP_WORD
+	_hud["cut_hint"] = label(cutbox, Vector2(660, 516), "Space / A: next      Esc / B: skip scene", 11, Color(0.7, 0.7, 0.8))
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.7)
 	shade.size = Vector2(960, 540)
@@ -612,7 +663,9 @@ func _process(delta: float) -> void:
 				n += 1
 	if n > 0:
 		_camera.position = focus / n + Vector2(0, -30)
-	if not over:
+	if cut:
+		_cut_frame(delta)
+	elif not over:
 		for h in mine:
 			var pad: Dictionary = pads[h.seat()["dev"]]
 			if pad["next_just"] or pad["prev_just"]:
@@ -623,6 +676,11 @@ func _process(delta: float) -> void:
 	_playtest_frame(delta)
 
 func _host_frame(delta: float) -> void:
+	if _intro_t > 0.0:
+		_intro_t -= delta
+		if _intro_t <= 0.0:
+			play_cutscene(Cutscenes.intro(_party_centre()))
+		return
 	if not _zone_active and _zone < ZONES.size():
 		for h in heroes:
 			if not h.down and h.is_player() and h.global_position.x > ZONES[_zone]["start"] + 160.0:
@@ -631,7 +689,7 @@ func _host_frame(delta: float) -> void:
 	if _end_t > 0.0:
 		_end_t -= delta
 		if _end_t <= 0.0:
-			emit_fx("finish", [true, level, embers, _clock])
+			play_cutscene(Cutscenes.ending(_party_centre()), func() -> void: emit_fx("finish", [true, level, embers, _clock]))
 	if networked:
 		_snap_t -= delta
 		if _snap_t <= 0.0:
@@ -842,6 +900,27 @@ func _do_fx(kind: String, a: Array) -> void:
 				else:
 					b.lunge(a[1], a[2])
 					b.play_anim(false, "attack")
+		"cut_on":
+			cut = true
+			_hud["cut"].visible = true
+			_hud["play"].visible = false
+		"cut_off":
+			cut = false
+			_cut_cam = null
+			_hud["cut"].visible = false
+			_hud["play"].visible = true
+		"cut_step":
+			var st: Dictionary = a[0]
+			if st.has("cam"):
+				_cut_cam = st["cam"]
+			var has_text: bool = st.has("text")
+			_hud["cut_who"].text = st.get("who", "")
+			_hud["cut_text"].text = st.get("text", "")
+			_hud["cut_text"].visible_characters = 0
+			_hud["cut_hint"].visible = has_text
+			_cut_chars = 0.0
+			var face_path := "res://assets/chars/%s/idle_south/0.png" % str(st.get("who", "")).to_lower()
+			_hud["cut_face"].texture = load(face_path) if has_text and ResourceLoader.exists(face_path) else null
 		"finish":
 			over = true
 			_hud["shade"].visible = true
@@ -859,6 +938,77 @@ func float_text(pos: Vector2, text: String, colour: Color) -> void:
 func toast(text: String, seconds := 3.0) -> void:
 	emit_fx("toast", [text, seconds])
 
+# ---------------------------------------------------------------- cutscenes
+
+func _party_centre() -> Vector2:
+	var c := Vector2.ZERO
+	for h in heroes:
+		c += h.global_position
+	return c / maxf(1.0, heroes.size())
+
+## Host: freeze the fight and play a scripted scene on every machine, then call `done`.
+func play_cutscene(steps: Array, done := Callable()) -> void:
+	_cut_steps = []
+	for st: Dictionary in steps:
+		if st.has("needs") and not Session.party.has(st["needs"]):
+			continue
+		if st.has("unless") and Session.party.has(st["unless"]):
+			continue
+		_cut_steps.append(st)
+	_cut_i = -1
+	_cut_done = done
+	emit_fx("cut_on", [])
+	_cut_advance()
+
+func _cut_advance() -> void:
+	_cut_i += 1
+	if _cut_i >= _cut_steps.size():
+		emit_fx("cut_off", [])
+		var done := _cut_done
+		_cut_done = Callable()
+		if done.is_valid():
+			done.call()
+		return
+	var st: Dictionary = _cut_steps[_cut_i]
+	_cut_wait = st.get("wait", -1.0) if not st.has("text") else (1.2 if autopilot else -1.0)
+	emit_fx("cut_step", [st])
+
+## Any player can move the scene on, or skip it.
+@rpc("any_peer", "call_remote", "reliable")
+func req_advance(skip: bool) -> void:
+	if not is_host or not cut:
+		return
+	if skip:
+		_cut_i = _cut_steps.size()
+	_cut_advance()
+
+func _cut_frame(delta: float) -> void:
+	if _cut_cam != null:
+		_camera.position = _cut_cam
+	var text_l: Label = _hud["cut_text"]
+	var total := text_l.text.length()
+	_cut_chars += delta * 45.0
+	text_l.visible_characters = int(_cut_chars) if _cut_chars < total else -1
+	for d: Dictionary in pads:
+		if d["back_just"]:
+			to_host("req_advance", [true])
+			return
+		if d["attack_just"] and total > 0:
+			if _cut_chars < total:
+				_cut_chars = total       # first press shows the whole line
+			else:
+				to_host("req_advance", [false])
+			return
+	if is_host and _cut_wait > 0.0:
+		_cut_wait -= delta
+		if _cut_wait <= 0.0:
+			_cut_advance()
+	if is_host and networked:
+		_snap_t -= delta
+		if _snap_t <= 0.0:
+			_snap_t = 0.05
+			snapshot.rpc(_pack())
+
 # ---------------------------------------------------------------- the host's game
 
 func _start_zone() -> void:
@@ -872,7 +1022,10 @@ func _start_zone() -> void:
 	var x1: float = (z["gate"] if z["gate"] > 0 else FIELD_W - 60.0) - 120.0
 	var sac_i := 0
 	for kind: String in z["spawn"]:
-		for i in int(z["spawn"][kind]):
+		var count := int(z["spawn"][kind])
+		if kind != "boss" and Session.party.size() < 4:
+			count = int(ceil(count * 0.72))      # a party of three meets fewer of them
+		for i in count:
 			var pos := Vector2(randf_range(x0, x1), randf_range(TOP + 60, BOT - 60))
 			if kind == "boss":
 				pos = Vector2((x0 + x1) / 2.0 + 150.0, (TOP + BOT) / 2.0)
@@ -882,6 +1035,7 @@ func _start_zone() -> void:
 				sac_i += 1
 			if kind == "boss":
 				_boss = e
+				play_cutscene(Cutscenes.boss(e.position + Vector2(0, -40), _party_centre()))
 
 func _zone_cleared() -> void:
 	_zone_active = false
@@ -894,7 +1048,6 @@ func _zone_cleared() -> void:
 		else:
 			h.hp = minf(h.max_hp, h.hp + h.max_hp * 0.35)     # a breather between fights
 	if z["gate"] < 0:
-		toast("The nest falls silent.", 3.0)
 		_end_t = 2.2
 		_zone += 1
 		return

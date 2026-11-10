@@ -5,7 +5,7 @@ extends Actor
 const KINDS := ["lantern", "stalker", "sac", "boss"]
 const STATS := {
 	"lantern": {"who": "lantern", "hp": 64.0, "speed": 104.0, "dmg": 12.0, "range": 40.0, "cd": 1.0, "xp": 12, "scale": 1.0, "embers": 2},
-	"stalker": {"who": "stalker", "hp": 80.0, "speed": 150.0, "dmg": 16.0, "range": 44.0, "cd": 1.3, "xp": 20, "scale": 1.0, "embers": 3},
+	"stalker": {"who": "stalker", "hp": 80.0, "speed": 150.0, "dmg": 13.0, "range": 44.0, "cd": 1.3, "xp": 20, "scale": 1.0, "embers": 3},
 	"sac": {"who": "", "hp": 22.0, "speed": 0.0, "dmg": 0.0, "range": 0.0, "cd": 0.0, "xp": 6, "scale": 1.0, "embers": 1},
 	"boss": {"who": "lantern", "hp": 900.0, "speed": 84.0, "dmg": 16.0, "range": 92.0, "cd": 1.8, "xp": 200, "scale": 2.6, "embers": 30},
 }
@@ -37,7 +37,7 @@ func setup(game_: Main, kind_: String, id_: int, puppet_: bool) -> void:
 	puppet = puppet_
 	team = 1
 	var s: Dictionary = STATS[kind]
-	max_hp = s["hp"] * (1.0 + 0.15 * maxi(0, Session.humans() - 1))
+	max_hp = s["hp"] * (1.0 + 0.15 * maxi(0, Session.humans() - 1)) * (1.0 if Session.party.size() >= 4 or kind != "boss" else 0.6)
 	hp = max_hp
 	speed = s["speed"] * randf_range(0.9, 1.1)
 	dmg = s["dmg"]
@@ -94,7 +94,7 @@ func squash() -> void:
 	t.tween_property(sac_sprite, "scale", Vector2.ONE, 0.1)
 
 func _physics_process(delta: float) -> void:
-	if dead or game.over:
+	if dead or game.over or game.cut:
 		return
 	if kind == "sac":
 		if shaking:

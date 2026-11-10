@@ -26,7 +26,7 @@ var _send_t := 0.0
 func setup(game_: Main, idx_: int) -> void:
 	game = game_
 	idx = idx_
-	kind = Session.KINDS[idx]
+	kind = Session.party[idx]
 	team = 0
 	four_dir = true
 	var s: Dictionary = STATS[kind]
@@ -72,6 +72,9 @@ func _physics_process(delta: float) -> void:
 	cooldown -= delta
 	host_cd -= delta
 	if game.over:
+		return
+	if game.cut:
+		play_anim(false)
 		return
 	if not has_control():
 		if _flash > 0.0:

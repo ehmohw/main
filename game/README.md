@@ -18,7 +18,8 @@ A first playable slice: Emma, Leo and Bender fight through the Lantern Woods on 
 
 ## One to four players
 
-The party is always four heroes: Emma, Leo, Bender and Cecil. Each player picks one, and the computer plays the rest.
+The roster is Emma, Leo, Bender and Cecil. A run takes **three heroes**, or all four when four people play.
+Each player picks one; the computer plays the rest, taking unpicked heroes in roster order, and you can take over a computer ally at any time.
 
 - **Play on this computer:** up to four players share the screen, one on the keyboard and the others on controllers.
   In the hero room, each player presses Space (keyboard) or A (controller) to join, and left / right to change hero.
@@ -28,6 +29,12 @@ The party is always four heroes: Emma, Leo, Bender and Cecil. Each player picks 
   - Several players can share one of the computers in an online game.
 - A player who leaves is replaced by the computer. Joining after the game has started isn't supported yet.
 
+## Cutscenes
+
+Scripted scenes freeze the fight, letterbox the screen and play lines with the speaker's portrait: the wreck at the start, the Brood Lantern's
+entrance, and the ending. Any player moves a scene on (Space or A) or skips it (Esc or B). They are plain data in `scripts/cutscenes.gd`:
+each step moves the camera, shows a line, or holds for a moment.
+
 ## How it stays in step
 
 One machine is the host. It runs the enemies, damage, drops and progress, and sends everyone a snapshot 20 times a second.
@@ -35,7 +42,7 @@ Each machine moves its own players' heroes and tells the host where they are; at
 
 ## What's in it
 
-- **Four heroes.**
+- **Four heroes to choose from.**
   - **Emma** is fragile. Her slingshot does little damage but stuns, and stunned enemies take half again as much damage.
   - **Leo** is the front line: high health, a trident thrust that hits everything in front of him.
   - **Bender** is fast, with quick bites.

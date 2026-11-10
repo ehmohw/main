@@ -4,11 +4,13 @@ class_name Session
 const KINDS := ["emma", "leo", "bender", "cecil"]
 
 static var mode := ""            # "" (menu), "local", "host" or "client"
+static var party: Array = []     # the heroes in this run, by name: three, or four with four players
 static var seats: Array = []     # one per hero: {"peer": 0 for the computer or a player's network id, "dev": that player's input device}
 static var in_game := false
 static var message := ""
 
 static func reset_seats() -> void:
+	party = []
 	seats = []
 	for k in KINDS:
 		seats.append({"peer": 0, "dev": -1})

@@ -119,7 +119,7 @@ func refresh() -> void:
 			c["who"].text = "Online player"
 			c["who"].add_theme_color_override("font_color", Color(0.6, 1, 0.7))
 			c["card"].color = Color(0.14, 0.26, 0.24)
-	var text := "Join: press Space on the keyboard or A on a controller.   Change hero: left / right.   Step out: Esc or B.\nAny hero nobody picks is played by the computer."
+	var text := "Join: press Space on the keyboard or A on a controller.   Change hero: left / right.   Step out: Esc or B.\nThe party is three heroes, or four with four players. The computer plays whoever isn't picked."
 	if Session.mode == "host":
 		var ips: Array = []
 		for a: String in IP.get_local_addresses():

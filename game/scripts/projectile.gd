@@ -32,7 +32,7 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 5.0, Color(1.0, 0.8, 0.2))
 
 func _physics_process(delta: float) -> void:
-	if game.over:
+	if game.over or game.cut:
 		return
 	position += dir * speed * delta
 	life -= delta
