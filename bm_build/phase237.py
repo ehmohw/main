@@ -46,7 +46,7 @@ SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
 UVER = 9                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
-LAKEV = 7                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
+LAKEV = 8                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway

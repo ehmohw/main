@@ -163,13 +163,16 @@ def plan(B):
         # (3.1j) a lake column's caves above the roof are closed up - but only fully well in from the shore: at the outer edge
         #  just the seal, so the Nether outside meets its own rock, not a sixty-block wall of ours
         cap = 0 if inbox(x, z) else int(min(UR.lake_air_top(x), hi + SEAL + 3 * d))
+        if inbox(x, z) and EXPOSED and (x, z) not in bot:
+            cap = int(hi + SEAL)      # (an empty box column, made lake: the seal only - the box had no old cut of the lake's)
         return lo, hi, cap
     steps = {}
     xs = range(X1, X2 + 1)
     for x in xs:
         runs, cur = [], None
         for z in range(Z1, Z2 + 1):
-            p = (col(x, z), inbox(x, z)) if dom(x, z) else None
+            # (3.1m: a box column with none of the dungeon in it is lake like any other - its square no longer shows)
+            p = (col(x, z), inbox(x, z) and not (EXPOSED and (x, z) not in bot)) if dom(x, z) else None
             if cur and p == cur[2] and z == cur[1] + 1: cur[1] = z
             else:
                 if cur and cur[2]: runs.append(tuple(cur))
