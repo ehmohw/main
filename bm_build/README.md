@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1n: tidying up
+
+- **Follower menus say "Companion size" and "Full size" consistently.** Some said "Companion Size".
+- **Behind the scenes:** the player tests for Kettle, Nia and the Cake follow their 3.1j score names. With that, they all pass as a regular player: Nia 47/47, the Cake 45/45, Kettle 47/48 (his one miss is the random sunny-meadow encounter).
+
 ## New in 3.1m: the Undercrown, exposed
 
 - **The Undercrown stands in its lava lake as a fortress.** No netherrack is laid over it or banked against its sides any more, so its own carved rock and the Sovereign's gate show. Rock only holds it up: from under its lowest blocks, a rough skirt slopes out and down into the lava.
