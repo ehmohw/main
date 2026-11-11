@@ -271,7 +271,7 @@ if PHASE2:
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
-VERSION2 = 'v3.1p'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.1q'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1628,6 +1628,11 @@ def build(out_dir):
     mods = sorted({(m.group(1), m.group(2)) for ls in FUNCS.values() for l in ls for m in _re.finditer(r'attribute @[sap]\S* (minecraft:[a-z_.]+) modifier add (bm:[a-z_0-9]+)\b', l)})
     mods = {x for x in mods if not x[1].endswith('_')} | {('minecraft:max_health', f'bm:arc_heart_{k}') for k in (1, 2, 3)}
     FUNCS['admin/uninstall'][-1:-1] = [f'execute as @a run attribute @s {a_} modifier remove {m_}' for a_, m_ in sorted(mods)]
+    # 3.1q: and every chunk the pack holds loaded (the gutter's den, the Lounge and the Locker Hall are kept loaded for good; a
+    #       build or a carve cut off mid-way leaves its box loaded) - a forceload added with set coordinates, let go in its dimension
+    fls = sorted({(m.group(1) or 'minecraft:overworld', m.group(2)) for ls in FUNCS.values() for l in ls
+                  for m in [_re.match(r'(?:execute (?:.* )?in ([a-z_:]+) run )?forceload add (-?\d+ -?\d+(?: -?\d+ -?\d+)?)$', l)] if m})
+    FUNCS['admin/uninstall'][-1:-1] = [f'execute in {d_} run forceload remove {c_}' for d_, c_ in fls]
     for name, lines in FUNCS.items():
         with open(path('data', 'bm', 'function', name + '.mcfunction'), 'w') as f:
             f.write('\n'.join(mig263.inline_modifier(l) for l in lines) + '\n')     # 26.3: inline loot functions/conditions key on `type`

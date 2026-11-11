@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1q: the Undercrown's first site, worn back into the Nether
+
+- **The old Undercrown site is a cavern again.** Worlds that built the Undercrown at its first spot (2.98 to 2.99a, near 1536, -1536 in the Nether) had that copy taken down when it moved in 3.0. The teardown filled the whole site with netherrack: a solid 224 by 112 by 224 cube with flat faces. The next time someone goes near it, the pack now carves the cube into a Nether cavern: a rolling floor with lava pools, a high uneven roof, pillars, hanging glowstone, and faces broken open to whatever is around it. It takes about 15 seconds, once. Only netherrack is cut, so anything you built there stays. Worlds that never had the cube there are left alone, and the check loads no chunks of its own.
+- **Uninstall lets go of every chunk the pack keeps loaded.** That includes the Gutter's den, the Lounge, the Locker Hall, and any dungeon box a build left loaded part-way through.
+- **Behind the scenes:** the Bender-and-friends test (t301) no longer trips on a slow server. It waits for Henry to settle before the Dog Pile, and says what blocked a ride when one fails. It passes 28/28. A new test (t404) walks a player up to the old cube and checks the carve: 10/10.
+
 ## New in 3.1p: switches that show their state
 
 - **⚙ Settings shows each switch's state.** Every follower switch that read "on / off" (Companion size, Full size, Gifts, and the rest) now reads "Companion size: on" or "Gifts: off". Pressing one brings the page straight back with its new state, instead of closing.

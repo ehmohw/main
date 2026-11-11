@@ -489,6 +489,7 @@ def generate(G):
     bio = NS.fills(NETHER, (OX, OY, OZ), (SX, SY, SZ), 'bm:undercrown', done=('#ubio', NS.BIOV))
     import p2.oldsite as OS                 # (3.0: moved out to 2.5k-5k - an old copy, where a world had one, comes down first)
     OS.generate(G, 'p237', NETHER, (1536, 6, -1536), (SX, SY, SZ), 'minecraft:netherrack', CLEAR, 'p237/out', '#uver')
+    _oldcarve(G, fn, second, NS, OS)          # (3.1q: and the netherrack cube that teardown left, worn back into a cavern)
     _lake = _lake_gen(G, fn, tellraw, P, UR)          # (3.0g: the lava lake round it - carved once, a chunk column a second)
     fn('p237/build/try', ['execute if function bm:p237/oldsite run return 0', *[f'execute in {NETHER} run forceload add {q}' for q in fls],
                           *[f'execute unless score #ulake bm.p2 matches {LAKEV} unless score #ulakeoff bm.cfg matches 1 in {NETHER} run forceload add {q}' for q in _lake['fl']],
@@ -792,3 +793,37 @@ def generate(G):
     fn('admin/under/unfell', ['scoreboard players set #dfell bm.cfg 0', tellraw('@s', P + [T('The Dread Nights can come again.', 'gray')])])
     G.FUNCS['admin/help'].append(tellraw('@s', [T('/function bm:admin/under/', 'yellow'), T('place | go | outside | approach | summons | fell | unfell | lake | nolake', 'yellow'),
                                                 T('  the Undercrown (final dungeon): (re)place it, go in, go to its gate, earn the Summons, end or bring back the Dread Nights, carve its lava lake again / never', 'gray')]))
+
+def _oldcarve(G, fn, second, NS, OS):
+    """3.1q: the first site's cube (p2/oldsite filled it with netherrack) carved into a Nether cavern - p2/oldcarve.
+    #uoldc: unset - not looked yet; 2 - carving (#uock the step); 1 - done, or there was no cube"""
+    import p2.oldcarve as OC
+    x0, y0, z0, sx, sy, sz = OC.X0, OC.Y0, OC.Z0, OC.SX, OC.SY, OC.SZ
+    near = f'x={x0 - 48},y=-64,z={z0 - 48},dx={sx + 96},dy=400,dz={sz + 96}'
+    box = f'x={x0},y={y0},z={z0},dx={sx - 1},dy={sy - 1},dz={sz - 1}'
+    fl = OS.quarters(x0, z0, sx, sz)
+    pr = OC.probes()
+    cols = sorted({(x, z) for x, _y, z in pr})
+    fn('p237/oldc/look', [f'execute unless score #p237_old bm.p2 matches 1 run return 0',     # (the old copy not yet taken down)
+                          f'execute in {NETHER} unless entity @a[{near}] run return 0',
+                          *[f'execute in {NETHER} unless loaded {x} 64 {z} run return 0' for x, z in cols],
+                          'scoreboard players set #uocn bm.p2 0',
+                          *[f'execute in {NETHER} if block {x} {y} {z} minecraft:netherrack run scoreboard players add #uocn bm.p2 1' for x, y, z in pr],
+                          f'execute unless score #uocn bm.p2 matches {len(pr) - 5}.. run return run scoreboard players set #uoldc bm.p2 1',
+                          'scoreboard players set #uoldc bm.p2 2', 'scoreboard players set #uock bm.p2 0', 'scoreboard players set #uocw bm.p2 0',
+                          f'execute in {NETHER} as @a[{box}] run effect give @s minecraft:fire_resistance 120 0',
+                          f'execute in {NETHER} as @a[{box}] run effect give @s minecraft:slow_falling 60 0'])
+    lines = OC.plan()
+    steps = [lines[a:a + OC.STEP] for a in range(0, len(lines), OC.STEP)]
+    bio = [l + ' replace bm:undercrown' for l in NS.fills(NETHER, (x0, y0, z0), (sx, sy, sz), 'minecraft:nether_wastes')]
+    for i, body in enumerate(steps):
+        fn(f'p237/oldc/s{i}', body + ['scoreboard players add #uock bm.p2 1'])
+    fn('p237/oldc/end', bio + [f'execute in {NETHER} run forceload remove {q}' for q in fl] + ['scoreboard players set #uoldc bm.p2 1'])
+    fn('p237/oldc/tick', ['execute unless score #uoldc bm.p2 matches 2 run return run function bm:p237/oldc/look',
+                          *[f'execute in {NETHER} run forceload add {q}' for q in fl],
+                          f'execute in {NETHER} store success score #uocl bm.p2 if loaded {x0} 64 {z0} if loaded {x0 + sx - 1} 64 {z0 + sz - 1} if loaded {x0} 64 {z0 + sz - 1} if loaded {x0 + sx - 1} 64 {z0}',
+                          'execute unless score #uocl bm.p2 matches 1 run return run scoreboard players set #uocw bm.p2 0',
+                          'scoreboard players add #uocw bm.p2 1', 'execute unless score #uocw bm.p2 matches 3.. run return 0',
+                          *[f'execute if score #uock bm.p2 matches {i} in {NETHER} run return run function bm:p237/oldc/s{i}' for i in range(len(steps))],
+                          'function bm:p237/oldc/end'])
+    second.append('execute unless score #uoldc bm.p2 matches 1 run function bm:p237/oldc/tick')

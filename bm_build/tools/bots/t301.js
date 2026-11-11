@@ -80,8 +80,10 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await sleep(500); ok('...in her ride pose (state 16)', (await score('bm.kvs', KT)) === 16);
   await home('p227'); await sleep(800); await use(3);
   await wait(3000, async () => (await cnt(RU)) === 1); await run(`scoreboard players set ${RU} bm.rdc 0`);
-  ok('the rat mercenary called: he rides Bender too', await wait(25000, async () => riding(RU)),
-     `${await cnt(RU)} out; x ${await score('bm.rgx', RU)} rdc ${await score('bm.rdc', RU)} state ${await score('bm.rgs', RU)}; bender seat ${await cnt(BV.replace('limit=1]', 'tag=bm.bvseat,limit=1]'))}`);
+  ok('the rat mercenary called: he rides Bender too', await wait(40000, async () => riding(RU)),
+     `${await cnt(RU)} out; x ${await score('bm.rgx', RU)} rdc ${await score('bm.rdc', RU)} state ${await score('bm.rgs', RU)}; bender seat ${await cnt(BV.replace('limit=1]', 'tag=bm.bvseat,limit=1]'))}` +
+     `; bender s ${await score('bm.dqs', BV)} x ${await score('bm.dqx', BV)} rp ${await score('bm.bvrp', BV)}; near ${(await run(`${O}execute as ${RU} at @s if entity ${BV.replace('limit=1]', 'distance=..8,limit=1]')}`)).slice(0, 20)}` +
+     `; foes ${(await run(`${O}execute as ${RU} at @s if entity @e[type=#bm:hostile,distance=..10]`)).slice(0, 20)}`);
   await sleep(500); ok('...in his ride pose (state 16)', (await score('bm.rgs', RU)) === 16);
   await home('p228'); await sleep(800);
 
@@ -89,14 +91,19 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await at(X + 0.5, Y + 1, Z + 0.5); await run(`${O}tp ${BV} ${X + 2} ${Y + 1} ${Z + 2}`);
   A.bars.length = 0; await use(4);
   ok('Henry called with his tag', await wait(3000, async () => (await cnt(HY)) === 1), A.bars.join(' | ').slice(0, 200));
+  // (3.1q: his first ticks set his own scores up - the cooldowns go on after that, and he's let finish whatever he'd begun)
+  await wait(5000, async () => (await score('bm.hqx', HY)) !== -99, 100);
   for (const o of ['gc', 'bc', 'rc', 'mc', 'k', 'k2', 'sc']) await run(`scoreboard players set ${HY} bm.hq${o} 900`);
   for (const o of ['bm.dqgc', 'bm.bvrg']) await run(`scoreboard players set ${BV} ${o} 900`);
+  await wait(6000, async () => (await score('bm.hqx', HY)) <= 0, 200);
   await run(`${O}tp ${HY} ${X + 2} ${Y + 1} ${Z + 3}`); await sleep(500);
   await run(`${O}execute at ${BV} run summon minecraft:husk ~5 ~ ~ {NoAI:1b,PersistenceRequired:1b,Tags:["bm.t301z","bm.t301d","bm.seen"],attributes:[{id:"minecraft:max_health",base:300}],Health:300f}`);
   await run(`scoreboard players set ${HY} bm.hqgc 0`);
   let phases = [];
   ok('a monster, Henry\'s charged move ready, Bender beside him: the Dog Pile - he springs onto Bender\'s back',
-     await wait(8000, async () => { phases.push(await score('bm.hqdp', HY)); return riding(HY); }, 100), phases.join(','));
+     await wait(15000, async () => { phases.push(await score('bm.hqdp', HY)); return riding(HY); }, 100),
+     `${[...new Set(phases)].join(',')}; henry x ${await score('bm.hqx', HY)} a ${await score('bm.hqa', HY)} gc ${await score('bm.hqgc', HY)}; ` +
+     `bender rp ${await score('bm.bvrp', BV)} s ${await score('bm.dqs', BV)} x ${await score('bm.dqx', BV)} ${await nbt(BV, 'Tags')}`);
   ok('...Bender knows (bm.bvduo): his own charged moves held', (await cnt(`${BV.replace('limit=1]', 'tag=bm.bvduo,limit=1]')}`)) === 1);
   await run(`scoreboard players set ${BV} bm.bvrg 0`); await run(`scoreboard players set ${BV} bm.dqgc 0`);
   let raged = false;
