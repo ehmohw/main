@@ -21,6 +21,15 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1m: the Undercrown, exposed
+
+- **The Undercrown stands in its lava lake as a fortress.** No netherrack is laid over it or banked against its sides any more, so its own carved rock and the Sovereign's gate show. Rock only holds it up: from under its lowest blocks, a rough skirt slopes out and down into the lava.
+- **It still can't be broken into from outside:**
+  - **Adventure Mode** for anyone within 10 blocks of the dungeon (beyond any player's reach), not just inside it. You go back to Survival a few seconds after leaving.
+  - **No explosives near it.** Primed TNT, TNT minecarts, wither skulls, ghast fireballs, end crystals, creepers and withers are removed within a quarter of a second. That includes the Vorn Skiff's charged bombs.
+  - **No teleporting in.** Pearls and chorus fruit already sent you back if you turned up in a room you hadn't reached; that hasn't changed.
+- **Existing worlds re-carve and rebuild it once.** The usual warning: anything built in the lake cavern is lost. Anyone nearby is moved to the safe spot on the east road.
+
 ## New in 3.1l: fixes and clean-up
 
 - **Wardrobes have a « Back.** Opened from a follower's own menu, it goes back to that menu. Opened any other way, it just closes.
