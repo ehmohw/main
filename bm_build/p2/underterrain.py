@@ -24,8 +24,9 @@ from p2 import underroad as UR
 from p2 import undercfg as UC
 
 SX, SY, SZ = UC.SIZE if hasattr(UC, 'SIZE') else (224, 112, 224)
-COVER = 5            # rock kept over every dungeon column
-SLOPE = 1.9          # the massif's fall, blocks down per block out (steep enough to leave the lake open)
+COVER = 5            # rock kept over every dungeon column (the buried look - EXPOSED off)
+EXPOSED = True       # (3.1m) the dungeon shown, on a sloped skirt; nothing over or beside it
+SLOPE = 1.6          # the massif's fall, blocks down per block out (steep enough to leave the lake open)
 BEACH = 12           # the shore's rise over the lava at the lake's edge
 ROOF_MIN, ROOF_MAX = 92 - 6, 112 - 6     # (local) the cavern roof over the lake's middle: world y 92..112
 Q = 1                # heights snapped to this (1: no terraces)
@@ -69,9 +70,11 @@ def plan(B):
     """[(cx, [commands])] - one step per chunk column (x), in local coords turned to world by the caller's w()"""
     sea, bed = UR.LAKE_SEA, UR.LAKE_BED
     # ---- the dungeon's columns: the top of what it sets in each (air too: its rooms' insides want rock over them)
-    top = {}
+    top, bot = {}, {}
     for (x, y, z) in B.b:
-        if 0 <= x < SX and 0 <= z < SZ and y > top.get((x, z), -1): top[(x, z)] = y
+        if 0 <= x < SX and 0 <= z < SZ:
+            if y > top.get((x, z), -1): top[(x, z)] = y
+            if y < bot.get((x, z), 10 ** 6): bot[(x, z)] = y
     lx1, lz1, lx2, lz2 = UR.lake_extent()
     X1, Z1, X2, Z2 = min(lx1, 0), min(lz1, 0), max(lx2, SX - 1), max(lz2, SZ - 1)
     W, D = X2 - X1 + 1, Z2 - Z1 + 1
@@ -105,7 +108,14 @@ def plan(B):
     # ---- the massif: H = max over dungeon columns of (top + COVER - SLOPE * distance) - a two-pass chamfer max-propagation
     NEG = -10 ** 6
     H = [[NEG] * D for _ in range(W)]
-    for (x, z), t in top.items(): H[x - X1][z - Z1] = t + COVER
+    # (3.1m, the owner's choice: EXPOSED - "I like the exposed version the most". The dungeon is its own carved rock; nothing is
+    #  laid over or beside it. The rock only holds it up: from under each of its columns' lowest block, a skirt sloping out and
+    #  down into the lava. Its stone can't be broken into from outside - phase237's lockout: Adventure for 10 round the box, and
+    #  no TNT, fireball or skull lives there)
+    if EXPOSED:
+        for (x, z), b in bot.items(): H[x - X1][z - Z1] = b - 1
+    else:
+        for (x, z), t in top.items(): H[x - X1][z - Z1] = t + COVER
     r2 = math.sqrt(2) * SLOPE
     for _ in range(2):
         for i in range(W):
@@ -148,6 +158,7 @@ def plan(B):
         lo = max(floor_, m + 1)
         if inbox(x, z):
             lo = max(m + 1, sea + 1)      # (no beach in the box: the massif meets the lava)
+            if EXPOSED and (x, z) in bot: lo = bot[(x, z)]      # (under the dungeon: rock right up to its lowest block, no noise)
         lo, hi = _q(lo), _q(min(roof, SY - 1))
         # (3.1j) a lake column's caves above the roof are closed up - but only fully well in from the shore: at the outer edge
         #  just the seal, so the Nether outside meets its own rock, not a sixty-block wall of ours

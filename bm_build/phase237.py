@@ -46,7 +46,7 @@ SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
 UVER = 9                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
-LAKEV = 6                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
+LAKEV = 7                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
@@ -452,9 +452,22 @@ def generate(G):
     # leave it (or wherever they turn up next: died, logged out, carried out at its fall)
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.uaq dummy']
     G.OBJECTIVES += ['bm.uaq']
-    second += ['execute as @a[tag=bm.uin,gamemode=survival] run function bm:p237/adv/in',
-               'scoreboard players set @a[tag=bm.uadv,tag=bm.uin] bm.uaq 3', 'scoreboard players remove @a[tag=bm.uadv,tag=!bm.uin] bm.uaq 1',
-               'execute as @a[tag=bm.uadv,tag=!bm.uin,scores={bm.uaq=..0}] run function bm:p237/adv/out']      # (3 s out of it: a gap between its rooms is not leaving)
+    # (3.1m, the owner: "make sure the exposed portions cannot be broken in to" - its walls stand in the open cavern now. Anyone within
+    #  NEAR blocks of its box (past any reach: block reach is 4.5) is in Adventure, as inside it; and nothing that blasts blocks
+    #  (primed TNT, a TNT cart, a wither's skull, a ghast's fireball, an end crystal) is let live there - checked four times a second)
+    NEAR = 10
+    XBOX = f'x={OX - NEAR},y={OY - NEAR},z={OZ - NEAR},dx={SX - 1 + 2 * NEAR},dy={SY - 1 + 2 * NEAR},dz={SZ - 1 + 2 * NEAR}'
+    second += [f'tag @a[tag=bm.unear] remove bm.unear', f'execute in {NETHER} run tag @a[{XBOX}] add bm.unear',
+               'execute as @a[tag=bm.uin,gamemode=survival] run function bm:p237/adv/in',
+               'execute as @a[tag=bm.unear,gamemode=survival] run function bm:p237/adv/in',
+               'scoreboard players set @a[tag=bm.uadv,tag=bm.uin] bm.uaq 3', 'scoreboard players set @a[tag=bm.uadv,tag=bm.unear] bm.uaq 3',
+               'scoreboard players remove @a[tag=bm.uadv,tag=!bm.uin,tag=!bm.unear] bm.uaq 1',
+               'execute as @a[tag=bm.uadv,tag=!bm.uin,tag=!bm.unear,scores={bm.uaq=..0}] run function bm:p237/adv/out']      # (3 s out of it: a gap between its rooms is not leaving)
+    fast.append(f'execute in {NETHER} run function bm:p237/noblast')
+    fn('p237/noblast', [f'execute as @e[type={t},{XBOX}] at @s run function bm:p237/noblast1' for t in
+                        ('minecraft:tnt', 'minecraft:tnt_minecart', 'minecraft:wither_skull', 'minecraft:fireball', 'minecraft:end_crystal', 'minecraft:creeper', 'minecraft:wither')])
+    fn('p237/noblast1', ['particle minecraft:soul_fire_flame ~ ~0.5 ~ 0.3 0.3 0.3 0.02 12', 'playsound minecraft:block.fire.extinguish neutral @a[distance=..16] ~ ~ ~ 0.8 0.6',
+                         'kill @s'])
     fn('p237/adv/in', ['tag @s add bm.uadv', 'gamemode adventure @s',
                        title('@s', 'actionbar', [T('The Undercrown', COL, bold=True), T(' - its stone will not break for you. (Adventure mode)', 'gray')])])
     fn('p237/adv/out', ['tag @s remove bm.uadv', 'execute if entity @s[gamemode=adventure] run gamemode survival @s'])
