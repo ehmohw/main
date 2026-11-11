@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1i: the Undercrown's ground
+
+- **No more cube.** The Undercrown used to sit in a giant six-block netherrack box with flat faces, and the lake was cut straight down from a flat ceiling, leaving sheer walls. The dungeon now stands on a rounded mountain that slopes down into the lava on every side, with five blocks of rock kept over every room and nothing loose stuck to it.
+- **Beaches and a domed roof.** Around the lake the floor rises as a sloped shore. The cavern roof is a slow, uneven dome that comes down to meet the shore, so there are no cut-offs and no flat walls.
+- **Forecourts and roads stay open.** The mountain slopes down to them instead of being sliced off, and the roof eases up over the roads.
+- **No lava falls.** A few blocks of lava just above the cavern roof are turned to rock, so lava no longer pours out of the ceiling.
+- **Existing worlds:** the Undercrown is placed again with the new ground. Anyone inside is carried out first, and the dungeon is rebuilt.
+
 ## New in 3.1h: the Golden Doodle's fight, Heartstones kept
 
 - **The Golden Doodle's boss music plays** (her themes were added to the boss music's list after it had been read).
