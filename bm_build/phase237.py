@@ -45,8 +45,8 @@ OX, OY, OZ = U.ORIGIN
 SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
-UVER = 8                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
-LAKEV = 1                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
+UVER = 9                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
+LAKEV = 4                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
@@ -186,37 +186,27 @@ def _lake_gen(G, fn, tellraw, P, UR):
     # (a forceload takes at most 256 chunks: the lake's square in four)
     mx, mz = (WX1 + WX2) // 2, (WZ1 + WZ2) // 2
     fl = [f'{a} {b} {c} {d}' for a, c in ((WX1, mx), (mx + 1, WX2)) for b, d in ((WZ1, mz), (mz + 1, WZ2))]
-    spans = UR.lake_spans()
+    # (3.1i) the lake and the box shaped together, column by column - the massif round the dungeon, the shores' beaches and the
+    #  cavern's domed roof (p2/underterrain); then, per chunk column of the box, what foreign places left behind turned back
+    import p2.underterrain as UT
+    if 'B' not in BUILT:
+        from p2.dungeons import undercrown
+        BUILT['B'] = undercrown.build()
+    cols, (tx1, tz1, tx2, tz2) = UT.plan(BUILT['B'])
     steps = []
-    # ---- the lake: a step per chunk column (16 x-slices); it waits (nothing done, the step not counted) until every chunk it
-    #      touches is loaded - a fill over an unloaded chunk does nothing at all
-    cols = {}
-    for x, runs in spans.items(): cols.setdefault((OX + x) // 16, []).append((x, runs))
-    for cx in sorted(cols):
-        zs = [z for x, runs in cols[cx] for a, b in runs for z in (a, b)]
-        cz1, cz2 = (OZ + min(zs)) // 16, (OZ + max(zs)) // 16
-        body = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range(cz1, cz2 + 1)]
-        for x, runs in cols[cx]:
-            top = UR.lake_air_top(x)
-            for a, b in runs:
-                X, ZA, ZB = OX + x, OZ + a, OZ + b
-                body += [f'fill {X} {OY + UR.LAKE_SEA + 1} {ZA} {X} {OY + top} {ZB} minecraft:air',
-                         f'fill {X} {OY + UR.LAKE_BED} {ZA} {X} {OY + UR.LAKE_SEA} {ZB} minecraft:lava']
-        steps.append(body)
+    for cx, cmds in cols:
+        gate = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range((OZ + tz1) // 16, (OZ + tz2) // 16 + 1)]
+        for a in range(0, len(cmds), 2500):     # (a chunk column's terrain in steps of 2500 fills: no long tick)
+            body = list(gate)
+            for _f, x1, y1, z1, x2, y2, z2, blk, tail in cmds[a:a + 2500]:
+                body.append(f'fill {OX + x1} {OY + y1} {OZ + z1} {OX + x2} {OY + y2} {OZ + z2} {blk}' + (f' {tail}' if tail else ''))
+            steps.append(body)
     nlake = len(steps)
-    # ---- the box: what foreign places left in its Nether cells, and its skin made whole (the place puts its own cells back)
     for cx in range(OX // 16, (OX + SX - 1) // 16 + 1):
         x1, x2 = max(OX, cx * 16), min(OX + SX - 1, cx * 16 + 15)
         body = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range(OZ // 16, (OZ + SZ - 1) // 16 + 1)]
         for y in range(OY, OY + SY, 9):
             body.append(f'fill {x1} {y} {OZ} {x2} {min(y + 8, OY + SY - 1)} {OZ + SZ - 1} minecraft:netherrack replace #bm:u_foreign')
-        for za, zb in ((OZ, OZ + SHELL_W - 1), (OZ + SZ - SHELL_W, OZ + SZ - 1)):
-            body.append(f'fill {x1} {OY} {za} {x2} {OY + SY - 1} {zb} minecraft:netherrack replace #bm:u_hollow')
-        for xa, xb in ((OX, OX + SHELL_W - 1), (OX + SX - SHELL_W, OX + SX - 1)):
-            a, b = max(xa, x1), min(xb, x2)
-            if a > b: continue
-            for y in range(OY, OY + SY, 24):
-                body.append(f'fill {a} {y} {OZ + SHELL_W} {b} {min(y + 23, OY + SY - 1)} {OZ + SZ - SHELL_W - 1} minecraft:netherrack replace #bm:u_hollow')
         steps.append(body)
     first = [  # (before the first step: nobody stands in the lake's way - all of them to the court; the foreign places' things taken)
         f'execute if score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] unless entity @s[{BOX}] at @s run function bm:p237/out',
