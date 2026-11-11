@@ -94,6 +94,16 @@ def fancy_name(name, color, sym, legendary=False):
     return {'text': '', 'italic': False, 'extra': parts}
 
 
+def wrap_lore(text, color='gray', n=46):
+    """(3.1j) one long lore sentence as lines of about n characters, each (line, color) - tooltips don't wrap"""
+    out, cur = [], ''
+    for w in text.split():
+        if cur and len(cur) + 1 + len(w) > n: out.append((cur, color)); cur = w
+        else: cur = (cur + ' ' + w).strip()
+    if cur: out.append((cur, color))
+    return out
+
+
 def item(iid, base, name, color, lore=(), model=None, glint=None, stack=None, comps=None,
          custom_extra=None, bold=False, tier=None, cat='misc', price=None):
     c = {}

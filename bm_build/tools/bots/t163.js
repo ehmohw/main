@@ -105,6 +105,10 @@ const res = [];
      A.buttons().map(b => b.label).join(' | '));
   ok('...Crimson Opera: wearing; Midnight Silk: locked', A.buttons().some(b => /Crimson Opera.*wearing/.test(b.label)) && A.buttons().some(b => /Midnight Silk.*locked/.test(b.label)));
   ok('...the aura row: Bubble Halo - locked', A.buttons().some(b => /Bubble Halo.*locked/.test(b.label)));
+  // (3.1l) the wardrobe's « Back: his own menu again
+  { const bk = await A.press(/^« Back/); ok('...« Back: his own menu again (The Cabinet, Wardrobe)', bk && bk.next && ['The Cabinet', 'Wardrobe'].every(l => A.buttons().some(b => b.label.includes(l))),
+      A.buttons().map(b => b.label).join(' | ').slice(0, 160));
+    await A.press(/Wardrobe/); }
   A.chats.length = 0; await A.press(/Bubble Halo/); await sleep(600);
   ok('...pressed while locked: where to find it', A.chats.some(c => /Bubble Halo.*locked/.test(c)), A.chats.slice(-1).join('').slice(0, 160));
   await A.press(/His old black topper/); await sleep(1000);

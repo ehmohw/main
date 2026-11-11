@@ -677,7 +677,7 @@ def generate(G):
                          'execute as @a[distance=..1.5,gamemode=!spectator,gamemode=!creative] at @s run function bm:p238/beam/hit',
                          'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.8 run function bm:p238/beam/ray'])
     fn('p238/beam/hit', ['execute if items entity @s weapon.* *[minecraft:custom_data~{bm:"dawnshard"}] run return run function bm:p238/beam/shield',
-                         f'damage @s 8 bm:dread by {M}', 'data modify entity @s Fire set value 60s'])
+                         f'damage @s 8 bm:dread by {M}', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 60s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14'])
     fn('p238/beam/shield', ['particle minecraft:end_rod ~ ~1.2 ~ 0.6 0.6 0.6 0.05 12 force', 'playsound minecraft:block.beacon.power_select player @a[distance=..16] ~ ~ ~ 0.8 1.6',
                             title('@s', 'actionbar', T('The Dawnshard turns the beam. Light holds.', L.HOLY, bold=True))])
     fn('p238/a/roots', [f'execute as {FIGHT} at @s run summon minecraft:marker ~ ~0.1 ~ {{Tags:["bm.svfx","bm.svroot"]}}', 'playsound minecraft:block.sculk_vein.place hostile @a[distance=..48] ~ ~ ~ 2 0.4',

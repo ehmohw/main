@@ -441,8 +441,13 @@ def build(C, G, abilities, encounter):
     G.FUNCS['admin/uninstall'].insert(0, f'kill @e[type=minecraft:interaction,tag={hit_tag}]')
     # ---- fainting
     tick += [f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=bm.{ab}p_body,tag=!{fade}] at @s run function bm:{pfx}/check',
-             f'scoreboard players remove @e[type=minecraft:item_display,tag={fade}] {S("l")} 1',
-             f'kill @e[type=minecraft:item_display,tag={fade},scores={{{S("l")}=..0}}]']
+             ]
+    # (3.1j: the fading parts count down in ONE shared score, not one per follower - two world scans a tick, not 130)
+    if 'scoreboard objectives add bm.pfl dummy' not in G.FUNCS['load']:
+        G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.pfl dummy']
+        G.OBJECTIVES.append('bm.pfl')
+        tick += ['scoreboard players remove @e[type=minecraft:item_display,tag=bm.pfade] bm.pfl 1',
+                 'kill @e[type=minecraft:item_display,tag=bm.pfade,scores={bm.pfl=..0}]']
     fn(f'{pfx}/check', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #al bm.rng 0',
                         f'execute as @e[type=minecraft:wolf,tag={pet},distance=..16] if score @s bm.pid = #me bm.pid run scoreboard players set #al bm.rng 1',
                         f'execute if score #al bm.rng matches 1 run return run scoreboard players set @s {S("z")} 0',
@@ -453,7 +458,7 @@ def build(C, G, abilities, encounter):
                                                    T(f"{C.they.capitalize()} {v('needs', 'need')} {C.PET_CD // 60} minutes before {C.they} can come back.", "gray")])])
     fn(f'{pfx}/fade', [f'execute as @e[type=minecraft:item_display,tag=bm.{ab}p_pet,tag=!{fade}] if score @s bm.pid = #me bm.pid run function bm:{pfx}/fade1'] + burst +
        [C.FADE_SOUND])
-    fn(f'{pfx}/fade1', [f'tag @s add {fade}', f'scoreboard players set @s {S("l")} 3',
+    fn(f'{pfx}/fade1', [f'tag @s add {fade}', 'tag @s add bm.pfade', 'scoreboard players set @s bm.pfl 3',
                         f'data merge entity @s[type=minecraft:item_display] {{brightness:{{block:15,sky:15}},Glowing:1b,glow_color_override:{int(C.COL[1:], 16)}}}'])
     second.append(f'scoreboard players remove @a[scores={{bm.{ab}cd=1..}}] bm.{ab}cd 1')
     if not lit or lit_parts is not None:

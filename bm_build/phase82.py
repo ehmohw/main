@@ -129,7 +129,7 @@ def generate(G):
                    'execute rotated as @s rotated ~ 0 positioned ^3.4 ^8.4 ^3.0 run particle minecraft:lava ~ ~ ~ 0.2 0.1 0.2 0 1',
                    'execute rotated as @s rotated ~ 0 positioned ^-3.4 ^8.4 ^3.0 run particle minecraft:lava ~ ~ ~ 0.2 0.1 0.2 0 1',
                    'execute rotated as @s rotated ~ 0 positioned ^ ^7.2 ^3.1 run particle minecraft:small_flame ~ ~ ~ 1.6 0.2 0.1 0.01 6',
-                   f'execute as @a[distance=..5,{near}] run data modify entity @s Fire set value 60s',
+                   f'execute as @a[distance=..5,{near}] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14',
                    # (3.0e: it rises up to 128 off - with 96 / a minute it could gutter out while you were still on your way to it)
                    # (3.0g, the owner: it "still immediately died when it naturally spawned" - a natural one never leaves for being left
                    #  alone now: only the Blood Moon's end (p82/tick) or an empty server sends it off. One grown from a gourd still does.)
@@ -218,7 +218,7 @@ def generate(G):
                      'execute rotated as @s rotated ~ 0 positioned ^ ^ ^6 run particle minecraft:lava ~ ~0.5 ~ 4 0.3 4 0 60',
                      'playsound minecraft:entity.generic.explode hostile @a[distance=..64] ~ ~ ~ 2 0.5',
                      f'execute rotated as @s rotated ~ 0 positioned ^ ^ ^6 as @a[distance=..8,{near}] at @s run function bm:p82/stomped'])
-    fn('p82/stomped', [f'damage @s 14 minecraft:mob_attack by {me}', 'data modify entity @s Fire set value 100s', 'effect give @s minecraft:levitation 1 4',
+    fn('p82/stomped', [f'damage @s 14 minecraft:mob_attack by {me}', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 100s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'effect give @s minecraft:levitation 1 4',
                        'particle minecraft:flame ~ ~1 ~ 0.4 0.6 0.4 0.05 20'])
     # TONGUE LASH
     fn('p82/a_lash', [at(1, 'execute facing entity @a[tag=bm.saltgt,limit=1] feet run tp @s ~ ~ ~ ~ 0'), at(1, 'function bm:p82/pose/lash_a'),
@@ -245,7 +245,7 @@ def generate(G):
     fn('p82/ember_hit', ['particle minecraft:explosion ~ ~0.5 ~ 0.4 0.2 0.4 0 2', 'particle minecraft:flame ~ ~0.5 ~ 1.2 0.4 1.2 0.15 60',
                          'playsound minecraft:entity.generic.explode hostile @a[distance=..32] ~ ~ ~ 1 1.2',
                          f'execute as @a[distance=..2.6,{near}] run damage @s 10 minecraft:in_fire',
-                         f'execute as @a[distance=..2.6,{near}] run data modify entity @s Fire set value 100s', 'kill @s'])
+                         f'execute as @a[distance=..2.6,{near}] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'kill @s'])
     # THE GLARE (enraged): a beam of fire from its carved eyes that follows you
     fn('p82/a_glare', [at(1, 'function bm:p82/pose/flare'), at(1, 'playsound minecraft:block.beacon.activate hostile @a[distance=..64] ~ ~8 ~ 2 0.5'),
                        at('2..11', 'execute rotated as @s rotated ~ 0 positioned ^ ^9.2 ^3.6 run particle minecraft:flame ~ ~ ~ 0.6 0.4 0.2 0.02 8'),
@@ -255,10 +255,10 @@ def generate(G):
                     'execute rotated as @s rotated ~ 0 positioned ^ ^9.2 ^3.6 facing entity @a[tag=bm.saltgt,limit=1] eyes run function bm:p82/beam_ray',
                     'execute if score @s bm.salt matches 12 run playsound minecraft:entity.blaze.shoot hostile @a[distance=..64] ~ ~ ~ 2 0.4'])
     fn('p82/beam_ray', ['particle minecraft:flame ~ ~ ~ 0.08 0.08 0.08 0.01 2', 'particle minecraft:dust{color:[1.0,0.7,0.2],scale:1.6} ~ ~ ~ 0 0 0 0 1',
-                        f'execute as @a[distance=..1.3,{near}] run function bm:p82/beam_hit', 'scoreboard players add #st bm.rng 1',
+                        f'execute as @a[distance=..1.3,{near}] at @s run function bm:p82/beam_hit', 'scoreboard players add #st bm.rng 1',
                         'execute if score #st bm.rng matches 40.. run return 0', 'execute unless block ~ ~ ~ #minecraft:replaceable run return 0',
                         'execute positioned ^ ^ ^0.8 run function bm:p82/beam_ray'])
-    fn('p82/beam_hit', [f'damage @s 6 minecraft:in_fire by {me}', 'data modify entity @s Fire set value 80s'])
+    fn('p82/beam_hit', [f'damage @s 6 minecraft:in_fire by {me}', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 80s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14'])
     # at half health: the shriek, and ember spiderlings
     fn('p82/shriek', ['scoreboard players set @s bm.salr 1', 'playsound minecraft:entity.ghast.scream hostile @a[distance=..96] ~ ~8 ~ 3 0.5',
                       'playsound minecraft:entity.spider.ambient hostile @a[distance=..64] ~ ~ ~ 3 0.4',
@@ -337,11 +337,11 @@ def generate(G):
     keep = 'tag=!bm.boss,tag=!bm.npc,tag=!bm.monstrosity,tag=!bm.salboss,tag=!bm.kxboss,tag=!bm.gvg,tag=!bm.gvboss,tag=!bm.tiered'
     fn('p82/hearth/sec', [f'execute as @e[type=#bm:hostile,tag=!bm.hfseen,distance=..48] at @s run function bm:p82/hearth/check',
                           'execute as @e[type=#bm:hostile,tag=bm.hfseen,tag=!bm.khome,distance=..12] run data modify entity @s Fire set value 60s',      # (3.0g: never a home Statue Knight)
-                          'execute as @e[type=#bm:hostile,tag=bm.blood,distance=..24] run function bm:p82/hearth/burn',
+                          'execute as @e[type=#bm:hostile,tag=bm.blood,distance=..24] at @s run function bm:p82/hearth/burn',
                           'particle minecraft:flame ~ ~0.7 ~ 0.15 0.2 0.15 0.01 3', 'particle minecraft:small_flame ~ ~1.1 ~ 0.1 0.1 0.1 0.01 2'])
     fn('p82/hearth/check', ['tag @s add bm.hfseen', f'execute if entity @s[{keep}] if data entity @s {{PersistenceRequired:0b}} unless data entity @s CustomName run function bm:p82/hearth/snuff'])
     fn('p82/hearth/snuff', ['particle minecraft:smoke ~ ~0.6 ~ 0.2 0.4 0.2 0.01 6', 'tp @s ~ -400 ~', 'kill @s'])
-    fn('p82/hearth/burn', ['data modify entity @s Fire set value 60s', 'damage @s 3 minecraft:in_fire'])
+    fn('p82/hearth/burn', ['execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 60s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'damage @s 3 minecraft:in_fire'])
     G.FUNCS['p71/deco/pick'][0:0] = ['execute if entity @e[type=minecraft:interaction,tag=bm.gvdme,tag=bm.hearth] at @e[type=minecraft:interaction,tag=bm.gvdme,limit=1] '
                                      'run function bm:p82/hearth/take']
     fn('p82/hearth/take', [give('scorching_heart'), 'kill @e[type=minecraft:item_display,tag=bm.hearthd,distance=..0.6]',

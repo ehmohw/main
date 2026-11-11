@@ -21,6 +21,20 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1l: fixes and clean-up
+
+- **Wardrobes have a « Back.** Opened from a follower's own menu, it goes back to that menu. Opened any other way, it just closes.
+- **The Glitch's and the Cake's items** no longer keep a frame of their trick as their icon when taken out of a frame. They're back to their own icon within a second.
+- **Long lore wrapped:** the Dread-forged armour's set bonuses, the Ruin Tokens' carried and set-down effects, and the relics' "they fuse" hints.
+- **Bosses' fire attacks:** they could never set a player alight (the game doesn't allow it), so the commands failed silently. They now show a burst of flame on you, and still set mobs alight.
+- **The Armada's rebuild** clears the old copy over about 24 seconds instead of six million blocks in one tick.
+- **Faster ticks:** followers' fading parts share one countdown (two entity scans a tick instead of about 130). Two animation lines that only called empty stubs are gone.
+- **Clean-up:**
+  - dead code and an unused constant removed;
+  - the build lists any function made twice;
+  - the finished Undercrown plan note retired;
+  - the Fishy test checks the wardrobe's « Back.
+
 ## New in 3.1k: the cavern's edges
 
 - **No wall at the lake's rim.** The cavern used to fill every cave above its roof right up to the shore, which left a tall flat face of rock wherever the Nether outside was open. Now only the roof's seal goes on at the rim, deepening further in, so the Nether outside meets its own rock.

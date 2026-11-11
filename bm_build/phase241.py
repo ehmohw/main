@@ -240,7 +240,7 @@ def generate(G):
                          f'execute in {END} run particle minecraft:dust{{color:[1.0,0.45,0.15],scale:4.0}} {sx_} {sy_} {sz_} {A.STAR["r"]} {A.STAR["r"]} {A.STAR["r"]} 0 30 force @a[distance=..200]',
                          f'execute in {END} run particle minecraft:lava {sx_} {sy_} {sz_} {A.STAR["r"] * 0.8:.0f} {A.STAR["r"] * 0.8:.0f} {A.STAR["r"] * 0.8:.0f} 0 8 force @a[distance=..200]',
                          f'execute in {END} as @a[x={sx_},y={sy_},z={sz_},distance=..{A.STAR["burn"]},gamemode=!spectator,gamemode=!creative] at @s run function bm:p241/star/burn'])
-    fn('p241/star/burn', ['damage @s 3 minecraft:in_fire', 'data modify entity @s Fire set value 60s',
+    fn('p241/star/burn', ['damage @s 3 minecraft:in_fire', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 60s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14',
                           title('@s', 'actionbar', T('The Hive-Star scorches you - get away from it!', STAR, bold=True))])
 
     # ---- hidden sigils: their followers' names, lit while they stand there
@@ -451,6 +451,13 @@ def generate(G):
         for by in range(0, SY, 32):
             for bz in range(0, SZ, 32):
                 clr.append(f'execute if score #asite bm.p2 matches {OY} in {END} run fill {OX + bx} {OY + by} {OZ + bz} {OX + min(SX, bx + 32) - 1} {OY + min(SY, by + 32) - 1} {OZ + min(SZ, bz + 32) - 1} minecraft:air')
+    # (3.1j: the clearing of a previous copy - six million blocks - in steps of eight fills, one a second, not all in the tick
+    #  that also places the template; whoever wanders back in meanwhile is carried out again by each try)
+    NCLR = (len(clr) + 7) // 8
+    for i in range(NCLR):
+        fn(f'p241/build/clr{i}', clr[i * 8:(i + 1) * 8] + ['scoreboard players add #aclr bm.p2 1'])
+    clr_steps = ['execute unless score #aclr bm.p2 matches 0.. run scoreboard players set #aclr bm.p2 0'] + \
+                [f'execute if score #asite bm.p2 matches {OY} if score #aclr bm.p2 matches {i} run return run function bm:p241/build/clr{i}' for i in range(NCLR)]
     import phase255 as NS                   # (3.0a: 16-wide columns - a 60-wide fill was over the block limit, and failed - and a quart round)
     bio = NS.fills(END, (OX, OY, OZ), (SX, SY, SZ), 'bm:armada', done=('#abio', NS.BIOV))
     import p2.oldsite as OS                 # (an old copy, where a world had one, comes down first - each site once, its own flag)
@@ -467,10 +474,10 @@ def generate(G):
                           'execute unless score #aload bm.p2 matches 1 run return run scoreboard players set #await bm.p2 0',
                           'scoreboard players add #await bm.p2 1', 'execute unless score #await bm.p2 matches 4.. run return 0',
                           f'execute in {END} as @a[{BOX}] at @s run function bm:p241/out',
-                          *[f'execute in {END} run kill @e[{s_},{BOX}]' for s_ in CLEAR]] + clr + [
+                          *[f'execute in {END} run kill @e[{s_},{BOX}]' for s_ in CLEAR]] + clr_steps + [
                           'scoreboard players set #abuilt bm.p2 0',
                           f'execute in {END} store success score #abuilt bm.p2 run place template bm:p2_{d} {OX} {OY} {OZ}',
-                          'execute unless score #abuilt bm.p2 matches 1 run return 0'] + bio + [
+                          'execute unless score #abuilt bm.p2 matches 1 run return 0', 'scoreboard players set #aclr bm.p2 0'] + bio + [
                           'function bm:p241/gauntlet/odd',
                           f'scoreboard players set #aver bm.p2 {AVER}', f'scoreboard players set #asite bm.p2 {OY}', 'scoreboard players add #arun bm.p2 1', f'execute in {END} as @e[type=minecraft:marker,tag=bm.d_{d},{BOX}] run scoreboard players operation @s bm.drun = #arun bm.p2', 'scoreboard players set #afell bm.p2 0',
                           *[f'execute in {END} run forceload remove {q}' for q in fls]])

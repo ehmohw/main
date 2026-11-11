@@ -176,7 +176,11 @@ def build(C, G, abilities, encounter, sitb=None, frame=None):
         G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {ft} dummy']
         G.OBJECTIVES.append(ft)
         L = len(models) * every
-        fn(f'{pfx}/frame/tick', ([f'execute unless score @s {ft} matches 0.. run scoreboard players set @s {ft} 0'] if models else []) +
+        # (3.1j: its version stamp is cleared while it animates, so taken out of the frame - however quickly - the once-a-second
+        #  re-sync (phase18) gives it its own icon back; it kept a frame of the trick for good when picked up within the second)
+        fn(f'{pfx}/frame/tick', ([f'execute unless score @s {ft} matches 0.. run scoreboard players set @s {ft} 0',
+                                  'data modify entity @s Item.components."minecraft:custom_data".bmv set value 0']
+                                 if models else []) +
            [f'execute if score @s {ft} matches {i * every} run data modify entity @s Item.components."minecraft:item_model" set value "bm:{m}"' for i, m in enumerate(models)] +
            list(frame.get('tick', [])) +
            ([f'scoreboard players add @s {ft} 1', f'execute if score @s {ft} matches {L}.. run scoreboard players set @s {ft} 0'] if models else []))

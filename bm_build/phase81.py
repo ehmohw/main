@@ -246,7 +246,7 @@ def generate(G):
     second += ['effect give @a[tag=bm.sg1] minecraft:regeneration 3 0 true', 'effect give @a[tag=bm.sg2] minecraft:strength 3 0 true',
                'effect give @a[tag=bm.sg3] minecraft:resistance 3 0 true', 'effect give @a[tag=bm.sg4] minecraft:speed 3 0 true'] + \
               [f'effect clear @a[tag=bm.sg5] minecraft:{e}' for e in bad] + \
-              ['effect give @a[tag=bm.sg5] minecraft:fire_resistance 3 0 true', 'execute as @a[tag=bm.sg5] run data modify entity @s Fire set value -20s',
+              ['effect give @a[tag=bm.sg5] minecraft:fire_resistance 3 0 true',
                'execute as @a[tag=bm.sg7] run attribute @s minecraft:max_health modifier add bm:sig_vigor 4 add_value', 'tag @a[tag=bm.sg7] add bm.sghb',
                'execute as @a[tag=bm.sghb,tag=!bm.sg7] run function bm:p81/sg/unvigor',
                'effect give @a[tag=bm.sg8] minecraft:night_vision 15 0 true',

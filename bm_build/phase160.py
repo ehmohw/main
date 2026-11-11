@@ -81,11 +81,13 @@ _HINTS = {'head': "On the ground with the other roaming terrors' relics (crook, 
 for _f, _line in _HINTS.items():
     for _v in range(1, 5):
         _i = base_iid(_f, _v)
-        if _i in ITEMS: ITEMS[_i]['comps']['minecraft:lore'].insert(-1, T(_line, SETS['hunt' if _f in SETS['hunt'][2] else 'rift'][1]))
+        if _i in ITEMS:      # (3.1j: wrapped - the hints ran to 87 characters)
+            _L = ITEMS[_i]['comps']['minecraft:lore']
+            _L[-1:-1] = [T(t, c) for t, c in __import__('items').wrap_lore(_line, SETS['hunt' if _f in SETS['hunt'][2] else 'rift'][1])]
 for _i, _line, _col in (('fallen_star', 'On the ground beside a Heartstone, under the night sky, they fuse.', '#ffe9a0'),
                         ('heartstone', 'On the ground beside a Fallen Star, under the night sky, they fuse.', '#ffe9a0'),
                         ('xenite_red', 'On the ground with 8 Blood Crystals and 8 Lucky Tokens, by night, they fuse.', '#d05a9a')):
-    if _i in ITEMS: ITEMS[_i]['comps']['minecraft:lore'].insert(-1, T(_line, _col))
+    if _i in ITEMS: ITEMS[_i]['comps']['minecraft:lore'][-1:-1] = [T(t, c) for t, c in __import__('items').wrap_lore(_line, _col)]
 
 # (2.80d) and the Newcomers' Book has them all, the Wraithfire Heart too
 _H = '#7a1f1f'

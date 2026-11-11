@@ -34,6 +34,7 @@ COL = '#e8c070'
 PRICE = ('token', 1)
 ECON.DIRECT[ITEM] = (PRICE, None)
 HB, B_SET = 5660, 5661                                       # (the handbook's menu and "« Handbook"; Settings)
+B_WBACK = 9961                                               # (3.1j: a wardrobe's « Back - to the follower's own menu it was opened from)
 B_FOL, B_BOSS, B_DUN, B_PLC, B_CUR, B_PS = 5663, 5664, 5665, 5666, 5667, 5668
 PS = 5670                                                    # (Your settings: its menu; its rows 5671-5679)
 PS_ROWS = {'mus': 5671, 'mkt': 5672, 'shp': 5673, 'chat': 5674, 'shk': 5675, 'keep': 5676, 'np': 5677, 'back': 5679}
@@ -236,6 +237,7 @@ def generate(G):
 
 
     # ================================================================== THE FOLLOWERS' MENUS: settings out, Settings in
+    b_wback = snbt(P28.btn([T('« ', 'gray'), T('Back', 'white')], B_WBACK, width=150, tooltip=T('The menu you opened the wardrobe from.', 'gray')))
     b_set = lambda col: snbt(P28.btn([T('⚙ ', col), T('Settings', 'white', bold=True)], B_SET, width=150,
                                      tooltip=T('Their switches in one place: chatter, keep up, forms, aura...', 'gray')))
     moved = {w: {} for w in WS}                               # who -> {code: (menu, [button variants])}
@@ -291,6 +293,7 @@ def generate(G):
                 if c == P99.TOP[w] and all(c != x for x, _b in wd_rows[w]): wd_rows[w].append((c, b))     # (the aura: in both)
                 items.append(b)
             if not any(code_of(b) == B_SET for b in items): items.append(b_set(WHO[w][2]))
+            if MAIN.get(w) and not any(code_of(b) == B_WBACK for b in items): items.append(b_wback)     # (3.1j: « Back to their menu)
             F[name][j] = set_actions(l, sp, items)
         # (3.1j) the Ledger's copy (phase119: made before this) follows the new wardrobe: same buttons, its first one « Outfits
         if f'p119/dlg/{w}' in F:
@@ -413,6 +416,19 @@ def generate(G):
     fn('p260/fs/act', fs_act)
     fn('p260/fs/from', froms + ['function bm:p28/stale'])
     act.append(f'execute if score #act bm.pay matches {B_SET} run return run function bm:p260/fs/from')
+    # (3.1j, the review: "a wardrobe opened from a follower's menu has no way back to it") - the menu it was opened from is kept
+    #  (bm.wdb), and « Back reopens it; opened any other way (the Ledger, the Pack, the Tailor), « Back just closes it
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.wdb dummy']
+    G.OBJECTIVES.append('bm.wdb')
+    wb_from = []
+    for w in WS:
+        if w not in P99.BASE or not MAIN.get(w): continue
+        menu = F[f'p99/menu/{w}']
+        menu.insert(0, f'execute unless score @s bm.menu matches {P99.BASE[w]} run scoreboard players operation @s bm.wdb = @s bm.menu')
+        wb_from.append(f'execute if score @s bm.menu matches {P99.BASE[w]} run return run function bm:p260/wb/{w}')
+        fn(f'p260/wb/{w}', [f'execute if score @s bm.wdb matches {m} run return run function bm:p260/main/{w}_{m}' for m in MAIN[w]] + ['dialog clear @s'])
+    fn('p260/wb/from', wb_from + ['dialog clear @s'])
+    F['p28/act'].append(f'execute if score #act bm.pay matches {B_WBACK} run return run function bm:p260/wb/from')
     # (the wardrobe's state on its own, so the Settings page reads the same labels: the menu is "set the menu, the state, show")
     for w in P99.BASE:
         L = F[f'p99/menu/{w}']

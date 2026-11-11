@@ -101,7 +101,7 @@ TOKENS = {
                 'Set down: in the water within 24, Conduit Power, Dolphin\'s Grace and Regeneration - and monsters there take a bite.'),
 }
 for iid, (nm, col, k, lore, carried, placed) in TOKENS.items():
-    item(iid, TOTEM, nm, col, lore + [(carried, 'blue'), (placed, 'blue'), ('Sneak + use on a block: set it down. Sneak + punch: take it back.', 'gray'),
+    item(iid, TOTEM, nm, col, lore + __import__('items').wrap_lore(carried, 'blue') + __import__('items').wrap_lore(placed, 'blue') + [('Sneak + use on a block: set it down.', 'gray'), ('Sneak + punch: take it back.', 'gray'),
                                      ('Vesper scraps it for 12 Dread Tokens.', 'gray'), (f'Dropped by {BOSSES[k]["NAME"]}.', 'dark_gray')],
          model=f'bm:{iid}', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
     HOLD[iid] = f'bm:p197/tok/{k}/use'

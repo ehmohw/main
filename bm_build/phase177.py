@@ -160,7 +160,7 @@ for old, (new, fmt, nm, pn, col, trim, (ea, et, eh, ek, es), bonus, price) in SE
         if ea: perks.append(f'+{ea * (1 if p == "chestplate" else 0.5):g} Armor')
         iid = f'{new}_{p}'
         item(iid, src['base'], f'{nm} {pn[i]}', col,
-             ['Dread-forged by Vesper, past what it was.'] + ([(', '.join(perks), 'blue')] if perks else []) + [(bonus, 'dark_aqua')],
+             ['Dread-forged by Vesper, past what it was.'] + ([(', '.join(perks), 'blue')] if perks else []) + __import__('items').wrap_lore(bonus, 'dark_aqua'),     # (3.1j: the set bonus wrapped - it ran to 105 characters)
              comps=comps, custom_extra={'bm_set': new, 'bm_up': old}, cat='gear', bold=True)
         REFORGE[fmt.format(p=p)] = (iid, price)
 WEAPONS = {  # old iid: (new iid, name, colour, enchantments raised or added, extra attack damage, extra modifiers, lore, price)

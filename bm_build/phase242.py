@@ -513,7 +513,7 @@ def generate(G):
                         'execute if entity @e[type=minecraft:marker,tag=bm.vxwreck,distance=..2.6] run return 0',
                         'execute as @a[distance=..1.7,gamemode=!spectator,gamemode=!creative,tag=!bm.vxhit] at @s run function bm:p242/can/hit',
                         'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.8 run function bm:p242/can/ray'])
-    fn('p242/can/hit', [f'damage @s 11 minecraft:magic by {MM}', 'data modify entity @s Fire set value 40s', 'tag @s add bm.vxhit'])
+    fn('p242/can/hit', [f'damage @s 11 minecraft:magic by {MM}', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 40s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'tag @s add bm.vxhit'])
     tick.append('tag @a[tag=bm.vxhit] remove bm.vxhit')
     # -- I: MISSILES (a marked circle under each fighter; 1.5 s, then the strike)
     fn('p242/a/missile_mark', [f'execute as {FIGHT} at @s run summon minecraft:marker ~ ~0.1 ~ {{Tags:["bm.vxfx","bm.vxmis"]}}', 'playsound minecraft:entity.firework_rocket.launch hostile @a[distance=..64] ~ ~ ~ 3 0.5',
@@ -642,7 +642,7 @@ def generate(G):
                         'execute unless block ~ ~ ~ #bm:grap_pass run return run particle minecraft:lava ~ ~ ~ 0.2 0.2 0.2 0 4 force',
                         'execute as @a[distance=..1.8,gamemode=!spectator,gamemode=!creative,tag=!bm.vxhit] at @s run function bm:p242/lnc/hit',
                         'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.7 run function bm:p242/lnc/ray'])
-    fn('p242/lnc/hit', [f'damage @s 18 minecraft:in_fire by {ME}', 'data modify entity @s Fire set value 100s', 'tag @s add bm.vxhit'])
+    fn('p242/lnc/hit', [f'damage @s 18 minecraft:in_fire by {ME}', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 100s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'tag @s add bm.vxhit'])
     # -- III: GRAVITY FLIPS (circles where gravity turns over: up you go, then down)
     fn('p242/a/flip', [f'execute as {FIGHT[:-1]},sort=random,limit=3] at @s run summon minecraft:marker ~ ~0.1 ~ {{Tags:["bm.vxfx","bm.vxflip"]}}',
                        f'execute positioned {CX + 0.5} {CY + 1.1} {CZ + 0.5} run summon minecraft:marker ^ ^ ^ {{Tags:["bm.vxfx","bm.vxflip"]}}',
@@ -800,7 +800,7 @@ def generate(G):
                           'execute unless block ~ ~ ~ #bm:grap_pass run return 0',
                           'execute as @e[type=#bm:hostile,distance=..1.4,limit=1] at @s run return run function bm:p242/lance_hit',
                           'scoreboard players remove #br bm.rng 1', 'execute if score #br bm.rng matches 1.. positioned ^ ^ ^0.6 run function bm:p242/lance_ray'])
-    fn('p242/lance_hit', ['damage @s 10 minecraft:in_fire by @p', 'data modify entity @s Fire set value 80s', 'particle minecraft:lava ~ ~1 ~ 0.3 0.3 0.3 0 6'])
+    fn('p242/lance_hit', ['damage @s 10 minecraft:in_fire by @p', 'execute unless entity @s[type=minecraft:player] run data modify entity @s Fire set value 80s', 'execute if entity @s[type=minecraft:player] at @s run particle minecraft:flame ~ ~1 ~ 0.3 0.5 0.3 0.03 14', 'particle minecraft:lava ~ ~1 ~ 0.3 0.3 0.3 0 6'])
     tick.append('scoreboard players remove @a[scores={bm.vxsc=1..}] bm.vxsc 1')
     # the Singularity Launcher: its bolt becomes a small, hungry star
     fast.append('execute as @e[type=minecraft:arrow,tag=!bm.vxsg0] at @s run function bm:p242/sing/tag')
