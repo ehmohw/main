@@ -287,6 +287,7 @@ def wjson(rel, obj):
         json.dump(obj, f, indent=1, ensure_ascii=False)
 
 
+LATE_PREPEND = {}                # (3.1l: lines put at the top of a function once every phase has run: name -> [lines])
 REDEF = []                       # (3.1j: functions made twice - the second silently replaced the first: listed at the end of the build)
 
 
@@ -1605,6 +1606,8 @@ def build(out_dir):
     adds = [l for l in ld if l.startswith('scoreboard objectives add ')]
     FUNCS['load'] = adds + [l for l in ld if not l.startswith('scoreboard objectives add ')]
     R18.refresh_files(sys.modules[__name__], [i for i in ITEMS if i not in R18.DONE])     # (3.1j: items registered late - the Gilded Feather)
+    for _n, _ls in LATE_PREPEND.items():
+        if _n in FUNCS: FUNCS[_n][0:0] = _ls
     # 3.1j: the server's two crashes (11-06) were 12,000-40,000 falling blocks at once - a structure's sand let go. A hard stop: past
     #       2,500 at once they're removed (the blocks are lost; the server isn't) and operators are told
     FUNCS['loop/second'].append('execute store result score #fbn bm.rng if entity @e[type=minecraft:falling_block]')

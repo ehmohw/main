@@ -423,8 +423,8 @@ def generate(G):
     wb_from = []
     for w in WS:
         if w not in P99.BASE or not MAIN.get(w): continue
-        menu = F[f'p99/menu/{w}']
-        menu.insert(0, f'execute unless score @s bm.menu matches {P99.BASE[w]} run scoreboard players operation @s bm.wdb = @s bm.menu')
+        # (prepended at the end of the build: later phases rebuild p99/menu/<who>)
+        G.LATE_PREPEND.setdefault(f'p99/menu/{w}', []).append(f'execute unless score @s bm.menu matches {P99.BASE[w]} run scoreboard players operation @s bm.wdb = @s bm.menu')
         wb_from.append(f'execute if score @s bm.menu matches {P99.BASE[w]} run return run function bm:p260/wb/{w}')
         fn(f'p260/wb/{w}', [f'execute if score @s bm.wdb matches {m} run return run function bm:p260/main/{w}_{m}' for m in MAIN[w]] + ['dialog clear @s'])
     fn('p260/wb/from', wb_from + ['dialog clear @s'])
