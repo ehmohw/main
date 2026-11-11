@@ -29,7 +29,8 @@ SLOPE = 1.9          # the massif's fall, blocks down per block out (steep enoug
 BEACH = 12           # the shore's rise over the lava at the lake's edge
 ROOF_MIN, ROOF_MAX = 92 - 6, 112 - 6     # (local) the cavern roof over the lake's middle: world y 92..112
 Q = 1                # heights snapped to this (1: no terraces)
-SEAL = 3             # rock put in place of lava over the roof (no lava falls out of the ceiling)
+SEAL = 6             # rock over the roof (3.1j: 6, air too - no lava falls out of the ceiling)
+LAVA_TOP = 122 - 6   # (local) and any lava up to world 122 above that, made rock
 
 
 def noise(x, z, s=1.0):
@@ -128,7 +129,10 @@ def plan(B):
         floor_ = sea + 1 + max(0.0, BEACH - d) + (2 * n if d < BEACH + 4 else 0)       # (the beach, 1:1 down into the lava)
         roof = min(roof, floor_ + 1 + 1.6 * d)                                            # (the roof comes down to meet it, closing)
         k = kd[i][j]
-        m = min(H[i][j] + 3 * n, sea + 1 + 2 * n + SLOPE * max(0.0, k - 1))                # (down to the forecourts and roads as a slope)
+        # (down to the forecourts and roads as a slope - in the box from the court's own floor (3.1j: from the lava it left the Maw
+        #  court on a two-block shell over a forty-block void), out on the lake from the lava, where the causeways run)
+        base = (UR.Y - 2) if inbox(x, z) else (sea + 1 + 2 * n)
+        m = min(H[i][j] + 3 * n, base + SLOPE * max(0.0, k - 1))
         roof = max(roof, road_top - 1.2 * k) if k < 40 else roof                          # (the roof lifted over the roads, smoothly)
         lo = max(floor_, m + 1)
         if inbox(x, z):
@@ -152,12 +156,15 @@ def plan(B):
                 # the box: whole rock below the massif (the place puts the dungeon back after), open air above it
                 out.append(('fill', x, bed, za, x, max(bed, lo - 1), zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
                 if hi >= lo: out.append(('fill', x, lo, za, x, hi, zb, 'minecraft:air', ''))
-                if hi + 1 < SY: out.append(('fill', x, hi + 1, za, x, min(SY - 1, hi + SEAL), zb, 'minecraft:netherrack', 'replace minecraft:lava'))
+                out.append(('fill', x, hi + 1, za, x, hi + SEAL, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
+                if hi + SEAL < LAVA_TOP: out.append(('fill', x, hi + SEAL + 1, za, x, LAVA_TOP, zb, 'minecraft:netherrack', 'replace minecraft:lava'))
             else:
                 out.append(('fill', x, bed, za, x, sea, zb, 'minecraft:lava', ''))
                 if lo > sea + 1: out.append(('fill', x, sea + 1, za, x, lo - 1, zb, 'minecraft:netherrack', ''))
                 if hi >= lo: out.append(('fill', x, lo, za, x, hi, zb, 'minecraft:air', ''))
                 old = UR.lake_air_top(x)
                 if old > hi: out.append(('fill', x, hi + 1, za, x, old, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
-                out.append(('fill', x, max(hi, old) + 1, za, x, max(hi, old) + SEAL, zb, 'minecraft:netherrack', 'replace minecraft:lava'))
+                t_ = max(hi, old)
+                out.append(('fill', x, t_ + 1, za, x, t_ + SEAL, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
+                if t_ + SEAL < LAVA_TOP: out.append(('fill', x, t_ + SEAL + 1, za, x, LAVA_TOP, zb, 'minecraft:netherrack', 'replace minecraft:lava'))
     return [(cx, steps[cx]) for cx in sorted(steps)], (X1, Z1, X2, Z2)

@@ -46,7 +46,7 @@ SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
 UVER = 9                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
-LAKEV = 4                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
+LAKEV = 5                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
@@ -165,7 +165,6 @@ HOLLOW = ['air', 'cave_air', 'lava', 'fire', 'soul_fire']
 FOREIGN_E = ['type=minecraft:marker,tag=bm.p200seed', 'type=minecraft:marker,tag=bm.outpost', 'type=minecraft:marker,tag=bm.forge',
              'type=minecraft:marker,tag=bm.settle', 'tag=bm.orat_sprite', 'type=minecraft:interaction,tag=bm.p200box', 'type=minecraft:item',
              'type=minecraft:experience_orb']
-SHELL_W = 6                               # the box's outer skin made whole rock (the lake's cliff: no cave mouths, no lava pouring out)
 
 
 def keepout_box(margin=48):
@@ -208,22 +207,34 @@ def _lake_gen(G, fn, tellraw, P, UR):
         for y in range(OY, OY + SY, 9):
             body.append(f'fill {x1} {y} {OZ} {x2} {min(y + 8, OY + SY - 1)} {OZ + SZ - 1} minecraft:netherrack replace #bm:u_foreign')
         steps.append(body)
-    first = [  # (before the first step: nobody stands in the lake's way - all of them to the court; the foreign places' things taken)
-        f'execute if score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] unless entity @s[{BOX}] at @s run function bm:p237/out',
+    # (3.1j: the carve's refuge - the east road, ten blocks past the lake, in its bore. The Maw court was the old refuge: it stands
+    #  in the box, and the box is cut to rock and air before the dungeon goes back - its floor went from under whoever was on it.
+    #  A pocket is opened round them in case the bore isn't dug yet (a first placing); and they're kept from the lava and the fall)
+    _ce = UR.WAYS['e']; _su, _sv = UR.lake_edge('e') + 10, sum(_ce['road']) // 2
+    _sx, _sy, _sz = OX + _su, OY + UR.Y, OZ + _sv
+    fn('p237/out_safe', [f'execute in {NETHER} run tp @s {_sx + 0.5} {_sy} {_sz + 0.5}', 'tag @s remove bm.uin',
+                         f'execute in {NETHER} run fill {_sx - 1} {_sy} {_sz - 1} {_sx + 1} {_sy + 2} {_sz + 1} minecraft:air replace #bm:u_hollow',
+                         f'execute in {NETHER} run fill {_sx - 1} {_sy} {_sz - 1} {_sx + 1} {_sy + 2} {_sz + 1} minecraft:air',
+                         f'execute in {NETHER} run fill {_sx - 1} {_sy - 1} {_sz - 1} {_sx + 1} {_sy - 1} {_sz + 1} minecraft:netherrack replace #bm:u_hollow',
+                         'effect give @s minecraft:fire_resistance 300 0', 'effect give @s minecraft:slow_falling 300 0', 'effect give @s minecraft:resistance 300 2',
+                         'particle minecraft:reverse_portal ~ ~1 ~ 0.3 0.8 0.3 0.05 30', 'playsound minecraft:block.respawn_anchor.deplete player @s ~ ~ ~ 0.6 1.4'])
+    first = [  # (before the first step: nobody stands in the lake's way - all of them to the refuge; the foreign places' things taken)
+        f'execute if score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] unless entity @s[{BOX}] at @s run function bm:p237/out_safe',
         # (a world placing it for the first time has no court to carry them to: they're kept from the lava and the fall)
         f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:fire_resistance 120 0',
         f'execute unless score #uver bm.p2 matches 1.. in {NETHER} as @a[{LBOX}] run effect give @s minecraft:slow_falling 60 0',
-        f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
+        f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out_safe',
         f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.bxm,{LBOX}] at @s run function bm:p248/stow',      # (a Backpack set down here: folded first)
         *[f'execute in {NETHER} run kill @e[{s_},{LBOX}]' for s_ in FOREIGN_E],
         f'execute in {NETHER} as @e[type=minecraft:wandering_trader,tag=bm.orat,{LBOX}] at @s run tp @s ~ -300 ~',
         f'execute in {NETHER} run ' + tellraw(f'@a[{LBOX}]', [_T('The Nether shudders round the Undercrown...', COL, bold=True),
                                                             _T(' (its lake is opening: stand clear a minute)', 'gray')])]
     for i, body in enumerate(steps):
-        boxfirst = [f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out',
+        boxfirst = [f'execute in {NETHER} as @a[{BOX}] at @s run function bm:p237/out_safe',
                     f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.bxm,{BOX}] at @s run function bm:p248/stow',
                     *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in FOREIGN_E]]
-        fn(f'p237/lake/s{i}', (first if i == 0 else []) + (boxfirst if i == nlake else []) + body + ['scoreboard players add #ulk bm.p2 1'])
+        g_ = [l for l in body if l.startswith('execute unless loaded')]; b_ = [l for l in body if not l.startswith('execute unless loaded')]
+        fn(f'p237/lake/s{i}', g_ + (first if i == 0 else []) + (boxfirst if i == nlake else []) + b_ + ['scoreboard players add #ulk bm.p2 1'])     # (3.1j: the gate first)
     fn('p237/lake/step', ['execute unless score #ulk bm.p2 matches 0.. run scoreboard players set #ulk bm.p2 0',
                           # (no lake in this world - /function bm:admin/under/nolake: only the box's clean-out)
                           f'execute if score #ulakeoff bm.cfg matches 1 if score #ulk bm.p2 matches ..{nlake - 1} run scoreboard players set #ulk bm.p2 {nlake}'] +
@@ -235,6 +246,8 @@ def _lake_gen(G, fn, tellraw, P, UR):
     for k in ('ember_outpost', 'colossus_forge'):
         f_ = G.FUNCS.get(f'p200/{k}/seed')
         if f_ is not None: f_[0:0] = ['execute if function bm:p237/keepout run return run kill @s']
+    # (3.1j) a world whose lake is behind (LAKEV bumped, #uver already current) never reached the carve: the whole place, again
+    G.FUNCS['load'].append(f'execute if score #ubuilt bm.p2 matches 1 unless score #ulake bm.p2 matches {LAKEV} unless score #ulakeoff bm.cfg matches 1 if score #uver bm.p2 matches 1.. run scoreboard players set #uver bm.p2 0')
     fn('admin/under/lake', ['scoreboard players set #ulake bm.p2 0', 'scoreboard players set #ulk bm.p2 0', 'scoreboard players set #ulakeoff bm.cfg 0',
                                    'scoreboard players set #uwant bm.p2 1', 'scoreboard players set #uver bm.p2 0', 'scoreboard players set #ucol bm.p2 0',
                                    'scoreboard players set #uhold bm.p2 0',

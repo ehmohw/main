@@ -389,7 +389,8 @@ def generate(G):
     wjson('bm/tags/worldgen/biome/has_structure/ruins_end.json', {'values': ['minecraft:end_highlands', 'minecraft:end_midlands', 'minecraft:end_barrens']})
     for dim, (biomes, step, height, proj, spacing, sep, salt) in place.items():
         sid = f'ruins_{dim}'
-        s = {'type': 'minecraft:jigsaw', 'biomes': biomes, 'step': step, 'spawn_overrides': {}, 'terrain_adaptation': 'none',
+        s = {'type': 'minecraft:jigsaw', 'biomes': biomes, 'step': step, 'spawn_overrides': {}, 'terrain_adaptation': ('encapsulate' if dim == 'nether' else 'none'),     # (3.1j: a Nether ruin set at a random height floated in the open; now the rock closes round it)
+             
              'start_pool': f'bm:{sid}/start', 'size': 1, 'start_height': height, 'max_distance_from_center': 80, 'use_expansion_hack': False,
              'liquid_settings': 'ignore_waterlogging'}
         if proj: s['project_start_to_heightmap'] = proj

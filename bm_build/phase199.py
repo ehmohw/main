@@ -228,7 +228,8 @@ def generate(G):
                         # the way to the Tide Door: the sea floor in front of it dug out to water
                         f'fill ~-2 ~1 ~{OZ + K.DOOR_Z - 4} ~2 ~4 ~{OZ + K.DOOR_Z - 1} minecraft:water replace #bm:p199_soft',
                         f'execute positioned ~{cx + OX:.1f} ~{cy + OY:.1f} ~{cz + OZ:.1f} as @e[type=minecraft:marker,tag=bm.kgnew,distance=..2] at @s run function bm:p199/k/init'])
-    fn('p199/k/init', ['tag @s remove bm.kgnew', 'tag @s add bm.kingdom', 'scoreboard players set @s bm.kgst 0', 'scoreboard players set @s bm.kdome 0',
+    fn('p199/k/init', ['tag @s remove bm.kgnew', 'tag @s add bm.kingdom', 'tag @s add bm.k30g', 'tag @s add bm.k31c',     # (3.1j: a new kingdom isn't an old one - no water drained round it)
+                        'scoreboard players set @s bm.kgst 0', 'scoreboard players set @s bm.kdome 0',
                        'scoreboard players set @s bm.kbr 0', 'scoreboard players set @s bm.kday -1', 'scoreboard players set @s bm.kfest -1',
                        'execute as @e[type=minecraft:marker,tag=bm.kspot_font,distance=..60] at @s run function bm:p199/k/make_font',
                        'execute as @e[type=minecraft:marker,tag=bm.kspot_steward,distance=..60] at @s run function bm:p199/k/make_steward',

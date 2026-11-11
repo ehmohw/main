@@ -68,6 +68,13 @@ A full review of items, followers, menus, terrain and the per-tick code, and the
 **Followers**
 - **Kettle and Bender** have their duo: Fetch the Plane.
 
+**The Undercrown's ground, again**
+- **The Maw court** stands on rock again. It had been left on a thin shell over a deep void.
+- **Lava falls:** the cavern roof is sealed six blocks deep, and lava above it up to y 122 is turned to rock.
+- **Safe refuge during the re-carve:** anyone near it waits on the east road, past the lake, with Fire Resistance, Slow Falling and Resistance. The old refuge was the Maw court, whose floor was cut out from under it.
+- **Existing worlds re-place it once more.** Anything built in the lake cavern, within about 180 blocks of the Undercrown, is lost. Move a portal or base out first.
+- **New kingdoms** no longer drain the water round them. That clean-up was only ever meant for old ones.
+
 **Server safety**
 - **Falling-block failsafe.** More than 2,500 falling blocks at once are removed, and operators are told. This guards against the floods that crashed the server twice.
 - **Uninstall** also removes every attribute modifier the pack can put on a player, such as Heartstone hearts.

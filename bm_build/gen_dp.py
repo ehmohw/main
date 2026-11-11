@@ -299,7 +299,7 @@ def fn(name, lines):
 
 
 import atexit as _ax
-_ax.register(lambda: REDEF and open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out_p2', 'redef.txt'), 'w').write('\n'.join(REDEF)))
+_ax.register(lambda: REDEF and open(os.path.join(OUTROOT, 'redef.txt'), 'w').write('\n'.join(REDEF)))
 
 
 # ---------------------------------------------------------------- item helpers
