@@ -21,6 +21,10 @@ var host_cd := 0.0        # the host's check on it
 var slot := 1             # follow position behind whoever this hero follows
 var down := false
 var _bob := 0.0
+# cutscenes: a pose to hold, or somewhere to walk to
+var cut_anim := ""
+var cut_target := Vector2.INF
+var cut_speed := 90.0
 var _send_t := 0.0
 
 func setup(game_: Main, idx_: int) -> void:
@@ -74,7 +78,7 @@ func _physics_process(delta: float) -> void:
 	if game.over:
 		return
 	if game.cut:
-		play_anim(false)
+		_cut_tick(delta)
 		return
 	if not has_control():
 		if _flash > 0.0:
@@ -119,6 +123,25 @@ func _physics_process(delta: float) -> void:
 		_bob += delta * 3.0
 		sprite.position.y = sin(_bob) * 1.2
 	_send(delta, moving)
+
+## During a cutscene every machine plays the same directions, so nobody needs to send anything.
+func _cut_tick(delta: float) -> void:
+	if cut_target != Vector2.INF:
+		var d := cut_target - global_position
+		if d.length() <= cut_speed * delta:
+			global_position = cut_target
+			cut_target = Vector2.INF
+		else:
+			facing = d.normalized()
+			global_position += facing * cut_speed * delta
+			play_anim(true)
+		net_pos = global_position
+		return
+	if cut_anim != "":
+		if sprite.animation != cut_anim + "_south":
+			play_anim(false, cut_anim)
+		return
+	play_anim(false)
 
 func _send(delta: float, moving: bool) -> void:
 	net_moving = moving

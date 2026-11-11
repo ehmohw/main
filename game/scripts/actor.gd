@@ -69,6 +69,8 @@ func play_anim(moving: bool, action := "") -> void:
 	var name_ := ("walk_" if moving else "idle_") + d
 	if action != "":
 		name_ = action + "_" + d
+		if not sprite.sprite_frames.has_animation(name_):
+			name_ = action + "_south"      # emotes are drawn facing the camera
 	if not sprite.sprite_frames.has_animation(name_):
 		name_ = ("walk_" if moving else "idle_") + "south"
 		if not sprite.sprite_frames.has_animation(name_):

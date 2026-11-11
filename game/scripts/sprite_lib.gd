@@ -11,8 +11,9 @@ static func frames(who: String) -> SpriteFrames:
 	var anims: Dictionary = Manifest.DATA[who]["anims"]
 	for anim: String in anims:
 		sf.add_animation(anim)
-		sf.set_animation_speed(anim, 10.0 if anim.begins_with("walk") or anim.begins_with("attack") else 5.0)
-		sf.set_animation_loop(anim, not anim.begins_with("attack"))
+		var cycle := anim.begins_with("walk") or anim.begins_with("idle")
+		sf.set_animation_speed(anim, 10.0 if anim.begins_with("walk") or anim.begins_with("attack") else (5.0 if cycle else 8.0))
+		sf.set_animation_loop(anim, cycle)      # attacks and cutscene emotes play once and hold
 		for i in int(anims[anim]):
 			sf.add_frame(anim, load("res://assets/chars/%s/%s/%d.png" % [who, anim, i]))
 	_cache[who] = sf

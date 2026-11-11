@@ -907,6 +907,12 @@ func _do_fx(kind: String, a: Array) -> void:
 		"cut_off":
 			cut = false
 			_cut_cam = null
+			for h in heroes:
+				h.cut_anim = ""
+				if h.cut_target != Vector2.INF:
+					h.global_position = h.cut_target
+				h.cut_target = Vector2.INF
+				h.net_pos = h.global_position
 			_hud["cut"].visible = false
 			_hud["play"].visible = true
 		"cut_step":
@@ -919,7 +925,17 @@ func _do_fx(kind: String, a: Array) -> void:
 			_hud["cut_text"].visible_characters = 0
 			_hud["cut_hint"].visible = has_text
 			_cut_chars = 0.0
-			var face_path := "res://assets/chars/%s/idle_south/0.png" % str(st.get("who", "")).to_lower()
+			for pair: Array in st.get("acts", []):
+				heroes[pair[0]].cut_anim = pair[1]
+				heroes[pair[0]].sprite.stop()
+			for w: Array in st.get("walks", []):
+				heroes[w[0]].cut_target = w[1]
+			var speaker := str(st.get("who", "")).to_lower()
+			var face_path := "res://assets/faces/%s/%s.png" % [speaker, st.get("face", "neutral")]
+			if not ResourceLoader.exists(face_path):
+				face_path = "res://assets/faces/%s/neutral.png" % speaker
+			if not ResourceLoader.exists(face_path):
+				face_path = "res://assets/chars/%s/idle_south/0.png" % speaker
 			_hud["cut_face"].texture = load(face_path) if has_text and ResourceLoader.exists(face_path) else null
 		"finish":
 			over = true
@@ -949,11 +965,25 @@ func _party_centre() -> Vector2:
 ## Host: freeze the fight and play a scripted scene on every machine, then call `done`.
 func play_cutscene(steps: Array, done := Callable()) -> void:
 	_cut_steps = []
-	for st: Dictionary in steps:
-		if st.has("needs") and not Session.party.has(st["needs"]):
+	for raw: Dictionary in steps:
+		if raw.has("needs") and not Session.party.has(raw["needs"]):
 			continue
-		if st.has("unless") and Session.party.has(st["unless"]):
+		if raw.has("unless") and Session.party.has(raw["unless"]):
 			continue
+		# turn hero names into places in the party, and relative moves into spots on the map
+		var st := raw.duplicate()
+		var acts: Array = []
+		for pair: Array in raw.get("acts", []):
+			if Session.party.has(pair[0]):
+				acts.append([Session.party.find(pair[0]), pair[1]])
+		st["acts"] = acts
+		var walks: Array = []
+		for w: Array in raw.get("walks", []):       # [who, offset] or [who, offset, beside whom]
+			if not Session.party.has(w[0]) or (w.size() > 2 and not Session.party.has(w[2])):
+				continue
+			var base: Hero = heroes[Session.party.find(w[2] if w.size() > 2 else w[0])]
+			walks.append([Session.party.find(w[0]), base.global_position + w[1]])
+		st["walks"] = walks
 		_cut_steps.append(st)
 	_cut_i = -1
 	_cut_done = done
