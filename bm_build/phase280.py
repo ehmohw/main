@@ -103,8 +103,8 @@ def generate(G):
     # ---- GIFTS: on / off
     for k, who in (('kb', 'The Keeper of Bonds'), ('rk', 'The Rat King')):
         fn(f'p280/gift/{k}', [f'execute if entity @s[tag=bm.nogift_{k}] run return run function bm:p280/gift/{k}_on',
-                              f'tag @s add bm.nogift_{k}', title('@s', 'actionbar', [T(f'{who}\'s gifts: ', 'gray'), T('off', 'red', bold=True), T(' (your pockets stay tidy)', 'dark_gray')])])
-        fn(f'p280/gift/{k}_on', [f'tag @s remove bm.nogift_{k}', title('@s', 'actionbar', [T(f'{who}\'s gifts: ', 'gray'), T('on', 'green', bold=True)])])
+                              f'tag @s add bm.nogift_{k}', title('@s', 'actionbar', [T(who + ("' gifts: " if who.endswith('s') else "'s gifts: "), 'gray'), T('off', 'red', bold=True), T(' (your pockets stay tidy)', 'dark_gray')])])
+        fn(f'p280/gift/{k}_on', [f'tag @s remove bm.nogift_{k}', title('@s', 'actionbar', [T(who + ("' gifts: " if who.endswith('s') else "'s gifts: "), 'gray'), T('on', 'green', bold=True)])])
     F['admin/uninstall'][0:0] = ['scoreboard players reset * bm.nul']
 
 

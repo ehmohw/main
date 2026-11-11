@@ -21,6 +21,12 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1p: switches that show their state
+
+- **⚙ Settings shows each switch's state.** Every follower switch that read "on / off" (Companion size, Full size, Gifts, and the rest) now reads "Companion size: on" or "Gifts: off". Pressing one brings the page straight back with its new state, instead of closing.
+- **"The Keeper of Bonds' gifts"** in its message, not "Bonds's".
+- **Behind the scenes:** the Rat King's test goes through ⚙ Settings (where his switches have been since 3.1j) and checks both switches' states. It passes 69/69.
+
 ## New in 3.1o: their own icons
 
 - **Three items had borrowed another item's look.** Each has its own now, in hand and when worn:

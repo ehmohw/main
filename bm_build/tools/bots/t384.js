@@ -103,8 +103,14 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     await run('scoreboard players set TestRat bm.rwcs 0'); await sleep(800);
     ok('COMPANION SIZE - off: his own size (host 1.6, click box 2.9 tall)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 1.6) < 0.01 &&
        (await num(HIT, 'height')) > 2.5, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'height')}`);
-    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion size/); await sleep(1500);
-    ok('...pressed on his menu: on (bm.rwcs 1) - "FUN-SIZED"', (await ctx.score('bm.rwcs')) === 1 && A.bars.some(b => /FUN-SIZED/.test(b)), A.bars.slice(-1).join(''));
+    // (3.1j: his switches are on his ⚙ Settings page; 3.1p: each shows its state, and the page comes back after a press)
+    const viaSettings = async () => { await ctx.sneakMenu(0); await A.press(/Settings/); await sleep(400);
+      const before = (A.buttons().find(b => /Companion size/.test(b.label)) || {}).label || ''; A.bars.length = 0;
+      const p = await A.press(/Companion size/); await sleep(1500); return [before, p && p.next, (A.buttons().find(b => /Companion size/.test(b.label)) || {}).label || '']; };
+    let [b0, back0, b1] = await viaSettings();
+    ok('...his ⚙ Settings shows it off ("Companion size: off")', /Companion size: off/.test(b0), b0);
+    ok('...pressed there: on (bm.rwcs 1) - "FUN-SIZED"', (await ctx.score('bm.rwcs')) === 1 && A.bars.some(b => /FUN-SIZED/.test(b)), A.bars.slice(-1).join(''));
+    ok('...and the Settings page comes back showing "on"', back0 && /Companion size: on/.test(b1), b1);
     ok('...his host shrinks (0.85) and his click box with it (1.6 tall, 0.85 wide)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 0.85) < 0.01 &&
        Math.abs((await num(HIT, 'height')) - 1.6) < 0.05 && Math.abs((await num(HIT, 'width')) - 0.85) < 0.05, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'width')} x ${await num(HIT, 'height')}`);
     const sc = await num('@e[type=minecraft:item_display,tag=bm.rwp_pet,tag=bm.rwp_body,tag=!bm.rwfade,limit=1]', 'transformation.scale[0]');
@@ -113,7 +119,14 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(2500);
     ok('...sent home and called again: still companion-sized (host 0.85, box 1.6)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 0.85) < 0.01 &&
        Math.abs((await num(HIT, 'height')) - 1.6) < 0.05, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'height')}`);
-    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion size/); await sleep(1500);
+    await viaSettings();
     ok('...and off again: "A king should LOOM" - host 1.6, click box 2.9', (await ctx.score('bm.rwcs')) === 0 && A.bars.some(b => /LOOM/.test(b)) &&
        Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 1.6) < 0.01 && (await num(HIT, 'height')) > 2.5, A.bars.slice(-1).join(''));
+    // (3.1p) his Gifts switch on the same page: its state shown, and flipped
+    await ctx.sneakMenu(0); await A.press(/Settings/); await sleep(400);
+    const g0 = (A.buttons().find(b => /Gifts/.test(b.label)) || {}).label || '';
+    await A.press(/Gifts/); await sleep(1200);
+    const g1 = (A.buttons().find(b => /Gifts/.test(b.label)) || {}).label || '';
+    ok('GIFTS on his ⚙ Settings: shown, and flipped when pressed (' + g0 + ' -> ' + g1 + ')', /Gifts: (on|off)/.test(g0) && /Gifts: (on|off)/.test(g1) && g0 !== g1, `${g0} / ${g1}`);
+    await A.press(/Gifts/); await sleep(800);
   } });

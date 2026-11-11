@@ -173,6 +173,29 @@ def generate(G):
     # ---------------------------------------------------------------- the routes of the built pack (for the proxies)
     top = [m for m in (BT.ROUTE.match(l) for l in F['p28/act']) if m]
 
+    def switch_obj(R, code):
+        """(3.1o) the score a switch flips: from its handler (the function its code is routed to in R, then one deeper), a toggle's
+        own test - "execute if score @s <obj> matches 1(..) run return run function ..." - or None"""
+        hs = []
+        for l in F.get(R, []):
+            m_ = re.search(r'matches (\d+)(?:\.\.(\d+))? (?:\S+ )*?run (?:return run )?function bm:([\w/]+)', l)
+            if m_ and int(m_.group(1)) <= code <= int(m_.group(2) or m_.group(1)) and '#act' in l: hs.append(m_.group(3))
+        seen = set()
+        while hs:
+            h = hs.pop(0)
+            mg_ = re.match(r'p280/gift/(\w+)$', h)
+            if mg_: return ('notag', f'bm.nogift_{mg_.group(1)}')     # (phase280's gift switches - made after this page: a tag that means OFF)
+            if h in seen or h not in F: continue
+            seen.add(h)
+            for l in F[h][:4]:
+                m_ = re.match(r'execute if score @s (bm\.[\w.]+) matches 1(?:\.\.)? run return run function bm:\S*(?:off|_off)', l)
+                if m_: return m_.group(1)
+                m_ = re.match(r'execute if entity @s\[tag=(bm\.[\w.]+)\] run return run function bm:\S*_on$', l)     # (a tag that means OFF)
+                if m_: return ('notag', m_.group(1))
+            if len(seen) < 3:
+                hs += [m2 for l in F[h][:3] for m2 in re.findall(r'^function bm:([\w/]+)$', l)]
+        return None
+
     def router(code, menu):
         """the function p28/act hands `code` to, for a player in `menu`"""
         for m in top:
@@ -356,9 +379,17 @@ def generate(G):
             prox.append((c, mm, re.sub(r'(?<=[{,])width:\d+', f'width:{FS_W}', with_code(base, B + slot)), slot)); slot += 1      # (3.0p: every row FS_W wide - a 120 from its menu, or a look and its state, scrolled)
             gates[slot - 1] = row_gate(w, c)
         assert slot <= FSN, (w, f'{slot - S_PX} switches for the settings page - the block holds {FSN - S_PX}')
+        sw_state = []                                          # (3.1o) (slot, score) - a switch whose score is known shows its state
         for c, mm, b, s in prox:
             R = router(c, mm)
-            rows.append((s, b, [f'scoreboard players set @s bm.menu {mm}', f'scoreboard players set #act bm.pay {c}', f'function bm:{R}']))
+            obj = switch_obj(R, c)
+            b2 = re.sub(r'label:\{text:"([^"]*?)on / off"([^{}]*)\}', lambda m_: 'label:[{text:"%s"%s},"@@RAW:r_s%d@@"]' % (m_.group(1), m_.group(2), s), b, count=1) if obj else b
+            if b2 != b:
+                b = b2; sw_state.append((s, obj))
+            else:
+                obj = None
+            rows.append((s, b, [f'scoreboard players set @s bm.menu {mm}', f'scoreboard players set #act bm.pay {c}', f'function bm:{R}'] +
+                         ([f'function bm:p260/fs/open/{w}'] if obj else [])))     # (a switch: the page again, its new state showing)
         rows.append((S_WD, btn([T('Wardrobe ›', col, bold=True)], S_WD, f'{nm}\'s looks.'), [f'function bm:p99/menu/{w}'] if w in P99.BASE else None))
         rows.append((S_BACK, btn([T('« Back', 'gray')], S_BACK, 'The menu you came from.'), [f'function bm:p260/fs/back/{w}']))
         report.setdefault('settings rows', 0)
@@ -367,6 +398,10 @@ def generate(G):
         # the page: the wardrobe's own state (its labels read it), then ours
         st = lambda key, comp: f'data modify storage bm:ui wd.{key} set value {snbt(comp)}'
         opn = [f'function bm:p99/wdst/{w}'] if w in P99.BASE else ['data remove storage bm:ui wd']
+        report['switches showing their state'] = report.get('switches showing their state', 0) + len(sw_state)
+        for s_n, obj in sw_state:
+            on_if = f'unless entity @s[tag={obj[1]}]' if isinstance(obj, tuple) else f'if score @s {obj} matches 1..'
+            opn += [st(f'r_s{s_n}', T('off', '#ff8a8a', bold=True)), f'execute {on_if} run ' + st(f'r_s{s_n}', T('on', 'white', bold=True))]
         opn += [                st('r_chat', T('on', 'white', bold=True)), 'execute if entity @s[tag=bm.hush] run ' + st('r_chat', T('off', '#ff8a8a', bold=True)),
                 st('r_keep', T('off', '#ff8a8a', bold=True)), 'execute if entity @s[tag=bm.pwkeep] run ' + st('r_keep', T('on', 'white', bold=True)),
                 f'scoreboard players set @s bm.menu {B}', f'function bm:p260/fs/dlg/{w} with storage bm:ui wd']
