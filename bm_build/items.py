@@ -66,7 +66,7 @@ TIER_TAG = {1: ('✦ Tier I — Token goods', 'gold'), 2: ('✦✦ Tier II — M
             3: ('✦✦✦ Tier III — Trophy goods', '#ffb300')}
 
 
-ITEM_VERSION = 48      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
+ITEM_VERSION = 49      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
 CAT_SYMBOL = {'currency': '❖', 'lucky': '☘', 'key': '⚿', 'map': '⚑', 'meat': '♨', 'feast': '♨', 'food': '♨', 'jackpot': '★',
               'builder': '⚒', 'cosmetic': '✿', 'skin': '✎', 'book': '☙', 'blood': '☽', 'weather': '☁', 'relic': '♥',
               'p2key': '⚿', 'p2map': '⚑', 'p2emblem': '♛', 'p2vkey': '⚿', 'p2prop': '✦', 'p2hidden': '✧', 'p2lucky': '☘',
@@ -104,16 +104,33 @@ def wrap_lore(text, color='gray', n=46):
     return out
 
 
+LORE_MAX = 64       # (3.1t) a plain lore line longer than this is wrapped, to about LORE_WRAP
+
+
+LORE_WRAP = 52
+
+
+def _wrap_dots(text, color):
+    """wrap_lore at LORE_WRAP, and never a line that starts with a list's dot"""
+    out = wrap_lore(text, color, LORE_WRAP)
+    for i in range(1, len(out)):
+        if out[i][0].startswith('· '):
+            out[i - 1] = (out[i - 1][0] + ' ·', color); out[i] = (out[i][0][2:], color)
+    return out
+
+
 def item(iid, base, name, color, lore=(), model=None, glint=None, stack=None, comps=None,
          custom_extra=None, bold=False, tier=None, cat='misc', price=None):
     c = {}
     c['minecraft:item_name'] = fancy_name(name, color, item_symbol(iid, base, cat), legendary=bold or tier == 3)
     lines = []
     for ln in lore:
-        if isinstance(ln, tuple):
-            lines.append(T(ln[0], ln[1]))
-        else:
-            lines.append(T(ln, 'gray'))
+        txt, col = (ln[0], ln[1]) if isinstance(ln, tuple) else (ln, 'gray')
+        if isinstance(txt, str) and len(txt) > LORE_MAX:          # (3.1t: tooltips don't wrap - a long line, wrapped)
+            for t_, c_ in _wrap_dots(txt, col):
+                lines.append(T(t_, c_))
+            continue
+        lines.append(T(txt, col))
     if tier:
         lines.append(T(TIER_TAG[tier][0], TIER_TAG[tier][1]))
     lines.append(T('Black Market goods — no questions asked', 'dark_gray', italic=True))       # 2.30: they can be scrapped now

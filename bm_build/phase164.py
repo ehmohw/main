@@ -49,7 +49,7 @@ HOLD['apo_unbound_crown'] = 'bm:p131/crown/use'
 for _i, _line, _col in (('apo_true_crown', "On the ground with a Wraithfire Heart and the Hollow King's Deathmask, it is unbound.", COL),
                         ('wraithfire_heart', "On the ground with Apophiss's True Crown and the Hollow King's Deathmask, they fuse.", COL),
                         ('conq_helmet', "On the ground with Apophiss's True Crown and a Wraithfire Heart, they fuse.", COL)):
-    ITEMS[_i]['comps']['minecraft:lore'].insert(-1, T(_line, _col))
+    ITEMS[_i]['comps']['minecraft:lore'][-1:-1] = [T(t_, c_) for t_, c_ in __import__('items')._wrap_dots(_line, _col)]     # (3.1t: wrapped)
 
 # the forge (phase160 builds it), and the Newcomers' Book's page
 P160.RECIPES.append(('unbound', "Apophiss's Unbound Crown", COL, ['0.35,0.85,1.0', '0.62,0.32,0.95', '0.25,0.95,0.45'],

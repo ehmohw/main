@@ -620,7 +620,7 @@ def setup():
               (sc(2), 'the Wraithfire Heart', WR_C), (sc(12), 'the Wraithfire Heart', WR_C)], f'elf/{k}/take'))
     for iid, col in ((GEM, ETH_C), (HEART, WR_C)):
         if iid in ITEMS:
-            ITEMS[iid]['comps']['minecraft:lore'].insert(-1, T('Bender, Mr. Capshun, Leo, Celi, Democratus and five more: right-click one to give it its form.', col))
+            ITEMS[iid]['comps']['minecraft:lore'][-1:-1] = [T(t_, c_) for t_, c_ in __import__('items')._wrap_dots('Bender, Mr. Capshun, Leo, Celi, Democratus and five more: right-click one to give it its form.', col)]
     import phase195, phase198, phase239, phase254, phase194, phase235
     cfg = {'bender': phase195.C, 'capshun': phase198.C, 'sovereign': phase239.Sovereign, 'keeper': phase254.Keeper, 'lantern': phase194.C, 'eraser': phase235.Eraser}
     for k, C in cfg.items():

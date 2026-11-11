@@ -426,7 +426,7 @@ _P99.ROWS.setdefault('pearl', []).extend([
 for _iid, _col, _ln in ((GEM, ETH_C, 'Pearlman: right-click him with it - the Gem Appraiser of the Cosmos.'),
                         (HEART, WR_C, 'Pearlman: right-click him with it - the Soul Broker.')):
     if _iid in ITEMS:
-        ITEMS[_iid]['comps']['minecraft:lore'].insert(-1, T(_ln, _col))
+        ITEMS[_iid]['comps']['minecraft:lore'][-1:-1] = [T(t_, c_) for t_, c_ in __import__('items')._wrap_dots(_ln, _col)]     # (3.1t: wrapped)
 
 
 def forms(G, sel_pet, pmsay):

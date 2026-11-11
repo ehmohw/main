@@ -1,10 +1,15 @@
 // Use every right-click / consumable item once as a real player and record what visibly happened.
-const { bot, rcon, sleep } = require('./lib');
-const ids = require('./active.json');
+// (3.1t) active.json: every item an advancement fires on when used or eaten (regenerate it from out_p2 - see the README);
+// a dialog, a sound or particles count as something happening; START/END (env) pick a slice, so a cut-off sweep resumes.
+const { bot, rcon, sleep } = require('./lib_resp');
+const ids = require('./active.json').slice(+(process.env.START || 0), +(process.env.END || 1e9));
 const X = 5000, Y = 100, Z = 5000;
 (async () => {
   const R = await rcon(); const run = (c) => R.run(c);
   const A = await bot('TestRat'); await sleep(800);
+  await run('deop TestRat');
+  let snd = 0, ptc = 0;
+  A.on('sound_effect', () => snd++); A.on('entity_sound_effect', () => snd++); A.on('world_particles', () => ptc++);
   const rows = [];
   const snap = async () => ({
     inv: await run('data get entity TestRat Inventory'), pos: await run('data get entity TestRat Pos'),
@@ -17,7 +22,7 @@ const X = 5000, Y = 100, Z = 5000;
     await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('kill @e[type=minecraft:item,x=5000,y=100,z=5000,distance=..40]');
     await run(`loot give TestRat loot bm:items/${id}`); await run('give TestRat minecraft:diamond_sword'); // an item in the off hand for items that need one
     await run('item replace entity TestRat weapon.offhand from entity TestRat hotbar.1'); await run('item replace entity TestRat hotbar.1 with minecraft:air');
-    A.slot(0); await sleep(250); A.bars = []; A.chats = []; A.windows = [];
+    A.slot(0); await sleep(250); A.bars = []; A.chats = []; A.windows = []; const nd = A.dialogs.length; snd = 0; ptc = 0;
     const before = await snap();
     A.use(); await sleep(2000); A.release(); await sleep(400);
     const after = await snap();
@@ -32,6 +37,9 @@ const X = 5000, Y = 100, Z = 5000;
     if (before.veh !== after.veh) ch.push('riding');
     if (before.ents !== after.ents) ch.push('entities nearby changed');
     if (A.windows.length) ch.push('window opened');
+    if (A.dialogs.length > nd) ch.push('dialog');
+    if (snd) ch.push(`${snd} sounds`);
+    if (ptc) ch.push(`${ptc} particles`);
     rows.push([id, ch]); console.log((ch.length ? 'OK   ' : 'NONE ') + id.padEnd(26) + ch.join('; '));
     await run('kill @e[type=!minecraft:player,tag=!bm.npc,x=5000,y=100,z=5000,distance=..40,type=!minecraft:marker]');
   }

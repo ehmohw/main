@@ -271,7 +271,7 @@ if PHASE2:
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
-VERSION2 = 'v3.1s'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.1t'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -1264,6 +1264,10 @@ def gen_tags_worldgen():
         r = subprocess.run([sys.executable, '-c', f'import phase25, sys; e = phase25.check_mothership(phase25.build_mothership(red={red})); print("\\n".join(e)); sys.exit(1 if e else 0)'],
                            cwd=os.path.dirname(os.path.abspath(__file__)), capture_output=True, text=True)
         if r.returncode: raise SystemExit(f'mothership check failed (red={red}):\n' + r.stdout + r.stderr)
+    # (3.1t) no lore line past items.LORE_MAX: tooltips don't wrap (a plain line given to item() is wrapped; one added later isn't)
+    _flat = lambda n: n if isinstance(n, str) else (n.get('text', '') + ''.join(_flat(e) for e in n.get('extra', []))) if isinstance(n, dict) else ''.join(_flat(e) for e in n) if isinstance(n, list) else ''
+    _long = [(iid, _flat(l)) for iid, it in ITEMS.items() for l in it.get('comps', {}).get('minecraft:lore', []) if len(_flat(l)) > I.LORE_MAX]
+    assert not _long, f'lore lines over {I.LORE_MAX} characters (wrap them with items._wrap_dots): {_long[:5]}'
     # item loot tables (handy for /loot and for other packs)
     for iid in ITEMS:
         wjson(f'bm/loot_table/items/{iid}.json', {'pools': [{'rolls': 1, 'entries': [loot_entry(iid)]}]})
