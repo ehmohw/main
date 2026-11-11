@@ -102,7 +102,8 @@ def generate(G):
     def bond(key, name, col, mem, trio):
         role = role_of(key, ' '.join(G.FUNCS.get(f'p100/{key}' if trio else f'p188/pair/{key}', [])))
         sc, tg, full = ('bm.syn3', 'bm.syn3t', TRIO_CHARGE) if trio else ('bm.syn2', 'bm.syn2t', DUO_CHARGE)
-        fn(f'p208/b/{key}', [f'execute if entity @s[tag={tg}] run return 0', f'tag @s add {tg}',
+        # (3.1r: a trio's its own name - the Hearth Guard trio and the Hearth and Ember pair are both 'hearth': the trio's took the pair's)
+        fn(f'p208/b/{"t_" if trio else ""}{key}', [f'execute if entity @s[tag={tg}] run return 0', f'tag @s add {tg}',
                              f'execute unless entity @e[{FOE},distance=..12] run return 0',
                              f'execute unless score @s {sc} matches {full}.. run return run scoreboard players add @s {sc} 1',
                              f'execute unless entity @e[{FOE},distance=..10] run return 0',
@@ -117,11 +118,11 @@ def generate(G):
         return role
     ROLE = {}
     for k, (a, b, nm, col, *_r) in P188.PAIRS.items():
-        ROLE[k] = bond(k, nm, col, (a, b), False)
+        ROLE[f'pair/{k}'] = bond(k, nm, col, (a, b), False)
         G.FUNCS[f'p188/pair/{k}'].append(f'execute as {P188.O} at @s run function bm:p208/b/{k}')
     chk = G.FUNCS['p100/check']
     at = next(i for i, l in enumerate(chk) if l == 'tag @s remove bm.trme')
     for i, (k, (nm, col, mem, *_r)) in enumerate(P100.TRIOS.items(), 1):
-        ROLE[k] = bond(k, nm, col, mem, True)
-    chk[at:at] = [f'execute if score #tr bm.rng matches {i} run function bm:p208/b/{k}' for i, k in enumerate(P100.TRIOS, 1)]
+        ROLE[f'trio/{k}'] = bond(k, nm, col, mem, True)
+    chk[at:at] = [f'execute if score #tr bm.rng matches {i} run function bm:p208/b/t_{k}' for i, k in enumerate(P100.TRIOS, 1)]
     return ROLE

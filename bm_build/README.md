@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1r: Hearth and Ember gets its own synergy
+
+- **Hearth and Ember (the Arachno-Lantern and Ashur) sets off its own synergy attack.** The pair and the Hearth Guard trio (Ashur, Emma and Leo) share a name, so the trio's synergy had replaced the pair's. With the Lantern and Ashur out, a full charge said "Trio Synergy! The Hearth Guard" and marked Emma and Leo, even when they weren't there. Now the pair gets "Synergy! Hearth and Ember" (Combined Strike), and the trio keeps its Shield Wall.
+- **Behind the scenes:** the build now lists every function and data file that a later part of the build replaces, where each was made, and what the replacement dropped. The build fails if the same line makes two things under one name (the cause of the Hearth bug); none are left. Each of the others was checked and is a deliberate later version. A new test (t405) calls both bonds as a regular player and checks each one's synergy: 7/7. The synergy test t255 still passes 18/18.
+
 ## New in 3.1q: the Undercrown's first site, worn back into the Nether
 
 - **The old Undercrown site is a cavern again.** Worlds that built the Undercrown at its first spot (2.98 to 2.99a, near 1536, -1536 in the Nether) had that copy taken down when it moved in 3.0. The teardown filled the whole site with netherrack: a solid 224 by 112 by 224 cube with flat faces. The next time someone goes near it, the pack now carves the cube into a Nether cavern: a rolling floor with lava pools, a high uneven roof, pillars, hanging glowstone, and faces broken open to whatever is around it. It takes about 15 seconds, once. Only netherrack is cut, so anything you built there stays. Worlds that never had the cube there are left alone, and the check loads no chunks of its own.

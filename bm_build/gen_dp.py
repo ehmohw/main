@@ -271,7 +271,7 @@ if PHASE2:
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
-VERSION2 = 'v3.1q'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.1r'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -283,8 +283,23 @@ def path(*p):
 
 def wjson(rel, obj):
     obj = mig263.convert(rel, to_json(mig263.custom_data_snbt(nbt_unbold(obj))))   # 26.3 shapes; custom_data as SNBT text (mig263.py); (3.0p) no inherited bold (nbt.unbold)
+    f_ = sys._getframe(1)
+    while f_ and os.path.basename(f_.f_code.co_filename) == 'gen_dp.py' and f_.f_code.co_name in ('wjson', '<lambda>'): f_ = f_.f_back
+    site = f'{os.path.basename(f_.f_code.co_filename)}:{f_.f_lineno}' if f_ else '?'
+    old = JSITE.get(rel)                   # (3.1r: a data file written twice, losing some of the first - listed with the functions')
+    if old and old[1] != obj:
+        o_, n_ = old[1], obj               # (a tag read, added to and written back loses nothing: not listed)
+        tag = isinstance(o_, dict) and isinstance(n_, dict) and isinstance(o_.get('values'), list) and isinstance(n_.get('values'), list)
+        lost = [v for v in o_['values'] if v not in n_['values']] if tag else [o_]
+        if lost:
+            REDEF.append(f'(json) {rel}  {old[0]} -> {site}' + (f'  ({len(lost)} values dropped)' if tag else ''))
+            assert old[0] != site, f'{rel}: written twice at {site}, the second losing some of the first - two keys the same?'
+    JSITE[rel] = (site, obj)
     with open(path('data', *rel.split('/')), 'w') as f:
         json.dump(obj, f, indent=1, ensure_ascii=False)
+
+
+JSITE = {}
 
 
 LATE_PREPEND = {}                # (3.1l: lines put at the top of a function once every phase has run: name -> [lines])
@@ -295,12 +310,22 @@ def fn(name, lines):
     """Register a function bm:<name>."""
     if isinstance(lines, str):
         lines = lines.strip('\n').split('\n')
-    if name in FUNCS and FUNCS[name] != [l.rstrip() for l in lines]: REDEF.append(name)
-    FUNCS[name] = [l.rstrip() for l in lines]
+    new = [l.rstrip() for l in lines]
+    f_ = sys._getframe(1)
+    while f_ and os.path.basename(f_.f_code.co_filename) == 'gen_dp.py' and f_.f_code.co_name in ('fn', '<lambda>'): f_ = f_.f_back
+    site = f'{os.path.basename(f_.f_code.co_filename)}:{f_.f_lineno}' if f_ else '?'
+    if name in FUNCS and FUNCS[name] != new:      # (3.1r: where each was made, and what the second dropped of the first)
+        lost = [l for l in FUNCS[name] if l not in new]
+        # (the same line making it twice and losing some of it: a loop's keys collided - two things under one name)
+        assert not (lost and DEFSITE.get(name) == site), f'{name}: made twice at {site}, the second losing {len(lost)} lines of the first - two keys the same?'
+        REDEF.append(f'{name}  {DEFSITE.get(name, "?")} -> {site}  ({len(lost)} lines dropped)' + ''.join(f'\n    - {l[:160]}' for l in lost[:4]))
+    DEFSITE[name] = site
+    FUNCS[name] = new
 
 
+DEFSITE = {}
 import atexit as _ax
-_ax.register(lambda: REDEF and open(os.path.join(OUTROOT, 'redef.txt'), 'w').write('\n'.join(REDEF)))
+_ax.register(lambda: REDEF and open(os.path.join(OUTROOT, 'redef.txt'), 'w').write('\n'.join(REDEF) + '\n'))
 
 
 # ---------------------------------------------------------------- item helpers
