@@ -15,10 +15,10 @@ const res = [];
 
   // ---------------------------------------------------------------- the doll: an old copy, re-synced
   await run('loot replace entity TestRat hotbar.1 loot bm:items/gdoll_gdoodle');
-  await run('item modify entity TestRat hotbar.1 {function:"minecraft:set_components",components:{"minecraft:item_name":"Golden Golden Doodle Doll"}}');
-  await run('item modify entity TestRat hotbar.1 {function:"minecraft:set_custom_data",tag:{bmv:47}}');
+  // (both at once: the re-sync is quicker than two commands)
+  const st = await run('item modify entity TestRat hotbar.1 [{type:"minecraft:set_components",components:{"minecraft:item_name":"Golden Golden Doodle Doll"}},{type:"minecraft:set_custom_data",tag:{bmv:47}}]');
   const nm = async () => (await run('data get entity TestRat Inventory[{Slot:1b}].components."minecraft:item_name"'));
-  ok('the stage: an old copy (item version 47) named "Golden Golden Doodle Doll"', /Golden Golden Doodle Doll/.test(await nm()));
+  ok('the stage: an old copy (item version 47) named "Golden Golden Doodle Doll"', !/fail|error|unknown|incorrect|expected/i.test(st), st.slice(0, 120));
   ok('...re-synced in your inventory: "Solid-Gold Golden Doodle Doll"', await wait(8000, async () => /Solid-Gold Golden Doodle Doll/.test(await nm())), (await nm()).slice(-120));
   ok('...and stamped with this version', /bmv: 48/.test(await run('data get entity TestRat Inventory[{Slot:1b}].components."minecraft:custom_data"')));
 

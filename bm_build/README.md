@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1s: two names put right
+
+- **The Golden Doodle's golden doll is the "Solid-Gold Golden Doodle Doll"**, not the "Golden Golden Doodle Doll". Dolls you already have pick up the new name on their own (item version 48).
+- **The Rat Bank's Trophies page** says "Every Trophy you carry, into your account" (it said "Trophie").
+- **Behind the scenes:**
+  - This round's sweep checked the whole pack for values, entity tags and stored data that are read but never set, objectives used but never created, help-text commands that no longer exist, repeated names, and spelling. These two were the only real finds.
+  - If the test server is stopped mid-test, the chunks that test force-loaded are now released by the next test (they used to stay loaded).
+  - A few leftover lines of dead code are gone.
+  - New test t406: 6/6.
+
 ## New in 3.1r: Hearth and Ember gets its own synergy
 
 - **Hearth and Ember (the Arachno-Lantern and Ashur) sets off its own synergy attack.** The pair and the Hearth Guard trio (Ashur, Emma and Leo) share a name, so the trio's synergy had replaced the pair's. With the Lantern and Ashur out, a full charge said "Trio Synergy! The Hearth Guard" and marked Emma and Leo, even when they weren't there. Now the pair gets "Synergy! Hearth and Ember" (Combined Strike), and the trio keeps its Shield Wall.
