@@ -95,7 +95,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await openP(); await A.press(/Pocket/);
   ok('Pocket: the Particle Toggler and the Ledger listed', A.buttons().some(b => /Particle Toggler/.test(b.label)) && A.buttons().some(b => /Fixer's Ledger/.test(b.label)));
   const tp = await A.press(/Particle Toggler/);
-  ok('...the Toggler pressed: its own menu opens (as using it), it stays on the Pack, the Pack back in his hand', tp && tp.next && !A.buttons().some(b => /« Rat Pack/.test(b.label)) &&
+  ok('...the Toggler pressed: its own menu opens (as using it, with 3.1b\'s « Rat Pack), it stays on the Pack, the Pack back in his hand', tp && tp.next && A.buttons().some(b => /« Rat Pack/.test(b.label)) &&
      (await sc('bm.rq_particle_toggler')) === 1 && /partner_wheel/.test(await run('data get entity TestRat SelectedItem')), A.buttons().map(b => b.label).join(' | ').slice(0, 160));
   ok('the Ledger on the Pack counts as carried (bm.rqt_fixers_ledger, the Office\'s "has a Ledger")', /returned 1/.test(await run('execute as TestRat run function bm:p80/can')));
   // Keyring: counts as carried at the market's gate; taken back once
