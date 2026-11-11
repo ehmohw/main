@@ -9,12 +9,13 @@ const X = 5000, Y = 100, Z = 5000;
   const R = await rcon(); const run = (c) => R.run(c);
   const A = await bot('TestRat'); await sleep(800);
   await run('deop TestRat');
-  let snd = 0, ptc = 0;
+  let snd = 0, ptc = 0, spn = 0;
   A.on('sound_effect', () => snd++); A.on('entity_sound_effect', () => snd++); A.on('world_particles', () => ptc++);
+  A.on('spawn_entity', (p) => { if (p.type !== 'minecraft:item' && p.type !== 'item') spn++; });   // (a bolt or fireball that's gone by the after-snapshot still counts)
   const rows = [];
   // (the background: what particles and sounds reach an empty-handed player here in 3 s - only well above it counts)
   await run('clear TestRat'); await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await sleep(1500);
-  snd = 0; ptc = 0; await sleep(3000); const bgP = ptc / 3000, bgS = snd / 3000;
+  snd = 0; ptc = 0; spn = 0; await sleep(3000); const bgP = ptc / 3000, bgS = snd / 3000, bgN = spn / 3000;
   console.log(`background: ${(bgP * 1000).toFixed(0)} particles and ${(bgS * 1000).toFixed(1)} sounds a second`);
   const snap = async () => ({
     inv: await run('data get entity TestRat Inventory'), pos: await run('data get entity TestRat Pos'),
@@ -27,8 +28,11 @@ const X = 5000, Y = 100, Z = 5000;
     await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('kill @e[type=minecraft:item,x=5000,y=100,z=5000,distance=..40]');
     await run(`loot give TestRat loot bm:items/${id}`); await run('give TestRat minecraft:diamond_sword'); // an item in the off hand for items that need one
     await run('item replace entity TestRat weapon.offhand from entity TestRat hotbar.1'); await run('item replace entity TestRat hotbar.1 with minecraft:air');
-    A.slot(0); await sleep(1500);       // (settle: an effect or heal pulsed onto every player isn't the item's)
-    A.bars = []; A.chats = []; A.windows = []; const nd = A.dialogs.length; snd = 0; ptc = 0;
+    A.slot(0);
+    const fd = await run('data get entity TestRat SelectedItem.components."minecraft:food"');
+    if (/data:/.test(fd) && !/can_always_eat: 1b/.test(fd)) { await run('effect clear TestRat minecraft:saturation'); await run('effect give TestRat minecraft:hunger 1 255 true'); }   // (food can't be eaten on a full stomach)
+    await sleep(1500);       // (settle: an effect or heal pulsed onto every player isn't the item's)
+    A.bars = []; A.chats = []; A.windows = []; const nd = A.dialogs.length; snd = 0; ptc = 0; spn = 0;
     const before = await snap();
     // (held as long as the item takes - a 3 s effigy let go at 2 s does nothing)
     const cs = +(((await run('data get entity TestRat SelectedItem.components."minecraft:consumable".consume_seconds')).match(/data: ([\d.]+)/) || [0, 0])[1]);
@@ -48,7 +52,8 @@ const X = 5000, Y = 100, Z = 5000;
     if (A.windows.length) ch.push('window opened');
     if (A.dialogs.length > nd) ch.push('dialog');
     const t_ = held + 400;
-    if (snd > bgS * t_ * 1.5 + 1) ch.push(`${snd} sounds`);
+    if (snd > bgS * t_ * 1.5 + 0.5) ch.push(`${snd} sounds`);      // (one note from an ocarina is the item working)
+    if (spn > bgN * t_ * 1.5 + 0.5) ch.push(`${spn} entities spawned`);
     if (ptc > bgP * t_ * 1.5 + 30) ch.push(`${ptc} particles`);
     rows.push([id, ch]); console.log((ch.length ? 'OK   ' : 'NONE ') + id.padEnd(26) + ch.join('; '));
     await run('kill @e[type=!minecraft:player,tag=!bm.npc,x=5000,y=100,z=5000,distance=..40,type=!minecraft:marker]');

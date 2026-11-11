@@ -369,8 +369,13 @@ def generate(G):
     G.FUNCS['p46/pet/dress'] += ['scoreboard players set #wc bm.rng 0', f'execute as @a if score @s bm.pid = #me bm.pid run scoreboard players operation #wc bm.rng = @s {cur_c}'] + \
         [f'execute if score #el bm.rng matches 0 if score #wc bm.rng matches {k} as @e[type=minecraft:item_display,tag=bm.cpet,tag=bm.cp_{nm}] if score @s bm.pid = #me bm.pid '
          f'run data modify entity @s item.components."minecraft:item_model" set value "bm:cec2_{nm}_c{k}"' for k in NEW['cecil'][3] for nm in ('head', 'arm', 'body', 'larm')]
-    fn('p99/cecil_now', ['scoreboard players operation #me bm.pid = @s bm.pid', 'execute unless score @s bm.cpel matches 0.. run scoreboard players set @s bm.cpel 0',
+    # (3.1t: like everyone else's - a word when he isn't out, a sparkle when he is; it used to do nothing you could see)
+    fn('p99/cecil_now', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #has bm.rng 0',
+                         'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid run scoreboard players set #has bm.rng 1',
+                         'execute if score #has bm.rng matches 0 run return run ' + say('Cecil isn\'t with you - he\'ll wear it next time.', '#b48cff'),
+                         'execute unless score @s bm.cpel matches 0.. run scoreboard players set @s bm.cpel 0',
                          'scoreboard players operation #el bm.rng = @s bm.cpel', 'function bm:p46/pet/dress',
+                         'execute as @e[type=minecraft:wolf,tag=bm.cecilpet] if score @s bm.pid = #me bm.pid at @s run particle minecraft:end_rod ~ ~1 ~ 0.3 0.6 0.3 0.02 14',
                          'execute if score @s bm.cpel matches 1.. run ' + say('With a gem in him Cecil wears its colours - he\'ll wear his robe when it\'s out.', '#b48cff')])
     # KillerWatt: his own colours (no gem in him) - #kcos beside #kel, wherever his parts are dressed
     cur_k = next(g[2] for g in GROUPS if g[0] == 'kw')
