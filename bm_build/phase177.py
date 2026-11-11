@@ -97,7 +97,7 @@ item('dread_compass', TOTEM, 'Dread Compass', DREAD,
      ['Its needle shivers toward the worst thing near.', ('Hold it: which way the nearest Dread', 'blue'), ('monster is, and how far (160 blocks).', 'blue')],
      model='bm:dread_compass', stack=1, cat='builder')
 # dread cosmetics (the hat and boots tables: items.hat / items.trail)
-hat('dread_halo', 'Halo of Thorns', DREAD, 'bm:halo', 'minecraft:dust{color:[0.55,0.02,0.08],scale:0.9} ~ ~2.3 ~ 0.25 0.03 0.25 0 2', None,
+hat('dread_halo', 'Halo of Thorns', DREAD, 'bm:thorn_halo', 'minecraft:dust{color:[0.55,0.02,0.08],scale:0.9} ~ ~2.3 ~ 0.25 0.03 0.25 0 2', None,
     ['A ring of black thorns that bleeds light.'])
 trail('dread_boots', "Dreadwalker's Boots", DREAD, 0x2a0a0e, 'minecraft:soul_fire_flame ~ ~0.1 ~ 0.15 0 0.15 0.01 1', None, ['Every step a little cold.'])
 

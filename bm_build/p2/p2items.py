@@ -146,7 +146,7 @@ item('wilfrey_aegis', 'minecraft:shield', "Wilfrey's Aegis", '#e8e8ff',
 gear('hollow_crown', 'netherite_helmet', 'Crown of the Hollow King', '#e5e4e2',
      ['It is lighter than it should be.', ('+4 Max Health, sees in the dark', 'blue')],
      ench(protection=8, unbreaking=10, mending=1), 3,
-     attrs=armor_attrs('netherite', 'helmet', [attr('max_health', 4, 'head')], bonus_tough=2), model='bm:crown', bold=True,
+     attrs=armor_attrs('netherite', 'helmet', [attr('max_health', 4, 'head')], bonus_tough=2), model='bm:hollow_crown', bold=True,
      custom_extra={'bm_fx': 'hollow_crown'})
 item('horseshoe_charm', TOTEM, 'Lucky Horseshoe', '#ffd700',
      ['Hold in your off hand.', ('+3 Luck, +5% Speed', 'blue')], model='bm:horseshoe',

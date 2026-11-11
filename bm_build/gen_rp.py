@@ -442,6 +442,13 @@ HATS['top_hat'] = ({'b': 'minecraft:block/black_wool', 'r': 'minecraft:block/red
 HATS['halo'] = ({'g': 'minecraft:block/glowstone'}, [
     cube((3, 21, 3), (13, 22, 4), 'g'), cube((3, 21, 12), (13, 22, 13), 'g'),
     cube((3, 21, 4), (4, 22, 12), 'g'), cube((12, 21, 4), (13, 22, 12), 'g')])
+# (3.1n, the review: three items wore another's icon - the Halo of Thorns the Angel Halo's, the Crown of the Hollow King and the Rat
+#  King's Crown the cosmetic Golden Crown's) - their own now: the same shapes, their own stuff
+HATS['thorn_halo'] = ({'g': 'minecraft:block/polished_blackstone', 't': 'minecraft:block/blackstone', 'r': 'minecraft:block/redstone_block'},
+                      HATS['halo'][1] + [cube((x, 22, z), (x + 1, 23.5, z + 1), 't') for x, z in ((3, 3), (8, 3), (12, 3), (3, 8), (12, 8), (3, 12), (8, 12), (12, 12))] +
+                      [cube((x, 20.5, z), (x + 0.6, 21, z + 0.6), 'r') for x, z in ((5.5, 3.2), (10, 12.2), (3.2, 10), (12.2, 5.5))])
+HATS['hollow_crown'] = ({'g': 'minecraft:block/iron_block', 'r': 'minecraft:block/crying_obsidian', 'e': 'minecraft:block/crying_obsidian'}, HATS['crown'][1])
+HATS['rat_crown'] = ({'g': 'minecraft:block/gold_block', 'r': 'minecraft:block/amethyst_block', 'e': 'minecraft:block/amethyst_block'}, HATS['crown'][1])
 HATS['pirate_hat'] = ({'b': 'minecraft:block/black_wool', 'w': 'minecraft:block/bone_block_side', 'y': 'minecraft:block/gold_block'}, [
     cube((-1, 15, 2), (17, 16, 14), 'b'), cube((3, 16, 3), (13, 20, 13), 'b'),
     cube((-1, 16, 2), (17, 18, 3), 'b'), cube((-1, 16, 13), (17, 18, 14), 'b'),

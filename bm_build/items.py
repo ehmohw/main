@@ -66,7 +66,7 @@ TIER_TAG = {1: ('✦ Tier I — Token goods', 'gold'), 2: ('✦✦ Tier II — M
             3: ('✦✦✦ Tier III — Trophy goods', '#ffb300')}
 
 
-ITEM_VERSION = 46      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
+ITEM_VERSION = 47      # stamped into every item's custom_data (bmv); older copies are re-synced to the current definition
 CAT_SYMBOL = {'currency': '❖', 'lucky': '☘', 'key': '⚿', 'map': '⚑', 'meat': '♨', 'feast': '♨', 'food': '♨', 'jackpot': '★',
               'builder': '⚒', 'cosmetic': '✿', 'skin': '✎', 'book': '☙', 'blood': '☽', 'weather': '☁', 'relic': '♥',
               'p2key': '⚿', 'p2map': '⚑', 'p2emblem': '♛', 'p2vkey': '⚿', 'p2prop': '✦', 'p2hidden': '✧', 'p2lucky': '☘',
@@ -403,7 +403,7 @@ hat('party_hat', 'Party Hat', 'light_purple', 'bm:party_hat', 'minecraft:note ~ 
 hat('top_hat', 'Dapper Top Hat', 'dark_gray', 'bm:top_hat', 'minecraft:enchant ~ ~2.3 ~ 0.2 0.2 0.2 0.3 2', ('token', 6), ['Monocle sold separately.'])
 hat('halo', 'Angel Halo', 'yellow', 'bm:halo', 'minecraft:end_rod ~ ~2.3 ~ 0.2 0.02 0.2 0 1', ('medallion', 2), ['Totally innocent. Promise.'])
 hat('pirate_hat', "Captain's Tricorn", 'dark_red', 'bm:pirate_hat', 'minecraft:bubble_pop ~ ~2.2 ~ 0.3 0.1 0.3 0 1', ('medallion', 3), ['Yarr. Squeak.'])
-hat('rat_king_crown', "Rat King's Crown", '#ffb300', 'bm:crown', 'minecraft:dust{color:[0.9,0.75,0.1],scale:0.8} ~ ~2.2 ~ 0.3 0.1 0.3 0 2',
+hat('rat_king_crown', "Rat King's Crown", '#ffb300', 'bm:rat_crown', 'minecraft:dust{color:[0.9,0.75,0.1],scale:0.8} ~ ~2.2 ~ 0.3 0.1 0.3 0 2',
     ('trophy', 1), ['Long live the Rat King.', ('+1 Luck', 'blue')], mods=[attr('luck', 1, 'head')])
 
 

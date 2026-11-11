@@ -285,7 +285,7 @@ def generate(G, builds):
         80: ['function bm:p2/keep/boss_spawn']})
 
     # ================================================================== THE HOLLOW KING (final; two phases)
-    crown = eq('minecraft:netherite_helmet', {'minecraft:item_model': 'bm:crown', 'minecraft:trim': {'material': 'minecraft:quartz', 'pattern': 'minecraft:silence'}})
+    crown = eq('minecraft:netherite_helmet', {'minecraft:item_model': 'bm:hollow_crown', 'minecraft:trim': {'material': 'minecraft:quartz', 'pattern': 'minecraft:silence'}})
     ench['hollow_touch'] = [('minecraft:apply_mob_effect', 'minecraft:wither', 4, 1), ('minecraft:apply_mob_effect', 'minecraft:darkness', 3, 0)]
     sword = eq('minecraft:netherite_sword', {'minecraft:enchantments': {'minecraft:sharpness': Int(5), 'bm:hollow_touch': Int(1)}})
     fn('p2/hollow/boss_spawn', [

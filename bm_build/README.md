@@ -21,6 +21,17 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1o: their own icons
+
+- **Three items had borrowed another item's look.** Each has its own now, in hand and when worn:
+  - **Halo of Thorns:** black thorns and red drops, not the Angel Halo.
+  - **Crown of the Hollow King:** pale iron set with crying obsidian. The Hollow King himself wears it too.
+  - **Rat King's Crown:** gold set with amethyst, not the shop's Golden Crown.
+- **Existing copies update** to their new icon (item version 47). The Crown of the Hollow King is the exception: like all gear, its copies keep their current look so any reskin you've given them stays. New ones drop with the new icon.
+- **Clean-up:** a stray developer tool moved into `tools/`.
+
+**The resource pack changed this time:** use the new BlackMarket_RP.zip (its SHA1 is in SHA1.txt).
+
 ## New in 3.1n: tidying up
 
 - **Follower menus say "Companion size" and "Full size" consistently.** Some said "Companion Size".
