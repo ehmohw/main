@@ -429,7 +429,7 @@ def bank(G):
                    abtn + [{'label': T('Send the typed amount', GOLD), 'width': Int(150),
                             'action': {'type': 'minecraft:dynamic/run_command', 'template': 'trigger bm.bsam set $(amt)'}},
                            P28.btn(T('\u00ab Another currency', 'gray'), BS_CURBACK, width=150)], columns=4)
-    ad['inputs'] = [{'type': 'minecraft:text', 'key': 'amt', 'label': T('Or type an amount', GOLD), 'width': Int(150), 'max_length': Int(7)}]
+    ad['inputs'] = [{'type': 'minecraft:text', 'key': 'amt', 'label': T('Or type an amount (digits only)', GOLD), 'width': Int(150), 'max_length': Int(7)}]
     fn('p259/bs/amt', ['function bm:p259/bs/fill', 'function bm:p259/bs/amt_show with storage bm:ui bs'])
     fn('p259/bs/amt_show', ['$dialog show @s ' + P28.inline(ad)])
     for k, (n, lbl) in enumerate(PRESETS):

@@ -567,7 +567,7 @@ def generate(G):
                 grp = GROUP.get(e['real'])
                 nxt = grp[grp.index(iid) + 1] if grp and grp.index(iid) + 1 < len(grp) else None
                 busy = (f'execute if score @s {O} matches 1.. run return run function bm:p277/a/{nxt}' if nxt else
-                        f'execute if score @s {O} matches 1.. run return run ' + (say([T(f'Your Rat Pack holds {len(grp)} {ITEMS[e["real"]]["name"]}s', col), T(' - this one stays with you.', 'gray')]) if grp else
+                        f'execute if score @s {O} matches 1.. run return run ' + (say([T(f'Your Rat Pack holds {len(grp)} ' + (ITEMS[e["real"]]["name"] if ITEMS[e["real"]]["name"].endswith('s') else ITEMS[e["real"]]["name"] + 's'), col), T(' - this one stays with you.', 'gray')]) if grp else
                                                                                      say([T(nm, col), T(' is on your Rat Pack already.', 'gray')])))
                 a = [busy] + setk + \
                     ['function bm:p277/s/put with storage bm:rp t', f'scoreboard players set @s {O} 1']
@@ -891,7 +891,7 @@ def generate(G):
     for ki, (k, iid, pg, nm, bxkind, coll, sw) in enumerate(BAGK):
         col = colour(iid)
         told = tellraw('@s', PRE + [T(ITEMS[iid]['name'], col, bold=True), T(f' goes on your Rat Pack ({PAGE_OF[pg]} page). ', 'gray'), T('(Its load goes with it.)', 'dark_gray')])
-        full = say([T(f'Your Rat Pack holds {BAGMAX} {nm}s', col), T(f' - the {BAGMAX + 1}th stays with you.', 'gray')])
+        full = say([T(f'Your Rat Pack holds {BAGMAX} ' + (nm if nm.endswith('s') else nm + 's'), col), T(f' - the {BAGMAX + 1}th stays with you.', 'gray')])
         fn(f'p277/b/add_{k}', [f'execute if score @s bm.rb_{k} matches {BAGMAX}.. run return run ' + full, pid,
                                f'function bm:p277/b/put_{k} with storage bm:rp t', 'item replace entity @s weapon.offhand with minecraft:air',
                                f'scoreboard players add @s bm.rb_{k} 1', 'playsound minecraft:block.enchantment_table.use player @s ~ ~ ~ 0.6 1.6',
@@ -1419,7 +1419,7 @@ def late_back(G):
         for _d in range(4):
             nxt = []
             for f in front:
-                if f in seen or f not in F or f.startswith(('p277/', 'p278/', 'p179/', 'p28/')): continue
+                if f in seen or f not in F or f.startswith(('p277/', 'p278/', 'p179/', 'p28/', 'p101/', 'p103/', 'p104/')): continue     # (3.1j: not the heist's own cards - "Decide later" stays)
                 seen.add(f)
                 if any('dialog show @s' in l and EX.search(l) for l in F[f]): hits.append(f)
                 nxt += [m for l in F[f] for m in _re.findall(r'function bm:([\w/]+)', l)]
@@ -1445,5 +1445,5 @@ def late_back(G):
                     out.append(l)
             F[f] = out
     F['p277/act'].insert(0, f'execute if score #act bm.pay matches {B_RPBACK} run return run function bm:p277/back_front')
-    G.fn('p277/back_front', ['dialog clear @s', 'function bm:p277/open'])
+    G.fn('p277/back_front', ['execute unless items entity @s container.* *[minecraft:custom_data~{bm:\"partner_wheel\"}] unless items entity @s weapon.offhand *[minecraft:custom_data~{bm:\"partner_wheel\"}] run return run dialog clear @s', 'dialog clear @s', 'function bm:p277/open'])     # (3.1j: only with a Pack on you)
     return nr, nd

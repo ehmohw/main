@@ -698,7 +698,7 @@ def late(G):
         for _d in range(3):
             nxt = []
             for f in front:
-                if f in seen or f not in F: continue
+                if f in seen or f not in F or f.startswith(('p119/', 'p101/', 'p103/', 'p104/')): continue     # (3.1j: the Ledger's wardrobes keep their « Outfits)
                 seen.add(f)
                 if any('dialog show @s' in l and EX.search(l) for l in F[f]): hits.append(f)
                 nxt += [m for l in F[f] for m in re.findall(r'function bm:([\w/]+)', l)]
@@ -726,5 +726,5 @@ def late(G):
                     out.append(l)
             F[f] = out
     F['p179/w/act'].insert(0, f'execute if score #act bm.pay matches {B_PBACK} run return run function bm:p179/w/back')
-    G.fn('p179/w/back', ['dialog clear @s', 'function bm:p179/w/open'])
+    G.fn('p179/w/back', ['execute unless items entity @s container.* *[minecraft:custom_data~{bm:\"partner_wheel\"}] unless items entity @s weapon.offhand *[minecraft:custom_data~{bm:\"partner_wheel\"}] run return run dialog clear @s', 'dialog clear @s', 'function bm:p179/w/open'])     # (3.1j: only with a Pack on you)
     return np_, nd

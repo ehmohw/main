@@ -109,6 +109,10 @@ GD_SLOTS = ('emma', 'cecil', 'celi', 'zib', 'killerwatt', 'leo', 'demo', 'apo', 
             'pxcecil', 'pxleo', 'pxemma', 'sky', 'pearl', 'vexis', 'mireling', 'keeper')
 if __import__('rkflag').ON: GD_SLOTS += ('ratking',)      # (3.0k: the Rat King - at the END: saved by number; rkflag)
 __import__('fol5').reg(__name__, globals(), 'slots')      # (3.1: the new followers - fol5, fol5flag)
+# (3.1j) Bones was never frozen: every new follower renumbered his doll (slot 50 in 2.98b, 51 in 3.0k, 63 in 3.1). Frozen at 63, where
+#  3.1 put him - anyone fol5 adds later goes after him - and every placed doll is re-checked once by the doll it shows (bm.gdok2)
+assert len(GD_SLOTS) >= 63 and 'bones' not in GD_SLOTS, len(GD_SLOTS)
+GD_SLOTS = GD_SLOTS[:63] + ('bones',) + GD_SLOTS[63:]
 assert set(GD_SLOTS) <= set(GIFT), set(GD_SLOTS) - set(GIFT)
 GDOLLS = list(GD_SLOTS) + [k for k in GIFT if k not in GD_SLOTS]
 for _k in GDOLLS:
@@ -187,8 +191,8 @@ def generate(G):
         second.append(f'execute as @e[type=minecraft:marker,tag=bm.gd{i}m] at @s run function bm:p180/gift/{k}')
     # (2.98b) every set-down golden doll, once: its tags from the doll it shows - whatever number it was set down under
     NGD = len(GDOLLS)
-    second += [f'execute as @e[type=minecraft:item_display,tag=bm.gd{i}d,tag=!bm.gdok] at @s run function bm:p180/fixd' for i in range(NGD)]
-    fn('p180/fixd', ['tag @s add bm.gdok'] +
+    second += [f'execute as @e[type=minecraft:item_display,tag=bm.gd{i}d,tag=!bm.gdok2] at @s run function bm:p180/fixd' for i in range(NGD)]
+    fn('p180/fixd', ['tag @s add bm.gdok2'] +
        [l for n in range(NGD) for l in (f'tag @s remove bm.gd{n}d', f'tag @e[type=minecraft:interaction,distance=..0.6] remove bm.gd{n}',
                                          f'tag @e[type=minecraft:marker,distance=..0.6] remove bm.gd{n}m')] +
        ['data modify storage bm:tmp gdfix.id set value "?"', 'data modify storage bm:tmp gdfix.id set from entity @s item.components."minecraft:item_model"'] +

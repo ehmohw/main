@@ -112,7 +112,7 @@ class Henry(RP.Cfg):
 
 
 class Nia(RP.Cfg):
-    W, NAME, COL, LINE, pfx, ab, q = 'nia', 'Nia', CB.NIA_C, CB.NIA_LINE, 'p230', 'ni', 'nq'
+    W, NAME, COL, LINE, pfx, ab, q = 'nia', 'Nia', CB.NIA_C, CB.NIA_LINE, 'p230', 'ni', 'nv'
     A = NA
     MENU = 4350
     PET_HP, PET_CD = 30, 120

@@ -118,7 +118,7 @@ def rows():
     for f in FORMS:
         item = HAND[f].split(':')[1].replace('_', ' ')
         need = f'Hand him {"an" if item[0] in "aeiou" else "a"} {item}' + (' - once he has killed a baby zombie' if f == 'jockey' else '') + ' to unlock it.'
-        P99.ROWS['dragon'].append((CODES[f], f'mf_{SHORT[f]}', NAME[f], FCOL[f], f'The {NAME[f]}: {FA.NAMES[f]}. {need} His moves go {f} too.',
+        P99.ROWS['dragon'].append((CODES[f], f'mf_{SHORT[f]}', NAME[f], FCOL[f], (f'The {NAME[f]}' + ('' if FA.NAMES[f].split(' (')[0] in NAME[f] else f': {FA.NAMES[f]}') + '. ' + ('His starting form.' if f == FORMS[0] else need) + f' His moves go {f} too.'),
                                    [(None, 'locked', 'dark_gray'), (f'entity @s[tag={UN(f)}]', 'off', 'gray'), (f'score @s {SC} matches {K[f]}', 'on', P99.GOLD)],
                                    f'p263/row/{f}'))
 

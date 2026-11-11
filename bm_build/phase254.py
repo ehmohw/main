@@ -296,7 +296,7 @@ def _encounter(G, X):
                                      'When the compass finds you, come back. I will be here."', LINE)]),
                             'playsound minecraft:block.amethyst_block.chime player @s ~ ~ ~ 0.6 1.6'])
     # (the send-off: how many friends you've made - every one of phase125.WHO but itself you've met)
-    kinds = [w for w in P125.WHO if w not in P253.COUNTERPARTS]      # (3.0k: nor its counterpart, the Rat King)
+    kinds = [w for w in P125.WHO if w not in P253.COUNTERPARTS and w not in __import__('fol5').compass_skip()]      # (3.0k: nor its counterpart, the Rat King; 3.1j: nor the ones the Compass leaves out - its fifty)
     total = len(kinds)
     words = _words(total)
     count = ['scoreboard players set @s bm.qbn 0'] + \

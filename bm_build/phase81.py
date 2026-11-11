@@ -43,10 +43,10 @@ SIGILS = [  # (n, iid, name, colour, the crew gets..., Goldtooth's price in coin
     (2, 'sigil_fury', 'Fury', '#ff5a4a', 'Strength - every blow harder', 72, 2),
     (3, 'sigil_bulwark', 'Bulwark', '#8ab0ff', 'Resistance - every blow softer', 72, 2),
     (4, 'sigil_swift', 'Swiftness', '#7affd8', 'Speed - quicker on your feet', 56, 1),
-    (5, 'sigil_warding', 'Warding', '#fff07a', 'no poison, wither, slowness or burning', 56, 1),
-    (6, 'sigil_fortune', 'Fortune', GOLD, '+1 coin into the pot a guard, and more spoils', 64, 2),
+    (5, 'sigil_warding', 'Warding', '#fff07a', 'shelter from poison, wither, slowness and burning', 56, 1),
+    (6, 'sigil_fortune', 'Fortune', GOLD, '+1 coin in the pot per guard, and more spoils', 64, 2),
     (7, 'sigil_vigor', 'Vigor', '#ff8a3a', '+2 hearts', 64, 2),
-    (8, 'sigil_sight', 'Sight', '#c8a0ff', 'night vision, and every guard near you glows', 48, 1)]
+    (8, 'sigil_sight', 'Sight', '#c8a0ff', 'Night Vision, and every guard near them glows', 48, 1)]
 NS = len(SIGILS)
 
 for _k in TK:

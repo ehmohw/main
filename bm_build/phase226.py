@@ -265,7 +265,7 @@ ASSAULT = {
                   tl={1: ['P pounce_up', 'S minecraft:entity.cat.hiss 0.8 0.8'], 3: ['P pounce', 'DASH'], 4: ['H1'],
                       7: ['P swipe_up'], 8: ['P swipe', 'H2'], 10: ['P swipe_up'], 11: ['P swipe', 'H2'], 13: ['P swipe_up'], 14: ['P swipe', 'H2'],
                       16: ['P swipe_up'], 17: ['P swipe', 'H2'], 19: ['P swipe_up'], 20: ['P swipe', 'H2'], 26: ['P happy']}),
-    'nia': dict(pfx='p230', s_obj='bm.nqs', anim='p230/anim', busy='bm.nqx', end=30, dash=dict(reach=1.4, speed=1.1, lift=1),
+    'nia': dict(pfx='p230', s_obj='bm.nvs', anim='p230/anim', busy='bm.nvx', end=30, dash=dict(reach=1.4, speed=1.1, lift=1),
                 hits={1: (2, STUN, 'minecraft:entity.cat.hiss', 1.0), 2: (3, SLASH('0.88,0.63,0.31'), 'minecraft:entity.player.attack.sweep', 1.8)},
                 tl={1: ['P hiss', 'S minecraft:entity.cat.hiss 1 0.9'], 4: ['DASH'], 5: ['P hiss', 'H1'],
                     9: ['P swipe_up'], 10: ['P swipe', 'H2'], 12: ['P swipe_up'], 13: ['P swipe', 'H2'], 15: ['P swipe_up'], 16: ['P swipe', 'H2'],

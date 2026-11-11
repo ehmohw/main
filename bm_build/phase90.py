@@ -387,7 +387,7 @@ def generate(G):
                                T('). From Tier III, one heist in 150 is a Lucky Raid - harder, and the crew splits the pool.', 'dark_gray')])],
                     [abtn, lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'),
                      lbtn(3, 7, LUCKY, 'no bonus - for a first try')],
-                    columns=1, exit_label='Back')
+                    columns=1, exit_label='Close')
     G.FUNCS['p75/lives_menu'] = ['execute store result storage bm:gv m.p int 1 run scoreboard players get #lpool bm.gvlp',
                                  'data modify storage bm:gv m.al set value "OFF"', 'data modify storage bm:gv m.al_txt set value "off - a quiet job, no patrols, no lockdown."',
                                  'execute if score @s bm.gval matches 1 run data modify storage bm:gv m.al set value "ON"',

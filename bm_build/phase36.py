@@ -353,7 +353,7 @@ def generate(G):
     import phase28 as P28
     dlg = {'type': 'minecraft:multi_action', 'title': T('Courier Whistle', '#c8a050', bold=True),
            'body': [P28.body([T('Your courier rat will carry the item in your ', 'gray'), T('off hand', 'white'), T(' to any mailbox, for 1 Token.', 'gray')])],
-           'inputs': [{'type': 'minecraft:text', 'key': 'box', 'label': T('Mailbox number', 'gold'), 'width': Int(200), 'max_length': Int(6)}],
+           'inputs': [{'type': 'minecraft:text', 'key': 'box', 'label': T('Mailbox number (digits only)', 'gold'), 'width': Int(200), 'max_length': Int(6)}],
            'actions': [{'label': T('Send it!', 'gold'), 'width': Int(200), 'action': {'type': 'minecraft:dynamic/run_command', 'template': 'trigger bm.post set $(box)'}}],
            'columns': Int(1), 'exit_action': {'label': T('Never mind')}, 'pause': False, 'after_action': 'close'}
     fn('p36/mail/whistle', ['execute unless items entity @s weapon.offhand * run return run ' + title('@s', 'actionbar', T('Hold the item to send in your OFF hand.', 'gray')),

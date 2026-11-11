@@ -227,7 +227,8 @@ def generate(G):
     partner = lambda k: f'execute as @e[type=minecraft:{host(k)[0]},tag={host(k)[1]},distance=..16] if score @s bm.pid = #me bm.pid'
     voice = lambda w: VNAME.get(w, w)
     def line(who, txt, to='@s'):
-        n = voice(who); c = P100.VOICE.get(n, ('#ffffff', '#e0e0e0'))
+        n = voice(who); n = n[:1].upper() + n[1:]      # (3.1j: a speaker's label capitalised - "the Glitch:" in white missed its own colour)
+        c = P100.VOICE.get(n, P100.VOICE.get(voice(who), P100.VOICE.get(n.replace('The ', 'the ', 1), ('#ffffff', '#e0e0e0'))))
         return tellraw(to, [T(f'{n}: ', c[0], bold=True), T(f'"{txt}"', c[1])])
     # ================================================================== the pairs: every second, as each follower who leads one
     by_a = {}

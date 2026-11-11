@@ -42,7 +42,7 @@ A0.POSES['land'] = dict(A0.POSES['walk_1'], legr=_limb(1, 0, 10), legl=_limb(-1,
 
 
 class Cake(RP.Cfg):
-    W, NAME, COL, LINE, pfx, ab, q = 'cake', 'The Cake', COL, LINE, 'p265', 'cz', 'kz'
+    W, NAME, COL, LINE, pfx, ab, q = 'cake', 'The Cake', COL, LINE, 'p265', 'cz', 'ky'
     BODY_PART = 'base'                 # (no 'body': its tier is its base)
     A = RF2.art(A0)
     MENU, PET_HP, PET_CD, ITEM = 5750, 30, 120, ITEM
@@ -202,9 +202,9 @@ def generate(G):
     fn, title = G.fn, G.title
     frame = dict(models=FRAMES, every=15, click=['particle minecraft:firework ~ ~0.2 ~ 0.2 0.2 0.2 0.05 12', 'playsound minecraft:block.note_block.chime block @a[distance=..12] ~ ~ ~ 1 1.5',
                                                  'execute as @p[distance=..7] run ' + title('@s', 'actionbar', [T('The Cake: ', COL, bold=True), T('"Make a wish!"', LINE)])],
-                 tick=['execute if score @s bm.kzft matches 0 run particle minecraft:smoke ~ ~0.25 ~ 0.05 0.1 0.05 0.01 6',
-                       'execute if score @s bm.kzft matches 0 run playsound minecraft:block.candle.extinguish block @a[distance=..10] ~ ~ ~ 0.4 1.4',
-                       'execute if score @s bm.kzft matches 15 run playsound minecraft:item.flintandsteel.use block @a[distance=..10] ~ ~ ~ 0.4 1.6'])
+                 tick=['execute if score @s bm.kyft matches 0 run particle minecraft:smoke ~ ~0.25 ~ 0.05 0.1 0.05 0.01 6',
+                       'execute if score @s bm.kyft matches 0 run playsound minecraft:block.candle.extinguish block @a[distance=..10] ~ ~ ~ 0.4 1.4',
+                       'execute if score @s bm.kyft matches 15 run playsound minecraft:item.flintandsteel.use block @a[distance=..10] ~ ~ ~ 0.4 1.6'])
     W5.build(Cake, G, _abilities, _encounter, sitb=(200, [(0, 'sit_b'), (100, 'sit_b2')]), frame=frame)
     G.FUNCS['p265/pose/sit_b'].append('execute on owner if entity @s[distance=..12,tag=!bm.hush] run ' +
                                       title('@s', 'actionbar', [T('The Cake: ', COL, bold=True), T('"...frosting..." (it murmurs in its sleep)', LINE, italic=True)]))

@@ -28,7 +28,7 @@ LAIR_CHANCE = {1: 0, 2: 20, 3: 30, 4: 35, 5: 40}      # (of the hidden rooms: th
 HP_PCT, BOSS_PCT = 35, 50
 HOSTS = ['levers', 'plates', 'tiles', 'dial', 'guards', 'coffers', 'lamps', 'lightsout', 'tumbler', 'ambush']
 
-item('rat_signet', TOTEM, "Rat King's Signet", HID, ['A heavy gold ring with a rat\'s head seal.', ('Carry it: loose items within seven', 'blue'),
+item('rat_signet', TOTEM, "Vault Rat's Signet", HID, ['A heavy gold ring with a rat\'s head seal.', ('Carry it: loose items within seven', 'blue'),
                                                      ('blocks come to you.', 'blue'), ('Found only in a hidden vault.', 'dark_purple')],
      model='bm:rat_signet', stack=1, cat='magic', glint=True)
 item('whisperstep_boots', 'minecraft:leather_boots', 'Whisperstep Boots', HID, ['Soft soles, and not a sound.', ('Sneaking: unseen, and quick on', 'blue'),

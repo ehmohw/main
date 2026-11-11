@@ -56,23 +56,25 @@ def generate(G):
     fn, wjson, title, tellraw, give, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.give, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, fast, second = [], [], []
-    objs = ['bm.crew', 'bm.crewoff', 'bm.crewoff2', 'bm.eskl']
+    objs = ['bm.crew', 'bm.crewoff', 'bm.crewoff2', 'bm.crewoff3', 'bm.eskl']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs]
     G.OBJECTIVES += objs
     P = PREFIX
     BIT = P89.BIT
     init = ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
             'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.fcon2 matches 0.. run scoreboard players set @s bm.fcon2 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
-            'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0', 'execute unless score @s bm.crewoff2 matches 0.. run scoreboard players set @s bm.crewoff2 0']
+            'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0', 'execute unless score @s bm.crewoff2 matches 0.. run scoreboard players set @s bm.crewoff2 0', 'execute unless score @s bm.crewoff3 matches 0.. run scoreboard players set @s bm.crewoff3 0']
     fn('p98/init', init)
     def bit(obj, b):
         return [f'scoreboard players operation #q bm.rng = @s {obj}', f'scoreboard players set #bit bm.rng {b}',
                 'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng']
     OFF = {k: 2 ** i for i, (k, *_r) in enumerate(CALLED) if i < 31}
-    OFF.update({k: 2 ** (12 + j) for j, (k, *_r) in enumerate(HIRED)})
+    # (3.1j: the hirelings had bits 12+ of bm.crewoff - the same bits as the 13th and 14th followers: switching Pistachio off
+    #  switched the Frog hireling off too. Their own score now)
+    OFF3 = {k: 2 ** j for j, (k, *_r) in enumerate(HIRED)}
     # (2.96: past the 31st follower the bits go on in a second score, bm.crewoff2)
     OFF2 = {k: 2 ** (i - 31) for i, (k, *_r) in enumerate(CALLED) if i >= 31}
-    off_obj = lambda k: ('bm.crewoff2', OFF2[k]) if k in OFF2 else ('bm.crewoff', OFF[k])
+    off_obj = lambda k: ('bm.crewoff3', OFF3[k]) if k in OFF3 else ('bm.crewoff2', OFF2[k]) if k in OFF2 else ('bm.crewoff', OFF[k])
     FILED = {k: 2 ** j for j, (k, *_r) in enumerate(HIRED)}
     FILED.update({i: 2 ** (1 + i) for i in P77.HIRE})
     in_heist = 'execute if entity @s[tag=bm.gvp] if dimension bm:gutter'

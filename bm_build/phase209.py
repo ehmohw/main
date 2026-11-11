@@ -93,7 +93,7 @@ def generate(G):
                                    T('Fall', '#d8803a', bold=True), T(' in dappled and dark forests, ', 'gray'), T('Christmas', '#e0404a', bold=True),
                                    T(' in the snow, ', 'gray'), T('Easter', '#f29cc0', bold=True), T(' among the flowers, ', 'gray'), T('Summer', '#ffc040', bold=True),
                                    T(' in the heat. Walk him through one to keep its look.', 'gray')], 300)],
-                        btn, columns=2, exit_label='Back')
+                        btn, columns=2, exit_label='Close')
         return f'dialog show @s {snbt(dlg)}'
     fn('p209/menu', [f'scoreboard players set @s bm.menu {MENU}', 'scoreboard players set #mask bm.rng 0'] +
        [f'execute if entity @s[tag=bm.pmu_{k}] run scoreboard players add #mask bm.rng {1 << i}' for i, k in enumerate(FORM_KEYS)] +

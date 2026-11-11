@@ -9,21 +9,30 @@ SLOTS = [(f'container.{i}', f'Inventory[{{Slot:{i}b}}]') for i in range(36)] + \
          ('armor.feet', 'equipment.feet'), ('weapon.offhand', 'equipment.offhand')]
 
 
+def refresh_files(G, only=None):
+    """(3.1j: a function, so items registered after this phase - phase275b's Gilded Feather - get theirs at the end of the build)"""
+    from items import DYNAMIC
+    for iid in (only if only is not None else list(ITEMS)):
+        comps = dict(G.exact_comps(iid))
+        if ITEMS[iid]['base'] == TOTEM: comps['!minecraft:death_protection'] = {}
+        if iid in DYNAMIC:
+            for k in ('minecraft:custom_data', 'minecraft:item_model', 'minecraft:lore', 'minecraft:enchantment_glint_override'): comps.pop(k, None)
+            G.wjson(f'bm/item_modifier/refresh/{iid}.json', [{'function': 'minecraft:set_components', 'components': comps},
+                                                             {'function': 'minecraft:set_custom_data', 'tag': f'{{bmv:{ITEM_VERSION}}}'}])
+            continue
+        G.wjson(f'bm/item_modifier/refresh/{iid}.json', {'function': 'minecraft:set_components', 'components': comps})
+    DONE.update(only if only is not None else ITEMS)
+
+
+DONE = set()
+
+
 def generate(G):
     fn, wjson, title, tellraw, PREFIX = G.fn, G.wjson, G.title, G.tellraw, G.PREFIX
     second, fast = [], []
 
     # ---------------- re-sync: any Black Market item without this version's stamp gets the current definition
-    from items import DYNAMIC
-    for iid in ITEMS:
-        comps = dict(G.exact_comps(iid))
-        if ITEMS[iid]['base'] == TOTEM: comps['!minecraft:death_protection'] = {}
-        if iid in DYNAMIC:      # 1.18: keep what the item carries (a bottled creature, charges, uses); just restamp the version
-            for k in ('minecraft:custom_data', 'minecraft:item_model', 'minecraft:lore', 'minecraft:enchantment_glint_override'): comps.pop(k, None)
-            wjson(f'bm/item_modifier/refresh/{iid}.json', [{'function': 'minecraft:set_components', 'components': comps},
-                                                           {'function': 'minecraft:set_custom_data', 'tag': f'{{bmv:{ITEM_VERSION}}}'}])
-            continue
-        wjson(f'bm/item_modifier/refresh/{iid}.json', {'function': 'minecraft:set_components', 'components': comps})
+    refresh_files(G)
     old = f'*[minecraft:custom_data,!minecraft:custom_data~{{bmv:{ITEM_VERSION}}}]'
     fn('p18/refresh/scan', [f'execute if items entity @s {slot} {old} run function bm:p18/refresh/slot {{path:"{path}",slot:"{slot}"}}'
                             for slot, path in SLOTS])

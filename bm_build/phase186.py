@@ -60,11 +60,11 @@ HOLD['chef_ladle'] = 'bm:p186/use'
 item('fcontract_chef', TOTEM, 'Raid Contract: The Chef', CF_C, [('Use once: from then on the Chef', 'blue'), ('will come into the vault with you.', 'blue')],
      model='minecraft:paper', glint=True, stack=1, cat='magic', comps=hold('none'))
 HOLD['fcontract_chef'] = 'bm:p186/sign'
-item('doll_chef', TOTEM, 'Chef Doll', CF_C, ['A doll of the Chef - toque, moustache and those enormous eyes.', ('Right-click a block: set it down.', 'blue'),
+item('doll_chef', TOTEM, 'Chef Doll', CF_C, ['A doll of the Chef - toque, mustache and those enormous eyes.', ('Right-click a block: set it down.', 'blue'),
                                              ('Right-click it: it twirls.', 'blue'), ('Sneak + punch: pick it up.', 'gray')],
      model='bm:doll_chef', stack=16, cat='fun', comps=hold('none'))
 HOLD['doll_chef'] = 'bm:p141/doll_chef/use'
-P141.DOLLS.append(('doll_chef', 'The Chef', CF_C, 'A doll of the Chef - toque, moustache and those enormous eyes.', 'minecraft:happy_villager',
+P141.DOLLS.append(('doll_chef', 'The Chef', CF_C, 'A doll of the Chef - toque, mustache and those enormous eyes.', 'minecraft:happy_villager',
                    'minecraft:entity.generic.eat', 'minecraft:poof'))
 P141.DOLL_FROM['doll_chef'] = ('chef_ladle', {'kh': 1.55, 'kb': 0.82, 'kl': 0.62})
 

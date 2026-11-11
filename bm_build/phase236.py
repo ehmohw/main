@@ -834,7 +834,7 @@ def ophanim_form(G):
                                  'playsound minecraft:block.beacon.deactivate player @s ~ ~ ~ 1 1.2'])
     fn('p236l/ophf/size', ['execute if score @s bm.lhcs matches 1 run return run function bm:p236l/ophf/size_off', 'scoreboard players set @s bm.lhcs 1',
                            csay('"Smaller, then - a little wheel of light at your side."'),
-                           'execute unless score @s bm.lhoph matches 1 run ' + title('@s', 'actionbar', [T('Companion size: on ', HOLY, bold=True), T('(for the Ophanim form)', 'gray')])])
+                           'execute unless score @s bm.lhoph matches 1 run ' + tellraw('@s', [T('Companion size: on ', HOLY, bold=True), T('(for the Ophanim form)', 'gray')])])
     fn('p236l/ophf/size_off', ['scoreboard players set @s bm.lhcs 0', csay('"In all my glory, then."')])
     # ---- each tick, as her host (rigpet's tick: her parts tagged bm.lhsel; before they're untagged)
     k = len(G.FUNCS['p236l/tick']) - 2

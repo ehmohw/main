@@ -168,13 +168,13 @@ WEAPONS = {  # old iid: (new iid, name, colour, enchantments raised or added, ex
                        ['It broke every promise but one.', ("+2 Attack Damage, +0.5 Reach over Biggoron's Sword", 'blue'), ('Every kill heals two hearts.', 'dark_aqua')], 6),
     'kong_krusher': ('abyssal_excavator', 'Abyssal Excavator', '#7ad0ff', {}, 0,
                      [attr('block_break_speed', 0.5, 'mainhand', 'add_multiplied_base', ident='bm:df_break'), attr('luck', 2, 'mainhand', ident='bm:df_luck')],
-                     ['Digs as though the stone were afraid.', ('+50% Break Speed, +2 Luck', 'blue'), ('Haste II while held; Night Vision below y 40.', 'dark_aqua')], 6),
+                     ['Digs as though the stone were afraid.', ('+50% Break Speed, +2 Luck over Kong Krusher', 'blue'), ('Haste II while held; Night Vision below y 40.', 'dark_aqua')], 6),
     'giga_greataxe': ('worldfeller', 'Worldfeller', '#ff8a5a', {}, 2, [attr('sweeping_damage_ratio', 0.6, 'mainhand', ident='bm:df_sweep'),
                                                                      attr('entity_interaction_range', 0.5, 'mainhand', ident='bm:df_reach')],
-                      ['Fells the forest. Fells the army.', ('+2 Attack Damage, +0.5 Reach', 'blue'), ('Every swing cleaves (sweeping 60%).', 'dark_aqua')], 6),
+                      ['Fells the forest. Fells the army.', ('+2 Attack Damage, +0.5 Reach over the Greataxe', 'blue'), ('Every swing cleaves (sweeping 60%).', 'dark_aqua')], 6),
     'light_bow': ('starpiercer', 'Starpiercer', '#fff0a0', {}, 0, [], ['Its arrows remember the stars they were.', ('Speed I and Night Vision while held.', 'dark_aqua')], 6),
     'ultra_hammer': ('meteor_maul', 'Meteor Maul', '#ffb070', dict(fire_aspect=2), 2, [],
-                     ['Falls like what it is named for.', ('+2 Attack Damage', 'blue'), ('Resistance I while held.', 'dark_aqua')], 6),
+                     ['Falls like what it is named for.', ('+2 Attack Damage over the Ultra Hammer', 'blue'), ('Resistance I while held.', 'dark_aqua')], 6),
 }
 KEEP_LEVEL = {'minecraft:mending', 'minecraft:infinity', 'minecraft:flame', 'minecraft:silk_touch', 'minecraft:channeling', 'minecraft:multishot'}
 for old, (new, nm, col, add, dmg, more, lore, price) in WEAPONS.items():
@@ -569,7 +569,7 @@ def generate(G):
     fn('p177/dawn', ['advancement revoke @s only bm:consume/dawn_hourglass', give('dawn_hourglass'),
                      'execute unless score #tod bm.bm matches 12500..23500 run return run ' + say('The sand only runs up at night.', '#c8a0a0')] +
        [f'execute if score {s} matches 1 run return run ' + say('Not tonight - this night has its own plans.', '#c8a0a0') for s in special] +
-       ['execute if score #dread bm.dn matches 1 run return run ' + say('Not tonight. Something is holding the dark in place.', DREAD),
+       ['execute if score #dnight bm.bm matches 1 run return run ' + say('Not tonight. Something is holding the dark in place.', DREAD),
         'scoreboard players operation #hg bm.rng = #day bm.bm', 'scoreboard players operation #hg bm.rng -= @s bm.hgday',
         'execute if score @s bm.hgday matches 0.. if score #hg bm.rng matches ..2 run return run ' + say('The hourglass is still filling - once every 3 days.', '#c8a0a0'),
         'scoreboard players operation @s bm.hgday = #day bm.bm',

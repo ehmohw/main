@@ -45,9 +45,9 @@ item(ITEM, TOTEM, 'The Mossback Drum', COL,
       ('Use: call Talus (again: call it over).', 'blue'), ('Sneak + use: its menu - Ride, Full Size, its wardrobe.', 'blue'),
       ('Riding it: use it to throw, pound, or drum.', 'blue'), ('If it faints: 2 minutes before it can return.', 'gray')],
      model=f'bm:{ITEM}', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
-item('heartgeode_seed', TOTEM, 'Heartgeode Seed', '#b48cff', ['A violet crystal, humming.', ('Root it on budding amethyst, in a Lush Cave.', 'gray')],
+item('heartgeode_seed', TOTEM, 'Heartgeode Seed', '#b48cff', ['A violet crystal, humming.', ('Drop it on budding amethyst in a Lush Cave', 'gray'), ('and let it take root.', 'gray')],
      model='minecraft:amethyst_shard', stack=1, cat='magic', glint=True, comps=hold('none'))
-item('heartgeode', TOTEM, 'Heartgeode', '#c8a0ff', ['A geode with a heartbeat.', ('Carry it up a mountain at dawn - and play the drums.', 'gray')],
+item('heartgeode', TOTEM, 'Heartgeode', '#c8a0ff', ['A geode with a heartbeat.', ('At dawn, high on a mountain peak, set it down', 'gray'), ('(drop it) and play eight note-block beats.', 'gray')],
      model='minecraft:amethyst_cluster', stack=1, cat='magic', glint=True, comps=hold('none'))
 
 
@@ -214,7 +214,7 @@ def _encounter(G, X):
                           'execute if entity @e[type=minecraft:interaction,tag=bm.tlenc,distance=..48] run return 0',
                           'scoreboard players set #hg bm.rng 0',
                           'execute as @e[type=minecraft:item,distance=..8] if items entity @s contents *[minecraft:custom_data~{bm:"heartgeode"}] run scoreboard players set #hg bm.rng 1',
-                          'execute if score #hg bm.rng matches 0 run return 0',
+                          'execute if score #hg bm.rng matches 0 run return run ' + title('@s', 'actionbar', T('(the drums echo - but no Heartgeode lies near to answer them)', 'gray')),
                           'execute as @e[type=minecraft:item,distance=..8] if items entity @s contents *[minecraft:custom_data~{bm:"heartgeode"}] run kill @s',
                           'scoreboard players operation #me bm.pid = @s bm.pid', 'function bm:p273/enc/wake'])
     fn('p273/enc/wake', ['playsound minecraft:entity.warden.emerge ambient @a[distance=..48] ~ ~ ~ 1.4 0.6', 'particle minecraft:block{block_state:"minecraft:stone"} ~ ~ ~ 3 0.3 3 0 100',

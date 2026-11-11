@@ -65,7 +65,7 @@ def generate(G):
         [f'execute if score @s bm.emode matches {m} run data modify storage bm:ui crx.mode set value "{nm}"' for m, (nm, _c) in P57.MODES.items()] + \
         ['data modify storage bm:ui crx.chat set value "on"', 'execute if entity @s[tag=bm.hush] run data modify storage bm:ui crx.chat set value "off"',
          'data modify storage bm:ui crx.acts set value []'] + \
-        [f'execute if {met(w)} run data modify storage bm:ui crx.acts append value ' + snbt(P28.btn([T(f'{nm}\'s wardrobe', COL[w], bold=True)], wcode(i), width=180))
+        [f'execute if {met(w)} run data modify storage bm:ui crx.acts append value ' + snbt(P28.btn([T(nm + ('\' wardrobe' if nm.endswith('s') else '\'s wardrobe'), COL[w], bold=True)], wcode(i), width=180))
          for i, (w, nm) in enumerate(WHO)] + \
         [f'execute if {met("emma")} run data modify storage bm:ui crx.acts append value ' +
          snbt(P28.btn([T('Emma: ', '#ff8ad8'), T(nm, c, bold=True)], PAGE + 10 + m, width=180, tooltip=T(TIPS[m], 'gray'))) for m, (nm, c) in P57.MODES.items()] + \

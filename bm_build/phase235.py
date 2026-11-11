@@ -369,11 +369,11 @@ _O = P188.O
 P188.VNAME.update({'dragon': 'the Doodle Mob' if __import__('fol5flag').DOODLEMOB else 'the Doodle Dragon', 'eraser': 'the Eraser', 'cursor': 'the Cursor', 'inkblot': 'the Ink Blot', 'speech': 'the Speech Bubble'})
 _eff = lambda *es: [f'effect give {_O} minecraft:{e} {15 if e == "night_vision" else 3} {a} true' for e, a in es]
 P188.PAIRS.update({
-    'dd_bender': ('dragon', 'bender', 'Dragon Fetch', '#e0a860', 'The Doodle Dragon and Bender - a dog who would like, very much, to fetch a dragon',
+    'dd_bender': ('dragon', 'bender', 'Dragon Fetch', '#e0a860', (__import__('fol5').MOB_NAME if __import__('fol5flag').DOODLEMOB else 'The Doodle Dragon') + ' and Bender - a dog who would like, very much, to fetch a dragon',
                   _eff(('speed', 0), ('fire_resistance', 0)),
                   [('bender', '(sniffs the dragon. Smells like crayons. Wags.)'), ('dragon', '"Fetch? I can fetch! Watch me fetch!"')],
                   [('dragon', '"RAWR!" (a puff of crayon smoke)', 'bender', '(barks at the smoke, delighted)')]),
-    'dd_capshun': ('dragon', 'capshun', 'Here Be Dragons', '#f0f0f0', 'The Doodle Dragon and Mr. Capshun - two drawings, one of them very fiery',
+    'dd_capshun': ('dragon', 'capshun', 'Here Be Dragons', '#f0f0f0', (__import__('fol5').MOB_NAME if __import__('fol5flag').DOODLEMOB else 'The Doodle Dragon') + ' and Mr. Capshun - two drawings, one of them very fiery',
                    _eff(('strength', 0), ('fire_resistance', 0)),
                    [('capshun', '[Mr. Capshun narrates: "And from the margins of the page - a DRAGON."]'), ('dragon', '"That\'s me! Say it again!"')],
                    [('dragon', '"Am I drawn better than you?"', 'capshun', '[Mr. Capshun narrates: "He was drawn in crayon. Mr. Capshun said nothing."]')]),

@@ -364,7 +364,7 @@ def generate(G):
                      P28.body([T(f'The Fixer\'s fee: {FEE} Tokens each, into the Lucky Pool (now ', 'dark_gray'), T('$(p)', LUCKY, bold=True),
                                T('). From Tier III, one heist in 150 is a Lucky Raid - harder, but win it and the crew splits the pool.', 'dark_gray')])],
                     [lbtn(1, 3, '#ff5a5a', '+1 to +4 shares (by tier) - for the bold'), lbtn(2, 5, GOLD, '+0 to +2 shares (by tier)'), lbtn(3, 7, LUCKY, 'no bonus - for a first try')],
-                    columns=1, exit_label='Back')
+                    columns=1, exit_label='Close')
     fn('p75/lives_menu', ['execute store result storage bm:gv m.p int 1 run scoreboard players get #lpool bm.gvlp', f'scoreboard players set @s bm.menu {MENU}',
                           'function bm:p75/lives_show with storage bm:gv m'])
     fn('p75/lives_show', [f'$dialog show @s {snbt(dlg)}'])

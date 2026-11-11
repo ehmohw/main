@@ -356,8 +356,8 @@ offhand_charm('mini_mushroom', 'Mini Mushroom', 'aqua', ['Hold in your off hand.
 offhand_charm('mega_mushroom', 'Mega Mushroom', 'red', ['Hold in your off hand.', ('Double size, +3 reach, +1 step', 'blue')],
               'minecraft:red_mushroom', [attr('scale', 1.0, 'offhand', 'add_multiplied_base'), attr('block_interaction_range', 3, 'offhand'),
                                          attr('entity_interaction_range', 2, 'offhand'), attr('step_height', 1, 'offhand')], ('medallion', 3))
-offhand_charm('lucky_charm', 'Four-Leaf Charm', 'green', ['Hold in your off hand.', ('+2 Luck', 'blue')],
-              'bm:lucky_token', [attr('luck', 2, 'offhand')], ('lucky_token', 3))
+offhand_charm('lucky_charm', 'Clover Pendant', 'green', ['Hold in your off hand.', ('+2 Luck', 'blue')],
+              'bm:four_leaf_charm', [attr('luck', 2, 'offhand')], ('lucky_token', 3))
 
 HEAD = {'slot': 'head', 'swappable': True, 'equip_sound': 'minecraft:item.armor.equip_leather'}
 item('lens_of_truth', TOTEM, 'Lens of Truth', 'aqua', ['Wear on your head.', ('Night Vision while worn', 'blue')],

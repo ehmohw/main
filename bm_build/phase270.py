@@ -422,14 +422,19 @@ def generate(G):
                            'execute on owner run ' + csay('(it opens WIDE and lays its tongue out like a welcome mat - reach into its mouth)')])
     fn('p270/stash/fill', ['$execute if data storage bm:mxst p$(p) run data modify entity @e[type=minecraft:chest_minecart,tag=bm.mxcnew,limit=1] Items set from storage bm:mxst p$(p)'])
     X2 = '@e[type=minecraft:chest_minecart,tag=bm.mxcart,distance=..2,sort=nearest,limit=1]'
-    fn('p270/stash/shut', ['execute store result storage bm:tmp mx.p int 1 run scoreboard players get @s bm.pid', 'function bm:p270/stash/save with storage bm:tmp mx',
-                           f'execute as {X2} at @s run function bm:p270/stash/gone',
+    # (3.1j: its OWN cart - by bm.pid, not the nearest: two stashes open side by side swapped contents)
+    XM = '@e[type=minecraft:chest_minecart,tag=bm.mxmine,limit=1]'
+    fn('p270/stash/shut', ['scoreboard players operation #mxme bm.pid = @s bm.pid',
+                           'execute as @e[type=minecraft:chest_minecart,tag=bm.mxcart,distance=..4] if score @s bm.pid = #mxme bm.pid run tag @s add bm.mxmine',
+                           'execute store result storage bm:tmp mx.p int 1 run scoreboard players get @s bm.pid',
+                           f'execute if entity {XM} run function bm:p270/stash/save with storage bm:tmp mx',
+                           f'execute as {XM} at @s run function bm:p270/stash/gone', 'tag @e[type=minecraft:chest_minecart,tag=bm.mxmine] remove bm.mxmine',
                            'tag @s remove bm.mxst', 'execute unless entity @s[tag=bm.mxsw] run data modify entity @s Sitting set value 0b', 'tag @s remove bm.mxsw',
                            f'scoreboard players set @s bm.wxfr -1',
                            f'execute on passengers run data merge entity @s[type=minecraft:interaction,tag=bm.mxhit] {{width:{hw}f,height:{hh}f}}',
                            f'attribute @s minecraft:scale base set {Mimic.SCALE}',
                            'playsound minecraft:block.chest.close neutral @a[distance=..16] ~ ~ ~ 1 0.9'])
-    fn('p270/stash/save', [f'$data modify storage bm:mxst p$(p) set from entity {X2} Items'])
+    fn('p270/stash/save', [f'$data modify storage bm:mxst p$(p) set from entity {XM} Items'])
     # (shut by itself: you walk off (6 blocks), 60 s go by, it's sent home - or its cart is gone)
     second = G.FUNCS['loop/second']
     second.append('execute as @e[type=minecraft:wolf,tag=bm.mxpet,tag=bm.mxst] at @s run function bm:p270/stash/sec')

@@ -201,7 +201,7 @@ ASSAULT['pxemma'] = R('p213e', 'xn', 30, D(1.2, 1.0, 4),
 NAMES['pxemma'] = ('Power Stomp', 'powers up, stomps on the monster from above and blasts it with a fireball')
 
 # ---- KETTLE: a game - TAG, you're it! a kick, and a paper plane, point-blank
-ASSAULT['kettle'] = R('p227', 'kq', 32, D(1.5, 1.1, 1),
+ASSAULT['kettle'] = R('p227', 'kv', 32, D(1.5, 1.1, 1),
     hits={1: (3, ['particle minecraft:happy_villager ~ ~1.4 ~ 0.3 0.3 0.3 0 6', SLOW], 'minecraft:entity.player.attack.knockback', 1.6),
           2: (4, ['particle minecraft:crit ~ ~1 ~ 0.3 0.3 0.3 0.3 12', 'particle minecraft:poof ~ ~0.4 ~ 0.3 0.1 0.3 0.05 6'], 'minecraft:entity.player.attack.strong', 1.4),
           3: (7, ['particle minecraft:white_ash ~ ~1 ~ 0.5 0.5 0.5 0 30', 'particle minecraft:crit ~ ~1 ~ 0.4 0.4 0.4 0.4 16'], 'minecraft:entity.firework_rocket.blast', 1.4)},
@@ -378,7 +378,7 @@ ASSAULT['don'] = dict(pfx='p226/lite/don', s_obj='bm.ksg', anim='p63/don/anim', 
 NAMES['don'] = ('Mothership Charge', 'charges the monster, hits it twice and jumps on it with both feet')
 
 # ================================================================================================ batch 4: the 3.1 followers
-ASSAULT['cake'] = R('p265', 'kz', 30, D(1.4, 1.0, 3),
+ASSAULT['cake'] = R('p265', 'ky', 30, D(1.4, 1.0, 3),
     hits={1: (2, ['particle ' + _c(1.0, 0.6, 0.8, 1.2) + ' ~ ~1 ~ 0.3 0.3 0.3 0 10', CRIT], 'minecraft:entity.player.attack.crit', 1.6),
           2: (8, ['particle minecraft:firework ~ ~1 ~ 0.4 0.4 0.4 0.15 30', 'particle ' + _c(1.0, 0.95, 0.85, 1.6) + ' ~ ~0.4 ~ 1 0.1 1 0 40', 'effect give @s minecraft:slowness 2 4 true'],
               'minecraft:entity.firework_rocket.blast', 1.2)},

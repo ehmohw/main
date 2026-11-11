@@ -153,9 +153,9 @@ AURA = {
                                                                         f'particle {dust(0.25, 0.5, 1.0, 1.1)} ~ ~1.0 ~ 0.6 0.6 0.6 0 2',
                                                                         f'particle {dust(1.0, 0.88, 0.2, 1.1)} ~ ~1.0 ~ 0.6 0.6 0.6 0 2']),
     'sky': ('Starry Sky', '#ffe890', 2.4, 1.4, 'minecraft:end_rod', ['particle minecraft:end_rod ~ ~2.6 ~ 0.6 0.3 0.6 0.01 2', f'particle {dust(1.0, 0.85, 0.3, 1.1)} ~ ~2.0 ~ 0.8 0.5 0.8 0 3', f'particle {dust(0.85, 0.9, 1.0, 1.0)} ~ ~2.2 ~ 0.8 0.5 0.8 0 2', 'particle minecraft:falling_water ~ ~1.6 ~ 0.5 0.1 0.5 0 1']),
-    'pxemma': ('Scanlines', '#ff6ac8', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
-    'pxleo': ('Scanlines', '#4ab0ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
-    'pxcecil': ('Scanlines', '#b070ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3'])}
+    'pxemma': ('Pink Scanlines', '#ff6ac8', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
+    'pxleo': ('Blue Scanlines', '#4ab0ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3']),
+    'pxcecil': ('Violet Scanlines', '#b070ff', 2.0, 1.2, 'minecraft:electric_spark', ['particle minecraft:electric_spark ~ ~1.8 ~ 0.4 0.6 0.4 0.05 2', f'particle {dust(1.0, 1.0, 1.0, 0.6)} ~ ~1.2 ~ 0.5 0.8 0.5 0 3'])}
 if __import__('rkflag').ON: AURA['ratking'] = ('The Golden Hoard', '#ffc23a', 2.4, 1.2, 'minecraft:wax_on', ['particle minecraft:dust{color:[1.0,0.78,0.2],scale:1.0} ~ ~1.6 ~ 0.7 1.0 0.7 0 2', 'particle minecraft:falling_dust{block_state:"minecraft:gold_block"} ~ ~2.6 ~ 0.7 0.3 0.7 0 2', 'particle minecraft:wax_on ~ ~1.2 ~ 0.6 0.8 0.6 0 1'])      # (3.0k: the Rat King - rkflag)
 __import__('fol5').reg(__name__, globals(), 'aura')      # (3.1: the new followers - fol5, fol5flag)
 assert set(AURA) == set(ORDER) == set(HOST) == set(P99.BASE)
@@ -169,6 +169,7 @@ assert len(ORDER) <= 85
 for _w in ORDER:
     _n, _c = AURA[_w][0], AURA[_w][1]
     _who = P99.NAMES[_w][0]
+    _who = 'the ' + _who[4:] if _who.startswith('The ') else _who      # (3.1j: mid-sentence)
     item(f'cos_aura_{_w}', TOTEM, f'Aura: {_n}', _c,
          [f'A rare aura for {_who} alone - a ring of light,', 'and a haze all their own.', ('Use: it\'s theirs for good.', 'blue'),
           ('Switch it on and off in their wardrobe.', 'gray'), ('A rare heist find (Tier III and up) - or the Tailor\'s dearest stock.', 'dark_gray')],

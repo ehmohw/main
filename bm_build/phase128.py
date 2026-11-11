@@ -191,9 +191,9 @@ def generate(G):
     # his card's menu
     dlg = P28.multi([T("Pearlman's Business Card", PEARL, bold=True)],
                     [P28.body([T('Off duty, on your side. ', 'white'), T('Not a fighter - he can\'t be hurt - but a salesman. While he\'s close:', 'gray')]),
-                     P28.body([T('Gift of the Gab', GOLD, bold=True), T(' villagers trade cheaper and toss you gifts.  ', 'gray'),
-                               T('A Lucky Flipper', '#7ad06a', bold=True), T(' Luck.  ', 'gray'), T('Penguin Stroke', PEARL, bold=True),
-                               T(' you swim like him.  ', 'gray'), T('Appraisal', '#e8b04a', bold=True), T(' 1 trade in 5 with a villager near him: an emerald back.', 'gray')], 300),
+                     P28.body([T('Gift of the Gab', GOLD, bold=True), T(' - villagers trade cheaper and toss you gifts.  ', 'gray'),
+                               T('A Lucky Flipper', '#7ad06a', bold=True), T(' - Luck.  ', 'gray'), T('Penguin Stroke', PEARL, bold=True),
+                               T(' - you swim like him.  ', 'gray'), T('Appraisal', '#e8b04a', bold=True), T(' - 1 trade in 5 with a villager near him: an emerald back.', 'gray')], 300),
                      P28.body([T('Hand him an Ethereal Gem or a Wraithfire Heart ', ETH_C), T('(right-click him holding it): a joke form. It is not much of a joke. '
                                                                                           'His wardrobe turns it on or off, and gives it back.', 'gray')], 300)],
                     [P28.btn(T('Wait here / follow me', 'white', bold=True), 8301, tooltip=T('He waits on the spot - or waddles after you again.', 'gray'), width=150),

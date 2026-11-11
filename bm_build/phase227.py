@@ -43,7 +43,7 @@ def dust(c, s=1.4):
 
 
 class C(RP.Cfg):
-    W, NAME, COL, LINE, pfx, ab, q = W, 'Kettle', KT_C, KT_LINE, 'p227', 'kt', 'kq'
+    W, NAME, COL, LINE, pfx, ab, q = W, 'Kettle', KT_C, KT_LINE, 'p227', 'kt', 'kv'
     A = A
     MENU = 2920
     PET_HP, PET_CD = 40, 120
@@ -142,8 +142,14 @@ P188.PAIRS.update({
                    [('kettle', '"Look! That cloud looks like a duck!"'), ('sky', 'Nimbus: "...it IS a duck now. :3"')],
                    [('sky', 'Sunny: "Kettle! Tag - you\'re it!"', 'kettle', '"No fair, you can FLY!"'),
                     ('kettle', '"Twinkle, how many stars are there?"', 'sky', 'Twinkle: "One more every time you count!"')]),
+    # (3.1j: the owner's rule - a duo with Bender for everyone; Kettle's was missing)
+    'fetchplane': ('kettle', 'bender', 'Fetch the Plane', '#ffb060', 'Kettle and Bender - a paper plane, thrown, and a dog who will bring it back every time',
+                   [f'effect give {_O} minecraft:speed 3 0 true', f'effect give {_O} minecraft:jump_boost 3 0 true'],
+                   [('kettle', '"Bender! Bender! Watch the plane! Ready? FETCH!"'), ('bender', '(already gone. Already back. Tail going.)')],
+                   [('kettle', '"Again! Again!"', 'bender', '(drops the plane at his feet. A little damp. Very proud.)'),
+                    ('bender', '(a bark - and the plane is somehow in his mouth again)', 'kettle', '"Hey! I didn\'t even throw it yet!"')]),
 })
-P188.ICON.update({'sketchplay': 'bm:kettle_plane', 'recess': 'bm:kettle_plane', 'cloudwatch': 'bm:kettle_plane'})
+P188.ICON.update({'sketchplay': 'bm:kettle_plane', 'recess': 'bm:kettle_plane', 'cloudwatch': 'bm:kettle_plane', 'fetchplane': 'bm:kettle_plane'})
 
 
 def extend_offers(O, offer):

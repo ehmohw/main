@@ -403,8 +403,8 @@ def generate(G):
                              f'scoreboard players operation #q bm.rng = @s {un}', f'scoreboard players set #bit bm.rng {2 ** k}',
                              'scoreboard players operation #q bm.rng /= #bit bm.rng', 'scoreboard players operation #q bm.rng %= #2 bm.rng',
                              pg(f'p_{who}'),
-                             f'execute if score #q bm.rng matches 1 run return run function bm:p103/tl/note {{t:"{cn} is in {wn}\'s wardrobe already."}}',
-                             f'execute if items entity @s container.* {hold(it)} run return run function bm:p103/tl/note {{t:"You have that one - use it to put it in {wn}\'s wardrobe."}}',
+                             f'execute if score #q bm.rng matches 1 run return run function bm:p103/tl/note {{t:"{cn} is in {wn}{"\'" if wn.endswith("s") else "\'s"} wardrobe already."}}',
+                             f'execute if items entity @s container.* {hold(it)} run return run function bm:p103/tl/note {{t:"You have that one - use it to put it in {wn}{"\'" if wn.endswith("s") else "\'s"} wardrobe."}}',
                              'function bm:p103/wallet', poor(pr, f'p_{who}'),
                              f'scoreboard players set #need bm.rng {pr}', 'function bm:p103/spend', f'function bm:p99/unlock/{g}{k}',
                              'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', f'function bm:p103/tl/p_{who}'])
@@ -413,7 +413,7 @@ def generate(G):
                              f'scoreboard players set #need bm.rng {pr}', 'function bm:p103/spend', f'loot give @s loot bm:items/{c}',
                              'playsound minecraft:entity.villager.yes player @s ~ ~ ~ 0.8 1', 'function bm:p103/tl/cases'])
     fn('p103/tl/note', ['$' + tellraw('@s', P + [T('$(t)', 'gray')]), 'function bm:p103/tl/reopen'])
-    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL}..{TL + 59} run return run function bm:p103/tl/act')
+    G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL}..{TL + 59} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')     # (3.1j: only from the Tailor)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches {TL2}..{TL2 + 99} if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8200..8279 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.82: the overflow block)
     G.FUNCS['p28/act'].append(f'execute if score #act bm.pay matches 8293..8299 if score @s bm.menu matches {TL} run return run function bm:p103/tl/act')   # (2.86: the auras past the 18th)

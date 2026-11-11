@@ -78,7 +78,7 @@ BOSSES = {
                  rise=('The snow on the altar heaves...', 'Somewhere, a hat screams.'),
                  lore='Pistachio\'s living hat, frightened, came down on a snowman - and made a monster of it.'),
     'witch': dict(NAME='The Watchful Witch', COL='#7aff5a', A=witch_art, host='husk', hp=760, scale=1.5, armor=10, move='float', speed=0.2,
-                  bar='green', token='tok_hex', ruin='Hexen Hollow', ruin_col='#a8ff8a', map='sealed_map_db_witch', mapname='Hexed Map',
+                  bar='green', token='tok_hex', ruin='Hexen Hollow', ruin_col='#a8ff8a', map='sealed_map_db_witch', mapname="Witch's Hexed Map",
                   trio=[('Cecil', 'bm.cecilpet'), ('Apophiss', 'bm.appet'), ('King Omega', 'bm.ompet')],
                   biomes=['minecraft:dark_forest', 'minecraft:swamp', 'minecraft:mangrove_swamp', 'minecraft:pale_garden', 'minecraft:old_growth_spruce_taiga'],
                   rise=('The cauldron boils over with shadow...', 'Someone is watching. Someone has always been watching.'),

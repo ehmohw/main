@@ -422,8 +422,8 @@ def generate(G):
                         '$data modify storage bm:lk ev.z set value $(z)', 'function bm:p104/lk/fits'])
     fn('p104/lk/fits', ['execute unless data storage bm:lk ev.items[0] run return 0', 'execute if score #sl bm.rng matches 27.. run return 0',
                         'execute store result storage bm:lk ev.sl int 1 run scoreboard players get #sl bm.rng', 'scoreboard players add #sl bm.rng 1',
-                        'function bm:p104/lk/fit1 with storage bm:lk ev', 'function bm:p104/lk/fits'])
-    fn('p104/lk/fit1', ['$execute if data block $(x) $(y) $(z) Items[{Slot:$(sl)b}] run return 0',
+                        'function bm:p104/lk/fit_slot with storage bm:lk ev', 'function bm:p104/lk/fits'])     # (3.1j: was fit1 - the same name as bay 1's refit)
+    fn('p104/lk/fit_slot', ['$execute if data block $(x) $(y) $(z) Items[{Slot:$(sl)b}] run return 0',
                         'data modify storage bm:lk ev.one set from storage bm:lk ev.items[0]', 'execute store result storage bm:lk ev.one.Slot byte 1 run data get storage bm:lk ev.sl',
                         '$data modify block $(x) $(y) $(z) Items append from storage bm:lk ev.one', 'data remove storage bm:lk ev.items[0]'])
     fn('p104/lk/lost', ['execute unless data storage bm:lk ev.items[0] run return 0', '$data modify storage bm:lk lost.p$(pid) append from storage bm:lk ev.items[]',

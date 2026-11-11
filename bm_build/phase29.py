@@ -58,7 +58,7 @@ coas('spawner_crowbar', 'Spawner Crowbar', '#8a8a96',
      ['Pries a monster spawner loose, mob and all.', ('Right-click a spawner within 5 blocks.', 'blue'), ('3 uses.', 'gray')],
      'bm:spawner_crowbar', extra={'uses': Int(3)}, dynamic=True)
 coas('caged_spawner', 'Caged Spawner', '#7a6a9a',
-     ['A monster spawner in a travelling cage.', ('Right-click a block to set it down there.', 'blue')], 'bm:caged_spawner', dynamic=True)
+     ['A monster spawner in a traveling cage.', ('Right-click a block to set it down there.', 'blue')], 'bm:caged_spawner', dynamic=True)
 coas('lodestone_locket', 'Lodestone Locket', '#b0a0d0',
      ['A locket with a lodestone chip inside.', ('Right-click to switch it on or off.', 'blue'), ('While on, dropped items and XP within', 'blue'),
       ('7 blocks drift to you.', 'blue')], 'bm:lodestone_locket')
@@ -179,15 +179,25 @@ def generate(G):
     dlg = P28.multi([T('Ring of Ten Burrows', '#d4a35a', bold=True)],
                     [P28.body([T('Travel takes 3 seconds standing still. Moving or getting hurt cancels it.', 'gray')]),
                      P28.body([T('Recharge: ', 'dark_gray'), T('$(cd)', 'white'), T(' s', 'dark_gray')])],
-                    [b for k in range(1, NB + 1) for b in (P28.btn([T(f'{k}. Go: ', 'gold'), T(f'$(t{k})', 'white')], 6000 + k, width=200),
-                                                            P28.btn([T(f'Set burrow {k} here', 'gray')], 6010 + k, width=130))],
-                    columns=2)
+                    [P28.btn([T(f'{k}. Go: ', 'gold'), T(f'$(t{k})', 'white')], 6000 + k, width=260) for k in range(1, NB + 1)] +
+                    [P28.btn([T('Dig a burrow here ›', '#d4a35a')], 6021, width=260, tooltip=T('Save where you stand in one of the ten slots.', 'gray'))],
+                    columns=1)
     fn('p29/burrow/dlg', [f'$dialog show @s {P28.inline(dlg)}'])
+    # (3.1j: the owner's sweep - "Set burrow N here" sat beside "N. Go": one slip and a saved place was gone. Saving is its own page now)
+    dlg2 = P28.multi([T('Ring of Ten Burrows', '#d4a35a', bold=True), T('  ·  dig here', 'gray')],
+                     [P28.body([T('Pick the slot to save where you stand. ', 'gray'), T('The place in it now is forgotten.', '#ff8a6a')])],
+                     [P28.btn([T(f'Set {k} ', 'gray'), T(f'(now: $(t{k}))', 'dark_gray')], 6010 + k, width=260) for k in range(1, NB + 1)] +
+                     [P28.btn([T('« ', 'gray'), T('Burrows', '#d4a35a')], 6022, width=260)],
+                     columns=1)
+    fn('p29/burrow/dlg2', [f'$dialog show @s {P28.inline(dlg2)}'])
+    fn('p29/burrow/menu2', [l.replace('function bm:p29/burrow/dlg with', 'function bm:p29/burrow/dlg2 with') for l in menu])
     act = G.FUNCS['p28/act']
     act.append('execute if score #act bm.pay matches 6001..6099 run return run function bm:p29/burrow/act')
     fn('p29/burrow/act', [f'execute unless score @s bm.menu matches {P28.MENU["burrow"]} run return run function bm:p28/stale',
                           'execute unless score @s bm.brid matches 1.. run ' + deny('Use the ring again.'),
                           f'execute if score #act bm.pay matches 6011..{6010 + NB} run return run function bm:p29/burrow/set',
+                          'execute if score #act bm.pay matches 6021 run return run function bm:p29/burrow/menu2',
+                          'execute if score #act bm.pay matches 6022 run return run function bm:p29/burrow/menu',
                           f'execute if score #act bm.pay matches 6001..{6000 + NB} run return run function bm:p29/burrow/go'])
     dims = [('minecraft:overworld', 'Overworld'), ('minecraft:the_nether', 'Nether'), ('minecraft:the_end', 'End')]
     fn('p29/burrow/set', no_zone('The ring') + [

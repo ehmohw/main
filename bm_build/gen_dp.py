@@ -271,7 +271,7 @@ if PHASE2:
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
 OUT = None
-VERSION2 = 'v3.1i'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
+VERSION2 = 'v3.1j'                               # (the phase-2 version: the load message, pack.mcmeta, BUTTON_CODES.md)
 FUNCS = {}
 
 
@@ -287,11 +287,19 @@ def wjson(rel, obj):
         json.dump(obj, f, indent=1, ensure_ascii=False)
 
 
+REDEF = []                       # (3.1j: functions made twice - the second silently replaced the first: listed at the end of the build)
+
+
 def fn(name, lines):
     """Register a function bm:<name>."""
     if isinstance(lines, str):
         lines = lines.strip('\n').split('\n')
+    if name in FUNCS and FUNCS[name] != [l.rstrip() for l in lines]: REDEF.append(name)
     FUNCS[name] = [l.rstrip() for l in lines]
+
+
+import atexit as _ax
+_ax.register(lambda: REDEF and open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out_p2', 'redef.txt'), 'w').write('\n'.join(REDEF)))
 
 
 # ---------------------------------------------------------------- item helpers
@@ -1596,6 +1604,14 @@ def build(out_dir):
     ld = FUNCS['load']
     adds = [l for l in ld if l.startswith('scoreboard objectives add ')]
     FUNCS['load'] = adds + [l for l in ld if not l.startswith('scoreboard objectives add ')]
+    R18.refresh_files(sys.modules[__name__], [i for i in ITEMS if i not in R18.DONE])     # (3.1j: items registered late - the Gilded Feather)
+    # 3.1j: the server's two crashes (11-06) were 12,000-40,000 falling blocks at once - a structure's sand let go. A hard stop: past
+    #       2,500 at once they're removed (the blocks are lost; the server isn't) and operators are told
+    FUNCS['loop/second'].append('execute store result score #fbn bm.rng if entity @e[type=minecraft:falling_block]')
+    FUNCS['loop/second'].append('execute if score #fbn bm.rng matches 2500.. run function bm:admin/fb_flood')
+    fn('admin/fb_flood', ['tellraw @a[gamemode=creative] ' + json.dumps({'text': '[Black Market] Thousands of falling blocks at once - removed to save the server.', 'color': 'red'}),
+                          'say Black Market: a flood of falling blocks was removed to keep the server alive.',
+                          'kill @e[type=minecraft:falling_block]'])
     # 2.78: uninstall removes every objective the pack makes and clears everything it schedules (it was written before most
     #       phases had added theirs: 153 of ~950 objectives were left behind)
     import re as _re
@@ -1604,6 +1620,11 @@ def build(out_dir):
     sched = sorted({m.group(1) for ls in FUNCS.values() for l in ls for m in [_re.search(r'schedule function (bm:[\w/]+)', l)] if m})
     clears = [f'schedule clear {s}' for s in sched if f'schedule clear {s}' not in keep]
     FUNCS['admin/uninstall'] = clears + keep[:-1] + list(dict.fromkeys(f'scoreboard objectives remove {l.split()[3]}' for l in adds)) + keep[-1:]
+    # 3.1j: and every attribute modifier the pack can put on a player (max health from Heartstones and the like stayed behind) -
+    #       removing one a player hasn't got just fails, harmlessly
+    mods = sorted({(m.group(1), m.group(2)) for ls in FUNCS.values() for l in ls for m in _re.finditer(r'attribute @[sap]\S* (minecraft:[a-z_.]+) modifier add (bm:[a-z_0-9]+)\b', l)})
+    mods = {x for x in mods if not x[1].endswith('_')} | {('minecraft:max_health', f'bm:arc_heart_{k}') for k in (1, 2, 3)}
+    FUNCS['admin/uninstall'][-1:-1] = [f'execute as @a run attribute @s {a_} modifier remove {m_}' for a_, m_ in sorted(mods)]
     for name, lines in FUNCS.items():
         with open(path('data', 'bm', 'function', name + '.mcfunction'), 'w') as f:
             f.write('\n'.join(mig263.inline_modifier(l) for l in lines) + '\n')     # 26.3: inline loot functions/conditions key on `type`

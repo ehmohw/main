@@ -142,8 +142,9 @@ for _w, (_who, _col, _word, _set) in NEW.items():
         _short = {'frog': 'The Frog'}.get(_w, _who)
         _menu = {'wil': 'Sneak + use his locket while he rests: his wardrobe.', 'pearl': 'Sneak + use his card: his menu - Wardrobe.'}.get(
             _w, ('Sneak + use its own item: its menu - Wardrobe.' if _w in IT else 'Sneak + use their own item: their menu - Wardrobe.' if _w in THEY else 'Sneak + use her own item: her menu - Wardrobe.' if _w in SHE else 'Sneak + use his own item: his menu - Wardrobe.') if _w in WORD else 'Sneak + use his own item: his menu - change any time.')
+        _wm = 'the ' + _who[4:] if _who.startswith('The ') else _who      # (3.1j: mid-sentence)
         item(_iid, TOTEM, f"{_short}'s {_word}: {_n}", _pal[1] if _pal[1] != '#55555c' else '#9a9aa2',
-             [f'{_n} - for {_who} alone.' if _w not in WORD else f'{_n} - {WORD[_w]}, for {_who} alone.',
+             [f'{_n} - for {_wm} alone.' if _w not in WORD else f'{_n} - {WORD[_w]}, for {_wm} alone.',
               (f'Use: it\'s {"its" if _w in IT else "theirs" if _w in THEY else "hers" if _w in SHE else "his"} for good - in {"its" if _w in IT else "their" if _w in THEY else "her" if _w in SHE else "his"} wardrobe.', 'blue'), (_menu, 'gray')] +
              ([('Hidden: rare - a Gutter Trophy at Goldtooth.', 'dark_gray')] if _k == HIDDEN else []) +
              ([('With a gem in him, the gem\'s element shows instead.', 'dark_gray')] if _w in ('cecil', 'kw') else []),
@@ -325,7 +326,7 @@ def generate(G):
             fn(f'p99/unlock/{g}{k}', [f'execute unless score @s {un} matches 0.. run scoreboard players set @s {un} 0'] + bit(un, k) +
                ['execute if score #q bm.rng matches 1 run return 0', f'scoreboard players add @s {un} {2 ** k}',
                 f'clear @s *[minecraft:custom_data~{{bm:"{iid.format(k)}"}}] 1', 'playsound minecraft:item.armor.equip_leather player @s ~ ~ ~ 1 1.2',
-                tellraw('@s', P + [T(ks[k][0], ks[k][1], bold=True), T(f' is in {NAMES[who][0]}\'s wardrobe for good. ', 'gray'),
+                tellraw('@s', P + [T(ks[k][0], ks[k][1], bold=True), T(' is in ' + NAMES[who][0] + ('\'' if NAMES[who][0].endswith('s') else '\'s') + ' wardrobe for good. ', 'gray'),
                                    T(f"(Sneak + use {({'him': 'his', 'it': 'its', 'them': 'their'}).get(NAMES[who][2], NAMES[who][2])} item to change any time.)", 'dark_gray')])])
     old_use = {'ribbon': 'p78/use/ribbon{}', 'dress': 'p78/use/dress{}', 'outfit': 'p89/use/outfit{}', 'celi': 'p78/use/celi{}', 'zib': 'p78/use/zib{}'}
     for who, g, cur, un, ks, iid, off, apply in GROUPS:
@@ -459,7 +460,7 @@ def generate(G):
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
         dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
-                        [P28.body([T('Every outfit you\'ve used is ' + pron + 's for good. Pick one any time - ', 'gray'),
+                        [P28.body([T('Every outfit you\'ve used is ' + {'him': 'his', 'her': 'hers', 'it': 'its', 'them': 'theirs'}.get(pron, pron + 's') + ' for good. Pick one any time - ', 'gray'),
                                    T('locked', 'dark_gray', bold=True), T(' ones are sold by Goldtooth in the vault (the hidden ones for a Gutter Trophy).', 'gray')] +
                                   ([T(' With a gem in him, the gem\'s element shows instead.', 'dark_gray')] if who in ('cecil', 'kw') else []), 330)],
                         btns, columns=3 if who == 'emma' else 2, exit_label='Close')

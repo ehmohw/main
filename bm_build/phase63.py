@@ -183,6 +183,7 @@ def generate(G):
         'execute if score #f bm.rng matches 38 on passengers if entity @s[tag=bm.dnr_eyes] run data modify entity @s item.components."minecraft:item_model" set value "bm:dnr_eyes"'])
     # the old single-model body is swapped for the rig (here and for any Donado from before)
     G.FUNCS['p25/don/anim'] = ['return 0']
+    G.FUNCS['tick'][:] = [l for l in G.FUNCS['tick'] if not l.endswith('run function bm:p25/don/anim')]      # (3.1j: no wolf scan to call a stub)
     second.append('execute as @e[type=minecraft:wolf,tag=bm.donado,tag=!bm.rigged] at @s run function bm:p63/don/rig')
     fn('p63/don/rig', ['tag @s add bm.rigged', 'tag @s add bm.rhost', 'execute on passengers if entity @s[tag=bm.dn_body] run kill @s'] +
        dr.summon(lambda n: f'bm:dnr_{n}' if n != 'head' else 'bm:dnr_head_none') +
@@ -226,6 +227,7 @@ def generate(G):
         a, b = helm_of(m); hm += [f'execute if items entity @s armor.head minecraft:{hid} {a[8:]}', f'execute if items entity @s armor.head minecraft:{hid} {b[8:]}']
     fn('p63/frog/headmodel', hm)
     G.FUNCS['p21/frog/anim'] = ['return 0']
+    G.FUNCS['tick'][:] = [l for l in G.FUNCS['tick'] if not l.endswith('run function bm:p21/frog/anim')]      # (3.1j: no wolf scan to call a stub)
     G.FUNCS['p20/frog/refresh'].append('execute if entity @s[tag=bm.frogpet] run function bm:p63/frog/headmodel')
     second.append('execute as @e[type=minecraft:wolf,tag=bm.frogpet,tag=!bm.rigged] at @s run function bm:p63/frog/rig')
     fn('p63/frog/rig', ['tag @s add bm.rigged', 'tag @s add bm.rhost', 'execute on passengers if entity @s[tag=bm.fp_body] run kill @s'] +

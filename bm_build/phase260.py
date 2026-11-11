@@ -132,8 +132,8 @@ def merge_words(vs):
 
 
 # (a main-menu button that's a setting - it goes to the Settings page; everything else stays where it was)
-SETTING = re.compile(r'(Companion size|Ophanim|^Form\b|Form: on|form: on|Element:|^Give back|^Take back|Living / ghostly|Casual / regal|'
-                     r'Gentry / chibi|Unbound / Bound|Grown / Little)')
+SETTING = re.compile(r'(Companion size|Full size|^Gifts\b|Ophanim|^Form\b|Form: on|form: on|Element:|^Give back|^Take back|Living / ghostly|Casual / regal|'
+                     r'Gentry / chibi|Unbound / Bound|Grown / Little)', re.I)     # (3.1j: any case; Full size and Gifts too)
 SHORT = {'Take back the Ethereal Gem / Wraithfire Heart': 'Take back the gem / heart', 'Ethereal / Wraithfire Form: on / off': 'Ethereal / Wraithfire form'}
 # (3.0p) followers met outside the roster (phase125.WHO) - their bm:met/ key: (name, colour, the Handbook's hint)
 MET_EXTRA = {'escort': ('The Skiff Escort', '#9ad0ff', 'A Vorn Dreadnought\'s reactor, beaten on an invasion night.')}
@@ -292,6 +292,11 @@ def generate(G):
                 items.append(b)
             if not any(code_of(b) == B_SET for b in items): items.append(b_set(WHO[w][2]))
             F[name][j] = set_actions(l, sp, items)
+        # (3.1j) the Ledger's copy (phase119: made before this) follows the new wardrobe: same buttons, its first one « Outfits
+        if f'p119/dlg/{w}' in F:
+            d = F[name][0]
+            home = next((t for t in ('Send her home', 'Send him home', 'Send it home', 'Send them home') if t in d), None)
+            if home: F[f'p119/dlg/{w}'][:] = [d.replace(home, '« Outfits & buffs')] + F[name][1:]
 
     # (3.0p) a switch moved off a menu shown only now and then (Emma's Wraithfire menu: only while she holds the heart) is shown on
     #  the Settings page only then too - the condition its menu is opened under (scores of the player's own; anything else: always)

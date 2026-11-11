@@ -38,7 +38,7 @@ UNBR = {'minecraft:unbreakable': {}}
 holds = lambda i: f'*[minecraft:custom_data~{{bm:"{i}"}}]'
 
 item('tide_scale', TOTEM, 'Tide Scale', GLASS,
-     ['A scale of sea-glass from the kingdom\'s armoury.', ('The Royal Steward takes them for the', 'aqua'), ('Tidewarden and Pearlguard armour.', 'aqua'),
+     ['A scale of sea-glass from the kingdom\'s armory.', ('The Royal Steward takes them for the', 'aqua'), ('Tidewarden and Pearlguard armour.', 'aqua'),
       ('Won holding off dome breaches, from Tide', 'gray'), ('Raiders, the tribute and the towers.', 'gray')],
      model='bm:tide_scale', stack=64, cat='currency')
 
@@ -117,7 +117,7 @@ for _i, _d, _imp in (('leo_trident', 12, True), ('leo_spear', 10, False)):
 
 
 ITEMS['bloomheart_gem']['comps']['minecraft:lore'][2:5] = [T('Right-click: a ring of blossom - you and', 'blue'), T('everyone within 8 blocks get Regeneration III', 'blue'),
-                                                           T('and Absorption II for 10 seconds. 30 second', 'blue'), T('recharge. (Kingdom-blessed, 2.92)', 'blue')]
+                                                           T('and Absorption II for 10 seconds. 30 second', 'blue'), T('recharge. (Kingdom-blessed.)', 'blue')]
 
 
 def extend_offers(O, offer):
@@ -264,7 +264,7 @@ def generate(G):
     bh = G.FUNCS['p45/bloomheart_gem/use']
     bh[:] = [l.replace('bm.mcd4 900', 'bm.mcd4 600').replace('regeneration 8 1', 'regeneration 10 2') for l in bh]
     bh += ['effect give @a[distance=..8,gamemode=!spectator] minecraft:absorption 10 1']
-    G.FUNCS['p59/bloom/boosted'] = [l.replace('regeneration 12 1', 'regeneration 12 2') for l in G.FUNCS['p59/bloom/boosted']]
+    G.FUNCS['p59/bloom/boosted'] = [l.replace('regeneration 12 1', 'regeneration 12 2').replace('absorption 12 0', 'absorption 12 1') for l in G.FUNCS['p59/bloom/boosted']]     # (3.1j: its Absorption raised too - it was weaker than the plain use)
 
     # ---------------------------------------------------------------- at the Font: Leo gives his Aegis; Emma her Crescent
     lpet = '@e[type=minecraft:wolf,tag=bm.leopet,distance=..24]'

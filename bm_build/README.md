@@ -21,6 +21,57 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1j: the final sweep
+
+A full review of items, followers, menus, terrain and the per-tick code, and the fixes it turned up.
+
+**Bugs fixed**
+- **Followers sending each other home.** Kettle and the Chef, Nia and the Neighbor, and the Cake and the Count shared their score names, so calling one sent the other home within a second. Each now has its own. Kettle, Nia and the Cake may need calling once after updating.
+- **Golden Bones doll.** Every new follower renumbered him, so a Golden Bones doll set down in 3.0k–3.1i gave the Glitch's gift and dropped a Glitch doll when punched. He's fixed in place now, and every set-down golden doll re-checks itself once by the doll it shows.
+- **Raid Crew switches.** Turning Pistachio (or Omega) off also turned off the Frog (or Donado) hireling. The hirelings have their own switches now. Hireling switches you had turned off are back on.
+- **Locker bay 1** could never be refilled: its items always went to Lost & Found.
+- **Dawnbreaker Hourglass** now refuses on a Dread Night, as its text always said.
+- **Ray guns and the Roc's crook** no longer share one cooldown.
+- **Emma's Bloomheart:** the boosted use (by day, or with Emma) gave a weaker shield than the plain one. It's Absorption II now too.
+- **Mimic stashes** side by side no longer swap contents when one closes; each finds its own cart.
+- **Keeper of Bonds' send-off** counts the Compass's fifty, not every follower.
+- **The Tailor** can't be shopped from anywhere by typing a button code.
+
+**Menus**
+- **End-of-heist cards** keep their "Decide later" again instead of jumping to the Rat Pack.
+- **Ledger wardrobes** now match the follower wardrobes (⚙ Settings, the current layout).
+- **⚙ Settings now includes** the newer followers' "Companion size", "Full size" and "Gifts" switches.
+- **Ring of Ten Burrows:** "Go" and "Dig a burrow here" are on separate pages, so one slip can't overwrite a saved burrow.
+- **"Back" buttons:** the « Rat Pack and « Partners codes work only with a Pack on you. Exits that only closed now say "Close".
+- **Text fixes:**
+  - "is hims for good" now reads "his".
+  - "went home… call him again" now uses each follower's own pronoun, and "the The Bond Thread" is gone.
+  - Speakers in duo banter show their own colours and capitals.
+  - "the Sky Buddies's" is now "the Sky Buddies'".
+  - Doodle Mob forms no longer repeat their names.
+  - Pearlman's card has its separators back.
+  - Plurals like "Ring of Ten Burrowss" are fixed.
+
+**Items**
+- **Same-name pairs renamed:**
+  - the off-hand **Clover Pendant**, which has its own icon now instead of the Lucky Token's;
+  - the **Lucky Night Horseshoe**;
+  - the **Vault Rat's Signet**;
+  - **Smuggler's Soft Boots**;
+  - the **Witch's Hexed Map**.
+- **Auras renamed:** the Mimic's aura is **Treasure Glint**, and the 8-bit auras have their own colours in their names.
+- **Dread-forged weapons** say what their bonus is "over".
+- **The Heartgeode and its Seed** say to drop them, and the drums now tell you when no geode is near.
+- **Other text fixes:** Cabinet Rosette names, Bond Sigil wording, and a version number left in a lore line.
+- **The Gilded Feather** now updates with the pack like every other item.
+
+**Followers**
+- **Kettle and Bender** have their duo: Fetch the Plane.
+
+**Server safety**
+- **Falling-block failsafe.** More than 2,500 falling blocks at once are removed, and operators are told. This guards against the floods that crashed the server twice.
+- **Uninstall** also removes every attribute modifier the pack can put on a player, such as Heartstone hearts.
+
 ## New in 3.1i: the Undercrown's ground
 
 - **No more cube.** The Undercrown used to sit in a giant six-block netherrack box with flat faces, and the lake was cut straight down from a flat ceiling, leaving sheer walls. The dungeon now stands on a rounded mountain that slopes down into the lava on every side, with five blocks of rock kept over every room and nothing loose stuck to it.

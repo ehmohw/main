@@ -105,16 +105,16 @@ def relic_funcs(G, families):
         fn(f'p53/{fam}/use', [f'execute unless items entity @s weapon.mainhand {RELIC} run return 0',
                               f'function bm:p53/{fam}/form',
                               f'execute if entity @s[x_rotation=-90..-55] if function bm:p53/cat/has run return run function bm:p53/{fam}/turn',
-                              'execute if score @s bm.rcd matches 1.. run return run function bm:p53/wait',
+                              'execute if score @s bm.r53c matches 1.. run return run function bm:p53/wait',
                               f'function bm:p53/mood_{fam}', 'tag @s add bm.r53me'] +
            [f'execute if score #rv bm.rng matches {v} run function bm:p53/{fam}/act_{v}' for v in forms] +
            ['tag @s remove bm.r53me', 'tag @e[tag=bm.r53hit] remove bm.r53hit'] +
-           [f'execute if score #rv bm.rng matches {v} run scoreboard players set @s bm.rcd {cd}' for v, (*_r, cd) in forms.items()])
+           [f'execute if score #rv bm.rng matches {v} run scoreboard players set @s bm.r53c {cd}' for v, (*_r, cd) in forms.items()])
         fn(f'p53/{fam}/turn', [f'execute if items entity @s weapon.offhand {c} run return run function bm:p53/{fam}/to_{v}' for v, c in CATALYSTS])
         for v, (iid, name, col, *_r) in forms.items():
             fn(f'p53/{fam}/to_{v}', [f'execute if score #rv bm.rng matches {v} run return run ' + title('@s', 'actionbar', T('It is already in that form.', 'gray')),
                                      f'item replace entity @s weapon.mainhand with {G.item_arg(iid)}',
-                                     'item modify entity @s weapon.offhand {function:"minecraft:set_count",count:-1,add:true}', 'scoreboard players set @s bm.rcd 0'] +
+                                     'item modify entity @s weapon.offhand {function:"minecraft:set_count",count:-1,add:true}', 'scoreboard players set @s bm.r53c 0'] +
                CAT_FX[v] + [title('@s', 'actionbar', [T(name, col, bold=True), T(' - ' + CLASS[v][0], CLASS[v][1])])])
 
 # ---------------------------------------------------------------------- the bosses' bodies
@@ -145,7 +145,7 @@ def generate(G):
     fn, wjson, title, give, tellraw, PREFIX = G.fn, G.wjson, G.title, G.give, G.tellraw, G.PREFIX
     say = lambda txt, col='gray': title('@s', 'actionbar', T(txt, col))
     tick, fast, second = [], [], []
-    objs = ['bm.rcd dummy', 'bm.rst dummy', 'bm.r53t dummy', 'bm.r53x dummy', 'bm.rfx dummy', 'bm.r53w dummy']
+    objs = ['bm.rcd dummy', 'bm.r53c dummy', 'bm.rst dummy', 'bm.r53t dummy', 'bm.r53x dummy', 'bm.rfx dummy', 'bm.r53w dummy']
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o}' for o in objs] + [
         f'bossbar add bm:sph {snbt(T("The Sand Pharaoh", GOLD, bold=True))}', 'bossbar set bm:sph color yellow',
         'bossbar set bm:sph style notched_10', f'bossbar set bm:sph max {PH_HP}', 'bossbar set bm:sph visible false',
@@ -177,7 +177,7 @@ def generate(G):
     holds = '*[minecraft:custom_data~{bm:"%s"}]'
     fn('p53/cat/has', ['execute if items entity @s weapon.offhand #bm:p53_catalyst run return 1',
                        'execute if items entity @s weapon.offhand ' + holds % 'heartstone' + ' run return 1', 'return 0'])
-    fn('p53/wait', ['scoreboard players operation #fs bm.rng = @s bm.rcd', 'scoreboard players add #fs bm.rng 19', 'scoreboard players operation #fs bm.rng /= #20 bm.rng',
+    fn('p53/wait', ['scoreboard players operation #fs bm.rng = @s bm.r53c', 'scoreboard players add #fs bm.rng 19', 'scoreboard players operation #fs bm.rng /= #20 bm.rng',
                     title('@s', 'actionbar', [T('The relic is gathering its strength... ', 'gray'), {'score': {'name': '#fs', 'objective': 'bm.rng'}, 'color': 'white'},
                                               T(' s', 'gray')])])
     # this hit's damage: base (tenths) x the relic's mood (x1.5 for the crook under the sun, the talon in a thunderstorm)
@@ -189,7 +189,7 @@ def generate(G):
     fn('p53/mood_talon', ['scoreboard players set #rmul bm.rng 10',
                           'execute if dimension minecraft:overworld if predicate bm:p53/thunder run scoreboard players set #rmul bm.rng 15'])
     relic_funcs(G, FAMILIES)
-    fast.append('scoreboard players remove @a[scores={bm.rcd=1..}] bm.rcd 5')
+    fast.append('scoreboard players remove @a[scores={bm.r53c=1..}] bm.r53c 10')     # (3.1j: the crook's own cooldown - it shared the ray guns' bm.rcd)
     # (hits from a relic: as the target; bm.r53me = the wielder)
     hit = lambda dtype, extra=(): [f'tag @s add bm.r53hit', f'$damage @s $(d) {dtype} by @a[tag=bm.r53me,limit=1]'] + list(extra)
     pvp = f'@a[tag=!bm.r53me,tag=!bm.r53hit,tag=!bm.nopvp,{NEAR}'

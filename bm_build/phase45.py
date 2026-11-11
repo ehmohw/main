@@ -57,7 +57,7 @@ gear('starcaller_bow', 'bow', 'Starcaller Bow', '#ffe85a', ['The night sky owes 
 item('bloomheart_gem', TOTEM, "Emma's Bloomheart", '#ff7ae0',
      ['A gem that grew in a flower instead of a mine.', "Emma's - from the sea-kingdom's gardens.", ('Right-click: a ring of blossom - you and', 'blue'),
       ('everyone within 8 blocks get Regeneration II', 'blue'), ('for 8 seconds. 45 second recharge.', 'blue'),
-      ('By day, or with Emma following you: 12 blocks,', 'light_purple'), ('12 s, Absorption too, and a quicker recharge;', 'light_purple'),
+      ('By day, or with Emma following you: 12 blocks,', 'light_purple'), ('12 s, and a quicker recharge;', 'light_purple'),
       ('both at once: Resistance as well.', 'light_purple'),
       ('In your off hand: poison and wither', 'blue'), ("won't stick to you.", 'blue')],
      model='bm:bloomheart_gem', stack=1, cat='magic', glint=True, comps=hold('none'), tier=2)

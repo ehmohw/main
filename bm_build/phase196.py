@@ -79,7 +79,7 @@ class C(RP.Cfg):
 
 
 RP.register(C)
-item('bn_whistle', TOTEM, "Bones's Whistle", BJ_C,
+item('bn_whistle', TOTEM, "Bones' Whistle", BJ_C,
      ['A whistle carved from a shark\'s tooth, on a cord of kelp.', 'Emma has one just like it.', ('Use: call Bones (again: call him over).', 'blue'),
       ('Sneak + use: his menu - Ride.', 'blue'), ('Riding him: CHOMP!', 'blue'), ('Near him: Dolphin\'s Grace in water.', 'blue'),
       ('If he faints: 2 minutes before he can return.', 'gray'), ('"Who\'s my big scary boy?" - Emma', 'dark_gray')],

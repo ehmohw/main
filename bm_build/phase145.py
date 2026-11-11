@@ -66,8 +66,8 @@ item('fcontract_fishy', TOTEM, 'Raid Contract: Fishy', ORANGE,
      model='minecraft:paper', glint=True, stack=1, cat='magic', comps=hold('none'))
 HOLD['fcontract_fishy'] = 'bm:p145/sign'
 for _w, _n, _c, _d in CAB.WINGS + [('grand', 'the Whole Cabinet', GOLD, '')]:
-    item(f'cab_rosette_{_w}', TOTEM, f'Rosette of {_n}' if _w != 'grand' else 'The Grand Rosette', _c,
-         [f'Stained glass: the Cabinet\'s {_n} wing.' if _w != 'grand' else 'Stained glass: every wing of the Cabinet at once.',
+    item(f'cab_rosette_{_w}', TOTEM, f'Rosette of {_n[:1].lower() + _n[1:] if _n.startswith("The ") else _n}' if _w != 'grand' else 'The Grand Rosette', _c,
+         [f'Stained glass: the Cabinet\'s {_n[4:] if _n.startswith("The ") else _n} wing.' if _w != 'grand' else 'Stained glass: every wing of the Cabinet at once.',
           ('Given by Fishy to those who helped fill it.', 'gray'), ('Sneak + use on a block: set it up.', 'blue'), ('Sneak + punch it: take it back.', 'gray')],
          model=f'bm:cab_rosette_{_w}', stack=1, cat='relic', glint=_w == 'grand' or None, comps=hold('none'))
     HOLD[f'cab_rosette_{_w}'] = f'bm:p145/ros/place_{_w}'

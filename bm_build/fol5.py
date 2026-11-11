@@ -75,7 +75,7 @@ SPEC['glitch'] = dict(
 _ck = {1: ('Mint', ('#123a2a', '#5ac49a', '#d0fff0')), 2: ('Lemon', ('#3a3008', '#ecc02a', '#fff8b0')), 3: ('Chocolate', ('#2a1408', '#7a4424', '#c89060')),
        4: ('Gilded Icing', GOLD), 5: ('Diamond Icing', DIAMOND), 6: ('Netherite Icing', NETHERITE)}
 SPEC['cake'] = dict(
-    shiny_name='Shiny Midnight Velvet', NAME='The Cake', pron='it', COL='#ff9ccb', LINE='#ffe6f0', ab='cz', q='kz', pfx='p265', item='cake_candle', prefix='ck_',
+    shiny_name='Shiny Midnight Velvet', NAME='The Cake', pron='it', COL='#ff9ccb', LINE='#ffe6f0', ab='cz', q='ky', pfx='p265', item='cake_candle', prefix='ck_',
     word='Icing', looks=_ck, dyes=_dyes('Icing', 'lime', 'yellow', 'brown', _ck), words='its icing and sponge', plain='Strawberry and vanilla', base=5770,
     aura=('Birthday Wish', '#ffd23a', 0.95, 0.75, 'minecraft:small_flame',
           [f'particle {_dust(1.0, 0.95, 0.66, 0.7)} ~ ~0.9 ~ 0.4 0.3 0.4 0 2', 'particle minecraft:wax_on ~ ~1.1 ~ 0.4 0.2 0.4 0 1']),
@@ -196,7 +196,7 @@ _mm = {1: ('Trapped Chest', ('#2a0806', '#a83020', '#f0a070')), 2: ('Christmas C
 SPEC['mimic'] = dict(
     shiny_name='Shiny Voidbox', NAME='The Mimic', pron='it', COL='#e8b830', LINE='#fff0c0', ab='mx', q='wx', pfx='p270', item='mimic_key', prefix='mm_',
     word='Chest', looks=_mm, dyes=_dyes('Chest', 'red', 'green', 'black', _mm), words='its chest', plain='Oak chest', base=5620,
-    aura=('Jackpot', '#ffd23a', 0.8, 0.8, 'minecraft:wax_on', ['particle minecraft:wax_on ~ ~0.8 ~ 0.4 0.3 0.4 0 1', f'particle {_dust(1.0, 0.85, 0.2, 0.6)} ~ ~0.6 ~ 0.4 0.3 0.4 0 2']),
+    aura=('Treasure Glint', '#ffd23a', 0.8, 0.8, 'minecraft:wax_on', ['particle minecraft:wax_on ~ ~0.8 ~ 0.4 0.3 0.4 0 1', f'particle {_dust(1.0, 0.85, 0.2, 0.6)} ~ ~0.6 ~ 0.4 0.3 0.4 0 2']),
     anchors=('lid', 'mm_lid', 'body', 'mm_body'),
     champ=(None, [], False, ['minecraft:wax_on ~ ~1 ~ 0.3 0.2 0.3 0 1', _dust(0.91, 0.72, 0.19, 0.8) + ' ~ ~0.6 ~ 0.4 0.3 0.4 0 2']),
     gift=('Luck and Haste', [f'effect give {P8} minecraft:luck 15 0 true', f'effect give {P8} minecraft:haste 15 0 true']),
@@ -350,7 +350,7 @@ _ARTS = {}                       # (w -> a callable giving its art adapter: fill
 def reg(mod, g, part=None):
     """fill module `mod`'s registries (its globals g) with every switched-on new follower, in ORDER"""
     mod = mod.rsplit('.', 1)[-1]
-    if FL.DOODLEMOB and part in (None, 'who'):
+    if FL.DOODLEMOB and part in (None, 'who', 'new'):      # (3.1j: 'new' too - phase99's cosmetics were named before it)
         _rename_dragon(g, mod)
     if FL.DOODLEMOB and mod == 'phase138' and part == 'recol':       # (the Doodle Mob's forms: recoloured by his looks, each a set of its own)
         import phase263 as P263

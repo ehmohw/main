@@ -72,7 +72,7 @@ for _p, _slot, _arm, _nm in GILD:
              'minecraft:equippable': {'slot': _slot, 'asset_id': 'bm:gilded', 'equip_sound': 'minecraft:item.armor.equip_gold'}}))
 item('thiefs_cowl', 'minecraft:leather_helmet', "Thief's Cowl", '#5a5a6a', ['Soft black wool, deep in the hood.', ('While you sneak: invisible, and quick.', 'blue')],
      stack=1, cat='armor', tier=2, comps=dict(UNBR, **{'minecraft:dyed_color': 0x26262e, 'minecraft:attribute_modifiers': [attr('armor', 2, 'head')]}))
-item('smugglers_boots', 'minecraft:leather_boots', "Smuggler's Boots", '#8a6a4a', ['Soft soles, deep pockets.', ('Faster; step up a whole block;', 'blue'), ('fall further unhurt.', 'blue')],
+item('smugglers_boots', 'minecraft:leather_boots', "Smuggler's Soft Boots", '#8a6a4a', ['Soft soles, deep pockets.', ('Faster; step up a whole block;', 'blue'), ('fall further unhurt.', 'blue')],
      stack=1, cat='armor', tier=2, comps=dict(UNBR, **{'minecraft:dyed_color': 0x5a3e28, 'minecraft:attribute_modifiers': [
          attr('armor', 2, 'feet'), attr('movement_speed', 0.12, 'feet', 'add_multiplied_base'), attr('step_height', 0.5, 'feet'), attr('safe_fall_distance', 4, 'feet')]}))
 item('cipher_monocle', TOTEM, 'Cipher Monocle', '#a8e0ff', ['A lens etched with tiny ciphers.', ('Worn: pressure plates and tripwires glint', 'blue'),

@@ -108,7 +108,7 @@ def generate(G):
                         tooltip=T(f'While you carry the card, what the bank keeps goes straight into your account (you keep {KEEP_TOK} Tokens for fees)', 'gray'), width=150))
     btns += [P28.btn(lbl, code, tooltip=tip, width=150) for lbl, code, tip, _f in ACCT_EXTRA]
     dlg = P28.multi([T('The Rat Bank', 'gold', bold=True), T(' - your account', 'gray')],
-                    [P28.body([T('Pick a currency to deposit or take out.', 'gray')], 300),
+                    [P28.body([T('Your balance is below. Currencies › to deposit or take out.', 'gray')], 300),
                      P28.body([T('$(sv)', '#7aff7a')], 300),
                      P28.body([T('Kept against your name: safe from death, lava and thieves. The Dark Auction can draw on your Medallions.', 'dark_gray')], 300)],
                     btns, columns=2)
