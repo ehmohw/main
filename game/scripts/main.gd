@@ -5,18 +5,18 @@ extends Node2D
 ## Every machine moves its own players' heroes and tells the host where they are.
 
 const PORT := 24565
-const FIELD_W := 5400.0
-const TOP := 170.0
-const BOT := 830.0
+# The world is measured in screen pixels at 640 x 360. The walkable wood runs east between TOP and BOT.
+const FIELD_W := 3904.0
+const TOP := 128.0
+const BOT := 448.0
 const ZONES := [
-	{"start": 600.0, "gate": 1700.0, "spawn": {"lantern": 7},
-		"line": "Leo: \"Lanterns in the trees. Stay behind me, Emma.\"", "goal": "Clear the Arachno-Lanterns"},
-	{"start": 1700.0, "gate": 2900.0, "spawn": {"lantern": 7, "stalker": 3},
-		"line": "Emma: \"Stalkers hunt whoever is weakest. Keep together.\"", "goal": "Survive the Stalkers"},
-	{"start": 2900.0, "gate": 4200.0, "spawn": {"lantern": 3, "sac": 6},
-		"line": "Emma: \"Egg sacs! Break them before they hatch.\"", "goal": "Destroy the egg sacs"},
-	{"start": 4200.0, "gate": -1.0, "spawn": {"boss": 1},
-		"line": "The Brood Lantern wakes.", "goal": "Defeat the Brood Lantern"},
+	{"start": 512.0, "gate": 1344.0, "spawn": {"lantern": 7}, "goal": "Clear the Arachno-Lanterns",
+		"who": "leo", "line": "Lanterns in the trees. Stay behind me, Emma."},
+	{"start": 1344.0, "gate": 2176.0, "spawn": {"lantern": 7, "stalker": 3}, "goal": "Survive the Stalkers",
+		"who": "emma", "line": "Stalkers hunt whoever is weakest. Keep together."},
+	{"start": 2176.0, "gate": 3008.0, "spawn": {"lantern": 3, "sac": 6}, "goal": "Destroy the egg sacs",
+		"who": "emma", "line": "Egg sacs! Break them before they hatch."},
+	{"start": 3008.0, "gate": -1.0, "spawn": {"boss": 1}, "goal": "Defeat the Brood Lantern", "who": "", "line": ""},
 ]
 
 var heroes: Array[Hero] = []
@@ -30,22 +30,18 @@ var started := false
 var is_host := true
 var my_id := 1
 var networked := false
-var light_tex: GradientTexture2D
+var paused := false           # the menu is open in a game on this computer only
+var frozen: bool:             # nothing moves: the game is over, a cutscene is playing, or it is paused
+	get:
+		return over or cut or paused
 var pads: Array = []          # one entry per input device: 0 is the keyboard, 1 to 4 are controllers
+var level_node: Level
+var hud: Hud
 
-var _world: Node2D
-var _fx: Node2D
-var _ground_fx: Node2D
-var _lights: Node2D
-var _tracked: Array = []
-var _camera: Camera2D
 var _lobby: Lobby
 var _zone := 0
 var _zone_active := false
-var _gates: Array = []
 var _boss: Enemy
-var _hud := {}
-var _toast_t := 0.0
 var _clock := 0.0
 var _end_t := -1.0
 var _by_id := {}
@@ -63,6 +59,8 @@ var _cut_done := Callable()
 var _cut_cam: Variant = null
 var _cut_wait := -1.0
 var _cut_chars := 0.0
+var _cut_label: Label
+var _bark_t := 0.0
 # automated playtests
 var _shots_dir := ""
 var _shot_t := 0.0
@@ -70,6 +68,7 @@ var _shot_n := 0
 var _net_test := ""
 var _log_t := 0.0
 var _test_t := 0.0
+var _peek := Vector2.INF       # automated screenshots of one spot: --peek=x,y with --shots=<folder>
 
 func _ready() -> void:
 	randomize()
@@ -80,8 +79,13 @@ func _ready() -> void:
 		if a.begins_with("--net-test="):
 			_net_test = a.trim_prefix("--net-test=")
 			autopilot = true
+		if a.begins_with("--peek="):
+			var xy := a.trim_prefix("--peek=").split(",")
+			_peek = Vector2(float(xy[0]), float(xy[1]))
+		if a.begins_with("--fast="):       # automated playtests can run the clock faster
+			Engine.time_scale = float(a.trim_prefix("--fast="))
+			Engine.max_physics_steps_per_frame = 32
 	_setup_input()
-	_build_light()
 	_poll()
 	multiplayer.connected_to_server.connect(_on_connected)
 	multiplayer.connection_failed.connect(_on_failed)
@@ -270,9 +274,13 @@ func _begin_game() -> void:
 	started = true
 	_refresh_ids()
 	_lobby.visible = false
-	_build_level()
+	level_node = Level.new()
+	add_child(level_node)
+	level_node.build(self)
 	_build_party()
-	_build_hud()
+	hud = Hud.new()
+	add_child(hud)
+	hud.build(self)
 	sync_seats(Session.seats)
 	_intro_t = 0.8
 
@@ -336,283 +344,17 @@ func _poll() -> void:
 		out.append(d)
 	pads = out
 
-# ---------------------------------------------------------------- building the level
-
-func _build_light() -> void:
-	var g := Gradient.new()
-	g.set_color(0, Color(1, 1, 1, 1))
-	g.set_color(1, Color(1, 1, 1, 0))
-	light_tex = GradientTexture2D.new()
-	light_tex.gradient = g
-	light_tex.fill = GradientTexture2D.FILL_RADIAL
-	light_tex.fill_from = Vector2(0.5, 0.5)
-	light_tex.fill_to = Vector2(1.0, 0.5)
-	light_tex.width = 256
-	light_tex.height = 256
-
-func _wall(rect: Rect2) -> StaticBody2D:
-	var body := StaticBody2D.new()
-	body.collision_layer = 4
-	body.collision_mask = 0
-	var shape := CollisionShape2D.new()
-	var r := RectangleShape2D.new()
-	r.size = rect.size
-	shape.shape = r
-	body.position = rect.get_center()
-	body.add_child(shape)
-	add_child(body)
-	return body
-
-func _prop(tex_name: String, pos: Vector2, light := Color(0, 0, 0, 0), solid := 0.0) -> Sprite2D:
-	var s := Sprite2D.new()
-	s.texture = load("res://assets/props/%s.png" % tex_name)
-	s.offset = Vector2(0, -s.texture.get_height() / 2.0 + 8)
-	s.position = pos
-	_world.add_child(s)
-	if light.a > 0.0:
-		add_light(null, light, 1.6, 0.9, pos + Vector2(0, -14))
-	if solid > 0.0:
-		var body := StaticBody2D.new()
-		body.collision_layer = 4
-		body.collision_mask = 0
-		var shape := CollisionShape2D.new()
-		var c := CircleShape2D.new()
-		c.radius = solid
-		shape.shape = c
-		body.add_child(shape)
-		s.add_child(body)
-	return s
-
-func _build_level() -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 2026      # the same wood on every machine
-	var ground := Sprite2D.new()
-	ground.texture = load("res://assets/props/ground.png")
-	ground.centered = false
-	ground.region_enabled = true
-	ground.region_rect = Rect2(0, 0, FIELD_W + 400, BOT + 500)
-	ground.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-	ground.position = Vector2(-200, -100)
-	ground.z_index = -10
-	add_child(ground)
-	var dark := CanvasModulate.new()
-	dark.color = Color(0.36, 0.34, 0.52)
-	add_child(dark)
-	_ground_fx = Node2D.new()
-	_ground_fx.z_index = -5
-	add_child(_ground_fx)
-	_lights = Node2D.new()
-	add_child(_lights)
-	# characters and scenery sit on their own layer with an even dusk tint, so the ground's lights never wash them out
-	var world_layer := CanvasLayer.new()
-	world_layer.layer = 1
-	world_layer.follow_viewport_enabled = true
-	add_child(world_layer)
-	var dusk := CanvasModulate.new()
-	dusk.color = Color(0.72, 0.72, 0.9)
-	world_layer.add_child(dusk)
-	_world = Node2D.new()
-	_world.y_sort_enabled = true
-	world_layer.add_child(_world)
-	var fx_layer := CanvasLayer.new()
-	fx_layer.layer = 2
-	fx_layer.follow_viewport_enabled = true
-	add_child(fx_layer)
-	_fx = Node2D.new()
-	fx_layer.add_child(_fx)
-	# the edges of the wood
-	_wall(Rect2(-200, TOP - 200, FIELD_W + 400, 200))
-	_wall(Rect2(-200, BOT, FIELD_W + 400, 200))
-	_wall(Rect2(-160, TOP, 200, BOT - TOP))
-	_wall(Rect2(FIELD_W - 40, TOP, 200, BOT - TOP))
-	var x := -60.0
-	while x < FIELD_W + 100:
-		for row in 2:
-			_prop("tree1" if rng.randf() < 0.5 else "tree2", Vector2(x + rng.randf_range(-25, 25), TOP - 10 - row * 60 - rng.randf_range(0, 30)))
-			_prop("tree1" if rng.randf() < 0.5 else "tree2", Vector2(x + rng.randf_range(-25, 25), BOT + 150 + row * 70 + rng.randf_range(0, 30)))
-		x += rng.randf_range(70, 105)
-	# rocks, lanterns of the dead, webs
-	for i in 22:
-		var p := Vector2(rng.randf_range(300, FIELD_W - 500), rng.randf_range(TOP + 60, BOT - 40))
-		if _near_gate(p.x, 120.0) or p.x < 420:
-			continue
-		_prop("rock", p, Color(0, 0, 0, 0), 20.0)
-	x = 260.0
-	while x < FIELD_W - 100:
-		_prop("pumpkin", Vector2(x, TOP + 26 if int(x / 380.0) % 2 == 0 else BOT - 14), Color(1.0, 0.6, 0.2))
-		x += 380.0
-	for i in 26:
-		var w := Sprite2D.new()
-		w.texture = load("res://assets/props/web.png")
-		w.position = Vector2(rng.randf_range(700, FIELD_W - 100), rng.randf_range(TOP + 40, BOT - 40))
-		w.modulate = Color(1, 1, 1, 0.35)
-		w.rotation = rng.randf() * TAU
-		_ground_fx.add_child(w)
-	# web gates between the zones
-	for z: Dictionary in ZONES:
-		if z["gate"] < 0:
-			_gates.append(null)
-			continue
-		var gate := _wall(Rect2(z["gate"] - 20, TOP, 40, BOT - TOP))
-		var y := TOP + 30
-		while y < BOT:
-			var w := Sprite2D.new()
-			w.texture = load("res://assets/props/web.png")
-			w.position = Vector2(0, y - (TOP + BOT) / 2.0)
-			w.scale = Vector2(0.8, 1.0)
-			gate.add_child(w)
-			y += 80.0
-		_gates.append(gate)
-	_camera = Camera2D.new()
-	_camera.limit_left = 0
-	_camera.limit_right = int(FIELD_W)
-	_camera.limit_top = int(TOP - 150)
-	_camera.limit_bottom = int(BOT + 130)
-	_camera.position_smoothing_enabled = true
-	_camera.position_smoothing_speed = 6.0
-	add_child(_camera)
-	_camera.make_current()
-
-func _near_gate(x: float, margin: float) -> bool:
-	for z: Dictionary in ZONES:
-		if absf(x - z["gate"]) < margin or absf(x - z["start"]) < margin:
-			return true
-	return false
+# ---------------------------------------------------------------- the party
 
 func _build_party() -> void:
 	for i in Session.party.size():
 		var h := Hero.new()
-		_world.add_child(h)
+		level_node.world.add_child(h)
 		h.setup(self, i)
-		h.position = Vector2(240 - i * 46, (TOP + BOT) / 2.0 + (i - 1.5) * 44)
+		h.position = Vector2(372 - i * 30, level_node.mid + (i - (Session.party.size() - 1) / 2.0) * 30.0)
 		h.net_pos = h.position
 		h.facing = Vector2.RIGHT
 		heroes.append(h)
-
-# ---------------------------------------------------------------- HUD
-
-func _bar(parent: Node, pos: Vector2, size: Vector2, fill: Color) -> Bar:
-	var b := Bar.new()
-	b.position = pos
-	b.size = size
-	b.color = Color(0.05, 0.04, 0.09, 0.95)
-	b.fill = ColorRect.new()
-	b.fill.color = fill
-	b.fill.position = Vector2(1, 1)
-	b.add_child(b.fill)
-	parent.add_child(b)
-	return b
-
-func label(parent: Node, pos: Vector2, text: String, size := 14, colour := Color.WHITE) -> Label:
-	var l := Label.new()
-	l.position = pos
-	l.text = text
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", colour)
-	l.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	l.add_theme_constant_override("outline_size", 4)
-	parent.add_child(l)
-	return l
-
-func _build_hud() -> void:
-	var layer := CanvasLayer.new()
-	layer.layer = 10
-	add_child(layer)
-	var root := Control.new()
-	layer.add_child(root)
-	_hud["play"] = root
-	_hud["panels"] = []
-	for i in heroes.size():
-		var h := heroes[i]
-		var panel := ColorRect.new()
-		panel.position = Vector2(10, 10 + i * 44)
-		panel.size = Vector2(200, 40)
-		root.add_child(panel)
-		var face := TextureRect.new()
-		face.texture = load("res://assets/chars/%s/idle_south/0.png" % h.kind)
-		face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		face.position = Vector2(2, 2)
-		face.size = Vector2(36, 36)
-		panel.add_child(face)
-		var name_l := label(panel, Vector2(42, 0), h.display_name, 13)
-		var bar := _bar(panel, Vector2(42, 22), Vector2(150, 12), Color(0.35, 0.85, 0.45))
-		_hud["panels"].append({"panel": panel, "bar": bar, "name": name_l})
-	_hud["level"] = label(root, Vector2(770, 8), "Level 1", 14, Color(1, 0.9, 0.5))
-	_hud["xp"] = _bar(root, Vector2(770, 31), Vector2(180, 7), Color(0.55, 0.5, 1.0))
-	_hud["embers"] = label(root, Vector2(770, 44), "Soul embers: 0", 13, Color(0.7, 0.9, 1.0))
-	_hud["goal"] = label(root, Vector2(230, 10), "Head east through the woods", 14, Color(1, 0.95, 0.8))
-	_hud["goal"].size = Vector2(500, 20)
-	_hud["goal"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["toast"] = label(root, Vector2(130, 440), "", 15)
-	_hud["toast"].size = Vector2(700, 50)
-	_hud["toast"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["toast"].autowrap_mode = TextServer.AUTOWRAP_WORD
-	_hud["hint"] = label(root, Vector2(10, 516), "Move: WASD / arrows / stick    Attack: Space, click or A    Switch hero: Tab, Q / E or bumpers", 11, Color(0.8, 0.8, 0.9))
-	_hud["boss_name"] = label(root, Vector2(280, 478), "The Brood Lantern", 14, Color(1, 0.7, 0.4))
-	_hud["boss_name"].size = Vector2(400, 20)
-	_hud["boss_name"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["boss"] = _bar(root, Vector2(280, 500), Vector2(400, 12), Color(0.95, 0.45, 0.15))
-	# cutscenes: letterbox bars and a dialogue box
-	var cutbox := Control.new()
-	cutbox.visible = false
-	layer.add_child(cutbox)
-	_hud["cut"] = cutbox
-	for r: Rect2 in [Rect2(0, 0, 960, 50), Rect2(0, 396, 960, 144)]:
-		var band := ColorRect.new()
-		band.color = Color(0.02, 0.02, 0.04)
-		band.position = r.position
-		band.size = r.size
-		cutbox.add_child(band)
-	var face2 := TextureRect.new()
-	face2.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	face2.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	face2.position = Vector2(24, 408)
-	face2.size = Vector2(120, 120)
-	cutbox.add_child(face2)
-	_hud["cut_face"] = face2
-	_hud["cut_who"] = label(cutbox, Vector2(160, 404), "", 16, Color(1, 0.9, 0.5))
-	_hud["cut_text"] = label(cutbox, Vector2(160, 430), "", 15)
-	_hud["cut_text"].size = Vector2(760, 84)
-	_hud["cut_text"].autowrap_mode = TextServer.AUTOWRAP_WORD
-	_hud["cut_hint"] = label(cutbox, Vector2(660, 516), "Space / A: next      Esc / B: skip scene", 11, Color(0.7, 0.7, 0.8))
-	var shade := ColorRect.new()
-	shade.color = Color(0, 0, 0, 0.7)
-	shade.size = Vector2(960, 540)
-	shade.visible = false
-	layer.add_child(shade)
-	_hud["shade"] = shade
-	_hud["end_title"] = label(shade, Vector2(0, 190), "", 34, Color(1, 0.9, 0.6))
-	_hud["end_title"].size = Vector2(960, 50)
-	_hud["end_title"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["end_text"] = label(shade, Vector2(130, 250), "", 15)
-	_hud["end_text"].size = Vector2(700, 140)
-	_hud["end_text"].horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hud["end_text"].autowrap_mode = TextServer.AUTOWRAP_WORD
-
-func _update_hud() -> void:
-	for i in heroes.size():
-		var h := heroes[i]
-		var p: Dictionary = _hud["panels"][i]
-		p["bar"].max_value = h.max_hp
-		p["bar"].value = h.hp
-		p["panel"].color = Color(0.25, 0.3, 0.55, 0.9) if h.is_mine() else Color(0.1, 0.1, 0.16, 0.75)
-		var who := ""
-		if h.is_mine():
-			who = "  · you" if _my_heroes().size() == 1 else "  · " + Session.dev_name(h.seat()["dev"])
-		elif h.is_player():
-			who = "  · online"
-		p["name"].text = h.display_name + who + ("  (down)" if h.down else "")
-	_hud["level"].text = "Level %d" % level
-	_hud["xp"].max_value = _xp_need()
-	_hud["xp"].value = xp
-	_hud["embers"].text = "Soul embers: %d" % embers
-	var boss_up := _boss != null and is_instance_valid(_boss) and not _boss.dead
-	_hud["boss"].visible = boss_up
-	_hud["boss_name"].visible = boss_up
-	if boss_up:
-		_hud["boss"].max_value = _boss.max_hp
-		_hud["boss"].value = _boss.hp
 
 # ---------------------------------------------------------------- the frame
 
@@ -639,15 +381,15 @@ func _process(delta: float) -> void:
 	if pads[0]["back_just"] and over:
 		leave()
 		return
-	if _toast_t > 0.0:
-		_toast_t -= delta
-		_hud["toast"].modulate.a = clampf(_toast_t, 0.0, 1.0)
-	for pair: Array in _tracked.duplicate():
-		if is_instance_valid(pair[0]) and not (pair[0] is Enemy and pair[0].dead):
-			pair[1].position = pair[0].global_position + pair[2]
-		else:
-			pair[1].queue_free()
-			_tracked.erase(pair)
+	if not over and not cut:
+		for d: Dictionary in pads:
+			if d["back_just"]:
+				set_menu(not hud.menu_open())
+	level_node.tick(delta)
+	if _bark_t > 0.0:
+		_bark_t -= delta
+		if _bark_t <= 0.0 and not cut:
+			level_node.hush()
 	# the camera stays on this machine's players
 	var mine := _my_heroes()
 	var focus := Vector2.ZERO
@@ -662,34 +404,34 @@ func _process(delta: float) -> void:
 				focus += h.global_position
 				n += 1
 	if n > 0:
-		_camera.position = focus / n + Vector2(0, -30)
+		level_node.camera.position = focus / n + Vector2(0, -16)
 	if cut:
 		_cut_frame(delta)
-	elif not over:
+	elif not over and not paused:
 		for h in mine:
 			var pad: Dictionary = pads[h.seat()["dev"]]
 			if pad["next_just"] or pad["prev_just"]:
 				to_host("req_switch", [h.idx, 1 if pad["next_just"] else -1])
 		if is_host:
 			_host_frame(delta)
-	_update_hud()
+	hud.tick(delta)
 	_playtest_frame(delta)
 
 func _host_frame(delta: float) -> void:
 	if _intro_t > 0.0:
 		_intro_t -= delta
 		if _intro_t <= 0.0:
-			play_cutscene(Cutscenes.intro(_party_centre()))
+			play_cutscene(Cutscenes.intro(_party_centre()), func() -> void: emit_fx("card", ["The Lantern Woods", "Omega Island"]))
 		return
 	if not _zone_active and _zone < ZONES.size():
 		for h in heroes:
-			if not h.down and h.is_player() and h.global_position.x > ZONES[_zone]["start"] + 160.0:
+			if not h.down and h.is_player() and h.global_position.x > ZONES[_zone]["start"] + 110.0:
 				_start_zone()
 				break
 	if _end_t > 0.0:
 		_end_t -= delta
 		if _end_t <= 0.0:
-			play_cutscene(Cutscenes.ending(_party_centre()), func() -> void: emit_fx("finish", [true, level, embers, _clock]))
+			play_cutscene(Cutscenes.ending(_party_centre(), level_node.palace), func() -> void: emit_fx("finish", [true, level, embers, _clock]))
 	if networked:
 		_snap_t -= delta
 		if _snap_t <= 0.0:
@@ -700,8 +442,16 @@ func _host_frame(delta: float) -> void:
 func keep_on_screen(p: Vector2) -> Vector2:
 	if _my_heroes().size() < 2:
 		return p
-	var c := _camera.get_screen_center_position()
-	return Vector2(clampf(p.x, c.x - 450.0, c.x + 450.0), clampf(p.y, c.y - 200.0, c.y + 250.0))
+	var c := level_node.camera.get_screen_center_position()
+	return Vector2(clampf(p.x, c.x - 300.0, c.x + 300.0), clampf(p.y, c.y - 130.0, c.y + 164.0))
+
+## The menu over the game. On one computer it also stops the clock; online, the game carries on behind it.
+func set_menu(on: bool) -> void:
+	hud.show_menu(on)
+	paused = on and not networked
+
+func boss() -> Enemy:
+	return _boss if _boss != null and is_instance_valid(_boss) and not _boss.dead else null
 
 # ---------------------------------------------------------------- keeping machines in step
 
@@ -796,7 +546,7 @@ func _swap_to_ally(idx: int, step: int) -> bool:
 			Session.seats[j] = Session.seats[idx]
 			Session.seats[idx] = {"peer": 0, "dev": -1}
 			_share_seats()
-			float_text(heroes[j].global_position + Vector2(0, -90), heroes[j].display_name, Color(0.8, 0.9, 1.0))
+			float_text(heroes[j].global_position + Vector2(0, -56), heroes[j].display_name, Color(0.8, 0.9, 1.0))
 			return true
 	return false
 
@@ -820,40 +570,35 @@ func fx_rpc(kind: String, args: Array) -> void:
 func _do_fx(kind: String, a: Array) -> void:
 	match kind:
 		"float":
-			var l := label(_fx, a[0] + Vector2(randf_range(-8, 8) - 10, 0), a[1], 13, a[2])
-			var t := create_tween()
-			t.tween_property(l, "position:y", l.position.y - 28.0, 0.6)
-			t.parallel().tween_property(l, "modulate:a", 0.0, 0.6)
-			t.tween_callback(l.queue_free)
+			level_node.float_text(a[0], a[1], a[2])
+			if a[3] > 0:
+				level_node.burst(a[0] + Vector2(0, 10), Color(1, 1, 0.85) if a[3] == 1 else Color(1, 0.45, 0.4), 6, 46.0, 0.3)
+				if a[3] == 2:
+					level_node.shake(2.0)
+					for h in heroes:       # the screen's edge flashes red when it was one of this machine's players
+						if h.is_mine() and h.global_position.distance_to(a[0]) < 60.0:
+							hud.hurt()
 		"toast":
-			_hud["toast"].text = a[0]
-			_hud["toast"].modulate.a = 1.0
-			_toast_t = a[1]
+			hud.toast(a[0], a[1])
 		"goal":
-			_hud["goal"].text = a[0]
-		"slash":
-			var poly := Polygon2D.new()
-			if a[4]:
-				poly.polygon = PackedVector2Array([Vector2(-a[2] * 0.6, -3), Vector2(a[2] * 0.5, 0), Vector2(-a[2] * 0.6, 3)])
+			hud.set_goal(a[0])
+		"card":
+			hud.card(a[0], a[1])
+		"bark":
+			# a line spoken during play, over the speaker's head; a plain message if they aren't here
+			var idx := Session.party.find(a[0])
+			if idx >= 0 and not heroes[idx].down:
+				hud.card_hide()
+				level_node.say(heroes[idx], heroes[idx].display_name, a[1]).visible_characters = -1
+				_bark_t = a[2]
 			else:
-				poly.polygon = PackedVector2Array([Vector2(-8, -16), Vector2(14, 0), Vector2(-8, 16), Vector2(2, 0)])
-			poly.color = a[3]
-			poly.position = a[0]
-			poly.rotation = a[1].angle()
-			_fx.add_child(poly)
-			var t2 := create_tween()
-			t2.tween_property(poly, "modulate:a", 0.0, 0.16)
-			t2.tween_callback(poly.queue_free)
+				hud.toast(a[1], a[2])
+		"slash":
+			level_node.slash(a[0], a[1], a[2], a[3], a[4])
 		"tele":
-			var lane := Polygon2D.new()
-			lane.polygon = PackedVector2Array([Vector2(0, -44), Vector2(a[2], -44), Vector2(a[2], 44), Vector2(0, 44)])
-			lane.color = Color(1, 0.2, 0.15, 0.3)
-			lane.position = a[0]
-			lane.rotation = a[1].angle()
-			_ground_fx.add_child(lane)
-			var t3 := create_tween()
-			t3.tween_property(lane, "modulate:a", 0.0, 1.5)
-			t3.tween_callback(lane.queue_free)
+			level_node.lane(a[0], a[1], a[2], a[3])
+		"shake":
+			level_node.shake(a[0])
 		"proj":
 			var p := Projectile.new()
 			p.game = self
@@ -862,7 +607,7 @@ func _do_fx(kind: String, a: Array) -> void:
 			p.team = a[2]
 			p.dmg = a[3]
 			p.kind = a[4]
-			_fx.add_child(p)
+			level_node.fx.add_child(p)
 		"drop":
 			var pk := Pickup.new()
 			pk.game = self
@@ -871,20 +616,20 @@ func _do_fx(kind: String, a: Array) -> void:
 			pk.position = a[2]
 			pk.vel = a[3]
 			_pickups[pk.id] = pk
-			_fx.add_child(pk)
+			level_node.fx.add_child(pk)
 		"pick":
 			var got: Pickup = _pickups.get(a[0])
 			_pickups.erase(a[0])
 			if got != null and is_instance_valid(got):
+				level_node.burst(got.global_position, Color(0.6, 0.9, 1.0) if got.kind == "ember" else Color(1, 0.4, 0.5), 4, 30.0, 0.3)
 				got.queue_free()
 		"gate":
-			var gate: StaticBody2D = _gates[a[0]]
-			if gate != null and is_instance_valid(gate):
-				gate.collision_layer = 0
-				var t4 := create_tween()
-				t4.tween_property(gate, "modulate:a", 0.0, 0.8)
-				t4.tween_callback(gate.queue_free)
+			level_node.open_gate(a[0])
 		"die":
+			var big: bool = a[2] == "boss"
+			level_node.burst(a[1] + Vector2(0, -10), Color(1.0, 0.6, 0.2), 40 if big else 12, 120.0 if big else 60.0, 1.0 if big else 0.5)
+			if big:
+				level_node.shake(7.0)
 			var e: Enemy = _by_id.get(a[0])
 			if e != null and e.puppet:
 				_by_id.erase(a[0])
@@ -899,57 +644,61 @@ func _do_fx(kind: String, a: Array) -> void:
 					b.squash()
 				else:
 					b.lunge(a[1], a[2])
-					b.play_anim(false, "attack")
+					if a[3]:
+						b.play_anim(false, "attack")
 		"cut_on":
 			cut = true
-			_hud["cut"].visible = true
-			_hud["play"].visible = false
+			_bark_t = 0.0
+			level_node.hush()
+			hud.show_menu(false)
+			paused = false
+			hud.cut_on()
 		"cut_off":
 			cut = false
 			_cut_cam = null
+			_cut_label = null
+			level_node.hush()
 			for h in heroes:
 				h.cut_anim = ""
 				if h.cut_target != Vector2.INF:
 					h.global_position = h.cut_target
 				h.cut_target = Vector2.INF
 				h.net_pos = h.global_position
-			_hud["cut"].visible = false
-			_hud["play"].visible = true
+			hud.cut_off()
 		"cut_step":
 			var st: Dictionary = a[0]
 			if st.has("cam"):
 				_cut_cam = st["cam"]
-			var has_text: bool = st.has("text")
-			_hud["cut_who"].text = st.get("who", "")
-			_hud["cut_text"].text = st.get("text", "")
-			_hud["cut_text"].visible_characters = 0
-			_hud["cut_hint"].visible = has_text
-			_cut_chars = 0.0
 			for pair: Array in st.get("acts", []):
 				heroes[pair[0]].cut_anim = pair[1]
 				heroes[pair[0]].sprite.stop()
 			for w: Array in st.get("walks", []):
 				heroes[w[0]].cut_target = w[1]
-			var speaker := str(st.get("who", "")).to_lower()
-			var face_path := "res://assets/faces/%s/%s.png" % [speaker, st.get("face", "neutral")]
-			if not ResourceLoader.exists(face_path):
-				face_path = "res://assets/faces/%s/neutral.png" % speaker
-			if not ResourceLoader.exists(face_path):
-				face_path = "res://assets/chars/%s/idle_south/0.png" % speaker
-			_hud["cut_face"].texture = load(face_path) if has_text and ResourceLoader.exists(face_path) else null
+			_cut_chars = 0.0
+			_cut_label = null
+			level_node.hush()
+			if st.has("text"):
+				# a hero in the party speaks from a bubble over their head; anyone else, and narration, from the box
+				var who: String = st.get("who", "")
+				var speaker := Session.party.find(who.to_lower())
+				if speaker >= 0:
+					_cut_label = level_node.say(heroes[speaker], who, st["text"])
+				else:
+					_cut_label = hud.narrate(who, st["text"])
+				hud.cut_line(true, speaker < 0)
+			else:
+				hud.cut_line(false, false)
 		"finish":
 			over = true
-			_hud["shade"].visible = true
-			var again := "Press R to play again" if is_host else "Waiting for the host to restart"
-			if a[0]:
-				_hud["end_title"].text = "The Lantern Woods are clear"
-				_hud["end_text"].text = "Through the trees, a light: Omega Palace.\n\nLevel %d  ·  %d soul embers  ·  %d:%02d\n\n%s  ·  Esc: main menu" % [a[1], a[2], int(a[3]) / 60, int(a[3]) % 60, again]
-			else:
-				_hud["end_title"].text = "The woods take you"
-				_hud["end_text"].text = "Everyone is down.\n\n%s  ·  Esc: main menu" % again
+			level_node.hush()
+			hud.finish(a[0], a[1], a[2], a[3])
 
-func float_text(pos: Vector2, text: String, colour: Color) -> void:
-	emit_fx("float", [pos, text, colour])
+## A floating number or word. `spark` adds a hit flash: 1 for a blow on an enemy, 2 for one on a hero.
+func float_text(pos: Vector2, text: String, colour: Color, spark := 0) -> void:
+	emit_fx("float", [pos, text, colour, spark])
+
+func add_light(target: Node2D, colour: Color, tex_scale: float, energy: float, offset := Vector2.ZERO) -> void:
+	level_node.add_light(target, colour, tex_scale, energy, offset)
 
 func toast(text: String, seconds := 3.0) -> void:
 	emit_fx("toast", [text, seconds])
@@ -1000,7 +749,7 @@ func _cut_advance() -> void:
 			done.call()
 		return
 	var st: Dictionary = _cut_steps[_cut_i]
-	_cut_wait = st.get("wait", -1.0) if not st.has("text") else (1.2 if autopilot else -1.0)
+	_cut_wait = st.get("wait", -1.0) if not st.has("text") else (1.4 + str(st["text"]).length() / 45.0 if autopilot else -1.0)
 	emit_fx("cut_step", [st])
 
 ## Any player can move the scene on, or skip it.
@@ -1014,11 +763,12 @@ func req_advance(skip: bool) -> void:
 
 func _cut_frame(delta: float) -> void:
 	if _cut_cam != null:
-		_camera.position = _cut_cam
-	var text_l: Label = _hud["cut_text"]
-	var total := text_l.text.length()
-	_cut_chars += delta * 45.0
-	text_l.visible_characters = int(_cut_chars) if _cut_chars < total else -1
+		level_node.camera.position = _cut_cam
+	var total := 0
+	if _cut_label != null:
+		total = _cut_label.text.length()
+		_cut_chars += delta * 45.0
+		_cut_label.visible_characters = int(_cut_chars) if _cut_chars < total else -1
 	for d: Dictionary in pads:
 		if d["back_just"]:
 			to_host("req_advance", [true])
@@ -1046,26 +796,30 @@ func _start_zone() -> void:
 	if autopilot:
 		print("zone %d starts at %.0fs" % [_zone, _clock])
 	var z: Dictionary = ZONES[_zone]
-	toast(z["line"], 5.0)
+	if z["line"] != "":
+		emit_fx("bark", [z["who"], z["line"], 4.5])
 	emit_fx("goal", [z["goal"]])
-	var x0: float = z["start"] + 420.0
-	var x1: float = (z["gate"] if z["gate"] > 0 else FIELD_W - 60.0) - 120.0
+	var x0: float = z["start"] + 300.0
+	var x1: float = (z["gate"] if z["gate"] > 0 else FIELD_W - 60.0) - 90.0
 	var sac_i := 0
 	for kind: String in z["spawn"]:
 		var count := int(z["spawn"][kind])
 		if kind != "boss" and Session.party.size() < 4:
 			count = int(ceil(count * 0.72))      # a party of three meets fewer of them
 		for i in count:
-			var pos := Vector2(randf_range(x0, x1), randf_range(TOP + 60, BOT - 60))
+			var px := randf_range(x0, x1)
+			var pos := Vector2(px, level_node.path_y(px) + randf_range(-80.0, 80.0))
+			if kind == "sac":
+				pos.y = level_node.path_y(px) + randf_range(-34.0, 34.0)
 			if kind == "boss":
-				pos = Vector2((x0 + x1) / 2.0 + 150.0, (TOP + BOT) / 2.0)
+				pos = level_node.arena + Vector2(110.0, 0.0)
 			var e := spawn_enemy(kind, pos)
 			if kind == "sac":
 				e.hatch_in = 5.0 + sac_i * 3.5
 				sac_i += 1
 			if kind == "boss":
 				_boss = e
-				play_cutscene(Cutscenes.boss(e.position + Vector2(0, -40), _party_centre()))
+				play_cutscene(Cutscenes.boss(e.position + Vector2(0, -30), _party_centre()), func() -> void: emit_fx("card", ["The Brood Lantern", "Mother of the nest"]))
 
 func _zone_cleared() -> void:
 	_zone_active = false
@@ -1083,6 +837,7 @@ func _zone_cleared() -> void:
 		return
 	emit_fx("gate", [_zone])
 	toast("The webs give way. Press on.", 3.0)
+	emit_fx("shake", [2.0])
 	emit_fx("goal", ["Head east through the woods"])
 	_zone += 1
 
@@ -1140,8 +895,9 @@ func objective_point(me: Hero) -> Vector2:
 		var e := nearest_enemy(me.global_position, 99999.0)
 		return e.global_position if e != null else me.global_position
 	if _zone < ZONES.size():
-		return Vector2(ZONES[_zone]["start"] + 300.0, (TOP + BOT) / 2.0 + (me.idx - 1.5) * 50.0)
-	return Vector2(FIELD_W - 200.0, (TOP + BOT) / 2.0)
+		var gx: float = ZONES[_zone]["start"] + 200.0
+		return Vector2(gx, level_node.path_y(gx) + (me.idx - 1.0) * 26.0)
+	return Vector2(FIELD_W - 260.0, level_node.mid)
 
 ## Where the boss is about to charge: [origin, direction], or empty.
 func charge_lane() -> Array:
@@ -1150,27 +906,31 @@ func charge_lane() -> Array:
 	return []
 
 func in_bounds(p: Vector2) -> bool:
-	return p.x > 0 and p.x < FIELD_W and p.y > TOP - 60 and p.y < BOT + 20
+	return p.x > 100 and p.x < FIELD_W - 90 and p.y > TOP - 40 and p.y < BOT + 14
 
 func _make_enemy(kind: String, pos: Vector2, id: int, puppet: bool) -> Enemy:
 	var e := Enemy.new()
-	_world.add_child(e)
+	level_node.world.add_child(e)
 	e.setup(self, kind, id, puppet)
 	e.position = pos
 	e.net_pos = pos
+	# they rise out of the dark rather than popping in
+	e.modulate = Color(0.2, 0.1, 0.3, 0.0)
+	create_tween().tween_property(e, "modulate", Color.WHITE, 0.5)
+	level_node.burst(pos + Vector2(0, -8), Color(0.6, 0.4, 0.9), 8, 40.0, 0.5)
 	enemies.append(e)
 	_by_id[id] = e
 	return e
 
 func spawn_enemy(kind: String, pos: Vector2) -> Enemy:
 	_next_id += 1
-	return _make_enemy(kind, Vector2(clampf(pos.x, 80, FIELD_W - 80), clampf(pos.y, TOP + 30, BOT - 20)), _next_id, false)
+	return _make_enemy(kind, Vector2(clampf(pos.x, 130, FIELD_W - 120), clampf(pos.y, TOP + 22, BOT - 14)), _next_id, false)
 
 func enemy_gone(e: Enemy, killed: bool) -> void:
 	enemies.erase(e)
 	_by_id.erase(e.id)
 	if killed:
-		emit_fx("die", [e.id])
+		emit_fx("die", [e.id, e.global_position, e.kind])
 		_gain_xp(e.xp)
 		for i in e.embers:
 			_drop("ember", e.global_position)
@@ -1182,7 +942,7 @@ func enemy_gone(e: Enemy, killed: bool) -> void:
 
 func _drop(kind: String, pos: Vector2) -> void:
 	_next_pick += 1
-	emit_fx("drop", [_next_pick, kind, pos + Vector2(0, -10), Vector2.from_angle(randf() * TAU) * randf_range(60, 140)])
+	emit_fx("drop", [_next_pick, kind, pos + Vector2(0, -6), Vector2.from_angle(randf() * TAU) * randf_range(40, 100)])
 
 func collect(p: Pickup, h: Hero) -> void:
 	if not _pickups.has(p.id):
@@ -1195,32 +955,19 @@ func collect(p: Pickup, h: Hero) -> void:
 			if not other.down and other.hp / other.max_hp < weakest.hp / weakest.max_hp:
 				weakest = other
 		weakest.hp = minf(weakest.max_hp, weakest.hp + weakest.max_hp * 0.3)
-		float_text(weakest.global_position + Vector2(0, -80), "+", Color(0.5, 1, 0.6))
+		float_text(weakest.global_position + Vector2(0, -50), "+", Color(0.5, 1, 0.6))
 	emit_fx("pick", [p.id])
 
-func _xp_need() -> int:
+func xp_need() -> int:
 	return 60 * level
 
 func _gain_xp(n: int) -> void:
 	xp += n
-	while xp >= _xp_need():
-		xp -= _xp_need()
+	while xp >= xp_need():
+		xp -= xp_need()
 		level += 1
 		for h in heroes:
 			h.apply_level(true)
-		toast("Level %d! The party grows stronger." % level, 2.5)
-
-## A light on the ground canvas. With a target it follows that node and is freed with it.
-func add_light(target: Node2D, colour: Color, tex_scale: float, energy: float, offset := Vector2.ZERO) -> void:
-	var l := PointLight2D.new()
-	l.texture = light_tex
-	l.texture_scale = tex_scale
-	l.energy = energy
-	l.color = colour
-	l.position = offset
-	_lights.add_child(l)
-	if target != null:
-		_tracked.append([target, l, offset])
 
 # ---------------------------------------------------------------- automated playtests
 
@@ -1231,10 +978,22 @@ func _net_test_lobby(delta: float) -> void:
 			start_from_lobby()
 
 func _playtest_frame(delta: float) -> void:
+	if _peek != Vector2.INF:
+		# look at one place, take a picture, and stop
+		level_node.camera.position_smoothing_enabled = false
+		level_node.camera.position = _peek
+		paused = true
+		_intro_t = -1.0
+		_test_t += delta
+		if _test_t > 1.5 and _shot_n == 0:
+			_save_shot()
+		if _test_t > 2.5:
+			get_tree().quit()
+		return
 	if _shots_dir != "":
 		_shot_t -= delta
 		if _shot_t <= 0.0:
-			_shot_t = 5.0
+			_shot_t = 3.0
 			_save_shot()
 	if _shots_dir == "" and _net_test == "":
 		return
@@ -1244,7 +1003,7 @@ func _playtest_frame(delta: float) -> void:
 		print("STATE t=%.0f zone=%d level=%d embers=%d enemies=%d heroes=%s" % [_clock, _zone, level, embers, enemies.size(), _hero_report()])
 	if over:
 		_test_t += delta
-	if (over and _test_t > 2.5) or _clock > 200.0:
+	if (over and _test_t > 2.5) or _clock > 260.0:
 		if _shots_dir != "":
 			_save_shot()
 		print("RESULT over=%s zone=%d level=%d embers=%d clock=%.0f heroes=%s" % [over, _zone, level, embers, _clock, _hero_report()])

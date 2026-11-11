@@ -1,48 +1,106 @@
-"""Pack sprites into the Godot project and write scripts/manifest.gd. python3 prep.py <scratch> <game dir>"""
-import sys, os, glob, shutil, json, random
-from PIL import Image, ImageDraw, ImageFilter
+"""Pack the demo's art into the Godot project and write scripts/manifest.gd.
+
+    python3 prep.py <generated art folder> <game folder>
+
+The generated folder holds what the request scripts made:
+    gen64/<who>/Idle/...        characters from cast64.py and foes64.py
+    env/*.png, env/ts_*.json    props and ground tilesets from env64.py
+    font/<name>/package/...     Tiny5 and Press Start 2P (SIL Open Font License), from the npm packages @fontsource/tiny5
+                                and @fontsource/press-start-2p
+"""
+import sys, os, re, glob, shutil, json, base64, io
+from PIL import Image
+
 S, G = sys.argv[1], sys.argv[2]
-SRC = {'emma': S + '/emma_test/Idle', 'leo': S + '/gen/out/leo/Idle', 'bender': S + '/gen/out/bender/Idle', 'cecil': S + '/gen/out/cecil/Idle',
-       'lantern': S + '/bm_build/ref/pixellab/chars/lantern/Idle', 'stalker': S + '/bm_build/ref/pixellab/chars/stalker/Idle'}
-HERO = ('emma', 'leo', 'bender', 'cecil')
+HEROES = ('emma', 'leo', 'bender', 'cecil')
+FOES = ('lantern', 'stalker', 'brood')
+DIRS = ('south', 'east', 'north', 'west')
+
+# ---------------------------------------------------------------- characters
 data = {}
-for who, src in SRC.items():
+shutil.rmtree(f'{G}/assets/chars', ignore_errors=True)
+for who in HEROES + FOES:
+    src = f'{S}/gen64/{who}/Idle'
+    if not os.path.isdir(src):
+        src = f'{S}/gen64/{who}/' + os.listdir(f'{S}/gen64/{who}')[0] if os.path.isdir(f'{S}/gen64/{who}') else ''
     if not os.path.isdir(src):
         print('missing', who); continue
-    out = f'{G}/assets/chars/{who}'; shutil.rmtree(out, ignore_errors=True)
+    out = f'{G}/assets/chars/{who}'
     anims = {}
     def put(anim, files):
         os.makedirs(f'{out}/{anim}', exist_ok=True)
         for i, f in enumerate(files): shutil.copy(f, f'{out}/{anim}/{i}.png')
         anims[anim] = len(files)
-    dirs = ('south', 'east', 'north', 'west') if who in HERO else ('south', 'north')
-    for d in dirs:
-        w = sorted(glob.glob(f'{src}/animations/walk/{d}/*.png'))
-        if w: put(f'walk_{d}', w)
-        if who in HERO:
-            put(f'idle_{d}', [f'{src}/rotations/{d}.png'])       # heroes stand still on their rotation art
-        else:
-            i = sorted(glob.glob(f'{src}/animations/idle/{d}/*.png'))
-            if i: put(f'idle_{d}', i)
-            a = sorted(glob.glob(f'{src}/animations/attack/{d}/*.png'))
-            if a: put(f'attack_{d}', a)
+    for d in DIRS:
+        put(f'idle_{d}', [f'{src}/rotations/{d}.png'])       # everyone stands still on their rotation art
+    for folder in sorted(glob.glob(f'{src}/animations/*')):
+        name = re.sub(r'-[0-9a-f]{8}$', '', os.path.basename(folder))    # directions requested one at a time come back as walk-1a2b3c4d
+        for d in DIRS:
+            frames = sorted(glob.glob(f'{folder}/{d}/*.png'))
+            if frames: put(f'{name}_{d}', frames)
     im = Image.open(f'{src}/rotations/south.png').convert('RGBA'); bb = im.getbbox()
-    data[who] = {'foot': round(bb[3] - im.height / 2 - 2), 'size': im.width, 'anims': anims}
-    print(who, im.size, 'bbox', bb, anims)
-os.makedirs(f'{G}/assets/props', exist_ok=True)
-for f in glob.glob(S + '/gen/props/*.png'): shutil.copy(f, f'{G}/assets/props/')
-# a tileable dark forest floor
-random.seed(3); T = 256
-g = Image.new('RGB', (T, T), (38, 44, 40)); d = ImageDraw.Draw(g)
-for _ in range(2600):
-    x, y = random.randrange(T), random.randrange(T); c = random.choice([(46, 54, 46), (32, 38, 36), (52, 58, 44), (40, 40, 52), (30, 34, 32)])
-    w = random.choice([1, 1, 2, 2, 3])
-    for dx in (0, T, -T):
-        for dy in (0, T, -T): d.rectangle((x + dx, y + dy, x + dx + w, y + dy + random.choice([0, 1, 2])), fill=c)
-for _ in range(60):
-    x, y = random.randrange(T), random.randrange(T)
-    for dx in (0, T, -T):
-        for dy in (0, T, -T): d.line((x + dx, y + dy, x + dx + random.randint(-3, 3), y + dy - random.randint(3, 6)), fill=(60, 74, 52))
-g.save(f'{G}/assets/props/ground.png')
+    side = min(24, bb[2] - bb[0] + 2, im.width)
+    cx = (bb[0] + bb[2]) // 2
+    head = [max(0, min(im.width - side, cx - side // 2)), max(0, bb[1] - 1), side, side]
+    data[who] = {'foot': round(bb[3] - im.height / 2 - 1), 'size': im.width, 'head': head, 'anims': anims}
+    print(who, im.size, 'bbox', bb, len(anims), 'animations')
+
+# ---------------------------------------------------------------- props (cropped to their content)
+shutil.rmtree(f'{G}/assets/props', ignore_errors=True); os.makedirs(f'{G}/assets/props')
+for f in sorted(glob.glob(f'{S}/env/*.png')):
+    name = os.path.basename(f)[:-4]
+    if name.startswith(('forest', 'tilesets', 'ts_')): continue
+    im = Image.open(f).convert('RGBA')
+    if name == 'web':            # drawn on a dark disc: keep only the silk
+        px = im.load()
+        for y in range(im.height):
+            for x in range(im.width):
+                r, g, b, a = px[x, y]
+                if max(r, g, b) < 120: px[x, y] = (0, 0, 0, 0)
+    bb = im.getbbox()
+    if bb: im = im.crop(bb)
+    im.save(f'{G}/assets/props/{name}.png')
+
+# ---------------------------------------------------------------- ground tiles
+# Each sheet is 4 x 5 tiles of 32px. Rows 0-3: the sixteen corner tiles, at index = NW*1 + NE*2 + SW*4 + SE*8, where a
+# set bit means that corner is the sheet's HIGHER terrain (sea < sand < forest < path). Row 4: mirrored copies of the two
+# plain tiles (low flipped across, low flipped down, high flipped across, high flipped down) to break up repetition.
+SHEETS = {'sea_sand': ('ts_sea', 'upper'), 'sand_forest': ('ts_beach_c', 'upper'),
+          'forest_path': ('ts_forest', 'lower')}      # the forest set came back with its two terrains the other way round
+shutil.rmtree(f'{G}/assets/tiles', ignore_errors=True); os.makedirs(f'{G}/assets/tiles')
+for sheet, (src, high) in SHEETS.items():
+    t = json.load(open(f'{S}/env/{src}.json'))
+    out = Image.new('RGBA', (4 * 32, 5 * 32))
+    plain = {}
+    for tl in t['tileset']['tiles']:
+        c = tl['corners']
+        m = (1 if c['NW'] == high else 0) | (2 if c['NE'] == high else 0) | (4 if c['SW'] == high else 0) | (8 if c['SE'] == high else 0)
+        im = Image.open(io.BytesIO(base64.b64decode(tl['image']['base64']))).convert('RGBA')
+        out.paste(im, ((m % 4) * 32, (m // 4) * 32))
+        if m in (0, 15): plain[m] = im
+    for i, (m, flip) in enumerate(((0, Image.FLIP_LEFT_RIGHT), (0, Image.FLIP_TOP_BOTTOM), (15, Image.FLIP_LEFT_RIGHT), (15, Image.FLIP_TOP_BOTTOM))):
+        out.paste(plain[m].transpose(flip), (i * 32, 4 * 32))
+    out.save(f'{G}/assets/tiles/{sheet}.png')
+
+# ---------------------------------------------------------------- small icons, drawn here
+def icon(rows, palette, path):
+    im = Image.new('RGBA', (len(rows[0]), len(rows)), (0, 0, 0, 0))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != '.': im.putpixel((x, y), tuple(int(palette[ch][i:i + 2], 16) for i in (1, 3, 5)) + (255,))
+    im.save(path)
+os.makedirs(f'{G}/assets/ui', exist_ok=True)
+icon(['....1....', '...121...', '...121...', '..12321..', '..12321..', '.1233321.', '.1233321.', '.1233321.', '..12321..', '...111...'],
+     {'1': '#16356a', '2': '#4aa8ff', '3': '#d8f6ff'}, f'{G}/assets/ui/ember.png')
+icon(['.11...11.', '1221.1221', '123212221', '122222221', '.1222221.', '..12221..', '...121...', '....1....'],
+     {'1': '#5a1020', '2': '#e8404e', '3': '#ff9aa0'}, f'{G}/assets/ui/heart.png')
+
+# ---------------------------------------------------------------- fonts
+shutil.rmtree(f'{G}/assets/fonts', ignore_errors=True); os.makedirs(f'{G}/assets/fonts')
+for name in ('tiny5', 'press-start-2p'):
+    shutil.copy(f'{S}/font/{name}/package/files/{name}-latin-400-normal.woff2', f'{G}/assets/fonts/{name}.woff2')
+    shutil.copy(f'{S}/font/{name}/package/LICENSE', f'{G}/assets/fonts/LICENSE-{name}.txt')
+
 with open(f'{G}/scripts/manifest.gd', 'w') as f:
-    f.write('class_name Manifest\n## Generated by tools/prep.py: frame counts and foot offsets for every sprite set.\n\nconst DATA := ' + json.dumps(data, indent='\t') + '\n')
+    f.write('class_name Manifest\n## Generated by tools/prep.py: frame counts, foot offsets and head crops for every sprite set.\n\nconst DATA := ' + json.dumps(data, indent='\t') + '\n')
+print('packed')

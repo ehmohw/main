@@ -13,7 +13,7 @@ var stun := 0.0
 var knock := Vector2.ZERO
 var dead := false
 var four_dir := false     # heroes have east/west art; enemies only south/north
-var radius := 14.0
+var radius := 9.0
 var sprite: AnimatedSprite2D
 var base_modulate := Color.WHITE
 var stun_guard := 0.0     # after a stun wears off, a spell of immunity so nothing is stun-locked
@@ -27,7 +27,7 @@ var _flash := 0.0
 var _poison_acc := 0.0
 var _stars: Label
 
-func build(who_: String, sprite_scale := 1.0, shadow_w := 22.0) -> void:
+func build(who_: String, sprite_scale := 1.0, shadow_w := 13.0) -> void:
 	who = who_
 	var shadow := Polygon2D.new()
 	var pts := PackedVector2Array()
@@ -35,7 +35,7 @@ func build(who_: String, sprite_scale := 1.0, shadow_w := 22.0) -> void:
 		var a := TAU * i / 16.0
 		pts.append(Vector2(cos(a) * shadow_w, sin(a) * shadow_w * 0.4))
 	shadow.polygon = pts
-	shadow.color = Color(0, 0, 0, 0.45)
+	shadow.color = Color(0, 0, 0, 0.4)
 	add_child(shadow)
 	sprite = AnimatedSprite2D.new()
 	sprite.sprite_frames = SpriteLib.frames(who)
@@ -53,8 +53,11 @@ func build(who_: String, sprite_scale := 1.0, shadow_w := 22.0) -> void:
 	_stars = Label.new()
 	_stars.text = "* * *"
 	_stars.add_theme_color_override("font_color", Color(1, 0.9, 0.3))
-	_stars.add_theme_font_size_override("font_size", 14)
-	_stars.position = Vector2(-18, -SpriteLib.foot(who) * 2.0 * sprite_scale - 14)
+	_stars.add_theme_font_override("font", UI.font())
+	_stars.add_theme_font_size_override("font_size", 8)
+	_stars.add_theme_color_override("font_outline_color", UI.INK)
+	_stars.add_theme_constant_override("outline_size", 3)
+	_stars.position = Vector2(-9, -SpriteLib.foot(who) * 2.0 * sprite_scale - 8)
 	_stars.visible = false
 	add_child(_stars)
 	play_anim(false)
@@ -93,7 +96,7 @@ func tick_status(delta: float) -> bool:
 	if _flash > 0.0:
 		_flash -= delta
 		sprite.modulate = Color(3, 3, 3) if _flash > 0.0 else base_modulate
-	knock = knock.move_toward(Vector2.ZERO, 900.0 * delta)
+	knock = knock.move_toward(Vector2.ZERO, 640.0 * delta)
 	stun_guard -= delta
 	if poison_t > 0.0 and game.is_host and not dead:
 		poison_t -= delta
@@ -101,7 +104,7 @@ func tick_status(delta: float) -> bool:
 		if _poison_acc >= 0.5:
 			_poison_acc = 0.0
 			hp -= poison_dps * 0.5
-			game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.6), str(int(round(poison_dps * 0.5))), Color(0.6, 1.0, 0.4))
+			game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.7), str(int(round(poison_dps * 0.5))), Color(0.6, 1.0, 0.4))
 			if hp <= 0.0:
 				hp = 0.0
 				die()
@@ -115,7 +118,7 @@ func tick_status(delta: float) -> bool:
 	return true
 
 ## Only ever called on the host, which decides all damage.
-func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 0.0) -> void:
+func take_damage(amount: float, from: Vector2, knockback := 110.0, stun_time := 0.0) -> void:
 	if dead:
 		return
 	if stun > 0.0 and team == 1:
@@ -128,8 +131,8 @@ func take_damage(amount: float, from: Vector2, knockback := 160.0, stun_time := 
 		st = stun_time
 		stun_guard = stun_time + guard_time
 	apply_hit(k, st)
-	game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.6), str(int(round(amount))),
-		Color(1, 0.4, 0.35) if team == 0 else Color(1, 1, 0.8))
+	game.float_text(global_position + Vector2(0, -SpriteLib.foot(who) * 1.7), str(int(round(amount))),
+		Color(1, 0.4, 0.35) if team == 0 else Color(1, 1, 0.8), 2 if team == 0 else 1)
 	if hp <= 0.0:
 		hp = 0.0
 		die()
@@ -142,7 +145,7 @@ func apply_hit(k: Vector2, stun_time: float) -> void:
 func die() -> void:
 	dead = true
 
-func lunge(dir: Vector2, dist := 10.0) -> void:
+func lunge(dir: Vector2, dist := 7.0) -> void:
 	var t := create_tween()
 	t.tween_property(sprite, "position", dir * dist, 0.06)
 	t.tween_property(sprite, "position", Vector2.ZERO, 0.12)
