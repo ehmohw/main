@@ -203,7 +203,7 @@ def icons():
         for y in range(16):
             for x in range(16):
                 if px[x, y][3] and y in (6, 8) and 4 <= x <= 10 and px[x, y][0] > 200: px[x, y] = ink
-        for (x, y), c in {(9, 10): BL[3], (10, 10): BL[4], (11, 10): BL[3], (9, 11): BL[2], (10, 11): BL[3], (11, 11): BL[2], (10, 12): BL[2],
+        for (x, y), c in {(10, 10): BL[4], (11, 10): BL[3], (9, 11): BL[2], (10, 11): BL[3], (11, 11): BL[2], (10, 12): BL[2],
                           (10, 9): BL[4], (9, 10): BL[4]}.items():
             im.putpixel((x, y), c)                                     # a red wax seal with a drip
         im.putpixel((10, 10), hx('#ff8a7a'))

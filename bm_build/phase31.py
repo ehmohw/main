@@ -201,7 +201,7 @@ def generate(G):
                        [{'type': 'minecraft:item', 'item': icon, 'show_decorations': B(0), 'show_tooltip': B(1), 'width': Int(22), 'height': Int(22),
                          'description': {'contents': [T('In your account: ', 'gray'), T('$(n)', col, bold=True), T(chr(10) + 'On you: ', 'gray'), T('$(h)', 'white')],
                                          'width': Int(220)}}],
-                       [P28.btn([T('Deposit all ', 'white'), T(nm, col), T('  ($(h))', 'gray')], bank_code(i, 0), tooltip=T(f'Every {nm[:-1] if nm.endswith("s") else nm} you carry, into your account', 'gray'), width=150),
+                       [P28.btn([T('Deposit all ', 'white'), T(nm, col), T('  ($(h))', 'gray')], bank_code(i, 0), tooltip=T(f'Every {nm[:-3] + "y" if nm.endswith("ies") else nm[:-1] if nm.endswith("s") else nm} you carry, into your account', 'gray'), width=150),
                         P28.btn(T('Take 1', 'gray'), bank_code(i, 1), width=150), P28.btn(T('Take 10', 'gray'), bank_code(i, 2), width=150),
                         P28.btn([T('Take all', 'gray'), T('  ($(n))', 'dark_gray')], bank_code(i, 3), width=150),
                         P28.btn(T('« Your account', 'gray'), BACK, width=150)], columns=2)

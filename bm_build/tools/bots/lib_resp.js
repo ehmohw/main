@@ -39,7 +39,7 @@ function flat(t) {       // a text component -> its words
 function buttonsOf(d) {  // every button a dialog shows: its label and the command it runs
   const out = [];
   const walk = (x) => { if (!x || typeof x !== 'object') return; if (Array.isArray(x)) return x.forEach(walk);
-    if (x.label != null && x.action && typeof x.action === 'object') out.push({ label: flat(x.label).trim(), command: x.action.command || '', type: x.action.type || '' });
+    if (x.label != null && x.action && typeof x.action === 'object') out.push({ label: flat(x.label).trim(), command: x.action.command || '', type: x.action.type || '', tooltip: x.tooltip != null ? flat(x.tooltip).trim() : '' });
     for (const k in x) if (k !== 'label') walk(x[k]); };
   walk(d); return out;
 }

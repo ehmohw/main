@@ -21,7 +21,6 @@ def rot_off(dx, dz, r):
 def rot_state(state, r):
     if '[' not in state or r == 0: return state
     name, props = state[:-1].split('[', 1)
-    out = []
     kv = dict(p.split('=') for p in props.split(','))
     new = {}
     for k, v in kv.items():

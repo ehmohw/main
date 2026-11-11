@@ -477,7 +477,6 @@ def generate(G):
 
     # ================================================================== THE PLACING (once; and again after every fall)
     sx, sz = SX // 16 + 1, SZ // 16 + 1
-    fl = f'{OX - 8} {OZ - 8} {OX + SX + 8} {OZ + SZ + 8}'
     # (a forceload takes at most 256 chunks at once: the box and its margin in four quarters)
     _mx, _mz = OX + SX // 2, OZ + SZ // 2
     fls = [f'{a} {b} {c} {d}' for a, c in ((OX - 8, _mx), (_mx + 1, OX + SX + 8)) for b, d in ((OZ - 8, _mz), (_mz + 1, OZ + SZ + 8))]

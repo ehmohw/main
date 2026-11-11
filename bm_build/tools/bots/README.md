@@ -50,6 +50,8 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - Before each `forceload add` it asks the server what that dimension already holds; afterwards it remembers only the
   chunks the test itself added. When the process exits - finished, crashed, a failed check, Ctrl+C or a sweep's
   timeout (SIGTERM) - exactly those are released (`rc.js` runs the `forceload remove`s). Only SIGKILL skips it.
+- (3.1s) If the server is down when a test ends (it was stopped mid-test), the removes it couldn't send are kept in
+  `.chunks_pending.json` (ignored by git), and the next test sends them before its first command.
 - A chunk the pack holds is never released, even when a test asks for it again: the gutter's den, Lounge and Locker
   Hall chunks (force-loaded for good by `bm:load` - t101 loads the den's own chunk), a raid instance's claimed slot,
   the Hollow while it's being built. (A forceload has no owner count: removing one the pack holds unloads it for the

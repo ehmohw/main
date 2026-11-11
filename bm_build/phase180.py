@@ -117,7 +117,7 @@ assert set(GD_SLOTS) <= set(GIFT), set(GD_SLOTS) - set(GIFT)
 GDOLLS = list(GD_SLOTS) + [k for k in GIFT if k not in GD_SLOTS]
 for _k in GDOLLS:
     _nm = ITEMS[DOLL_OF[_k]]['name']
-    item(f'gdoll_{_k}', TOTEM, f'Golden {_nm}', GOLD,
+    item(f'gdoll_{_k}', TOTEM, f'Solid-Gold {_nm}' if _nm.startswith('Golden ') else f'Golden {_nm}', GOLD,     # (3.1s: not "Golden Golden Doodle Doll")
          ['Solid gold, and warm to the touch.', (f'Set down: {GIFT[_k][0]} within 8 blocks.' if '(' not in GIFT[_k][0] else f'Set down: {GIFT[_k][0]}.', 'blue'),
           ('Sneak + use on a block to set it down;', 'gray'), ('punch it to pick it back up.', 'gray'), ('From the Ember Rat, for an Omni Token.', 'dark_gray')],
          model=f'bm:gdoll_{_k}', stack=1, glint=True, cat='fun', comps=hold('none'))
