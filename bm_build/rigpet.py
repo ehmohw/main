@@ -71,8 +71,11 @@ def register(C):
     allies.ALLIES += [pet]
     if len(P89.BIT) < 30:
         P89.BIT[W] = 2 ** len(P89.BIT)
-    else:                                                                 # (2.96: the first score is full - the second)
+    elif len(P89.FCON2) < 31:                                             # (2.96: the first score is full - the second)
         P89.FCON2[W] = 2 ** len(P89.FCON2)
+    else:                                                                 # (3.1j: the second full too (2^30 was the Golden Doodle's) - a third)
+        P89.FCON3[W] = 2 ** len(P89.FCON3)
+        assert len(P89.FCON3) <= 31, 'bm.fcon3 is full: a fourth score is needed'
     P68.KINDS[W] = (max(v[0] for v in P68.KINDS.values()) + 1, C.ITEM, 'wolf', pet, f'{C.pfx}/summon', f'{C.pfx}/dismiss', f'bm.{C.ab}sel2', C.NAME, C.COL)
     if C.pron == 'him':
         P68.HE.add(W)

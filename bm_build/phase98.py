@@ -62,7 +62,7 @@ def generate(G):
     P = PREFIX
     BIT = P89.BIT
     init = ['execute unless score @s bm.pid matches 1.. run function bm:p21/pid', 'scoreboard players operation #me bm.pid = @s bm.pid',
-            'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.fcon2 matches 0.. run scoreboard players set @s bm.fcon2 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
+            'execute unless score @s bm.fcon matches 0.. run scoreboard players set @s bm.fcon 0', 'execute unless score @s bm.fcon2 matches 0.. run scoreboard players set @s bm.fcon2 0', 'execute unless score @s bm.fcon3 matches 0.. run scoreboard players set @s bm.fcon3 0', 'execute unless score @s bm.crew matches 0.. run scoreboard players set @s bm.crew 0',
             'execute unless score @s bm.crewoff matches 0.. run scoreboard players set @s bm.crewoff 0', 'execute unless score @s bm.crewoff2 matches 0.. run scoreboard players set @s bm.crewoff2 0', 'execute unless score @s bm.crewoff3 matches 0.. run scoreboard players set @s bm.crewoff3 0']
     fn('p98/init', init)
     def bit(obj, b):
@@ -74,6 +74,7 @@ def generate(G):
     OFF3 = {k: 2 ** j for j, (k, *_r) in enumerate(HIRED)}
     # (2.96: past the 31st follower the bits go on in a second score, bm.crewoff2)
     OFF2 = {k: 2 ** (i - 31) for i, (k, *_r) in enumerate(CALLED) if i >= 31}
+    assert len(OFF2) <= 31, f'bm.crewoff2 is full ({len(OFF2)}): a third crew score is needed'     # (3.1j: the build stops, not 2^31)
     off_obj = lambda k: ('bm.crewoff3', OFF3[k]) if k in OFF3 else ('bm.crewoff2', OFF2[k]) if k in OFF2 else ('bm.crewoff', OFF[k])
     FILED = {k: 2 ** j for j, (k, *_r) in enumerate(HIRED)}
     FILED.update({i: 2 ** (1 + i) for i in P77.HIRE})

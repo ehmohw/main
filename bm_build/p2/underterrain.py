@@ -92,6 +92,16 @@ def plan(B):
     for (x, z) in keep:
         if X1 <= x <= X2 and Z1 <= z <= Z2: kd[x - X1][z - Z1] = 0
     _chamfer_min(kd, W, D)
+    # ---- (3.1j) each column's distance from a forecourt: the dome rises to the forecourt's own height round it (the forecourts
+    #  were flat-walled boxes cut 8-17 blocks up into a lower roof)
+    kf = [[INF0] * D for _ in range(W)]
+    for c in UR.WAYS.values():
+        x1, _y1, z1, x2, _y2, z2 = c['box']
+        for x in range(x1, x2 + 1):
+            for z in range(z1, z2 + 1):
+                if X1 <= x <= X2 and Z1 <= z <= Z2: kf[x - X1][z - Z1] = 0
+    _chamfer_min(kf, W, D)
+    FC_TOP = max(c['box'][4] for c in UR.WAYS.values()) + 2
     # ---- the massif: H = max over dungeon columns of (top + COVER - SLOPE * distance) - a two-pass chamfer max-propagation
     NEG = -10 ** 6
     H = [[NEG] * D for _ in range(W)]
@@ -134,11 +144,15 @@ def plan(B):
         base = (UR.Y - 2) if inbox(x, z) else (sea + 1 + 2 * n)
         m = min(H[i][j] + 3 * n, base + SLOPE * max(0.0, k - 1))
         roof = max(roof, road_top - 1.2 * k) if k < 40 else roof                          # (the roof lifted over the roads, smoothly)
+        if kf[i][j] < 60: roof = max(roof, FC_TOP - 1.1 * kf[i][j])                     # (3.1j: and over the forecourts)
         lo = max(floor_, m + 1)
         if inbox(x, z):
             lo = max(m + 1, sea + 1)      # (no beach in the box: the massif meets the lava)
         lo, hi = _q(lo), _q(min(roof, SY - 1))
-        return lo, hi
+        # (3.1j) a lake column's caves above the roof are closed up - but only fully well in from the shore: at the outer edge
+        #  just the seal, so the Nether outside meets its own rock, not a sixty-block wall of ours
+        cap = 0 if inbox(x, z) else int(min(UR.lake_air_top(x), hi + SEAL + 3 * d))
+        return lo, hi, cap
     steps = {}
     xs = range(X1, X2 + 1)
     for x in xs:
@@ -151,7 +165,7 @@ def plan(B):
                 cur = [z, z, p]
         if cur and cur[2]: runs.append(tuple(cur))
         out = steps.setdefault((UC.ORIGIN[0] + x) // 16, [])
-        for za, zb, ((lo, hi), boxcol) in runs:
+        for za, zb, ((lo, hi, cap), boxcol) in runs:
             if boxcol:
                 # the box: whole rock below the massif (the place puts the dungeon back after), open air above it
                 out.append(('fill', x, bed, za, x, max(bed, lo - 1), zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
@@ -162,9 +176,8 @@ def plan(B):
                 out.append(('fill', x, bed, za, x, sea, zb, 'minecraft:lava', ''))
                 if lo > sea + 1: out.append(('fill', x, sea + 1, za, x, lo - 1, zb, 'minecraft:netherrack', ''))
                 if hi >= lo: out.append(('fill', x, lo, za, x, hi, zb, 'minecraft:air', ''))
-                old = UR.lake_air_top(x)
-                if old > hi: out.append(('fill', x, hi + 1, za, x, old, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
-                t_ = max(hi, old)
+                if cap > hi: out.append(('fill', x, hi + 1, za, x, cap, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
+                t_ = max(hi, cap)
                 out.append(('fill', x, t_ + 1, za, x, t_ + SEAL, zb, 'minecraft:netherrack', 'replace #bm:u_hollow'))
                 if t_ + SEAL < LAVA_TOP: out.append(('fill', x, t_ + SEAL + 1, za, x, LAVA_TOP, zb, 'minecraft:netherrack', 'replace minecraft:lava'))
     return [(cx, steps[cx]) for cx in sorted(steps)], (X1, Z1, X2, Z2)

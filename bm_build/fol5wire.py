@@ -41,13 +41,30 @@ def cycle(A, idle, sit, happy, acts, wp=8, rp_=6):
     return c
 
 
+def _wrap(t, n=46):
+    """(3.1j) a doll's description in lines of about n characters (tooltips don't wrap: some ran to 137); a sentence about how to
+    use it (Sneak + / Right-click) gets its own blue line"""
+    import re as _re
+    parts = _re.split(r'(?<=[.!?])\s+(?=(?:Sneak|Right-click|Use|Punch))', t)
+    out = []
+    for k, p in enumerate(parts):
+        words, cur = p.split(), ''
+        lines = []
+        for w_ in words:
+            if cur and len(cur) + 1 + len(w_) > n: lines.append(cur); cur = w_
+            else: cur = (cur + ' ' + w_).strip()
+        if cur: lines.append(cur)
+        out += [(l, 'blue') for l in lines] if k else lines
+    return out
+
+
 def register(C, A, doll_desc, doll_fx=('minecraft:end_rod', 'minecraft:entity.allay.item_given', 'minecraft:poof'), pairs=None, vname=None):
     RP.register(C)
     RF2.setup(C, A.FACE_PART)
     w = C.W
     d = f'doll_{w}'
     item(d, TOTEM, f'{C.NAME[4:] if C.NAME.startswith("The ") else C.NAME} Doll', C.COL,
-         [doll_desc, ('Right-click a block: set it down.', 'blue'), ('Right-click it: it twirls.', 'blue'), ('Sneak + punch: pick it up.', 'gray')],
+         [*_wrap(doll_desc), ('Right-click a block: set it down.', 'blue'), ('Right-click it: it twirls.', 'blue'), ('Sneak + punch: pick it up.', 'gray')],
          model=f'bm:{d}', stack=16, cat='fun', comps=hold('none'))
     HOLD[d] = f'bm:p141/{d}/use'
     P141.DOLLS.append((d, C.NAME, C.COL, doll_desc) + tuple(doll_fx))

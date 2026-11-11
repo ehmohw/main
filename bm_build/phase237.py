@@ -46,7 +46,7 @@ SX, SY, SZ = U.SIZE
 NETHER = 'minecraft:the_nether'
 BOX = f'x={OX},y={OY},z={OZ},dx={SX - 1},dy={SY - 1},dz={SZ - 1}'
 UVER = 9                                  # bump to re-place the Undercrown in every world (a rebuild: everyone inside is carried out; 7: 3.0a's forecourts and bored roads; 8: 3.0g's lava lake, causeways and clean-out)
-LAKEV = 5                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
+LAKEV = 6                                 # (3.0g) bump to carve the lava lake round it again in every world (p237/lake: once, not at every fall)
 COLLAPSE = 180                            # seconds between the claim of its spoils and the rebuild
 HOLD_MAX = 1800                           # (3.0a) the longest it holds for its victors' claim (30 min: no world stays stuck)
 GRACE = 180                               # (3.0a) once one victor has claimed, how long the rest have before it goes anyway
@@ -200,6 +200,14 @@ def _lake_gen(G, fn, tellraw, P, UR):
             for _f, x1, y1, z1, x2, y2, z2, blk, tail in cmds[a:a + 2500]:
                 body.append(f'fill {OX + x1} {OY + y1} {OZ + z1} {OX + x2} {OY + y2} {OZ + z2} {blk}' + (f' {tail}' if tail else ''))
             steps.append(body)
+    # (3.1j) the Undercrown's own biome over the whole lake cavern, not the box alone: no ghasts cratering its shores, and the fog
+    #  and the music no longer change at the box's edge. A chunk column a step, 16 x 112 x 16 at a time (under the block limit)
+    for cx in sorted({c_ for c_, _m in cols}):
+        bx1, bx2 = max(cx * 16, OX + tx1), min(cx * 16 + 15, OX + tx2)
+        if bx1 > bx2: continue
+        gate = [f'execute unless loaded {cx * 16} 64 {cz * 16} run return 0' for cz in range((OZ + tz1) // 16, (OZ + tz2) // 16 + 1)]
+        steps.append(gate + [f'fillbiome {bx1} {OY} {bz} {bx2} {OY + SY - 1} {min(bz + 15, OZ + tz2)} bm:undercrown'
+                             for bz in range((OZ + tz1) // 16 * 16, OZ + tz2 + 1, 16)])
     nlake = len(steps)
     for cx in range(OX // 16, (OX + SX - 1) // 16 + 1):
         x1, x2 = max(OX, cx * 16), min(OX + SX - 1, cx * 16 + 15)

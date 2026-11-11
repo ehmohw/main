@@ -459,7 +459,7 @@ def generate(G):
             btns.append(P28.btn([T(label, col_, bold=True), T('  '), f'@@RAW:r_{key}@@'], code, width=WW, tooltip=T(tip, 'gray')))
         page.append(f'function bm:p99/dlg/{who} with storage bm:ui wd')
         fn(f'p99/menu/{who}', page)
-        dlg = P28.multi([T(f"{nm}", col, bold=True), T('  ·  wardrobe', 'gray')],
+        dlg = P28.multi([T(nm[:1].upper() + nm[1:], col, bold=True), T('  ·  wardrobe', 'gray')],     # (3.1j: a title starts with a capital - "The Chef")
                         [P28.body([T('Every outfit you\'ve used is ' + {'him': 'his', 'her': 'hers', 'it': 'its', 'them': 'theirs'}.get(pron, pron + 's') + ' for good. Pick one any time - ', 'gray'),
                                    T('locked', 'dark_gray', bold=True), T(' ones are sold by Goldtooth in the vault (the hidden ones for a Gutter Trophy).', 'gray')] +
                                   ([T(' With a gem in him, the gem\'s element shows instead.', 'dark_gray')] if who in ('cecil', 'kw') else []), 330)],

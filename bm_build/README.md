@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1k: the cavern's edges
+
+- **No wall at the lake's rim.** The cavern used to fill every cave above its roof right up to the shore, which left a tall flat face of rock wherever the Nether outside was open. Now only the roof's seal goes on at the rim, deepening further in, so the Nether outside meets its own rock.
+- **The roof domes up over the forecourts.** It rises to the forecourts' own height round them instead of leaving two flat-walled notches cut into a lower roof.
+- **The Undercrown's biome covers the whole lake cavern,** not just the dungeon's box. No more ghasts cratering the shores, and the fog and music no longer change at the box's edge.
+- **Long doll descriptions are wrapped,** and how to use each doll gets its own blue line. This affects the newer followers' dolls, such as the Golden Doodle's.
+- **Wardrobe titles start with a capital** ("The Chef · wardrobe").
+- **Behind the scenes:** room for more followers in Raid Contracts, and the build stops instead of overflowing a full score.
+- **Existing worlds** re-carve the lake once more. As in 3.1j, anything built in the lava cavern round the Undercrown is lost.
+
 ## New in 3.1j: the final sweep
 
 A full review of items, followers, menus, terrain and the per-tick code, and the fixes it turned up.
