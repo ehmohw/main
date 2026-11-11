@@ -77,7 +77,7 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await at(X + 12.5, Y + 1, Z + 3.5, 90); await use(2);
   await wait(3000, async () => (await cnt(KT)) === 1); await run(`scoreboard players set ${KT} bm.rdc 0`);
   ok('Kettle called: she rides Bender too', await wait(25000, async () => riding(KT)));
-  await sleep(500); ok('...in her ride pose (state 16)', (await score('bm.kqs', KT)) === 16);
+  await sleep(500); ok('...in her ride pose (state 16)', (await score('bm.kvs', KT)) === 16);
   await home('p227'); await sleep(800); await use(3);
   await wait(3000, async () => (await cnt(RU)) === 1); await run(`scoreboard players set ${RU} bm.rdc 0`);
   ok('the rat mercenary called: he rides Bender too', await wait(25000, async () => riding(RU)),
@@ -114,12 +114,12 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await run(`${O}time set midnight`); await run(`${O}kill @e[type=#bm:hostile,x=${X},y=${Y},z=${Z},distance=..48]`); await wait(8000, async () => (await score('bm.bvrp', BV)) <= 0 && (await score('bm.dqx', BV)) <= 0);
   await at(X + 0.5, Y + 1, Z + 0.5); A.chats.length = 0;
   for (const s of [BV, HY, NI]) await run(`${O}tp ${s} ${X + 2.5} ${Y + 1} ${Z + 2.5}`);
-  for (const o of ['gc', 'bc', 'rc', 'mc', 'k', 'k2', 'sc']) { await run(`scoreboard players set ${HY} bm.hq${o} 900`); await run(`scoreboard players set ${NI} bm.nq${o} 900`); }
+  for (const o of ['gc', 'bc', 'rc', 'mc', 'k', 'k2', 'sc']) { await run(`scoreboard players set ${HY} bm.hq${o} 900`); await run(`scoreboard players set ${NI} bm.nv${o} 900`); }
   await run(`scoreboard players set ${BV} bm.cdlw 0`);
   ok('night, the three of them calm, you by: in time they lie down together', await wait(150000, async () => (await cnt('@e[type=minecraft:wolf,tag=bm.cdl]')) === 3, 1000));
   await sleep(1500);
-  ok('...Bender asleep (state 17), and the cats curled up (17)', (await score('bm.dqs', BV)) === 17 && (await score('bm.hqs', HY)) === 17 && (await score('bm.nqs', NI)) === 17,
-     [await score('bm.dqs', BV), await score('bm.hqs', HY), await score('bm.nqs', NI)].join(' '));
+  ok('...Bender asleep (state 17), and the cats curled up (17)', (await score('bm.dqs', BV)) === 17 && (await score('bm.hqs', HY)) === 17 && (await score('bm.nvs', NI)) === 17,
+     [await score('bm.dqs', BV), await score('bm.hqs', HY), await score('bm.nvs', NI)].join(' '));
   { const bx = await num(BV, 'Pos[0]'), bz = await num(BV, 'Pos[2]'), by = await num(BV, 'Rotation[0]');
     const d = async (s) => Math.hypot((await num(s, 'Pos[0]')) - bx, (await num(s, 'Pos[2]')) - bz);
     const turn = async (s) => { const a = ((await num(s, 'Rotation[0]')) - by) % 360; return Math.min(Math.abs(a), 360 - Math.abs(a)); };

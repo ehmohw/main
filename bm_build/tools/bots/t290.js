@@ -5,7 +5,7 @@
 // tossed up; Speed and Jump Boost for you), LET'S PLAY! (out of a fight: tagged - Speed and Jump Boost); SKETCH & PLAY with Mr.
 // Capshun (called with his own pencil): a toy sketched over a foe, and Kettle plays with it. Then the shared list.
 const runT = require('./rigpet_t');
-runT({ W: 'kettle', NAME: 'Kettle', ab: 'kt', q: 'kq', pfx: 'p227', prefix: 'kt_', item: 'kettle_plane', parts: 11, figParts: 10, hp: 40, X: 17200, Z: 16000, pron: 'him',
+runT({ W: 'kettle', NAME: 'Kettle', ab: 'kt', q: 'kv', pfx: 'p227', prefix: 'kt_', item: 'kettle_plane', parts: 11, figParts: 10, hp: 40, X: 17200, Z: 16000, pron: 'him',
   called: /Wait for me|What are we playing/, home: /Same time tomorrow/, sit: /Look at the clouds/, stand: /I'm rested/,
   ways: ["Let's Play!", 'Tag', 'Paper Planes', 'Kickball', 'Cartwheel', 'Jump Rope', 'Recess!', 'Sketch & Play'],
   plain: 'Plain pencil', looks: ['Red Crayon', 'Blue Crayon', 'Green Crayon'],

@@ -6,12 +6,12 @@
 // SITTING TWO WAYS: right-click (sit_a), SNEAK + right-click (sit_b, bm.czsb). Then the shared list (the Flavours: Mint, Lemon,
 // Chocolate).
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
-runT({ W: 'cake', NAME: 'The Cake', ab: 'cz', q: 'kz', pfx: 'p265', prefix: 'ck_', item: 'cake_candle', parts: 13, figParts: 9, hp: 30, X: 19140, Z: 16000, pron: 'it',
+runT({ W: 'cake', NAME: 'The Cake', ab: 'cz', q: 'ky', pfx: 'p265', prefix: 'ck_', item: 'cake_candle', parts: 13, figParts: 9, hp: 30, X: 19140, Z: 16000, pron: 'it',
   lookPart: 'base', seatPart: 'hat', called: /hops back to you/, home: /blows out its own candle/, sit: /plonks down on its plate/, stand: /Places to hop/,
   ways: ['Tiny Fork', 'Hop + Boop', 'Layer Slam', 'Sprinkle Shower', 'A Little Hop'],
   plain: 'Strawberry and vanilla', looks: ['Mint', 'Lemon', 'Chocolate'],
   encounter: async (ctx) => {
-    const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, num, ENC, X, Y, Z } = ctx; const K = kit(ctx, 'kz');
+    const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, num, ENC, X, Y, Z } = ctx; const K = kit(ctx, 'ky');
     await run('tag TestRat remove bm.czmet'); await run('clear TestRat'); await run('kill @e[type=minecraft:interaction,tag=bm.czenc]');
     await run('kill @e[type=minecraft:wolf,tag=bm.pqpet]'); await run('kill @e[type=minecraft:wolf,tag=bm.kkpet]'); await sleep(1200);
     await run('loot replace entity TestRat inventory.20 loot bm:items/pq_pearls'); await run('loot replace entity TestRat inventory.21 loot bm:items/chef_ladle');
@@ -38,7 +38,7 @@ runT({ W: 'cake', NAME: 'The Cake', ab: 'cz', q: 'kz', pfx: 'p265', prefix: 'ck_
     await run('clear TestRat *[minecraft:custom_data~{bm:"pq_pearls"}]'); await run('clear TestRat *[minecraft:custom_data~{bm:"chef_ladle"}]');
   },
   abilities: async (ctx) => {
-    const { ok, run, wait, num, nbt, A, sleep, PET, X, Y, Z, at, entOf, fx } = ctx; const K = kit(ctx, 'kz');
+    const { ok, run, wait, num, nbt, A, sleep, PET, X, Y, Z, at, entOf, fx } = ctx; const K = kit(ctx, 'ky');
     ok('TINY FORK - a foe in reach: hurt', await K.move('mc', [[0, 2]], 'bm.trpa', async () => (await K.hp('bm.trpa')) < 300, 6000));
     ok('HOP + BOOP - a foe near: booped, slowed', await K.move('k2', [[0, 2]], 'bm.trpb', async () => /slowness/.test(await K.fxOf('bm.trpb')), 7000));
     ok('LAYER SLAM - foes near: hurt and slowed', await K.move('gc', [[1, 1], [-1, 1]], 'bm.trpc', async () => (await K.hp('bm.trpc')) < 300 && /slowness/.test(await K.fxOf('bm.trpc')), 8000));

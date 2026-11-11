@@ -7,7 +7,7 @@
 // beside her that hasn't hurt her isn't scratched), KNEAD (out of a fight: Regeneration and a bite), STARLIGHT. Her special pairs: with Emma, every 30 s she
 // curls up in Emma's lap - petals heal you all (Absorption II); with Queen Ava, a glowing tide (Water Breathing). Then the list.
 const runT = require('./rigpet_t');
-runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nq', pfx: 'p230', prefix: 'ni_', item: 'nia_bell', parts: 7, figParts: 7, hp: 30, X: 17500, Z: 16000, pron: 'her',
+runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nv', pfx: 'p230', prefix: 'ni_', item: 'nia_bell', parts: 7, figParts: 7, hp: 30, X: 17500, Z: 16000, pron: 'her',
   called: /winds round your legs|a bell jingles/, home: /pads off under the stars/, sit: /tucks her paws in/, stand: /uncurls, stretches/,
   ways: ['Comfort', 'Guardian Curl', 'Bell Chime', 'Shoo', 'Gentle Paws', 'Knead', 'Starlight'],
   plain: 'Her lilac collar', looks: ['Rose Collar', 'Sky Collar', 'Mint Collar'], lookPart: 'body',
