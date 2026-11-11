@@ -29,7 +29,7 @@ runT({ W: 'kettle', NAME: 'Kettle', ab: 'kt', q: 'kq', pfx: 'p227', prefix: 'kt_
     await run(`${O}fill ${X - 8} ${Y} ${Z - 2} ${X + 8} ${Y} ${Z + 12} minecraft:stone`);
   },
   abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, score, fx, PET, zom, X, Y, Z, sleep, use, sneakMenu, at }) => {
-    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.kq${o} ${v}`);
+    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.kv${o} ${v}`);
     const calm = async () => { for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k', 'k2']) await cd(o, 900); };
     const fxOf = async (t) => nbt(`@e[tag=${t},limit=1]`, 'active_effects');
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');

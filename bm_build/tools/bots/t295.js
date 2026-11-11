@@ -30,7 +30,7 @@ runT({ W: 'nia', NAME: 'Nia', ab: 'ni', q: 'nq', pfx: 'p230', prefix: 'ni_', ite
     await run(`${O}execute as TestRat at @s run function bm:p98/home/henry`); await run('clear TestRat *[minecraft:custom_data~{bm:"henry_tag"}]');
   },
   abilities: async ({ A, run, ok, wait, O, cnt, nbt, num, fx, PET, zom, X, Y, Z, sleep, at, use }) => {
-    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.nq${o} ${v}`);
+    const cd = async (o, v) => run(`scoreboard players set ${PET} bm.nv${o} ${v}`);
     const calm = async () => { for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k', 'k2']) await cd(o, 900); };
     const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
     const fxOf = async (t) => nbt(`@e[tag=${t},limit=1]`, 'active_effects');
