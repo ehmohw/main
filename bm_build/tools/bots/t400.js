@@ -6,7 +6,7 @@
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'gdoodle', NAME: 'The Golden Doodle', ab: 'gq', q: 'gu', pfx: 'p275', prefix: 'gq_', item: 'doodle_egg', parts: 35, figParts: 11, hp: 48, X: 19620, Z: 16000, pron: 'her',
   lookPart: 'body', seatPart: 'head', called: /waddles back to you/, home: /tucks herself into a golden egg/, sit: /plops down/, stand: /shakes out her feathers/,
-  ways: ['The Goose', 'The Gilded Eldritch', 'Her Lightbringer form', 'Form', 'Companion Size', 'Lucky'],
+  ways: ['The Goose', 'The Gilded Eldritch', 'Her Lightbringer form', 'Form', 'Companion size', 'Lucky'],
   plain: 'Gold leaf', looks: ['Rose Gold', 'Platinum', 'Midnight Gold'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, num, ENC, X, Y, Z } = ctx;
@@ -34,9 +34,9 @@ runT({ W: 'gdoodle', NAME: 'The Golden Doodle', ab: 'gq', q: 'gu', pfx: 'p275', 
     await K.home();
     await form();
     ok('FORM: the Gilded Eldritch - host 1.6, its models', Math.abs((await SC()) - 1.6) < 0.01 && (await cnt(`${PET.slice(0, -1)},tag=bm.gqf1]`)) === 1 && /gk_head/.test(await mdl()), await mdl());
-    await ctx.sneakMenu(0); await A.press(/Companion Size/); await sleep(1500);
+    await ctx.sneakMenu(0); await A.press(/Companion size/); await sleep(1500);
     ok('COMPANION SIZE in a big form: host 1.0', Math.abs((await SC()) - 1.0) < 0.01);
-    await ctx.sneakMenu(0); await A.press(/Companion Size/); await sleep(1200);
+    await ctx.sneakMenu(0); await A.press(/Companion size/); await sleep(1200);
     await form();
     ok('FORM: her Lightbringer form - bm.gqf2, the gh_ models', (await cnt(`${PET.slice(0, -1)},tag=bm.gqf2]`)) === 1 && /gh_head/.test(await mdl()), await mdl());
     await A.press(/Send .* home/).catch(() => {}); await sleep(1500); await ctx.use(0); await sleep(2500);

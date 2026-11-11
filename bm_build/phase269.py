@@ -88,7 +88,7 @@ class Knight(RP.Cfg):
     ATTRS = dict(armor=10, attack_damage=5, movement_speed=0.3, follow_range=32, step_height=1.1)
     SCALE, HIT = HOST_BIG, (1.3, 3.0)               # (his body and helm, the statue knights' own size; the mace swings outside it)
     BOX_FIT = True
-    BUTTONS = ((6, 'Companion Size: on / off', 'The Knight at a companion\'s size - about your height. Off: as tall as the statue knights.', 'p269/csz/toggle'),)
+    BUTTONS = ((6, 'Companion size: on / off', 'The Knight at a companion\'s size - about your height. Off: as tall as the statue knights.', 'p269/csz/toggle'),)
     CYCLE = W5.cycle(A0, (240, [(0, 'idle_a'), (90, 'idle_b'), (150, 'idle_a'), (190, 'idle_c'), (220, 'idle_a')]), (80, [(0, 'sit_a'), (40, 'sit_a2')]),
                      (None, [(0, 'happy'), (14, 'idle_a')]),
                      {7: (None, [(0, 'swing_0'), (4, 'swing_1'), (10, 'idle_a')]), 8: (None, [(0, 'coil_go'), (6, 'coil'), (60, 'divein'), (66, 'idle_a')]),
@@ -109,7 +109,7 @@ class Knight(RP.Cfg):
               ('Coil', 'a foe 3-8 off, every 6 s: the serpent streaks to it and winds round it - Slowness III and no jumping for 3 s'),
               ('The Spin', 'charged, every minute: the giant mace swung round - 9 to every monster within 3.5'),
               ('Broken', 'under a third of his health: the armour collapses, and for 30 s the serpent fights alone (bites of 5) - then the armour stands again, healed'),
-              ('Companion Size', 'his menu: as tall as the statue knights, or about your height - his hitbox with it'),
+              ('Companion size', 'his menu: as tall as the statue knights, or about your height - his hitbox with it'),
               ('Freed', 'hand him a Totem of Undying, a golden apple in your pack and Pistachio by to serve it: the holy finish - silver, gold and a white cloak')]
     INTRO = [T('The Hollow Statue Knight', COL, bold=True), T(' - Sir Aldous Vane, Captain of Omega\'s guard, bound as a soul serpent in a statue\'s armour. ', 'gray'),
              T('"Mind the door, Pip."', LINE, italic=True)]
@@ -347,8 +347,8 @@ def generate(G):
     say = lambda txt: title('@s', 'actionbar', [T('The Hollow Statue Knight: ', COL, bold=True), T(txt, LINE)])
     hit_small = tuple(round(v * CSZ_K, 2) for v in Knight.HIT)
     CSZ.build(G, pfx, 'bm.hxcs', 'bm.hxcz', f'bm.{Knight.q}s', HOST_BIG, HOST_SMALL,
-              say('"At ease. I can stand a little shorter - it was never the height that held the stair." (Companion Size: on)'),
-              say('"Back to my post\'s full height. Hold the stair." (Companion Size: off)'), hit=('bm.hxhit', Knight.HIT, hit_small))
+              say('"At ease. I can stand a little shorter - it was never the height that held the stair." (Companion size: on)'),
+              say('"Back to my post\'s full height. Hold the stair." (Companion size: off)'), hit=('bm.hxhit', Knight.HIT, hit_small))
     CSZ.LATE.append((pfx, CSZ_K, 'bm.hxcz', ()))
     T_ = G.FUNCS[f'{pfx}/tick']
     assert T_[0] == 'scoreboard players operation #me bm.pid = @s bm.pid', T_[0]

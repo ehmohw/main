@@ -32,7 +32,7 @@ import ratking_art as RA
 
 PREFIX = 'rkf_'
 RIG_SCALE = 0.9                                  # (3.0k, the owner: his own size is the heist boss's - ~2.8 blocks to the crown; the rig is made at it)
-COMPANION = 0.48                                 # (...and his menu's Companion Size: ~1.55 blocks - compsize twins his rig at COMPANION / RIG_SCALE)
+COMPANION = 0.48                                 # (...and his menu's Companion size: ~1.55 blocks - compsize twins his rig at COMPANION / RIG_SCALE)
 SCALE = RIG_SCALE
 PIVOT = dict(RA.PIVOT, coin=(-12.4, 13.4, -6.6))
 PARENT = dict(RA.PARENT, coin='arml')

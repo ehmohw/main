@@ -69,7 +69,7 @@ RVER = 1
 item(ITEM, TOTEM, 'The Royal Marker', COL,
      ['An IOU on thick vellum, sealed in gold wax:', '"The bearer owes the Rat King one (1) adventure."',
       ('Use: call the Rat King (again: call him over).', 'blue'), ('Sneak + use: his menu.', 'blue'),
-      ('Sceptre, slam, his Court, and THE KING\'S CUT.', 'blue'), ('Companion Size, from his menu.', 'blue'),
+      ('Sceptre, slam, his Court, and THE KING\'S CUT.', 'blue'), ('Companion size, from his menu.', 'blue'),
       ('If he faints: 2 minutes before he can return.', 'gray')],
      model='bm:royal_marker', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 item(COIN, 'minecraft:compass', "The King's Coin", COL,
@@ -89,7 +89,7 @@ class RatKing(RP.Cfg):
     ATTRS = dict(armor=8, attack_damage=5, movement_speed=0.34, follow_range=32, step_height=1.1)
     SCALE, HIT = HOST_BIG, HIT_BIG
     BOX_FIT = True
-    BUTTONS = ((6, 'Companion Size: on / off', 'The Rat King at a companion\'s size - about a head shorter than you (his ego, as tall as ever). '
+    BUTTONS = ((6, 'Companion size: on / off', 'The Rat King at a companion\'s size - about a head shorter than you (his ego, as tall as ever). '
                                                'Off: as large and imposing as he sat on his throne.', 'p262/csz/toggle'),
                (7, 'Gifts: on / off', 'His loans now and then, and the King\'s Cut from your kills. Off: none (your pockets stay tidy).', 'p280/gift/rk'))
     CYCLE = P235.cycle((240, [(0, 'idle_a'), (80, 'idle_b'), (160, 'idle_c'), (210, 'idle_a')]), (240, [(0, 'sit_a'), (120, 'sit_b')]),
@@ -114,7 +114,7 @@ class RatKing(RP.Cfg):
               ('A Loan, With Interest', 'out of a fight beside you, every minute: a coin\'s worth of something - with a little bow'),
               ("The King's Cut", 'every monster you kill with him near: one in three pays a tithe - gold nuggets, now and then an emerald, very rarely a Token'),
               ('Bonds and Debts', 'with the Keeper of Bonds out too: Luck and Haste for you - one weaves the bonds, the other keeps the books'),
-              ('Companion Size', 'his menu: as large and imposing as on his throne, or about a head shorter than you - his hitbox with it')]
+              ('Companion size', 'his menu: as large and imposing as on his throne, or about a head shorter than you - his hitbox with it')]
     INTRO = [T('The Rat King', COL, bold=True), T(' - the Keeper\'s counterpart: where it weaves every bond, he keeps the books on them. ', 'gray'),
              T('"A debt is a bond too, if you ask me."', LINE, italic=True)]
     BURST = ['particle minecraft:dust{color:[1.0,0.78,0.2],scale:1.2} ~ ~1.2 ~ 0.5 0.8 0.5 0 20', 'particle minecraft:large_smoke ~ ~0.6 ~ 0.4 0.4 0.4 0.02 10',
@@ -389,8 +389,8 @@ def generate(G):
     # ---- COMPANION SIZE (compsize): his rig at CSZ_K of its own size, his host and click box with it; the owner's bm.rwcs, kept
     say = lambda txt: title('@s', 'actionbar', [T('The Rat King: ', COL, bold=True), T(txt, LINE)])
     CS.build(G, pfx, 'bm.rwcs', 'bm.rwcz', S('s'), HOST_BIG, HOST_SMALL,
-             say('"...Fine. Smaller. A king can be FUN-SIZED. Tell no one." (Companion Size: on)'),
-             say('"Ahh. Room for a crown. A king should LOOM." (Companion Size: off)'), hit=('bm.rwhit', HIT_BIG, HIT_SMALL))
+             say('"...Fine. Smaller. A king can be FUN-SIZED. Tell no one." (Companion size: on)'),
+             say('"Ahh. Room for a crown. A king should LOOM." (Companion size: off)'), hit=('bm.rwhit', HIT_BIG, HIT_SMALL))
     CS.LATE.append((pfx, CSZ_K, 'bm.rwcz', ()))
     T_ = G.FUNCS[f'{pfx}/tick']
     assert T_[0] == 'scoreboard players operation #me bm.pid = @s bm.pid', T_[0]

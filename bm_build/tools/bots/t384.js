@@ -14,7 +14,7 @@ const COLX = -2586.5, COLZ = 2623.5, COLY = 120;                        // (phas
 const ROOM = `x=${CX - 7},y=${FY},z=${CZ - 7},dx=14,dy=6,dz=14`;
 runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefix: 'rkf_', item: 'royal_marker', parts: 14, figParts: 13, hp: 44, X: 19060, Z: 16000, pron: 'him',
   lookPart: 'cape', called: /proceeds, briskly, back to your side/, home: /sweeps his cape round himself/, sit: /settles on his haunches/, stand: /hoard won't count itself/,
-  ways: ['Sceptre Swat', 'Sceptre Slam', 'The Court', 'A Loan, With Interest', "The King's Cut", 'Bonds and Debts', 'Companion Size'],
+  ways: ['Sceptre Swat', 'Sceptre Slam', 'The Court', 'A Loan, With Interest', "The King's Cut", 'Bonds and Debts', 'Companion size'],
   plain: 'Crimson and royal blue', looks: ['Midnight Cape', 'Emerald Court', 'Royal Purple'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, score, num, PET } = ctx;
@@ -103,7 +103,7 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     await run('scoreboard players set TestRat bm.rwcs 0'); await sleep(800);
     ok('COMPANION SIZE - off: his own size (host 1.6, click box 2.9 tall)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 1.6) < 0.01 &&
        (await num(HIT, 'height')) > 2.5, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'height')}`);
-    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion Size/); await sleep(1500);
+    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion size/); await sleep(1500);
     ok('...pressed on his menu: on (bm.rwcs 1) - "FUN-SIZED"', (await ctx.score('bm.rwcs')) === 1 && A.bars.some(b => /FUN-SIZED/.test(b)), A.bars.slice(-1).join(''));
     ok('...his host shrinks (0.85) and his click box with it (1.6 tall, 0.85 wide)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 0.85) < 0.01 &&
        Math.abs((await num(HIT, 'height')) - 1.6) < 0.05 && Math.abs((await num(HIT, 'width')) - 0.85) < 0.05, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'width')} x ${await num(HIT, 'height')}`);
@@ -113,7 +113,7 @@ runT({ W: 'ratking', NAME: 'The Rat King', ab: 'rw', q: 'qw', pfx: 'p262', prefi
     await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(2500);
     ok('...sent home and called again: still companion-sized (host 0.85, box 1.6)', Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 0.85) < 0.01 &&
        Math.abs((await num(HIT, 'height')) - 1.6) < 0.05, `${await num(PET, 'attributes[{id:"minecraft:scale"}].base')} / ${await num(HIT, 'height')}`);
-    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion Size/); await sleep(1500);
+    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Companion size/); await sleep(1500);
     ok('...and off again: "A king should LOOM" - host 1.6, click box 2.9', (await ctx.score('bm.rwcs')) === 0 && A.bars.some(b => /LOOM/.test(b)) &&
        Math.abs((await num(PET, 'attributes[{id:"minecraft:scale"}].base')) - 1.6) < 0.01 && (await num(HIT, 'height')) > 2.5, A.bars.slice(-1).join(''));
   } });

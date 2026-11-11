@@ -177,7 +177,7 @@ class KnightArt(types.ModuleType):
         self.H, self.AR, self.SR = H, H.ARMOUR, H.SERPENT
         A, S = self.AR, self.SR
         self.SP = tuple(f's_{p}' for p in S.PARTS)
-        # (3.1, the owner: the statue knights' own size by default - knight_art's RIG_SCALE, ~3 blocks; Companion Size, his menu's
+        # (3.1, the owner: the statue knights' own size by default - knight_art's RIG_SCALE, ~3 blocks; Companion size, his menu's
         #  toggle, twins it at H.COMPANION (compsize, phase269). FULL: the art's own lever if it gives one)
         self.FULL = getattr(H, 'FULL', H.KA.RIG_SCALE)
         self.F = self.FULL / H.COMPANION
@@ -261,7 +261,7 @@ def _mimic():
 
 class RexArt(types.ModuleType):
     """the Atomic Rex (rex_art - phase249's mount rig, its models as they are): a follower at companion size (FULL / K_UP, ~2.5
-    blocks; its menu's Full Size twins it at FULL - compsize), its plated parts' models swapped per pose (the breath's glow: _charge).
+    blocks; its menu's Full size twins it at FULL - compsize), its plated parts' models swapped per pose (the breath's glow: _charge).
     Its looks: the MECHA costume (look 1, handmade - every rx_atomic_ model's item definition worn as the rx_mecha_ one, phase272),
     the rest recolours of its hide and plates"""
     K_UP = 3.0
@@ -341,7 +341,7 @@ def _ferro():
 
 def _kaiju(mod, w, drawn, shiny, comp):
     """Talus and Trivyrn (fol5_kit rigs, built at their full size): the follower is built at its companion size (comp - its own
-    RIG_SCALE / K_UP), Full Size (compsize) twins it at its own"""
+    RIG_SCALE / K_UP), Full size (compsize) twins it at its own"""
     import importlib
     M = importlib.import_module(mod)
     A = Art(w, M.R, {'happy': 'happy', 'surprised': 'look', 'hurt': 'hurt', 'sleepy': 'sleepy', 'blink': 'blink', 'squint': 'happy', 'serious': 'fierce'},

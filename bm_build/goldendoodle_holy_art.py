@@ -48,7 +48,7 @@ PARENT = {'body': None, 'tail': 'body', 'neck1': 'body', 'neck2': 'neck1', 'neck
 FACES = ('happy', 'blink', 'fierce', 'surprised', 'sad')
 OPT = ('beam', 'gust', 'cure', 'aura')
 R = Rig('gh_', 0.9, PIVOT, PARENT, FACES, face_part='head', opt=OPT, companion=0.55)
-COMPANION = 0.55                 # (its menu's Companion Size: ~2 blocks - compsize twins the rig at COMPANION / RIG_SCALE)
+COMPANION = 0.55                 # (its menu's Companion size: ~2 blocks - compsize twins the rig at COMPANION / RIG_SCALE)
 SKIN_NAMES = {'_rg': 'cosmetic: Rose Gold', '_pt': 'cosmetic: Platinum', '_sh': 'SHINY: Four-Leaf'}
 
 # ---------------------------------------------------------------------------------------------------- palette and textures

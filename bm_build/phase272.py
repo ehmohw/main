@@ -1,6 +1,6 @@
 """3.1: THE ATOMIC REX - the 61st follower (rex_art.py; fol5flag.REX). The hidden mount (phase249) made a follower: the nuclear dinosaur,
 charcoal hide and three rows of glowing blue dorsal plates - at a companion's size by default (~2.5 blocks), and the kaiju's own
-(~7.5) at the press of its menu's Full Size. It still carries you: its menu's RIDE.
+(~7.5) at the press of its menu's Full size. It still carries you: its menu's RIDE.
 
 MEETING IT    as before (phase249): a Rex Fossil from deep deepslate, struck by lightning on a rod in a storm, the egg dropped in the
               Nether's lava - it hatches, and thinks you are its mother. The Atomic Whistle is now its summoning item: it follows you.
@@ -47,7 +47,7 @@ HOLD['mecha_remote'] = 'bm:p272/remote'          # (the old Mecha Rex Remote: yo
 _L = ITEMS[ITEM]['comps'].get('minecraft:lore')
 if isinstance(_L, list):
     _L[:] = [T('A whistle of fossil bone. Somewhere, something big hears it.', 'gray'), T('Use: call the Atomic Rex (again: call it over).', 'blue'),
-             T('Sneak + use: its menu - Ride, Full Size, its wardrobe.', 'blue'), T('Riding it: use it to breathe atomic fire.', 'blue'),
+             T('Sneak + use: its menu - Ride, Full size, its wardrobe.', 'blue'), T('Riding it: use it to breathe atomic fire.', 'blue'),
              T('It answers to you alone.', 'dark_gray')]
 
 P = A0.POSES
@@ -66,7 +66,7 @@ class Rex(RP.Cfg):
     SCALE, HIT = HOST_C, HIT_C
     BOX_FIT = True
     BUTTONS = ((6, 'Ride', 'It stands up to its full size and kneels for you: ride it (sneak to get off).', 'p272/ride'),
-               (7, 'Full Size: on / off', 'On: the kaiju\'s own size, ~7.5 blocks (and its hitbox). Off: a companion\'s, ~2.5.', 'p272/csz/toggle'))
+               (7, 'Full size: on / off', 'On: the kaiju\'s own size, ~7.5 blocks (and its hitbox). Off: a companion\'s, ~2.5.', 'p272/csz/toggle'))
     CYCLE = W5.cycle(A0, (240, [(0, 'idle_a'), (120, 'idle_b')]), (120, [(0, 'sit'), (60, 'sit2')]), (None, [(0, 'happy'), (16, 'idle_a')]),
                      {7: (None, [(0, 'tailswipe'), (8, 'idle_a')]), 11: (None, [(0, 'stomp_0'), (8, 'stomp_1'), (12, 'idle_a')]),
                       8: (None, [(0, 'breath_0'), (10, 'breath_1'), (28, 'idle_a')]), 12: (None, [(0, 'roar'), (16, 'idle_a')])}, wp=16, rp_=10)
@@ -84,7 +84,7 @@ class Rex(RP.Cfg):
               ('Atomic Breath', 'a foe 3-10 off, every 12 s: its plates light tail to neck - three blasts of blue fire, 3 each, set alight'),
               ('Roar', 'charged, every 30 s: every monster within 8 slowed and weakened for 5 s'),
               ('Ride', 'its menu: it stands up to its full size and kneels for you - ride it (sneak to get off)'),
-              ('Full Size', 'its menu: the kaiju\'s own size (~7.5 blocks) - or a companion\'s (~2.5); its hitbox with it')]
+              ('Full size', 'its menu: the kaiju\'s own size (~7.5 blocks) - or a companion\'s (~2.5); its hitbox with it')]
     INTRO = [T('The Atomic Rex', COL, bold=True), T(' - hatched in the Nether\'s lava from a fossil struck by lightning. It thinks you are its mother. ', 'gray'),
              T('(RAWR.)', LINE, italic=True)]
     BURST = ['particle minecraft:soul_fire_flame ~ ~1 ~ 0.6 1.0 0.6 0.03 30', 'particle minecraft:end_rod ~ ~1.5 ~ 0.5 0.8 0.5 0.03 12']
@@ -214,7 +214,7 @@ def generate(G):
     # ---- FULL SIZE (compsize, the Rat King's toggle the other way round: its own build is companion size, the twin is its full one)
     import compsize as CSZ
     CSZ.build(G, pfx, 'bm.rqcs', 'bm.rqcz', f'bm.{Rex.q}s', HOST_C, HOST_F,
-              say('(it stands up, and up, and UP - Full Size: on)'), say('(it folds itself down to your size - Full Size: off)'), hit=('bm.ryhit', HIT_C, HIT_F))
+              say('(it stands up, and up, and UP - Full size: on)'), say('(it folds itself down to your size - Full size: off)'), hit=('bm.ryhit', HIT_C, HIT_F))
     CSZ.LATE.append((pfx, K_UP, 'bm.rqcz', ()))
     T_ = G.FUNCS[f'{pfx}/tick']
     assert T_[0] == 'scoreboard players operation #me bm.pid = @s bm.pid', T_[0]
@@ -251,7 +251,7 @@ def late(G):
     eg = G.FUNCS['p249/egg/gift']
     eg.insert(1, 'function bm:p272/hatched')
     fn('p272/hatched', [f'tag @s add bm.{Rex.ab}met', f'advancement grant @s only bm:story/{Rex.W}_friend',
-                        tellraw('@s', [T('The Atomic Rex', COL, bold=True), T(' is your follower: use the whistle to call it; sneak + use for its menu - Ride, Full Size.', 'gray')])])
+                        tellraw('@s', [T('The Atomic Rex', COL, bold=True), T(' is your follower: use the whistle to call it; sneak + use for its menu - Ride, Full size.', 'gray')])])
     # ---- THE MECHA: the hangar's dormant machine needs a pilot (a rex you've hatched) - and it's a costume, not a mount of its own
     ht = G.FUNCS['p249/hang/try']
     k = next(i for i, l in enumerate(ht) if l == 'tag @s add bm.rxwaker')

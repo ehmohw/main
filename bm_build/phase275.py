@@ -10,7 +10,7 @@ HER FORMS     her menu's Form button cycles the goose -> the Gilded Eldritch -> 
               recall, logout and a faint). ONE FOLLOWER, THREE RIGS: her displays are the union of the three rigs' parts, each form
               wearing its own models and solving its own poses on its own joints (fol5art.GoldenArt, fol5wire.form_pose); the host
               tagged bm.gqf1 (the Eldritch) or bm.gqf2 (the Lightbringer form), every pose asking it first. Her hitbox and her host's
-              size follow the form; the two big forms have a Companion Size (compsize, as the Rat King's: ~2 blocks).
+              size follow the form; the two big forms have a Companion size (compsize, as the Rat King's: ~2 blocks).
 HER WAYS      by form - the goose: HONK (a foe within 4: 3, slowed), the NECK-WHIP SLAP (two foes near: 4 each), the WADDLE CHARGE (a
               foe 4-10 off: she charges, on screen, and bonks it - 5), the GOLDEN HONK (charged: 6 to all within 8, and the nearest
               armed monster loses its weapon - THE THIEF), the LUCKY COIN (you hurt: HEADS Absorption and Speed, TAILS Luck II for
@@ -43,7 +43,7 @@ PRE = ('gq_', 'gk_', 'gh_')
 FTAG = (None, 'bm.gqf1', 'bm.gqf2')
 FOBJ = 'bm.gqform'                 # (the owner's: 0 the goose, 1 the Eldritch, 2 the Lightbringer form)
 CSZ_K = round(K.COMPANION / K.R.RIG_SCALE, 4)
-# (her hitbox and her host's size, by form - and the two big forms at Companion Size)
+# (her hitbox and her host's size, by form - and the two big forms at Companion size)
 FIT = {'q': ((0.7, 1.3), 0.8), 'k': ((1.6, 3.2), 1.6), 'kc': ((1.0, 2.0), 1.0), 'h': ((1.6, 3.4), 1.6), 'hc': ((1.0, 2.1), 1.0)}
 
 # THE POSES rigpet's cycles name, per form (the goose's, the Eldritch's, the Lightbringer form's own)
@@ -64,7 +64,7 @@ for _n, _v in VMAP.items():
 
 item(ITEM, TOTEM, 'The Doodle Egg', COL,
      ['A gold egg with a clover-shaped crack in it, and a sparkle.', 'Something inside it honks, very quietly.',
-      ('Use: call the Golden Doodle (again: call her over).', 'blue'), ('Sneak + use: her menu - her Form, Companion Size, her wardrobe.', 'blue'),
+      ('Use: call the Golden Doodle (again: call her over).', 'blue'), ('Sneak + use: her menu - her Form, Companion size, her wardrobe.', 'blue'),
       ('If she faints: 2 minutes before she can return.', 'gray')],
      model=f'bm:{ITEM}', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 
@@ -80,7 +80,7 @@ class Doodle(RP.Cfg):
     SCALE, HIT = FIT['q'][1], FIT['q'][0]
     BOX_FIT = True
     BUTTONS = ((6, 'Form: goose / Eldritch / Lightbringer', 'Cycles her form: the Golden Doodle, the Gilded Eldritch, her Lightbringer form. She keeps it till you change it.', 'p275/form'),
-               (7, 'Companion Size: on / off', 'Her two big forms at a companion\'s size, about 2 blocks (her hitbox with them). The goose is always her own size.', 'p275/csz/toggle'))
+               (7, 'Companion size: on / off', 'Her two big forms at a companion\'s size, about 2 blocks (her hitbox with them). The goose is always her own size.', 'p275/csz/toggle'))
     CYCLE = W5.cycle(A0, (240, [(0, 'idle_a'), (90, 'idle_b'), (150, 'idle_a'), (200, 'idle_c')]), (120, [(0, 'sit_a'), (60, 'sit_a')]),
                      (None, [(0, 'happy'), (16, 'idle_a')]),
                      {7: (None, [(0, 'm_up'), (6, 'm_hit'), (14, 'idle_a')]), 8: (None, [(0, 'r_up'), (10, 'r_hit'), (22, 'idle_a')]),
@@ -100,7 +100,7 @@ class Doodle(RP.Cfg):
               ('The Gilded Eldritch', 'the Lunge (9), the Wing Slam (7 in a ring), the Dread Beam (8), the Shriek (charged: 8 to all near, weakened), its Menace'),
               ('Her Lightbringer form', 'the Wing Gust (3, thrown up), the Holy Beam (8, 14 to the undead, the mob outlined), the Sunburst (charged), the Blessing (Regeneration II for all near)'),
               ('Form', 'her menu: the goose, the Gilded Eldritch, her Lightbringer form - kept till you change it'),
-              ('Companion Size', 'her menu: the two big forms at about 2 blocks - her hitbox with them'),
+              ('Companion size', 'her menu: the two big forms at about 2 blocks - her hitbox with them'),
               ('Lucky', 'while she is out in the Overworld, a Lucky Night is twice as likely; on a Lucky Night her eggs come twice as often')]
     INTRO = [T('The Golden Doodle', COL, bold=True), T(' - a gilded goose who bit the wrong crown once, and was cured by the light. ', 'gray'), T('(HONK.)', LINE, italic=True)]
     BURST = ['particle minecraft:wax_on ~ ~0.6 ~ 0.4 0.5 0.4 0 16', 'particle minecraft:end_rod ~ ~0.8 ~ 0.3 0.4 0.3 0.02 8']
@@ -345,7 +345,7 @@ def _forms(G, C):
     fn(f'{pfx}/box_fit', [f'function bm:{pfx}/fit'])
     # ---- COMPANION SIZE (compsize, as the Rat King's): the big forms' poses twinned at CSZ_K; never the goose (she is her own size)
     CSZ.build(G, pfx, 'bm.gucs', 'bm.gqcz', f'bm.{C.q}s', FIT['k'][1], FIT['kc'][1],
-              say('(she settles down to about your size - Companion Size: on)'), say('(she rises to her full height - Companion Size: off)'))
+              say('(she settles down to about your size - Companion size: on)'), say('(she rises to her full height - Companion size: off)'))
     for o in ('on', 'off'):
         L = G.FUNCS[f'{pfx}/csz/{o}']
         G.FUNCS[f'{pfx}/csz/{o}'] = [l for l in L if not l.startswith('attribute ')] + [f'function bm:{pfx}/fit']

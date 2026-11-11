@@ -8,7 +8,7 @@
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'rex', NAME: 'The Atomic Rex', ab: 'ry', q: 'rq', pfx: 'p272', prefix: 'rx_atomic_', item: 'atomic_whistle', parts: 23, figParts: 23, hp: 60, X: 19500, Z: 16000, pron: 'it',
   lookPart: 'body', lookModel: 'rx_atomic_body', seatPart: 'head', called: /stomps back to you/, home: /lumbers off home/, sit: /settles down on its haunches/, stand: /up it gets/,
-  ways: ['Tail Swipe', 'Stomp', 'Atomic Breath', 'Roar', 'Ride', 'Full Size'],
+  ways: ['Tail Swipe', 'Stomp', 'Atomic Breath', 'Roar', 'Ride', 'Full size'],
   plain: 'Charcoal and nuclear blue', looks: ['Ember Rex', 'Glacier Rex'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep } = ctx;
@@ -27,9 +27,9 @@ runT({ W: 'rex', NAME: 'The Atomic Rex', ab: 'ry', q: 'rq', pfx: 'p272', prefix:
     // FULL SIZE
     const SC = async () => num(PET, 'attributes[{id:"minecraft:scale"}].base'); const HIT = '@e[type=minecraft:interaction,tag=bm.ryhit,limit=1]';
     await K.home(); await run('scoreboard players set TestRat bm.rqcs 0'); await sleep(800);
-    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Full Size/); await sleep(1500);
+    await ctx.sneakMenu(0); A.bars.length = 0; await A.press(/Full size/); await sleep(1500);
     ok('FULL SIZE - pressed on its menu: its host 3.6, its click box 7.6 tall', Math.abs((await SC()) - 3.6) < 0.01 && (await num(HIT, 'height')) > 7, `${await SC()} / ${await num(HIT, 'height')}`);
-    await ctx.sneakMenu(0); await A.press(/Full Size/); await sleep(1500);
+    await ctx.sneakMenu(0); await A.press(/Full size/); await sleep(1500);
     ok('...and off: 1.4, 2.6', Math.abs((await SC()) - 1.4) < 0.01 && Math.abs((await num(HIT, 'height')) - 2.6) < 0.05);
     // RIDE
     await ctx.sneakMenu(0); await A.press(/^Ride/); await sleep(2500);

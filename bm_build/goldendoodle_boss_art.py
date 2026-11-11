@@ -56,7 +56,7 @@ PARENT = {'body': None, 'tail': 'body', 'neck1': 'body', 'neck2': 'neck1', 'neck
 FACES = ('narrowed', 'wide', 'blink', 'hurt', 'dim')
 OPT = ('beam', 'shriek', 'eggs', 'curse', 'shard', 'aura')
 R = Rig('gk_', 0.9, PIVOT, PARENT, FACES, face_part='head', opt=OPT, companion=0.55)
-COMPANION = 0.55                 # (its menu's Companion Size: ~1.95 blocks - compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's)
+COMPANION = 0.55                 # (its menu's Companion size: ~1.95 blocks - compsize twins the rig at COMPANION / RIG_SCALE, as the Rat King's)
 BOSS_SCALE = 1.6
 SKIN_NAMES = {'_rg': 'cosmetic: Rose Gold', '_pt': 'cosmetic: Platinum', '_sh': 'SHINY: Four-Leaf'}
 

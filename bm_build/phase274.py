@@ -1,6 +1,6 @@
 """3.1: TRIVYRN, THE THREE-WORLD WYRM - the 63rd follower (kaiju_hydra_art.py; fol5flag.TRIVYRN). A three-headed wyrm, one head of each
 world: SQUALL (storm, who thinks it's in charge), CINDER (fire, who bites first) and HUSH (the void, who stares). A companion's size by
-default (~2.45 blocks), the kaiju's own (~7.6) at its menu's Full Size; its menu's Ride carries you (kaiju_ride - and it GLIDES: off a
+default (~2.45 blocks), the kaiju's own (~7.6) at its menu's Full size; its menu's Ride carries you (kaiju_ride - and it GLIDES: off a
 height, its wings spread and it drifts down).
 
 MEETING IT    its scales only shed once your Rex is hatched (or your Mecha built). THREE SCALES: a Squall Scale (a Breeze, 1 in 40), a
@@ -48,7 +48,7 @@ PROOF = {'minecraft:damage_resistant': {'types': '#bm:p249_proof'}}
 
 item(ITEM, TOTEM, 'The Triune Horn', COL,
      ['A horn it shed, in three colours.', 'Three voices argue in it, very faintly.',
-      ('Use: call Trivyrn (again: call it over).', 'blue'), ('Sneak + use: its menu - Ride, Full Size, its wardrobe.', 'blue'),
+      ('Use: call Trivyrn (again: call it over).', 'blue'), ('Sneak + use: its menu - Ride, Full size, its wardrobe.', 'blue'),
       ('Riding it: use it to breathe - and it glides.', 'blue'), ('If it faints: 2 minutes before it can return.', 'gray')],
      model=f'bm:{ITEM}', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 for _iid, _nm, _c, _w in SCALES:
@@ -69,7 +69,7 @@ class Trivyrn(RP.Cfg):
     SCALE, HIT = HOST_C, HIT_C
     BOX_FIT = True
     BUTTONS = ((6, 'Ride', 'It stands up to its full size: climb on (sneak to get off). Off a height, it glides.', 'p274/ride'),
-               (7, 'Full Size: on / off', 'On: the wyrm\'s own size, ~7.6 blocks (and its hitbox). Off: a companion\'s, ~2.45.', 'p274/csz/toggle'))
+               (7, 'Full size: on / off', 'On: the wyrm\'s own size, ~7.6 blocks (and its hitbox). Off: a companion\'s, ~2.45.', 'p274/csz/toggle'))
     CYCLE = W5.cycle(A0, (300, [(0, 'idle_a'), (100, 'idle_b'), (200, 'idle_c')]), (160, [(0, 'sit_a'), (80, 'sit_a')]), (None, [(0, 'happy'), (16, 'idle_a')]),
                      {7: (None, [(0, 'lash_0'), (8, 'lash_1'), (11, 'lash_2'), (14, 'lash_3'), (20, 'idle_a')]), 11: (None, [(0, 'gust_0'), (10, 'gust_1'), (18, 'idle_a')]),
                       8: (None, [(0, 'breath_0'), (14, 'breath_1'), (54, 'idle_a')])}, wp=24, rp_=12)
@@ -86,7 +86,7 @@ class Trivyrn(RP.Cfg):
               ('Wing Gust', 'two foes within 10, every 8 s: a cone of wind - knocked far back'),
               ('Tri-Breath', 'a foe 4-14 off, every 12 s: Squall\'s bolt (6, chaining), Cinder\'s fire (6, alight), Hush\'s void (4, lifted and let down)'),
               ('Ride', 'its menu: it stands up to its full size - climb on (sneak to get off); off a height, it glides'),
-              ('Full Size', 'its menu: the wyrm\'s own size (~7.6 blocks) - or a companion\'s (~2.45); its hitbox with it'),
+              ('Full size', 'its menu: the wyrm\'s own size (~7.6 blocks) - or a companion\'s (~2.45); its hitbox with it'),
               ('The Kaiju Trio', 'the Atomic Rex, Talus and Trivyrn all out: allies within 16 Resistance I - and once a day the Triple Threat')]
     INTRO = [T('Trivyrn', COL, bold=True), T(' - the wanderer between the three worlds, one head of each. It thinks it should be in charge (well, Squall does). ', 'gray'),
              T('(Cinder: "Hi.")', LINE, italic=True)]
@@ -278,7 +278,7 @@ def generate(G):
     W5.poses_for(Trivyrn, G, ['storm_0', 'storm_1', 'storm_2'])             # (its Piercing Blow's: in no cycle)
     import compsize as CSZ
     CSZ.build(G, pfx, 'bm.tvcs', 'bm.tvcz', f'bm.{Trivyrn.q}s', HOST_C, HOST_F,
-              say('(Squall: "TALLER." - Full Size: on)'), say('(Cinder: "...smaller. Fine." - Full Size: off)'), hit=('bm.twhit', HIT_C, HIT_F))
+              say('(Squall: "TALLER." - Full size: on)'), say('(Cinder: "...smaller. Fine." - Full size: off)'), hit=('bm.twhit', HIT_C, HIT_F))
     CSZ.LATE.append((pfx, K_UP, 'bm.tvcz', ()))
     T_ = G.FUNCS[f'{pfx}/tick']
     T_[1:1] = CSZ.sync(pfx, 'bm.tvcs', 'bm.tvcz', f'bm.{Trivyrn.q}s', HOST_C, HOST_F)

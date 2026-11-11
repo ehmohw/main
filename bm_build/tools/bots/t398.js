@@ -6,7 +6,7 @@
 const runT = require('./rigpet_t'); const kit = require('./doodle_kit');
 runT({ W: 'talus', NAME: 'Talus', ab: 'tl', q: 'tt', pfx: 'p273', prefix: 'tl_', item: 'mossback_drum', parts: 23, figParts: 18, hp: 60, X: 19540, Z: 16000, pron: 'it',
   lookPart: 'body', seatPart: 'head', called: /knuckle-walks back to you/, home: /sinks back into the stone/, sit: /settles on its haunches/, stand: /rises off its haunches/,
-  ways: ['Climbing Leap', 'Ground Pound', 'Boulder Throw', 'War-Drum', 'Ride', 'Full Size'],
+  ways: ['Climbing Leap', 'Ground Pound', 'Boulder Throw', 'War-Drum', 'Ride', 'Full size'],
   plain: 'Mossback and amethyst', looks: ['Autumn Moss', 'Snowcap', 'Basalt Moss'],
   encounter: async (ctx) => {
     const { ok, run, has, A, sleep, wait, O, cnt, entOf, at, num, ENC, X, Y, Z } = ctx;
@@ -28,8 +28,8 @@ runT({ W: 'talus', NAME: 'Talus', ab: 'tl', q: 'tt', pfx: 'p273', prefix: 'tl_',
     ok('GROUND POUND - two foes 3 off: hurt', await K.move('k2', [[1, 3], [-1, 3]], 'bm.trpb', async () => (await K.hp('bm.trpb')) < 300, 8000));
     ok('BOULDER THROW - a foe 8 off: hurt', await K.move('rc', [[0, 8]], 'bm.trpc', async () => (await K.hp('bm.trpc')) < 300, 9000));
     const SC = async () => num(PET, 'attributes[{id:"minecraft:scale"}].base');
-    await K.home(); await ctx.sneakMenu(0); await A.press(/Full Size/); await sleep(1500);
-    ok('FULL SIZE: its host 3.8', Math.abs((await SC()) - 3.8) < 0.01); await ctx.sneakMenu(0); await A.press(/Full Size/); await sleep(1200);
+    await K.home(); await ctx.sneakMenu(0); await A.press(/Full size/); await sleep(1500);
+    ok('FULL SIZE: its host 3.8', Math.abs((await SC()) - 3.8) < 0.01); await ctx.sneakMenu(0); await A.press(/Full size/); await sleep(1200);
     await ctx.sneakMenu(0); await A.press(/^Ride/); await sleep(2500);
     ok('RIDE: TestRat on its mount', /passed/i.test(await run('execute in minecraft:overworld as TestRat on vehicle if entity @s[type=minecraft:horse,tag=bm.krtl]')));
     A.input({ shift: true }); await sleep(800); A.input({}); await sleep(2500);

@@ -1,6 +1,6 @@
 """3.1: TALUS, THE MOSSBACK TITAN - the 62nd follower (kaiju_ape_art.py; fol5flag.TALUS). The old mountain that guards the jungle: a
 knuckle-walking stone ape with a moss pelt and an amethyst crystal ridge - at a companion's size by default (~2.6 blocks), the kaiju's
-own (~8.1) at its menu's Full Size. It carries you: its menu's Ride (kaiju_ride - always full size).
+own (~8.1) at its menu's Full size. It carries you: its menu's Ride (kaiju_ride - always full size).
 
 MEETING IT    it needs your Rex's roar to wake it. THE ECHO: ride your Atomic Rex (or the Mecha) and ROAR in a jungle - the jungle answers
               with a distant chest-beat; a boulder of copies crashes down nearby and bursts; in its dust, a HEARTGEODE SEED (once).
@@ -42,7 +42,7 @@ _P272.KAIJU.append('talus')
 
 item(ITEM, TOTEM, 'The Mossback Drum', COL,
      ['A small hand drum of stone and moss, an amethyst stud in it.', 'Somewhere, a mountain answers it.',
-      ('Use: call Talus (again: call it over).', 'blue'), ('Sneak + use: its menu - Ride, Full Size, its wardrobe.', 'blue'),
+      ('Use: call Talus (again: call it over).', 'blue'), ('Sneak + use: its menu - Ride, Full size, its wardrobe.', 'blue'),
       ('Riding it: use it to throw, pound, or drum.', 'blue'), ('If it faints: 2 minutes before it can return.', 'gray')],
      model=f'bm:{ITEM}', stack=1, cat='magic', glint=True, comps=hold('none'), tier=3)
 item('heartgeode_seed', TOTEM, 'Heartgeode Seed', '#b48cff', ['A violet crystal, humming.', ('Drop it on budding amethyst in a Lush Cave', 'gray'), ('and let it take root.', 'gray')],
@@ -61,7 +61,7 @@ class Talus(RP.Cfg):
     SCALE, HIT = HOST_C, HIT_C
     BOX_FIT = True
     BUTTONS = ((6, 'Ride', 'It stands up to its full size: climb on (sneak to get off).', 'p273/ride'),
-               (7, 'Full Size: on / off', 'On: the mountain\'s own size, ~8 blocks (and its hitbox). Off: a companion\'s, ~2.6.', 'p273/csz/toggle'))
+               (7, 'Full size: on / off', 'On: the mountain\'s own size, ~8 blocks (and its hitbox). Off: a companion\'s, ~2.6.', 'p273/csz/toggle'))
     CYCLE = W5.cycle(A0, (240, [(0, 'idle_a'), (120, 'idle_b')]), (160, [(0, 'sit_a'), (80, 'sit_a')]), (None, [(0, 'happy'), (16, 'idle_a')]),
                      {7: (None, [(0, 'leap_0'), (8, 'leap_1'), (14, 'idle_a')]), 11: (None, [(0, 'pound_0'), (10, 'pound_1'), (18, 'idle_a')]),
                       8: (None, [(0, 'throw_0'), (14, 'throw_1'), (22, 'idle_a')]),
@@ -80,7 +80,7 @@ class Talus(RP.Cfg):
               ('Boulder Throw', 'a foe 4-24 off, every 10 s: a boulder of copies torn up and lobbed - 12, and a splash'),
               ('War-Drum', 'you hurt, a foe near, every 20 s: four beats on its chest - allies Strength and Resistance, monsters weakened'),
               ('Ride', 'its menu: it stands up to its full size - climb on (sneak to get off)'),
-              ('Full Size', 'its menu: the mountain\'s own size (~8 blocks) - or a companion\'s (~2.6); its hitbox with it')]
+              ('Full size', 'its menu: the mountain\'s own size (~8 blocks) - or a companion\'s (~2.6); its hitbox with it')]
     INTRO = [T('Talus', COL, bold=True), T(' - the old mountain that guards the jungle, woken by your Rex\'s roar. ', 'gray'), T('(DOOM. DOOM.)', LINE, italic=True)]
     BURST = ['particle minecraft:end_rod ~ ~1 ~ 0.6 1.0 0.6 0.03 20', 'particle minecraft:block{block_state:"minecraft:moss_block"} ~ ~0.5 ~ 0.8 0.4 0.8 0 30']
     FADE_SOUND = 'playsound minecraft:entity.warden.dig neutral @a[distance=..20] ~ ~ ~ 1 0.8'
@@ -247,7 +247,7 @@ def generate(G):
     # ---- FULL SIZE (compsize, the Rex's way: built at a companion's size, the twin its own)
     import compsize as CSZ
     CSZ.build(G, pfx, 'bm.ttcs', 'bm.ttcz', f'bm.{Talus.q}s', HOST_C, HOST_F,
-              say('(it rises, and rises - Full Size: on)'), say('(it settles down to your size - Full Size: off)'), hit=('bm.tlhit', HIT_C, HIT_F))
+              say('(it rises, and rises - Full size: on)'), say('(it settles down to your size - Full size: off)'), hit=('bm.tlhit', HIT_C, HIT_F))
     CSZ.LATE.append((pfx, K_UP, 'bm.ttcz', ()))
     T_ = G.FUNCS[f'{pfx}/tick']
     T_[1:1] = CSZ.sync(pfx, 'bm.ttcs', 'bm.ttcz', f'bm.{Talus.q}s', HOST_C, HOST_F)
