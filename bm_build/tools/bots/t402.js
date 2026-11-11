@@ -159,7 +159,10 @@ const { bot, rcon, sleep } = require('./lib_resp');
   await putOn('ring_burrows', 'a Ring of Ten Burrows (A)'); await putOn('ring_burrows', 'a second Ring of Ten Burrows (B)');
   ok('...two rings, two places on the Pack', (await sc('bm.rq_ring_burrows')) === 1 && (await sc('bm.rq_ring_burrows2')) === 1);
   const ringSet = async (n) => { await openP(); await A.press(/Pocket/); const b = await A.press(new RegExp(`Ring of Ten Burrows ${n}`));
-    const s1 = b && b.next && A.buttons().some(x => /Set burrow 1 here/.test(x.label)); if (s1) { await A.press(/Set burrow 1 here/); await sleep(500); } return s1; };
+    // (3.1j: saving is its own page - "Dig a burrow here ›", then "Set 1")
+    const dig = b && b.next && A.buttons().some(x => /Dig a burrow here/.test(x.label)); if (!dig) return false;
+    await A.press(/Dig a burrow here/); await sleep(400);
+    const s1 = A.buttons().some(x => /^Set 1 /.test(x.label)); if (s1) { await A.press(/^Set 1 /); await sleep(500); } return s1; };
   const ringShow = async (n) => { await openP(); await A.press(/Pocket/); await A.press(new RegExp(`Ring of Ten Burrows ${n}`)); return (A.buttons().find(x => /^1\. Go:/.test(x.label)) || {}).label || ''; };
   ok('ring 1 used from its row: its menu; burrow 1 set here', await ringSet(1));
   await run(`tp TestRat ${X + 12.5} ${Y} ${Z + 9.5} 0 0`); await sleep(1500);

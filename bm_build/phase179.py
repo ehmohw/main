@@ -698,7 +698,7 @@ def late(G):
         for _d in range(3):
             nxt = []
             for f in front:
-                if f in seen or f not in F or f.startswith(('p119/', 'p101/', 'p103/', 'p104/')): continue     # (3.1j: the Ledger's wardrobes keep their « Outfits)
+                if f in seen or f not in F or f.startswith(('p101/', 'p103/', 'p104/')): continue     # (3.1j: not the heist's own cards)
                 seen.add(f)
                 if any('dialog show @s' in l and EX.search(l) for l in F[f]): hits.append(f)
                 nxt += [m for l in F[f] for m in re.findall(r'function bm:([\w/]+)', l)]

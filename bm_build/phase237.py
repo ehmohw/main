@@ -234,7 +234,10 @@ def _lake_gen(G, fn, tellraw, P, UR):
                     f'execute in {NETHER} as @e[type=minecraft:marker,tag=bm.bxm,{BOX}] at @s run function bm:p248/stow',
                     *[f'execute in {NETHER} run kill @e[{s_},{BOX}]' for s_ in FOREIGN_E]]
         g_ = [l for l in body if l.startswith('execute unless loaded')]; b_ = [l for l in body if not l.startswith('execute unless loaded')]
-        fn(f'p237/lake/s{i}', g_ + (first if i == 0 else []) + (boxfirst if i == nlake else []) + b_ + ['scoreboard players add #ulk bm.p2 1'])     # (3.1j: the gate first)
+        # (3.1j: after every step, anyone the rock closed round - walked back in mid-carve - is lifted out to the refuge)
+        rescue = [f'execute in {NETHER} as @a[{LBOX},gamemode=!spectator] at @s unless block ~ ~ ~ #bm:u_hollow run function bm:p237/out_safe',
+                  f'execute in {NETHER} as @a[{LBOX},gamemode=!spectator] at @s unless block ~ ~1 ~ #bm:u_hollow run function bm:p237/out_safe']
+        fn(f'p237/lake/s{i}', g_ + (first if i == 0 else []) + (boxfirst if i == nlake else []) + b_ + rescue + ['scoreboard players add #ulk bm.p2 1'])     # (3.1j: the gate first)
     fn('p237/lake/step', ['execute unless score #ulk bm.p2 matches 0.. run scoreboard players set #ulk bm.p2 0',
                           # (no lake in this world - /function bm:admin/under/nolake: only the box's clean-out)
                           f'execute if score #ulakeoff bm.cfg matches 1 if score #ulk bm.p2 matches ..{nlake - 1} run scoreboard players set #ulk bm.p2 {nlake}'] +

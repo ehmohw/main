@@ -196,8 +196,10 @@ def generate(G):
     fn('p29/burrow/act', [f'execute unless score @s bm.menu matches {P28.MENU["burrow"]} run return run function bm:p28/stale',
                           'execute unless score @s bm.brid matches 1.. run ' + deny('Use the ring again.'),
                           f'execute if score #act bm.pay matches 6011..{6010 + NB} run return run function bm:p29/burrow/set',
-                          'execute if score #act bm.pay matches 6021 run return run function bm:p29/burrow/menu2',
-                          'execute if score #act bm.pay matches 6022 run return run function bm:p29/burrow/menu',
+                          'execute if score #act bm.pay matches 6021..6022 run data remove storage bm:ui br',
+                          'execute if score #act bm.pay matches 6021..6022 store result storage bm:ui br.rid int 1 run scoreboard players get @s bm.brid',
+                          'execute if score #act bm.pay matches 6021 run return run function bm:p29/burrow/menu2 with storage bm:ui br',
+                          'execute if score #act bm.pay matches 6022 run return run function bm:p29/burrow/menu with storage bm:ui br',
                           f'execute if score #act bm.pay matches 6001..{6000 + NB} run return run function bm:p29/burrow/go'])
     dims = [('minecraft:overworld', 'Overworld'), ('minecraft:the_nether', 'Nether'), ('minecraft:the_end', 'End')]
     fn('p29/burrow/set', no_zone('The ring') + [
