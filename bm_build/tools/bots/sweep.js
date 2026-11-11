@@ -11,7 +11,8 @@ const X = 5000, Y = 100, Z = 5000;
   await run('deop TestRat');
   let snd = 0, ptc = 0, spn = 0;
   A.on('sound_effect', () => snd++); A.on('entity_sound_effect', () => snd++); A.on('world_particles', () => ptc++);
-  A.on('spawn_entity', (p) => { if (p.type !== 'minecraft:item' && p.type !== 'item') spn++; });   // (a bolt or fireball that's gone by the after-snapshot still counts)
+  // (a bolt or fireball that's gone by the after-snapshot still counts - only what appears right by the player: mobs wandering into view don't)
+  A.on('spawn_entity', (p) => { if (Math.hypot(p.x - X - 0.5, p.y - Y - 1, p.z - Z - 0.5) < 4) spn++; });
   const rows = [];
   // (the background: what particles and sounds reach an empty-handed player here in 3 s - only well above it counts)
   await run('clear TestRat'); await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await sleep(1500);
@@ -30,7 +31,7 @@ const X = 5000, Y = 100, Z = 5000;
     await run('item replace entity TestRat weapon.offhand from entity TestRat hotbar.1'); await run('item replace entity TestRat hotbar.1 with minecraft:air');
     A.slot(0);
     const fd = await run('data get entity TestRat SelectedItem.components."minecraft:food"');
-    if (/data:/.test(fd) && !/can_always_eat: 1b/.test(fd)) { await run('effect clear TestRat minecraft:saturation'); await run('effect give TestRat minecraft:hunger 1 255 true'); }   // (food can't be eaten on a full stomach)
+    if (/data:/.test(fd) && !/can_always_eat: 1b/.test(fd)) { await run('effect clear TestRat minecraft:saturation'); await run('effect give TestRat minecraft:hunger 3 255 true'); await sleep(3200); }   // (food can't be eaten on a full stomach - Saturation's store goes first)
     await sleep(1500);       // (settle: an effect or heal pulsed onto every player isn't the item's)
     A.bars = []; A.chats = []; A.windows = []; const nd = A.dialogs.length; snd = 0; ptc = 0; spn = 0;
     const before = await snap();

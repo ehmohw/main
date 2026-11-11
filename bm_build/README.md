@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1t: tooltips that fit, and Cecil's robes speak up
+
+- **Long tooltip lines are wrapped.** 181 lore lines across the pack ran past 64 characters, so their tooltips stretched far across the screen. Each is now split at about 52 characters, and a "· " list line never starts a wrapped line on its own. Items you already have pick up the tidier tooltips on their own (item version 49).
+- **Cecil's robes say something when you use them.** Using one of Cecil's cosmetics while he wasn't out did nothing you could see. Every other follower's cosmetic says "isn't with you - he'll wear it next time". Cecil's now says it too. With him out, he sparkles as he changes, like everyone else.
+- **Behind the scenes:**
+  - The build fails if any lore line runs past 64 characters.
+  - The item sweep is working again. A bot used each of the 1290 items that do something on right-click or when eaten, as a regular player. It held each one for that item's own use time, with an empty-handed background reading taken first, and watched for anything visible: messages, dialogs, sounds, particles, effects, new entities, items given or taken.
+  - Cecil's robes were the only real find. The rest of the "nothing happened" items need a target: a monster to aim at, a block to pour on or set down on, a sneak, or Cecil out.
+  - `tools/bots/active_json.py` rebuilds the sweep's item list from the build.
+
 ## New in 3.1s: two names put right
 
 - **The Golden Doodle's golden doll is the "Solid-Gold Golden Doodle Doll"**, not the "Golden Golden Doodle Doll". Dolls you already have pick up the new name on their own (item version 48).
