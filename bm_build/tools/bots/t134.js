@@ -383,4 +383,5 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   console.log(`${res.filter(Boolean).length}/${res.length} passed`);
   await reset(); await run('attribute TestRat minecraft:max_health base set 20');
   R.end(); A.end(); process.exit(0);
-})();
+})().catch(async e => { console.error(e);     // (3.1z: died mid-way - its 200 max health stayed on TestRat for the next test)
+  try { const R2 = await require('./lib_resp').rcon(); await R2.run('attribute TestRat minecraft:max_health base set 20'); R2.end(); } catch (_) {} process.exit(1); });

@@ -4,6 +4,7 @@ const X = 15000, Y = 100, Z = 15000; const res = [];
 const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
 (async () => {
   const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(3000);
+  await run('attribute TestRat minecraft:max_health base set 20');   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
   const cnt = async (sel) => { const m = (await run(`execute store result score #t bm.rng if entity ${sel}`)).match(/Count: (\d+)/); return m ? +m[1] : 0; };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : null; };

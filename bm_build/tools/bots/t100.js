@@ -3,6 +3,7 @@
 const { bot, rcon, sleep } = require('./lib');
 const res = []; const X = 19100, Y = 120, Z = 19000;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
+  await run('attribute TestRat minecraft:max_health base set 20');   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
   const cnt = async sel => { const o = await run(`execute store result score #t bm.rng if entity ${sel}`); return /failed/i.test(o) ? 0 : +((o.match(/(\d+)/g) || [0]).pop()); };
