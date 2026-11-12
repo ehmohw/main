@@ -576,8 +576,8 @@ def generate(G):
     won = [_T('HEIST WON', '#7aff7a', bold=True), _T(' - Tier $(tier), $(sh) shares. The Haul: ', 'gray'), _T('$(tok) Tokens', GOLD, bold=True),
            _T(', ', 'gray'), _T('$(coin) coins', GUT), _T('.', 'gray')]
     fn('p103/res_won2', [f'$data modify storage bm:gv res.p$(pid) set value {snbt(won)}'])
-    fn('p103/res_med', [f'$data modify storage bm:gv res.p$(pid) insert -1 value {snbt(_T(", $(med) Medallion(s)", "light_purple", bold=True))}'])
-    fn('p103/res_tro', [f'$data modify storage bm:gv res.p$(pid) insert -1 value {snbt(_T(", a BM Trophy", "#ffb300", bold=True))}'])
+    fn('p103/res_med', [f'$data modify storage bm:gv res.p$(pid) insert -2 value {snbt(_T(", $(med) Medallion(s)", "light_purple", bold=True))}'])
+    fn('p103/res_tro', [f'$data modify storage bm:gv res.p$(pid) insert -2 value {snbt(_T(", a BM Trophy", "#ffb300", bold=True))}'])
     lost = [_T('HEIST FAILED', '#ff7a7a', bold=True), _T(' - everything gathered is lost.', 'gray')]
     G.FUNCS['p101/after_fail'].append('function bm:p103/res_fail')
     fn('p103/res_fail', ['execute store result storage bm:gv rs.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p103/res_fail2 with storage bm:gv rs'])

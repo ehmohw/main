@@ -73,8 +73,10 @@ const res = [];
   // ================================================================== 3. no duplicates (an aura; the tier's gear)
   // (the stage: every aura owned but Leo's; the Cutlass had from a heist - the finds' own pickers, as a won heist calls them)
   const auras = (await run('tag TestRat list')).match(/bm\.auown_\w+/g) || [];
-  for (const w of ['emma', 'celi', 'zib', 'cecil', 'kw', 'demo', 'apo', 'tul', 'frog', 'don', 'pearl', 'fishy', 'wil', 'dennis', 'pistachio', 'omega', 'ashur', 'chef', 'neighbor',
-                   'ava', 'pearlq', 'bloo', 'stalker', 'lantern', 'bender', 'bones', 'capshun', 'pxcecil', 'pxleo', 'pxemma', 'sky']) await run(`tag TestRat add bm.auown_${w}`);
+  // (3.1v: every aura the pack has - read from it, not a list that stops at the followers of its day)
+  const FD = require('path').join(__dirname, '../../out_p2/BlackMarket_DP/data/bm/function/p138');
+  const all = new Set(); for (const f of require('fs').readdirSync(FD, { recursive: true }).filter(f => f.endsWith('.mcfunction'))) for (const m of require('fs').readFileSync(require('path').join(FD, f), 'utf8').matchAll(/bm\.auown_(\w+)/g)) all.add(m[1]);
+  for (const w of all) await run(`tag TestRat add bm.auown_${w}`);
   await run('tag TestRat remove bm.auown_leo');
   let leo = 0;
   for (let i = 0; i < 4; i++) { await clearBarrels(); await run(`${G}execute as TestRat run function bm:p138/find`);

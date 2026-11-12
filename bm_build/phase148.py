@@ -347,8 +347,11 @@ def generate(G):
        ['scoreboard players operation #fx bm.rng = #fm bm.rng', 'scoreboard players remove #fx bm.rng 1', 'scoreboard players operation #c bm.rng *= #fx bm.rng',
         'scoreboard players operation #fxc bm.rng = #c bm.rng', 'scoreboard players operation #fmul bm.rng = #fm bm.rng', 'function bm:p80/hand {iid:"token"}',
         'function bm:p148/feex_coins',
-        'title @s times 5 50 15', title('@s', 'title', [{'score': {'name': '#fm', 'objective': 'bm.rng'}, 'color': '#7dff6a', 'bold': True}, T('x YOUR FEE!', '#7dff6a', bold=True)]),
-        title('@s', 'subtitle', [T('The Fixer pays out big: +', 'gray'), {'score': {'name': '#fxc', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True}, T(' Tokens - and your haul too', 'gray')]),
+        # (3.1v: in the chat, not a title - the end-of-heist card is up at this moment and hid it, as it hid the old prize roll, 2.82b)
+        G.tellraw('@s', [T('[', 'dark_gray'), T('Vault', '#ffcf40', bold=True), T('] ', 'dark_gray'),
+                         {'score': {'name': '#fm', 'objective': 'bm.rng'}, 'color': '#7dff6a', 'bold': True}, T('x YOUR FEE! ', '#7dff6a', bold=True),
+                         T('The Fixer pays out big: +', 'gray'), {'score': {'name': '#fxc', 'objective': 'bm.rng'}, 'color': 'white', 'bold': True},
+                         T(' Tokens - and your haul too.', 'gray')]),
         'playsound minecraft:ui.toast.challenge_complete player @s ~ ~ ~ 1 1.2', 'playsound minecraft:entity.player.levelup player @s ~ ~ ~ 1 0.8'])
 
 

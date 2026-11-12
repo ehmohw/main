@@ -27,6 +27,7 @@ const res = [];
   // 0. a regular player: no operator commands
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(600);
   ok('TestRat is a regular player (no operator commands)', /unknown|incomplete|permission/i.test(A.chats.join(' ')) && (await run('data get entity TestRat playerGameType')).endsWith(' 0'), A.chats.slice(-1).join('').slice(0, 120));
+  await run('function bm:admin/heist_hard_never');   // (3.1v: in hard mode a vault in three is guarded by a Mire or a Statue Knight, not the guardian this test fights - reset at the end)
 
   // ================================================================== 1. an old Ledger (as players carry it since 2.74) is re-issued
   // (a Ledger as it was before 2.76 - lying at your feet; you pick it up)
@@ -208,6 +209,7 @@ const res = [];
     await run(`${O}forceload remove ${HX - 8} ${HZ - 8} ${HX + 8} ${HZ + 8}`);
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
+  await run('function bm:admin/heist_hard_any');
     const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
     A.end(); R.end(); process.exit(0);
   }

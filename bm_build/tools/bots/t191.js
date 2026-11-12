@@ -18,6 +18,7 @@ const res = [];
   const A = await bot('TestRat'); await sleep(2500); A.stand();
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(600);
   ok('TestRat is a regular player', /unknown|incomplete|permission/i.test(A.chats.join(' ')));
+  await run('function bm:admin/heist_hard_never');   // (3.1v: in hard mode a vault in three is guarded by a Mire or a Statue Knight, not the guardian this test fights - reset at the end)
   for (const f of ['prime_never', 'fork_never', 'traps_never', 'curse_never']) await run(`function bm:admin/${f}`);
   await run('scoreboard players set TestRat bm.gstk 0');
   const seen = []; let nT = 0; const tick = setInterval(() => { while (nT < A.titles.length) seen.push([A.titles[nT++], Date.now()]); }, 50);
@@ -92,5 +93,6 @@ const res = [];
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   await run('clear TestRat'); await run('scoreboard players set TestRat bm.gstk 0');
   for (const f of ['prime_chance', 'fork_chance', 'traps_chance', 'curse_chance', 'rooms_any', 'variant_random', 'plan_safe']) await run(`function bm:admin/${f}`);
+  await run('function bm:admin/heist_hard_any');
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -67,7 +67,8 @@ def generate(G):
     # ================================================================== THE CARD: the bonuses, after how it went
     kr = haul.index('function bm:p103/res_won')
     haul[kr + 1:kr + 1] = ['function bm:p166/res_more']
-    ins = lambda txt, col, bold=False: f'$data modify storage bm:gv res.p$(pid) insert -1 value {snbt(T(txt, col, bold=bold))}'
+    # (3.1v: -2 - in front of the card's closing full stop; -1 put each one after it: "...0 coins., clean crew +1 Token")
+    ins = lambda txt, col, bold=False: f'$data modify storage bm:gv res.p$(pid) insert -2 value {snbt(T(txt, col, bold=bold))}'
     fn('p166/res_more', ['execute store result storage bm:gv rs.stb int 1 run scoreboard players get #stb bm.rng',
                          'execute store result storage bm:gv rs.st int 1 run scoreboard players get @s bm.gstk',
                          'execute store result storage bm:gv rs.csh int 1 run scoreboard players get #csh bm.rng',

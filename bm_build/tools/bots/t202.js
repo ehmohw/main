@@ -18,7 +18,7 @@ const res = [];
   const sc = async (who, o) => +((await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [0, NaN])[1];
   const rel = (x, y, z) => `^${-(x - 12.5)} ^${y - 4} ^${z - 12.5}`;
   const NAMES = ['TestRat', 'TestMouse', 'TestVole'];
-  const FIGHTS = ['guards', 'ambush', 'pit', 'isles'];
+  const FIGHTS = ['guards', 'ambush', 'pit', 'isles', 'forge', 'siege', 'sink', 'pens', 'crossfire', 'mirror', 'larder', 'flood'];   // (3.1v: + the Blaze Forge and 2.85d's seven - phase184)
   const PUZZLES = ['levers', 'plates', 'lasers', 'tiles', 'dial', 'coffers', 'lamps', 'lightsout', 'tumbler', 'climb', 'rafters', 'spire', 'bench', 'mason', 'dig',
                    'library', 'pipes', 'apoth', 'grapple'];
   const bots = [];
@@ -27,6 +27,7 @@ const res = [];
   for (const b of bots) b.stand();
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(700);
   ok('TestRat is a regular player (and so are TestMouse and TestVole)', /unknown|incomplete|permission/i.test(A.chats.join(' ')));
+  await run('function bm:admin/heist_hard_never');   // (3.1v: in hard mode a vault in three is guarded by a Mire or a Statue Knight, not the guardian this test fights - reset at the end)
   for (const f of ['plan_anywhere', 'heist_variants_never', 'prime_never', 'fork_never', 'traps_never', 'curse_never', 'rooms_any', 'variant_random']) await run(`function bm:admin/${f}`);
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   const seen = []; let nT = 0; const tick = setInterval(() => { while (nT < A.titles.length) seen.push(A.titles[nT++]); }, 50);
@@ -128,6 +129,7 @@ const res = [];
   for (const n of NAMES) { await run(`tag ${n} remove bm.gvp`); await run(`scoreboard players reset ${n} bm.gvi`); await run(`scoreboard players reset ${n} bm.pty`);
     await run(`clear ${n}`); await run(`effect clear ${n}`); await run(`execute in minecraft:overworld run tp ${n} 13000.5 120 13000.5`); }
   for (const f of ['prime_chance', 'fork_chance', 'traps_chance', 'curse_chance', 'rooms_any', 'variant_random', 'plan_safe']) await run(`function bm:admin/${f}`);
+  await run('function bm:admin/heist_hard_any');
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`);
   for (const b of bots) b.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

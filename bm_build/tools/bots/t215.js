@@ -71,6 +71,7 @@ const res = [];
   const wc0 = await have('TestRat', WC), wm0 = await have('TestMouse', WC), pm0 = await have('TestMouse', POT);
   ok('the kits carry the secondary\'s wind charges (and the support\'s potions)', wc0 === 12 && wm0 === 12 && pm0 >= 1, `rat ${wc0}, mouse ${wm0}, potions ${pm0}`);
   const toHand = async (who, item, sl) => {
+    if (await passes(`execute if items entity ${who} hotbar.${sl} ${item}`)) return;      // (3.1v: already there - a splash potion doesn't stack: copying another over it lost one)
     let src = -1; for (let i = 0; i < 36 && src < 0; i++) if (await passes(`execute if items entity ${who} container.${i} ${item}`)) src = i;
     if (src >= 0 && src !== sl) await run(`item replace entity ${who} hotbar.${sl} from entity ${who} container.${src}`), await run(`item replace entity ${who} container.${src} with minecraft:air`);
   };
