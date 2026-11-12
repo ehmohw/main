@@ -69,10 +69,10 @@ def generate(G):
 
     # ---- the pieces, summoned round the block it stands on (all tagged bm.f50d, the new ones bm.f50new)
     def block(bid, w, y0, h):
-        return f'summon minecraft:block_display ~ ~ ~ ' + snbt({'Tags': ['bm.f50d', 'bm.f50new'], 'block_state': {'Name': bid},
+        return f'summon minecraft:block_display ~ ~ ~ ' + snbt({'Tags': ['bm.f50d', 'bm.f50new'], 'block_state': bid,
                                                                'transformation': {'left_rotation': ident, 'right_rotation': ident,
                                                                                   'translation': [F(-w / 2), F(y0), F(-w / 2)], 'scale': [F(w), F(h), F(w)]}})
-    build, y = [], -0.5           # (the monument stands on the block's top: half a block below its centre)
+    build, y = [], 0.0            # (run at the bottom of the block it stands in - the top of the one under it)
     tops = []
     for side, h, n in TIERS:
         build += [block('minecraft:smooth_quartz', side, y, h), block('minecraft:gold_block', side + 0.1, y + h, CAP)]
@@ -92,14 +92,14 @@ def generate(G):
             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.55), F(0)], 'scale': [F(1.1)] * 3},
             'brightness': {'block': Int(15), 'sky': Int(15)}}
     build.append(f'summon minecraft:item_display ~ ~{round(y + 0.35, 3)} ~ {snbt(comp)}')
-    build += [f'summon minecraft:interaction ~ ~-0.5 ~ {{Tags:["bm.f50","bm.f50new"],width:5.2f,height:{round(y + 1.2, 2)}f,response:1b}}',
+    build += [f'summon minecraft:interaction ~ ~ ~ {{Tags:["bm.f50","bm.f50new"],width:5.2f,height:{round(y + 1.2, 2)}f,response:1b}}',
               'summon minecraft:marker ~ ~ ~ {Tags:["bm.f50m","bm.f50new"]}']
     # (the plaque: on the face of the bottom tier toward whoever set it up - one of four sides)
     plaque = lambda yaw: snbt({'Tags': ['bm.f50d', 'bm.f50new'], 'billboard': 'fixed', 'Rotation': [F(yaw), F(0)], 'background': Int(0),
                                'text': [T('THE FIFTY\n', '#8a6410', bold=True), T('every friend who walked beside you', '#4a3a1a', italic=True)],
                                'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0), F(0)], 'scale': [F(0.55)] * 3}})
     face = TIERS[0][0] / 2 + 0.02
-    py = round(-0.5 + 0.06, 3)
+    py = 0.06
     # (facing south, you stand north of it: the plaque goes on its north face, turned to face north - and so on round)
     build += [f'execute if entity @s[y_rotation=-45..44.9] run summon minecraft:text_display ~ ~{py} ~-{face} {plaque(180)}',
               f'execute if entity @s[y_rotation=135..180] run summon minecraft:text_display ~ ~{py} ~{face} {plaque(0)}',
@@ -133,12 +133,16 @@ def generate(G):
     # ---- right-click: a word; punch: sneak to take it down
     fast += ['execute as @e[type=minecraft:interaction,tag=bm.f50] if data entity @s interaction at @s run function bm:p281/touch',
              'execute as @e[type=minecraft:interaction,tag=bm.f50] if data entity @s attack at @s run function bm:p281/punch']
-    fn('p281/touch', ['data remove entity @s interaction', 'execute on target run ' + say('Fifty friends - every one of them yours.', COL),
+    # ("on target" / "on attacker" read the click's own record: who it was is taken before the record is cleared)
+    fn('p281/touch', ['execute on target run tag @s add bm.f50who', 'data remove entity @s interaction',
+                      'execute as @a[tag=bm.f50who] run ' + say('Fifty friends - every one of them yours.', COL), 'tag @a remove bm.f50who',
                       'particle minecraft:end_rod ~ ~2 ~ 1.5 0.8 1.5 0.02 24', 'playsound minecraft:block.amethyst_block.chime block @a[distance=..12] ~ ~ ~ 1 1.2'])
-    fn('p281/punch', ['data remove entity @s attack', 'scoreboard players set #f50s bm.rng 0',
-                      'execute on attacker if predicate bm:p20/sneaking run scoreboard players set #f50s bm.rng 1',
-                      'execute if score #f50s bm.rng matches 0 run return run execute on attacker run ' + say('Sneak + punch to take The Fifty down.'),
-                      f'execute on attacker run {give(IID)}', 'execute on attacker run ' + say('The Fifty folds back into your pack.', COL),
+    fn('p281/punch', ['execute on attacker run tag @s add bm.f50who', 'data remove entity @s attack', 'scoreboard players set #f50s bm.rng 0',
+                      'execute as @a[tag=bm.f50who] if predicate bm:p20/sneaking run scoreboard players set #f50s bm.rng 1',
+                      'execute if score #f50s bm.rng matches 0 as @a[tag=bm.f50who] run ' + say('Sneak + punch to take The Fifty down.'),
+                      'execute if score #f50s bm.rng matches 0 run return run tag @a remove bm.f50who',
+                      f'execute as @a[tag=bm.f50who] run {give(IID)}', 'execute as @a[tag=bm.f50who] run ' + say('The Fifty folds back into your pack.', COL),
+                      'tag @a remove bm.f50who',
                       'kill @e[tag=bm.f50d,distance=..4]', 'kill @e[type=minecraft:marker,tag=bm.f50m,distance=..1]',
                       'playsound minecraft:block.amethyst_block.break block @a[distance=..16] ~ ~ ~ 1 0.8', 'kill @s'])
     # ---- alive: the compass turns, a mote now and then; parts left with no click box go

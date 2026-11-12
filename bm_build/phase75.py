@@ -445,6 +445,9 @@ def generate(G):
     fn('p75/pot_item2', ['$data modify storage bm:gv pot.p$(pid) append value {t:"$(t)"}'])
     fn('p75/pot_clear', ['execute store result storage bm:gv tmp.pid int 1 run scoreboard players get @s bm.pid', 'function bm:p75/pot_clear2 with storage bm:gv tmp'])
     fn('p75/pot_clear2', ['$data remove storage bm:gv pot.p$(pid)'])
+    # (3.1v: leaving a heist - Ledger > Leave, a disconnect, the gutter left - leaves its unwon finds behind, as the card says; they
+    #  used to wait under your id and pay out at your next win, even a Tier I. A winner's pot is paid at the vault, before this)
+    G.FUNCS['p70/unraid'].append('function bm:p75/pot_clear')
     HA, HB = '-200 64 -197', '-198 64 -197'
     ins = lambda table: [f'execute in bm:gutter unless data block {HA} Items[26] run loot insert {HA} loot {table}',
                          f'execute in bm:gutter if data block {HA} Items[26] run loot insert {HB} loot {table}']

@@ -373,7 +373,7 @@ def generate(G):
     MENU = P28.MENU['heist']
     LUCKY = '#7dff6a'
     lbtn = lambda c, n, col, txt: P28.btn([T(f'{n} TRIES  ', col, bold=True), T(txt, 'white')], 7610 + c, width=300,
-                                          tooltip=T(f'Your crew can be knocked out {n} times (one more per crewmate past the first).', 'gray'))
+                                          tooltip=T(f'Your crew can be knocked out {n} times.', 'gray'))      # (3.1v: no more per crewmate - not since 2.82b)
     abtn = P28.btn([T('ALARM: ', '#ff5a5a', bold=True), T('$(al)', 'white', bold=True), T('  (click to switch)', 'gray')], 7619, width=300,
                    tooltip=T('Off: no alarm, no patrols, no lockdown. On: mistakes ring it - at 50 guards patrol, at 100 the vault locks down - '
                              'and you get one more share (two if you keep it under 50).', 'gray'))
@@ -409,7 +409,9 @@ def generate(G):
         b = G.FUNCS[f'p70/s{s}/build']
         b.insert(0, f'scoreboard players operation #gal bm.rng = #al{s} bm.gvv')
     ii = G.FUNCS['p70/inst_init']
-    ii[-1:-1] = ['scoreboard players operation @s bm.gval = #gal bm.rng', 'execute unless score @s bm.gval matches 1 run scoreboard players set @s bm.gva 0']
+    ii[-1:-1] = ['scoreboard players operation @s bm.gval = #gal bm.rng', 'execute unless score @s bm.gval matches 1 run scoreboard players set @s bm.gva 0',
+                 # (3.1v: no alarm, no Ghost contract - "keep the alarm under 25%" was met by itself; one of the other two instead)
+                 'execute unless score @s bm.gval matches 1 if score @s bm.gvct matches 1 store result score @s bm.gvct run random value 2..3']
     G.FUNCS['p70/ctx1'].append('scoreboard players operation #gal bm.rng = @s bm.gval')
     G.FUNCS['p70/alarm'].insert(0, 'execute unless score @s bm.gval matches 1 run return 0')
     rm = G.FUNCS['p70/roll_mod']
@@ -432,7 +434,7 @@ def generate(G):
                               title('@s', 'actionbar', [T(NAMES[k], GOLD, bold=True), T(' - done. The way on is open.', 'gray')]) for k in ks]
     # (losing a try without a knock-out: a timed room run out - phase91 too)
     fn('p90/lose_try', ['scoreboard players remove @s bm.gvlv 1', 'function bm:p70/bar', 'function bm:p70/tag_mine',
-                        'execute if score @s bm.gvlv matches 1.. run ' + tellraw('@a[tag=bm.gvme]', P + [T('Out of time - that cost a try! ', 'red', bold=True),
+                        'execute if score @s bm.gvlv matches 1.. run ' + tellraw('@a[tag=bm.gvme]', P + [T('That cost a try! ', 'red', bold=True),
                                                                                                          {'score': {'name': '@s', 'objective': 'bm.gvlv'}, 'color': 'white', 'bold': True},
                                                                                                          T(' tries left.', 'gray')]),
                         'execute if score @s bm.gvlv matches ..0 run function bm:p75/fail', 'tag @a[tag=bm.gvme] remove bm.gvme'])

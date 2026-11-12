@@ -102,7 +102,10 @@ def generate(G):
                     tellraw('@a[tag=bm.gvme]', P + [{'selector': '@a[tag=bm.skwho]', 'color': 'white'}, T(' skipped the room - ', 'gray'), T('that cost a try. ', 'red', bold=True),
                                                     {'score': {'name': '@s', 'objective': 'bm.gvlv'}, 'color': 'white', 'bold': True}, T(' tries left.', 'gray')]),
                     'tag @a[tag=bm.gvme] remove bm.gvme'])
-    fn('p122/open', ['scoreboard players set @s bm.gvf 1', 'function bm:p70/ctx', 'scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p122/tidy', 'function bm:p70/solved',
+    # (3.1v: a skipped room isn't a beaten one - its curse isn't "lifted" (no coins, no Codex entry) and the hard way doesn't pay;
+    #  the skip's card says "no coins for the pot". The Fixer's mercy comes this way too)
+    fn('p122/open', ['scoreboard players set @s bm.gvf 1', 'scoreboard players set @s bm.gvcrs 0', 'tag @s remove bm.gvskull',
+                     'function bm:p70/ctx', 'scoreboard players operation #gi bm.rng = @s bm.gvi', 'function bm:p122/tidy', 'function bm:p70/solved',
                      'playsound minecraft:block.chain.break block @a[distance=..30] ~ ~ ~ 1 0.6'])
     G.FUNCS['p28/act'].insert(0, f'execute if score #act bm.pay matches {ASK} run return run function bm:p122/ask')
     G.FUNCS['p28/act'].insert(0, f'execute if score #act bm.pay matches {YES} run return run function bm:p122/yes')

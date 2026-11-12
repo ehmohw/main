@@ -50,7 +50,8 @@ const res = [];
   ok('...51 item displays (fifty dolls and the compass)', nd === 51, `${nd}`);
   ok('...seven blocks (three tiers, three lips, the stand)', nb === 7, `${nb}`);
   ok('...a click box and a marker', (await count(`@e[type=minecraft:interaction,tag=bm.f50,${near}]`)) === 1 && (await count(`@e[type=minecraft:marker,tag=bm.f50m,${near}]`)) === 1);
-  // every doll a different follower, every one facing out
+  // every doll a different follower, every one facing out (from the monument's own centre: its marker)
+  const mk = (await run(`data get entity @e[type=minecraft:marker,tag=bm.f50m,${near},limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
   const seen = new Set(); let out = 0, dolls = 0;
   for (let i = 0; i < 51; i++) {
     const sel = `@e[type=minecraft:item_display,tag=bm.f50d,tag=!bm.f50c,tag=!t407,${near},limit=1]`;
@@ -58,7 +59,7 @@ const res = [];
     if (!/"/.test(mdl)) break;
     const pos = (await run(`data get entity ${sel} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
     const yaw = +((await run(`data get entity ${sel} Rotation[0]`)).match(/(-?[\d.]+)f?\s*$/) || [0, NaN])[1];
-    const dx = pos[0] - (X + 0.5), dz = pos[2] - (Z + 0.5), fx = -Math.sin(yaw * Math.PI / 180), fz = Math.cos(yaw * Math.PI / 180);
+    const dx = pos[0] - mk[0], dz = pos[2] - mk[2], fx = -Math.sin(yaw * Math.PI / 180), fz = Math.cos(yaw * Math.PI / 180);
     if (fx * dx + fz * dz > 0) out++;
     seen.add(mdl); dolls++; await run(`tag ${sel} add t407`);
   }
@@ -66,7 +67,8 @@ const res = [];
   ok('...fifty dolls, every one a different follower', dolls === 50 && seen.size === 50, `${dolls} dolls, ${seen.size} models`);
   ok('...every doll facing out', out === 50, `${out}/50`);
   const pz = (await run(`data get entity @e[type=minecraft:text_display,tag=bm.f50d,${near},limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/);
-  ok('...the plaque on the side facing you (north: you stood north of it, facing south)', pz && +pz[3] < Z, pz ? pz[0] : 'no plaque');
+  ok('...the plaque on the side facing you (north: you stood north of it, facing south)', pz && +pz[3] < mk[2] - 2, pz ? pz[0] : 'no plaque');
+  ok('...standing on the floor, not sunk into it (the plaque just above the floor\'s top)', pz && +pz[2] >= Y && +pz[2] < Y + 0.3, pz ? pz[0] : '');
   // ---- a second one too close
   await run('loot replace entity TestRat hotbar.1 loot bm:items/fifty_monument'); A.slot(1); await sleep(300);
   await run(`tp TestRat ${X + 7.5} ${Y} ${Z - 3.5} 0 25`); await sleep(1200);

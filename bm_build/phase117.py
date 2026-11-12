@@ -197,17 +197,21 @@ def generate(G):
                         'scoreboard players operation #gi bm.rng = @s bm.gvi', 'scoreboard players set #hg bm.rng 0',
                         'execute as @e[type=minecraft:marker,tag=bm.gvinst] if score @s bm.gvi = #gi bm.rng run function bm:p117/jam/inst',
                         'execute if score #hg bm.rng matches 2 run return run ' + say('A jammer is already humming.'),
+                        'execute if score #hg bm.rng matches 3 run return run ' + say('This job has no alarm - keep the jammer for one that does.'),
                         'execute if score #hg bm.rng matches 0 run return 0', clear1('alarm_jammer'),
                         'execute at @s run playsound minecraft:block.beacon.activate player @a[distance=..24] ~ ~ ~ 1 1.6',
                         tellraw('@a[tag=bm.gvp,distance=..300]', P + [{'selector': '@s', 'color': 'white'}, T(' switches on a jammer: ', 'gray'), T('30 seconds of quiet.', '#7ab0ff', bold=True)])])
-    fn('p117/jam/inst', ['execute if score @s bm.gvjam matches 1.. run return run scoreboard players set #hg bm.rng 2', 'scoreboard players set #hg bm.rng 1',
+    # (3.1v: a job with no alarm has nothing to jam - the jammer is kept, not spent on "Alarm - jammed")
+    fn('p117/jam/inst', ['execute unless score @s bm.gval matches 1 run return run scoreboard players set #hg bm.rng 3',
+                         'execute if score @s bm.gvjam matches 1.. run return run scoreboard players set #hg bm.rng 2', 'scoreboard players set #hg bm.rng 1',
                          f'scoreboard players set @s bm.gvjam {JAM_T}'] +
        [f'execute if score @s bm.gvi matches {s + 1} run bossbar set bm:gva{s} color blue' for s in range(P70.SLOTS)] +
        [f'execute if score @s bm.gvi matches {s + 1} run bossbar set bm:gva{s} name {snbt(T("Alarm - jammed", "#7ab0ff"))}' for s in range(P70.SLOTS)])
     tick += ['execute as @e[type=minecraft:marker,tag=bm.gvinst,scores={bm.gvjam=1}] run function bm:p117/jam/off',
              'scoreboard players remove @e[type=minecraft:marker,tag=bm.gvinst,scores={bm.gvjam=1..}] bm.gvjam 1']
+    # (3.1v: the bar's own words back - the alarm, the tries and the pot - not a bare "Alarm" until something else redraws it)
     fn('p117/jam/off', [f'execute if score @s bm.gvi matches {s + 1} run bossbar set bm:gva{s} color red' for s in range(P70.SLOTS)] +
-       [f'execute if score @s bm.gvi matches {s + 1} run bossbar set bm:gva{s} name {snbt(T("Alarm", "red"))}' for s in range(P70.SLOTS)] +
+       ['function bm:p70/bar'] +
        ['function bm:p70/tag_mine', title('@a[tag=bm.gvme]', 'actionbar', [T('The jammer splutters out.', '#7ab0ff')]), 'tag @a[tag=bm.gvme] remove bm.gvme'])
     G.FUNCS['p70/inst_init'].append('scoreboard players set @s bm.gvjam 0')
 
