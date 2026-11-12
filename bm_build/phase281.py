@@ -12,7 +12,7 @@ USE      right-click it: a word and a shimmer. Sneak + punch: it folds back into
 import math
 from items import item, T, TOTEM
 from useitem import hold, HOLD
-from nbt import snbt, F, Int, B
+from nbt import snbt, F, Int
 
 COL, GOLD = '#ffe9a8', '#ffd24a'
 IID = 'fifty_monument'
@@ -88,7 +88,7 @@ def generate(G):
                  'brightness': {'block': Int(13), 'sky': Int(13)}}
             build.append(f'summon minecraft:item_display ~{x} ~{round(top, 3)} ~{z} {snbt(d)}')
     comp = {'Tags': ['bm.f50d', 'bm.f50new', 'bm.f50c'], 'item_display': 'fixed', 'teleport_duration': Int(20),
-            'item': {'id': 'minecraft:compass', 'count': Int(1), 'components': {'minecraft:enchantment_glint_override': B(1)}},
+            'item': {'id': 'minecraft:compass', 'count': Int(1), 'components': {'minecraft:enchantment_glint_override': True}},
             'transformation': {'left_rotation': ident, 'right_rotation': ident, 'translation': [F(0), F(0.55), F(0)], 'scale': [F(1.1)] * 3},
             'brightness': {'block': Int(15), 'sky': Int(15)}}
     build.append(f'summon minecraft:item_display ~ ~{round(y + 0.35, 3)} ~ {snbt(comp)}')

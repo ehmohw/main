@@ -42,6 +42,8 @@ const res = [];
   for (const k of ['bag', 'cb', 'ret']) await run(`data remove storage bm:gv ${k}.p${pid}`);
   await run(`data remove storage bm:lk r.p${pid}`);
   for (const o of ['bm.crew', 'bm.crewoff', 'bm.fcon']) await run(`scoreboard players set TestRat ${o} 0`);
+  // (3.1v: a stray arrow left on the hall's floor by an earlier test was picked up - and rightly refused at the plate)
+  await run('execute in bm:gutter run kill @e[type=minecraft:item,x=0,y=0,z=0,distance=0..]'); await run('execute in bm:gutter run kill @e[type=minecraft:arrow,x=0,y=0,z=0,distance=0..]');
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.0 loot bm:items/fixers_ledger');
   for (let i = 0; i < 12; i++) await run('loot give TestRat loot bm:items/token');
   await run('item replace entity TestRat hotbar.5 with minecraft:diamond_sword'); await run('give TestRat minecraft:golden_apple 2');
@@ -86,10 +88,12 @@ const res = [];
   const p1 = await pos();
   ok('The den\'s copper door: into the Locker Hall', p1 && p1[0] > -256 && p1[0] < -241, `${p1} door eid ${dEid} lobby ${mp}`);
   A.chats.length = 0;
+  // (an arrow or an emerald off the floor - a monster's drop picked up on the way - would rightly be refused: plain loot stays in the locker)
+  await run('clear TestRat *[!minecraft:custom_data]');   // (only the pack's own things - the sigil, Goldtooth's marked apple - are the question here)
   await A.walkTo(-248.5, -241.5); await sleep(2500); A.stand();
   const p2 = await pos();
   ok('...the hall\'s plate, a sigil and apple in hand: back in the den (not "only heist tools")', p2 && Math.abs(p2[0] - mp[0]) < 16 && Math.abs(p2[2] - mp[2]) < 16 && /bm\.gvp/.test(await tags()) &&
-     !A.chats.some(c => /Only heist tools/.test(c)), `${p2} | ${A.chats.slice(-1).join('').slice(0, 120)} | carrying: ${await (async () => { const v = await run('data get entity TestRat Inventory'); return [...v.matchAll(/id: "minecraft:(\w+)"/g)].map(m => m[1]).join(',') + ' :: ' + [...v.matchAll(/bm(?:_\w+)?: (?:"(\w+)"|1b)/g)].map(m => m[0]).join(','); })()}}`);
+     !A.chats.some(c => /Only heist tools/.test(c)), `${p2} | ${A.chats.slice(-1).join('').slice(0, 120)} | carrying: ${await (async () => { const o = []; for (let k = 0; k < 41; k++) { const id = (await run(`data get entity TestRat Inventory[{Slot:${k}b}].id`)).match(/"minecraft:(\w+)"/); if (!id) continue; const cd = (await run(`data get entity TestRat Inventory[{Slot:${k}b}].components."minecraft:custom_data"`)).replace(/.*data: /, ''); o.push(`${k}:${id[1]}${/\{/.test(cd) ? cd : ''}`); } return o.join(' '); })()}}`);
   ok('...still carrying both', (await cnt(fury)) >= 1 && (await cnt(gtApple)) >= 1);
 
   // ================================================================== 3. home, then the next heist's door

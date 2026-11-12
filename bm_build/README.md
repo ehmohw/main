@@ -21,6 +21,35 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1v: The Fifty, and the heists swept
+
+- **The Fifty: a monument to every follower of the Compass of Bonds.**
+  - **How you get it:** it comes with the Compass of Bonds, once you've met all fifty. If you already have the compass, it's in your pack the next time you play.
+  - **What it is:** three tiers of white quartz with gold edges. On them stand all fifty followers as their own chibi dolls, facing out: 26 around the bottom, 16 on the middle tier and 8 at the top. The Compass of Bonds turns slowly above them. A plaque on the side facing you reads "THE FIFTY - every friend who walked beside you".
+  - **Setting it up:** sneak and use it on the top of a block. It needs a clear space 5 by 5 and 3 blocks high, and no other monument within 9 blocks. It's made only of display pieces, so nothing can be broken or griefed.
+  - **Using it:** right-click it for a word and a shimmer. Sneak and punch it to fold it back into your pack; a plain punch only tells you how.
+- **Heist fixes:**
+  - **Leaving a heist now leaves its unwon finds behind**, as the leave card says. Hidden hoards, caches and champion finds used to wait and pay out at your next win, even a Tier I one.
+  - **No free Ghost contract when the alarm is off.** "Keep the alarm under 25%" was drawn for alarm-off jobs, the default, where it was always met. It paid 2 shares and a purse for nothing. Those jobs now draw one of the other two contracts.
+  - **A skipped room isn't a beaten one.** Skipping a cursed room, or a hard-way room at a fork, no longer pays the "curse lifts" coins or the "hard way pays" cut, and no longer logs the curse as lifted in the Codex. The skip already said "no coins for the pot". This applies to the Fixer's mercy too.
+  - **The Alarm Jammer is kept on a job with no alarm.** It says "This job has no alarm - keep the jammer for one that does" instead of being used up. When a jammer runs out, the bar shows your tries and the pot again.
+  - **The fee multiplier is announced in the chat.** "2x YOUR FEE!" was a title, but the end-of-heist card covers the screen at that moment, so nobody saw it.
+  - **The end card's extras come before its full stop.** The crew share, clean crew, mercy, win streak, Medallions and Trophy were all added after the closing ".", so it read "...0 coins., clean crew +1 Token".
+  - **Wording:** the tries tooltip no longer promises a try per extra crewmate, which hasn't been true since 2.82b. Losing a try in Memory Match or at a cracked strongbox now says "That cost a try!", not "Out of time".
+- **Behind the scenes:**
+  - **The heist sweep:** I ran 31 heist tests as a regular player, covering planning, every room kind, the fights, game night, curses and forks, the vault and its guardian, the payout, the coat check and the Lounge. I also read through the heist code for bugs; that review found the economy and wording problems above.
+  - **Stale tests brought up to date:**
+    - In hard mode a vault in three is guarded by a Mire or a Statue Knight, so tests that fight the usual guardian now switch those off while they run.
+    - The 2.85d fight rooms are counted as fights.
+    - A breeze over the void is a Vault Hexer.
+    - A room kind never appears twice in one heist.
+    - The Rat Pack button heads every menu.
+    - The bank's currencies have a page of their own.
+    - The aura list now covers all 64 auras.
+    - A splash potion doesn't stack.
+    - A Prime guard's health is read as you walk in.
+  - **New tests:** t407 (The Fifty, 23/23) and t408 (the heist fixes, 14/14).
+
 ## New in 3.1u: the Treasurer's Scepter's Coin Storm works
 
 - **The Treasurer's Scepter casts its Coin Storm.** Right-clicking it did nothing at all. It's a carrot on a stick underneath, and a carrot on a stick only counts as "used" while you ride a pig, so the pack never saw the click. Its right-click now reaches the pack the same way the Ray Gun's and the Grappling Hook's do. Gold rains on every monster within 6 blocks (12 damage, flung up), every 20 seconds. Scepters you already have work as they are (item version 50).

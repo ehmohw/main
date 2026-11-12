@@ -60,12 +60,17 @@ const res = [];
   await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ -90 0`); await sleep(800);
   await run(`${G}execute as TestRat at @s run tag @e[type=minecraft:marker,tag=bm.gvswing,sort=nearest,limit=1] add t217sw`);
   const sw = `@e[type=minecraft:marker,tag=t217sw,limit=1]`;
-  const swp = (await run(`${G}data get entity ${sw} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
-  await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ facing ${swp[0]} ${swp[1] + 2.5} ${swp[2]}`); await sleep(800);
-  src = -1; for (let i = 0; i < 9 && src < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} ${RH}`)) src = i;
-  A.slot(src); await sleep(300); A.bars.length = 0;
-  A.use(); await sleep(200); A.release();
-  const hung = await wait(10000, async () => passes(`${G}execute as ${sw} at @s if entity @a[name=TestRat,distance=..4]`), 200);
+  // (3.1v: the lamp swings - aimed where it was a moment ago, a throw can miss; a player throws again: up to three)
+  let swp, hung = false;
+  for (let tr = 0; tr < 3 && !hung; tr++) {
+    swp = (await run(`${G}data get entity ${sw} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
+    await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ facing ${swp[0]} ${swp[1] + 2.5} ${swp[2]}`); await sleep(500);
+    src = -1; for (let i = 0; i < 9 && src < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} ${RH}`)) src = i;
+    A.slot(src); await sleep(300); A.bars.length = 0;
+    A.use(); await sleep(200); A.release();
+    hung = await wait(5000, async () => passes(`${G}execute as ${sw} at @s if entity @a[name=TestRat,distance=..4]`), 200);
+    if (!hung) { A.input({ shift: true }); await sleep(400); A.input({}); await sleep(1500); }
+  }
   ok('the Swinging Lamps: TestRat hooks a lamp by its chain and is hung under it over the island', hung, A.bars.slice(-3).join(' | ') + ' ' + (await run('data get entity TestRat Pos')) + ' ' + swp.join(','));
   // ---- leaving mid-puzzle, hook in hand, through the Ledger's own buttons: no room item comes home
   A.input({ shift: true }); await sleep(400); A.input({}); await sleep(1500);

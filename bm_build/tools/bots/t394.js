@@ -20,6 +20,8 @@ runT({ W: 'mimic', NAME: 'The Mimic', ab: 'mx', q: 'wx', pfx: 'p270', prefix: 'm
       const h = m.slice(1).map(v => (Number(v) >>> 0).toString(16).padStart(8, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
     const entG = async (sel) => { const u = await uuidG(sel); return Object.values(A.ents).find(e => e.objectUUID === u); };
     await run('tag TestRat remove bm.mxmet'); await run('tag TestRat remove bm.wxheard'); await run('kill @e[type=minecraft:interaction,tag=bm.mxenc]');
+    // (3.1v: an empty Raid Crew - a crew left signed by an earlier test comes into the vault, and with three out the Mimic waits in its key)
+    for (const o of ['bm.crew', 'bm.crewoff', 'bm.crewoff2', 'bm.crewoff3', 'bm.fcon', 'bm.fcon2', 'bm.gvhr']) await run(`scoreboard players set TestRat ${o} 0`);   // (fcon2: followers past the 31st)
     await heist('coffers', 'a', 3); await begin();
     const Q = await qs('coffers'); const q = Q[0];
     ok('a Tier III heist, its Three Coffers rooms (the stage: h110)', Q.length > 0, `${Q}`);
@@ -43,10 +45,16 @@ runT({ W: 'mimic', NAME: 'The Mimic', ab: 'mx', q: 'wx', pfx: 'p270', prefix: 'm
        +(((await run('clear TestRat *[minecraft:custom_data~{bm:"gutter_coin"}] 0')).match(/Found (\d+)/) || [0, 0])[1]) === 0, A.chats.slice(-2).join(' | ').slice(0, 200));
     eb = await entG(ENC); A.chats.length = 0; if (eb) A.interact(eb.entityId); await sleep(1500);
     ok('right-clicked, calm: the Mimic\'s Key in TestRat\'s hands, and it comes along', (await has('mimic_key')) === 1, A.chats.slice(-2).join(' | ').slice(0, 200));
+    // (3.1v: out of the heist the way its exits take you, then the key used - a follower met on a job stays with the crew in the
+    //  vault and goes home with it; it was teleported out by a command before, and nothing came along)
+    await run('execute as @a[name=TestRat,tag=bm.gvp] at @s run function bm:p70/home'); await sleep(1500);
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
     await run('execute in bm:gutter run kill @e[type=minecraft:interaction,tag=bm.mxenc]'); await run('execute in bm:gutter run kill @e[type=minecraft:item_display,tag=bm.mxencp]');
     await run('effect give TestRat minecraft:resistance 900 4 true');
     await ctx.at(X + 0.5, Y + 1, Z + 0.5, 0, 10); await sleep(1500);
+    let ks = -1; for (let i = 0; i < 36 && ks < 0; i++) if (/passed/.test(await run(`execute if items entity TestRat container.${i} *[minecraft:custom_data~{bm:"mimic_key"}]`))) ks = i;
+    if (ks > 8) { await run(`item replace entity TestRat hotbar.0 from entity TestRat container.${ks}`); await run(`item replace entity TestRat container.${ks} with minecraft:air`); ks = 0; }
+    if (ks >= 0) { await ctx.use(ks); await sleep(2500); }
   },
   abilities: async (ctx) => {
     const { ok, run, wait, num, nbt, cnt, A, sleep, PET, X, Y, Z, O, at, entOf, score } = ctx; const K = kit(ctx, 'wx');
