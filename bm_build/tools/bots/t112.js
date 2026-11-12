@@ -30,8 +30,9 @@ const res = [];
     ok('...fall into the void (Tier III): knocked out - back in the den, a try gone', ko1 > ko0 && inDen, `ko ${ko0} -> ${ko1}, den ${inDen}`);
     await go('isles', q, 4, 12); await sleep(300);
     await run('execute in bm:gutter run kill @e[tag=bm.gvg]'); await sleep(2500);
-    const br = await cnt('@e[type=minecraft:breeze,tag=bm.gvg]'); const cap = await cnt('@e[tag=bm.gvcap]');
-    ok('...the second wave: a captain, and breezes on the wind', br >= 1 && cap === 1, `breezes ${br} captain ${cap}`);
+    // (2.85d: over the void a breeze is a Vault Hexer - a breeze's gust threw raiders off the isles - phase184's nobreeze)
+    const br = await cnt('@e[type=minecraft:witch,tag=bm.gvg]'); const cap = await cnt('@e[tag=bm.gvcap]');
+    ok('...the second wave: a captain, and its gales - Vault Hexers, not breezes, over the void', br >= 1 && cap === 1 && (await cnt('@e[type=minecraft:breeze,tag=bm.gvg]')) === 0, `hexers ${br} captain ${cap}`);
     await run('execute in bm:gutter run kill @e[tag=bm.gvg]'); await sleep(2500);
     ok('...cleared: the way on opens', await solved('isles', q));
     await heist('isles', 'a', 2); await begin();
@@ -45,7 +46,7 @@ const res = [];
   // ================================================================== THE SPIRE
   if (want('spire')) {
     await heist('spire', 'a', 3); await begin();
-    const Q = await qs('spire'); ok('A heist of Spires (Tier III)', Q.length >= 2, `${Q}`);
+    const Q = await qs('spire'); ok('A heist with a Spire (Tier III) - a kind never twice in a heist', Q.length >= 1, `${Q}`);
     const q = Q[0]; await go('spire', q, 2, 12);
     const fell = fnText('p112/spire/fell'); const cp = fell.match(/run tp @s (~\S* ~\S* ~\S*)\n/)[1];
     await at('spire', q, `tp TestRat ${cp}`); await sleep(400);
