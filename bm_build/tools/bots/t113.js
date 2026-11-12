@@ -56,12 +56,18 @@ const res = [];
 
   if (want('prime')) {
     await run('function bm:admin/prime_always');
+    for (const f of ['fork_never', 'traps_never', 'curse_never']) await run(`function bm:admin/${f}`);   // (3.1v: a room's curse or a trap hurt the guards before anyone looked)
+    await run('function bm:admin/heist_hard_never');
     await heist('guards', 'a', 2); await begin();
     const Q = await qs('guards'); const q = Q[0];
     let all = true; for (const qq of Q) if (!/bm\.gvprime/.test(await run(`execute in bm:gutter run data get entity ${room('guards', qq)} Tags`))) all = false;
     ok('PRIME forced: every fight room is Prime, a red banner over its door', Q.length >= 2 && all &&
-       (await cnt('@e[type=minecraft:text_display,tag=bm.gvprop]')) > 0 && /PRIME/.test(await at('guards', q, `data get entity @e[type=minecraft:text_display,distance=..14,sort=nearest,limit=1] text`)), `${Q}`);
-    await go('guards', q, 6, 12); await sleep(2000);
+       (await cnt('@e[type=minecraft:text_display,tag=bm.gvprop]')) > 0 && /PRIME/.test(await at('guards', q, `data get entity @e[type=minecraft:text_display,distance=..14,sort=nearest,limit=1] text`)),
+       `${Q} | all prime ${all} | ${(await at('guards', q, `data get entity @e[type=minecraft:text_display,distance=..14,sort=nearest,limit=1] text`)).slice(-160)}`);
+    await go('guards', q, 6, 12);
+    // (3.1v: its health read as you walk in - two seconds on, the room's own melee and arrows have already had a go at it)
+    let h0 = 0; for (let k = 0; k < 10 && !h0; k++) { const m = (await run('execute in bm:gutter as @e[tag=bm.gvprm,limit=1] run data get entity @s Health')).match(/(-?[\d.]+)f?\s*$/); h0 = m ? +m[1] : 0; if (!h0) await sleep(100); }
+    await sleep(2000);
     const g = await cnt(`@e[tag=bm.gvg]`); const gp = await cnt(`@e[tag=bm.gvg,tag=bm.gvprm]`);
     await run('execute in bm:gutter as @e[tag=bm.gvprm,limit=1] run tag @s add t113p');
     const fl = async c => +(((await run(c)).match(/(-?[\d.]+)f?\s*$/) || [0, -1])[1]);
@@ -69,7 +75,7 @@ const res = [];
     const base = await fl('execute in bm:gutter as @e[tag=t113p] run attribute @s minecraft:max_health base get');
     const nm = await run('execute in bm:gutter run data get entity @e[tag=t113p,limit=1] CustomName');
     const h = await fl('execute in bm:gutter run data get entity @e[tag=t113p,limit=1] Health');
-    ok('...walk in: every guard is Prime - more health (and full of it), its name marked', g >= 2 && gp === g && hp >= base * 1.5 && h >= hp * 0.8 && h > base && /Prime/.test(nm),
+    ok('...walk in: every guard is Prime - more health (and full of it), its name marked', g >= 2 && gp === g && hp >= base * 1.5 && h0 >= hp * 0.95 && h > base && /Prime/.test(nm),
        `${gp}/${g}, hp ${h}/${hp} (base ${base})`);
     const dmg = await run('execute in bm:gutter as @e[tag=bm.gvprm,limit=1] run attribute @s minecraft:attack_damage modifier value get bm:prime_dmg');
     ok('...and harder hits', /0\.5/.test(dmg), dmg);
