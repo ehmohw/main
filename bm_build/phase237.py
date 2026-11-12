@@ -325,9 +325,14 @@ def generate(G):
                'text': T(nm.upper(), c, bold=True), 'brightness': {'block': Int(10), 'sky': Int(10)},
                'transformation': {'left_rotation': [F(0), F(0), F(0), F(1)], 'right_rotation': [F(0), F(0), F(0), F(1)],
                                   'translation': [F(0), F(0.15), F(0)], 'scale': [F(0.8), F(0.8), F(0.8)]}}
-        fn(f'p237/sigil/name_{k}', [f'summon minecraft:text_display ~ ~0.1 ~ {snbt(txt)}'])
+        # (3.1z: a rebuild's clear reaches only loaded chunks - a label left unloaded then got a twin beside the new marker's: one per spot)
+        fn(f'p237/sigil/name_{k}', ['kill @e[type=minecraft:text_display,tag=bm.usgt,distance=..1.5]', f'summon minecraft:text_display ~ ~0.1 ~ {snbt(txt)}'])
         second.append(f'execute as @e[type=minecraft:marker,tag=bm.d_{d},tag=bm.sw_{k},tag=!bm.uon] at @s run function bm:p237/sigil/name_{k}')
     second.append(f'tag @e[type=minecraft:marker,tag=bm.d_{d},tag=!bm.uon,tag=bm.pet_sigil] add bm.uon')
+    # (3.1z: and a world that already has twins keeps one - one by one, so the second of a pair sees the first gone)
+    second.append('execute as @e[type=minecraft:text_display,tag=bm.usgt] at @s run function bm:p237/sigil/dedupe')
+    fn('p237/sigil/dedupe', ['tag @s add bm.usme', 'execute if entity @e[type=minecraft:text_display,tag=bm.usgt,tag=!bm.usme,distance=..0.5] run kill @s',
+                             'tag @s remove bm.usme'])
     second.append(f'tag @e[type=minecraft:marker,tag=bm.d_{d},tag=!bm.uon,tag=bm.uhsg] add bm.uon')
     fast.append(f'execute as @e[type=minecraft:marker,tag=bm.d_{d},tag=bm.lit] at @s run particle minecraft:dust{{color:[0.82,0.1,0.18],scale:1.6}} ~ ~0.1 ~ 0.6 0 0.6 0 6')
 
