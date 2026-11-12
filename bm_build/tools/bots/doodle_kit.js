@@ -8,7 +8,8 @@ module.exports = (ctx, q) => {
   const calm = async () => { for (const o of ['gc', 'bc', 'sc', 'rc', 'mc', 'k', 'k2', 'x']) await cd(o, o === 'x' ? 0 : 900); };
   const fxOf = async (t) => nbt(`@e[tag=${t},limit=1]`, 'active_effects');
   const hp = async (t) => num(`@e[tag=${t},limit=1]`, 'Health');
-  const home = async () => { await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await ctx.sleep(400); };
+  const home = async () => { await run(`${O}execute as @e[tag=bm.trpz] at @s run tp @s ~ -400 ~`); await run(`${O}kill @e[tag=bm.trpz]`);   // (into the void first: no loot left lying about)
+    await calm(); await run(`${O}tp ${PET} ${X} ${Y + 1} ${Z}`); await ctx.sleep(400); };
   // one move: foes set down at [dx, dz] (from the follower, at X Z), its cooldown cleared, then the test
   const move = async (o, foes, tag, test, ms = 7000) => {
     await home(); for (const [dx, dz] of foes) await zom(dx, dz, tag);

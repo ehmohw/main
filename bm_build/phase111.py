@@ -123,7 +123,10 @@ def generate(G):
                                'execute if score @s bm.gvs matches 0 if entity @a[tag=bm.gvp,distance=..9] run function bm:p111/coffers/c/round',
                                'execute unless score @s bm.gvs matches 2 as @e[type=minecraft:interaction,tag=bm.gvshi,distance=..14] if data entity @s interaction run data remove entity @s interaction',
                                'execute if score @s bm.gvs matches 1 run function bm:p111/coffers/c/show',
-                               'execute if score @s bm.gvs matches 2 as @e[type=minecraft:interaction,tag=bm.gvshi,distance=..14] if data entity @s interaction at @s run function bm:p111/coffers/c/pick'])
+                               'execute if score @s bm.gvs matches 2 as @e[type=minecraft:interaction,tag=bm.gvshi,distance=..14] if data entity @s interaction run tag @s add bm.gvpk1',
+                               # (3.1x: one pick a tick - two in the same tick were both judged, the second against the next round's gold)
+                               'execute if score @s bm.gvs matches 2 as @e[type=minecraft:interaction,tag=bm.gvpk1,distance=..14,limit=1] at @s run function bm:p111/coffers/c/pick',
+                               'tag @e[type=minecraft:interaction,tag=bm.gvpk1,distance=..14] remove bm.gvpk1'])
     fn('p111/coffers/c/round', ['scoreboard players set @s bm.gvs 1', 'scoreboard players set @s bm.gvx 0', 'scoreboard players set @s bm.gvy3 0',
                                 'execute store result score @s bm.gvc run random value 0..3'] +
        [f'execute if score @s bm.gvt matches {t} run scoreboard players set @s bm.gvy2 {SWAPS[t]}' for t in tiers] +
@@ -188,10 +191,10 @@ def generate(G):
     for j in range(4):
         digit = ['scoreboard players operation #q bm.rng = @s bm.gvc'] + [f'execute if score #k bm.rng matches {i} run scoreboard players operation #q bm.rng /= #pw{i} bm.rng' for i in range(8)] + \
                 ['scoreboard players operation #q bm.rng %= #4 bm.rng']
-        fn(f'p111/lamps/b/press{j}', ['scoreboard players operation #k bm.rng = @s bm.gvx', 'scoreboard players operation #k bm.rng -= @s bm.gvw', 'scoreboard players remove #k bm.rng 1'] +
+        fn(f'p111/lamps/b/press{j}', ['execute unless score @s bm.gvs matches 2 run return 0', 'scoreboard players operation #k bm.rng = @s bm.gvx', 'scoreboard players operation #k bm.rng -= @s bm.gvw', 'scoreboard players remove #k bm.rng 1'] +
            digit + [snd(j), f'execute unless score #q bm.rng matches {j} run return run function bm:p76/r/lamps/wrong',
                     'scoreboard players add @s bm.gvw 1', 'execute if score @s bm.gvw >= @s bm.gvx run function bm:p70/solved'])
-        fn(f'p111/lamps/c/press{j}', ['scoreboard players operation #k bm.rng = @s bm.gvw'] + digit +
+        fn(f'p111/lamps/c/press{j}', ['execute unless score @s bm.gvs matches 2 run return 0', 'scoreboard players operation #k bm.rng = @s bm.gvw'] + digit +
            [f'execute if score @s bm.gvy1 matches {d} if score #q bm.rng matches {a} run scoreboard players set #q2 bm.rng {p[a]}' for d, p in enumerate(DER) for a in range(4)] +
            [snd(j), f'execute unless score #q2 bm.rng matches {j} run return run function bm:p76/r/lamps/wrong',
             'scoreboard players add @s bm.gvw 1', 'execute if score @s bm.gvw >= @s bm.gvx run function bm:p70/solved'])
@@ -293,7 +296,8 @@ def generate(G):
             [f'summon minecraft:marker {relf(x + 1, 5 + k, z + 1)} {{Tags:["bm.gvprop","bm.gvcs"' + (',"bm.gvodd"' if k % 2 else '') + ']}'] for k, (x, z) in enumerate(CPATH)), []) +
        ['execute as @e[type=minecraft:marker,tag=bm.gvcs,distance=..30] run scoreboard players set @s bm.gvx 0'] +
        [l.replace('The way on is at the top. Mind the drop.', 'These steps give way a moment after you land - keep moving.') for l in cinit if 'function bm:p70/ctx' not in l])
-    fn('p111/climb/c/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #gt bm.rng = @s bm.gvt', 'scoreboard players operation #gsf bm.rng = @s bm.gvy3',
+    fn('p111/climb/c/tick', ['execute if score @s bm.gvs matches 3 as @e[type=minecraft:marker,tag=bm.gvcs,distance=..30] unless score @s bm.gvx matches 0 at @s run function bm:p111/climb/c/back',   # (3.1x: beaten - the fallen steps come back for the crew still climbing)
+                             'execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #gt bm.rng = @s bm.gvt', 'scoreboard players operation #gsf bm.rng = @s bm.gvy3',
                              'execute as @e[type=minecraft:marker,tag=bm.gvcs,distance=..30] at @s run function bm:p111/climb/c/step'] + ctick)
     fn('p111/climb/c/step', ['execute if score @s bm.gvx matches 0 if entity @a[tag=bm.gvp,distance=..1.5] run function bm:p111/climb/c/creak',
                              'execute if score @s bm.gvx matches 2.. run scoreboard players remove @s bm.gvx 1',
@@ -318,7 +322,8 @@ def generate(G):
        [f'summon minecraft:marker {rel(x, 4, z)} {{Tags:["bm.gvprop","bm.gvrb","bm.gvrb{i}"]}}' for i, (x, z) in enumerate(RB)] +
        [f'scoreboard players set @e[type=minecraft:marker,tag=bm.gvrb{i},distance=..16,limit=1] bm.gvy1 {6 * i}' for i in range(len(RB))] +
        rsign('THE BLINKING BEAMS', 'The beams wink out and back in a wave - they flicker first. Time your crossing.'))
-    fn('p111/rafters/b/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #gt bm.rng = @s bm.gvt', 'scoreboard players operation #gsf bm.rng = @s bm.gvy3',
+    fn('p111/rafters/b/tick', ['execute if score @s bm.gvs matches 3 as @e[type=minecraft:marker,tag=bm.gvrb,distance=..16] at @s if block ~ ~-1 ~ minecraft:air run function bm:p111/rafters/b/come',   # (3.1x: beaten - every beam back, solid)
+                               'execute if score @s bm.gvs matches 3 run function bm:p76/r/rafters/after', 'execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #gt bm.rng = @s bm.gvt', 'scoreboard players operation #gsf bm.rng = @s bm.gvy3',
                                'scoreboard players operation #t bm.rng = @s bm.gvtm', 'scoreboard players set #cut bm.rng 42', 'execute if score #gt bm.rng matches 4.. run scoreboard players set #cut bm.rng 36',
                                'execute as @e[type=minecraft:marker,tag=bm.gvrb,distance=..16] at @s run function bm:p111/rafters/b/beam'] + rtick)
     fn('p111/rafters/b/beam', ['scoreboard players operation #p bm.rng = #t bm.rng', 'scoreboard players operation #p bm.rng += @s bm.gvy1', 'scoreboard players operation #p bm.rng %= #60 bm.rng',
@@ -334,7 +339,7 @@ def generate(G):
        rsign('THE GHOST BEAMS', 'There is a way across. You just can\'t see it - not until you\'re right beside it.'))
     for j, path in enumerate(GP):
         fn(f'p111/rafters/c/p{j}', sum(([f'setblock {rel(x, 3, z)} minecraft:barrier', f'summon minecraft:marker {rel(x, 4, z)} {{Tags:["bm.gvprop","bm.gvrg"]}}'] for x, z in path), []))
-    fn('p111/rafters/c/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #4 bm.rng',
+    fn('p111/rafters/c/tick', ['execute if score @s bm.gvs matches 3 run function bm:p76/r/rafters/after', 'execute if score @s bm.gvs matches 3 run return 0', 'scoreboard players operation #q bm.rng = @s bm.gvtm', 'scoreboard players operation #q bm.rng %= #4 bm.rng',
                                'execute if score #q bm.rng matches 0 as @e[type=minecraft:marker,tag=bm.gvrg,distance=..16] at @s if entity @a[tag=bm.gvp,distance=..3.2] '
                                'run particle minecraft:dust{color:[0.75,0.9,1.0],scale:0.9} ~ ~0.05 ~ 0.3 0 0.3 0 3'] + rtick)
     dispatch('rafters', ('p111/rafters/b/init', 'p111/rafters/b/tick'), ('p111/rafters/c/init', 'p111/rafters/c/tick'))

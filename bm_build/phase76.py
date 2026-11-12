@@ -207,7 +207,8 @@ def generate(G):
                 f'execute unless block {rel(x, 5, 1)} minecraft:pale_oak_button[powered=true] run {lamp(j, False)}']
     fn('p76/r/lamps/input', inp)
     for j in range(4):
-        fn(f'p76/r/lamps/press{j}', ['scoreboard players operation #q bm.rng = @s bm.gvc'] +
+        fn(f'p76/r/lamps/press{j}', ['execute unless score @s bm.gvs matches 2 run return 0',   # (3.1x: two buttons in one tick - the second, after a solve or a reset, counts for nothing)
+                                     'scoreboard players operation #q bm.rng = @s bm.gvc'] +
            [f'execute if score @s bm.gvw matches {i} run scoreboard players operation #q bm.rng /= #pw{i} bm.rng' for i in range(8)] +
            ['scoreboard players operation #q bm.rng %= #4 bm.rng',
             f'playsound minecraft:block.note_block.bell block @a[distance=..24] {rel(LAMPS_X[j], 7, 1)} 1 {[0.7, 0.9, 1.1, 1.35][j]}',
@@ -290,7 +291,7 @@ def generate(G):
     fn('p76/r/climb/init', ['function bm:p70/ctx', sign(2.5, 7.5, 12, 'THE BELL TOWER', 'The way on is at the top. Mind the drop.')])
     fn('p76/r/climb/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                             'execute if score @s bm.gvtm matches 2400 run scoreboard players set @s bm.gvf 1',
-                            f'execute unless block {rel(21, up, 12)} minecraft:light_weighted_pressure_plate[power=0] run function bm:p70/solved',
+                            f'execute unless block {rel(21, up, 12)} minecraft:light_weighted_pressure_plate[power=0] positioned {rel(21.5, up, 12.5)} if entity @a[tag=bm.gvp,distance=..1.3] positioned as @s run function bm:p70/solved',   # (3.1x: a raider on it - an arrow lobbed onto the plate used to count)
                             f'execute if score @s bm.gvtm matches 100 run playsound minecraft:block.bell.use block @a[distance=..30] {rel(12, 22, 12)} 1 0.6'])
     fn('p76/r/climb/open', [f'fill {rel(24, up, 11)} {rel(24, up + 3, 13)} minecraft:air replace minecraft:iron_bars',
                             f'playsound minecraft:block.bell.resonate block @a[distance=..40] {rel(12, 22, 12)} 1 1',
@@ -301,7 +302,7 @@ def generate(G):
        [f'summon minecraft:marker {rel(x, 4, z)} {{Tags:["bm.gvraf","bm.gvprop"]}}' for (x, z) in R6.RAFT] +
        ['execute as @e[type=minecraft:marker,tag=bm.gvraf,distance=..16] run scoreboard players set @s bm.gvx 0',
         sign(1.5, 7.5, 12, 'THE CRUMBLING RAFTERS', 'Old beams. Don\'t stand still.')])
-    fn('p76/r/rafters/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1', room_ctx,
+    fn('p76/r/rafters/tick', ['execute if score @s bm.gvs matches 3 run function bm:p76/r/rafters/after', 'execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1', room_ctx,
                               'execute as @e[type=minecraft:marker,tag=bm.gvraf,distance=..16] at @s run function bm:p76/r/rafters/beam',
                               f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=18,dy=2.4,dz=22] at @s run function bm:p76/r/rafters/fell',
                               f'execute positioned {rel(22, 4, 12)} if entity @a[tag=bm.gvp,distance=..1.2] positioned as @s run function bm:p70/solved'])
@@ -316,6 +317,11 @@ def generate(G):
                               'particle minecraft:block{block_state:"minecraft:dark_oak_planks"} ~ ~-0.5 ~ 0.3 0.2 0.3 0 15'])
     fn('p76/r/rafters/back', ['scoreboard players set @s bm.gvx 0'] +
        [f'execute if score #gt bm.rng matches {t} run setblock ~ ~-1 ~ {__import__("phase75_rooms").THEMES[t]["trim"]}' for t in range(1, 6)])
+    # (3.1x: beaten - the crew still crossing isn't stranded: the fallen beams come back, and the hay hauls a straggler to the far ledge, no alarm)
+    fn('p76/r/rafters/after', ['execute as @e[type=minecraft:marker,tag=bm.gvraf,distance=..16] unless score @s bm.gvx matches 0 at @s run function bm:p76/r/rafters/back',
+                               f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=18,dy=2.4,dz=22] at @s run function bm:p76/r/rafters/over'])
+    fn('p76/r/rafters/over', ['execute at @e[type=minecraft:marker,tag=bm.gvr_rafters,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 4, 12) + ' -90 0',
+                              say('Into the hay - the crew hauls you over to the far ledge.', GOLD)])
     fn('p76/r/rafters/fell', ['scoreboard players set #add bm.rng 4', 'execute as @e[type=minecraft:marker,tag=bm.gvr_rafters,distance=..24,sort=nearest,limit=1] at @s run function bm:p70/oops',
                               'execute at @e[type=minecraft:marker,tag=bm.gvr_rafters,distance=..24,sort=nearest,limit=1] run tp @s ' + rel(1, 4, 12) + ' -90 0',
                               'playsound minecraft:block.grass.fall player @a[distance=..16] ~ ~ ~ 1 0.8', say('Down into the hay! Back to the start.', 'red')])

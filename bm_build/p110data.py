@@ -305,7 +305,7 @@ def liar_puzzles(n=24, seed=6907):
         def stmts(me):
             S = [('The honest one is me.', lambda h: h == me), ('It isn\'t me.', lambda h: h != me),
                  ('It stands right beside me.', lambda h: abs(h - me) == 1), ('It sits at one end of the row.', lambda h: h in (0, 3)),
-                 ('It is somewhere to my left.', lambda h: h < me), ('It is somewhere to my right.', lambda h: h > me)]
+                 ('It is somewhere left of me, as you face us.', lambda h: h < me), ('It is somewhere right of me, as you face us.', lambda h: h > me)]   # (3.1x: whose left - the coffer's own left read the other way)
             for k in range(4):
                 if pos[k] != me:
                     S.append((f'It is the {CKINDS[k]}.', lambda h, p=pos[k]: h == p))

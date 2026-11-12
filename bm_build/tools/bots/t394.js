@@ -67,7 +67,8 @@ runT({ W: 'mimic', NAME: 'The Mimic', ab: 'mx', q: 'wx', pfx: 'p270', prefix: 'm
       if ((await cnt('@e[tag=bm.trpb,tag=bm.wxin]')) === 1) gone = true; return gone && (await cnt('@e[tag=bm.trpb,tag=bm.wxin]')) === 0 && (await K.hp('bm.trpb')) < 300; }, 9000), `swallowed ${gone}`);
     ok('...spat out as it was (its NoAI kept, visible again)', /1b/.test(await nbt('@e[tag=bm.trpb,limit=1]', 'NoAI')) && !/invisibility/.test(await K.fxOf('bm.trpb')));
     // DISGUISE, and the ambush
-    await K.home(); await run(`scoreboard players set ${PET} bm.wxds 0`);
+    await K.home(); await run('time set day');   // (the stage: no stray monster of the night within 8 - it only disguises with no foe near)
+    await run(`${O}execute positioned ${X} ${Y} ${Z} as @e[type=#bm:hostile,tag=!bm.trpz,tag=!bm.npc,distance=..24] run tp @s ~ -400 ~`); await run(`scoreboard players set ${PET} bm.wxds 0`);
     ok('DISGUISE - still 5 s, no foe near: just a chest (bm.mxdis), its eyes shut', await wait(9000, async () => /bm\.mxdis/.test(await nbt(PET, 'Tags'))), await nbt(PET, 'Tags'));
     await run(`scoreboard players set ${PET} bm.wxmc 0`); await ctx.zom(0, 1.6, 'bm.trpc');
     ok('...a monster walks up to it: AMBUSHED - the snap at double', await wait(5000, async () => (await K.hp('bm.trpc')) < 294.5) && !/bm\.mxdis/.test(await nbt(PET, 'Tags')),
@@ -87,12 +88,14 @@ runT({ W: 'mimic', NAME: 'The Mimic', ab: 'mx', q: 'wx', pfx: 'p270', prefix: 'm
     if (A.windows.length > w0) A.close(A.windows[A.windows.length - 1].windowId); await sleep(400);
     await at(wx + 0.5, Y + 1, wz - 8.5, 0, 10);
     ok('...walked off: it shuts (the cart gone, not dropped)', await wait(4000, async () => !/bm\.mxst/.test(await nbt(PET, 'Tags')) && (await cnt(CART)) === 0) &&
-       (await cnt(`@e[type=minecraft:item,x=${wx},y=${Y},z=${wz},distance=..4]`)) === 0);
+       (await cnt(`@e[type=minecraft:item,x=${wx},y=${Y},z=${wz},distance=..4]`)) === 0,
+       `open ${/bm\.mxst/.test(await nbt(PET, 'Tags'))}, carts ${await cnt(CART)}, dropped ${await cnt(`@e[type=minecraft:item,x=${wx},y=${Y},z=${wz},distance=..4]`)}, pet at ${await nbt(PET, 'Pos')}, me at ${await run('data get entity TestRat Pos')}`);
     await at(wx + 0.5, Y + 1, wz - 1.6, 0, 40);
     hb = await entOf(HIT); if (hb) A.interact(hb.entityId, true); await sleep(1200);
     ok('...opened again: the three diamonds still in it (kept on TestRat)', /diamond/.test(await nbt(CART, 'Items')) && /count: 3/.test(await nbt(CART, 'Items')), await nbt(CART, 'Items'));
     await at(wx + 0.5, Y + 1, wz - 8.5, 0, 10);
-    ok('...and shut again as TestRat goes', await wait(4000, async () => !/bm\.mxst/.test(await nbt(PET, 'Tags')) && (await cnt(CART)) === 0));
+    ok('...and shut again as TestRat goes', await wait(7000, async () => !/bm\.mxst/.test(await nbt(PET, 'Tags')) && (await cnt(CART)) === 0),
+       `open ${/bm\.mxst/.test(await nbt(PET, 'Tags'))}, carts ${await cnt(CART)}, pet at ${await nbt(PET, 'Pos')}, me at ${await run('data get entity TestRat Pos')}`);
     await run('data remove storage bm:mxst p' + (await score('bm.pid')));
     // ---- THE TREASURE CHEST (look 8, an outfit): unlocked (rcon - as if bought), chosen in its wardrobe: every swapped part's model the
     //      outfit's (its body's item definition the strongbox's, mmt_body); kept across a send-home

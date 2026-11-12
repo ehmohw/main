@@ -379,7 +379,7 @@ def generate(G):
                            f'execute if score #gt bm.rng matches ..2 run fill {rel(1, 0, 1)} {rel(23, 0, 23)} minecraft:hay_block',
                            sign(rel(2, 7, 12), 'THE SKY ISLES', 'Islands over a long drop. Fight on - and keep your footing. Knock a guard off and it\'s gone.')])
     void_box = f'positioned {relf(0.6, -7, 0.6)} as @a[tag=bm.gvp,dx=22.8,dy=7.5,dz=22.8]'
-    fn('p112/isles/tick', ['execute if score @s bm.gvs matches 3 run return 0',
+    fn('p112/isles/tick', [f'execute if score @s bm.gvs matches 3 {void_box} at @s run function bm:p112/isles/over', 'execute if score @s bm.gvs matches 3 run return 0',
                            f'execute {void_box} at @s run function bm:p112/isles/fell',
                            f'execute positioned {relf(0.6, -7, 0.6)} as @e[tag=bm.gvg,dx=22.8,dy=7.5,dz=22.8] at @s run function bm:p112/isles/gone',
                            'execute if score @s bm.gvs matches 1..2 if score @s bm.gvtm matches 1800 run scoreboard players set @s bm.gvf 1',
@@ -403,6 +403,9 @@ def generate(G):
     fn('p112/isles/gone', ['particle minecraft:poof ~ ~ ~ 0.4 0.4 0.4 0.02 10', 'kill @s'])
     fn('p112/isles/fell', ['execute if entity @e[type=minecraft:marker,tag=bm.gvr_isles,distance=..30,sort=nearest,limit=1,scores={bm.gvy3=..2}] run return run function bm:p112/isles/hay',
                            'function bm:p112/void_ko'])
+    # (3.1x: won - a slip off the bridges on the way out carries you to the east island, by the exit: no knock-out, no try lost)
+    fn('p112/isles/over', ['execute at @e[type=minecraft:marker,tag=bm.gvr_isles,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, FY + 1, 12) + ' -90 0',
+                           title('@s', 'actionbar', T('A slip - the crew hauls you up to the way out.', GOLD))])
     fn('p112/isles/hay', ['execute at @e[type=minecraft:marker,tag=bm.gvr_isles,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(2, 4, 12) + ' -90 0',
                           title('@s', 'actionbar', T('Down into the hay! Back to the start.', 'red'))])
     # (the void: knocked out, as if you'd fallen in battle - it costs a try; your things stay with you)
