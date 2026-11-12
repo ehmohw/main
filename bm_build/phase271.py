@@ -249,7 +249,9 @@ def _abilities(G, X):
     # MAGNETIC PULL: a foe 3-8 off yanked 4 blocks in, 1 - its lash ready at once
     fn(f'{pfx}/ranged', [inform('ranged')] + X.hit(1) + [f'execute as @e[{foe},distance=..8.5,sort=nearest,limit=1] at @s facing entity @e[type=minecraft:wolf,tag=bm.feme,limit=1] feet run function bm:{pfx}/pulled',
                                                          f'scoreboard players set @s {S("mc")} 0'] + X.end)
-    fn(f'{pfx}/pulled', [f'function bm:{pfx}/hurt', 'tp @s ^ ^ ^2', 'execute at @s if block ^ ^ ^2 #bm:grap_pass run tp @s ^ ^ ^2',
+    # (3.1z: yanked in first, then hurt - hurt first, the foe stayed where it stood (t396: pulled 0 of its 6 blocks); the tp's own
+    #  command, after the hurt's, moved it as it should)
+    fn(f'{pfx}/pulled', ['tp @s ^ ^ ^2', 'execute at @s if block ^ ^ ^2 #bm:grap_pass run tp @s ^ ^ ^2', f'execute at @s run function bm:{pfx}/hurt',
                          'particle minecraft:electric_spark ~ ~1 ~ 0.3 0.4 0.3 0.05 12'])
     # ENGULF: the nearest foe within 3 (not a boss) inside, hidden and still - 1 every half second - then spat 4 blocks for 6
     fn(f'{pfx}/charged', [inform('charged'), 'tag @s add bm.fegp', f'execute as @e[{foe},{BIG},distance=..3.4,sort=nearest,limit=1] at @s run function bm:{pfx}/gulped',

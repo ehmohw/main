@@ -612,6 +612,12 @@ def generate(G):
                    'transformation': {'left_rotation': RF.IDENT, 'right_rotation': RF.IDENT, 'translation': [F(0), F(0.02), F(0)], 'scale': [F(4), F(4), F(4)]}})
     second.append(f'execute if score #hver bm.p2 matches {HV} in bm:hollow_throne positioned {sx} {sy} {sz} if entity @a[distance=..40] '
                   'unless entity @e[type=minecraft:marker,tag=bm.apseal,distance=..2] run function bm:p131/seal/make')
+    # (3.1z: a chunk's entities load after its blocks - arriving, the maker saw no seal and made another: three stood in one world.
+    #  One by one, so the second of a pair sees the first gone: one marker, one plate)
+    second.append('execute in bm:hollow_throne as @e[type=minecraft:marker,tag=bm.apseal] at @s run function bm:p131/seal/dedupe')
+    second.append('execute in bm:hollow_throne as @e[type=minecraft:item_display,tag=bm.apsealv] at @s run function bm:p131/seal/dedupe_v')
+    fn('p131/seal/dedupe', ['tag @s add bm.apme', 'execute if entity @e[type=minecraft:marker,tag=bm.apseal,tag=!bm.apme,distance=..2] run kill @s', 'tag @s remove bm.apme'])
+    fn('p131/seal/dedupe_v', ['tag @s add bm.apme', 'execute if entity @e[type=minecraft:item_display,tag=bm.apsealv,tag=!bm.apme,distance=..2] run kill @s', 'tag @s remove bm.apme'])
     fn('p131/seal/make', ['kill @e[type=minecraft:item_display,tag=bm.apsealv,distance=..2]', 'summon minecraft:marker ~ ~ ~ {Tags:["bm.apseal"]}',
                           f'summon minecraft:item_display ~ ~ ~ {seal_v}', 'scoreboard players set @e[type=minecraft:marker,tag=bm.apseal,distance=..1] bm.apw 0'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[type=minecraft:item_display,tag=bm.apsealv]', 'kill @e[type=minecraft:marker,tag=bm.apseal]']
