@@ -121,8 +121,8 @@ const DP = '/home/user/main/bm_build/out_p2/BlackMarket_DP/data/bm/function';
   await at(wx, wy, wz - 2.2, 0, 20);
   let wa = null; await wait(4000, async () => (wa = await entOf(WALT)) != null);
   A.slot(8); A.chats.length = 0; if (wa) A.interact(wa.entityId); await sleep(1000);
-  ok("the Hexen Hollow's altar: it wakes only for Cecil, Apophiss and King Omega", ['Cecil', 'Apophiss', 'King Omega'].every(n => A.chats.some(c => new RegExp(`✘.*${n}`).test(c))),
-     `altar ${wa ? 'found' : 'not found'} at ${wx} ${wy} ${wz}; ` + A.chats.slice(-4).join(' | ').slice(0, 220));
+  ok("the Hexen Hollow's altar: it wakes only for Cecil, Apophiss and King Omega", await wait(3000, async () => ['Cecil', 'Apophiss', 'King Omega'].every(n => A.chats.some(c => new RegExp(`✘.*${n}`).test(c))), 200),
+     `altar ${wa ? 'found' : 'not found'} at ${wx} ${wy} ${wz}; ` + A.chats.slice(-4).join(' | ').slice(0, 220) + ' bars: ' + A.bars.slice(-2).join(' | ').slice(0, 200));
   // ---- Vesper: the maps and the scrapping
   const ves = fs.readdirSync(`${DP}/p177`).map(f => fs.statSync(`${DP}/p177/${f}`).isFile() ? fs.readFileSync(`${DP}/p177/${f}`, 'utf8') : '').join('\n');
   ok('Vesper sells the three sealed maps', ['sealed_map_db_snow', 'sealed_map_db_witch', 'sealed_map_db_shark'].every(m => ves.includes(m)));
