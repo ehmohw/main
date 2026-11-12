@@ -37,12 +37,14 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
 - **One name over each Undercrown sigil.** A rebuild of the Undercrown couldn't clear a name label in a part of the world nobody was near, so the new one appeared beside it. Each sigil now keeps one label.
 - **Behind the scenes:**
   - **A read-through** covered the Undercrown and the Sovereign, the Armada and Vexis, the Statue Knights, the Mires, and the roaming and dungeon bosses.
-  - **The tests:** I ran the 24 dungeon and boss tests as a regular player. @@STATUS@@
+  - **The tests:** I ran the 24 dungeon and boss tests as a regular player. In the final runs, 23 pass in full. Three of them (t228, t318, t319) each missed one check once and passed in full when run again; t228's totem forge looks timing-dependent. The 24th, t134 (Apophiss, written for 2.77), now gets through the den, the seal, his coming and both phases of the fight, but its checks of his defeat (the sealing scene and the drops) still fail. That is next.
+  - **Four tests were passing when they shouldn't have:** t72, t100, t154 and t396 checked a player with a selector the game can't read. The game's error message quoted the check, and the test took that as a pass. That is how the Ferro's mimicry went unnoticed. Two older follower tests, t72 and t100, show some failures now that their checks are honest; they're outside this sweep.
   - **Old tests updated:** several still expected things that have since changed on purpose:
     - the locked camera, which has been free since 3.1f;
     - the form buttons, which moved to each follower's Settings page;
     - followers still resting from a faint left by an earlier test;
-    - hard mode or the Sovereign's fall left over from an earlier test.
+    - hard mode or the Sovereign's fall left over from an earlier test;
+    - the Undercrown's version (t319, t322), a player left in creative or with extra health by an earlier test (t134, t72, t100), and followers killed by a test that the game then brought back (t134).
 
 ## New in 3.1y: the heist sweep, closed
 
