@@ -42,7 +42,7 @@ const varint = (b, o = 0) => { let v = 0, s = 0, x; do { x = b[o++]; v |= (x & 0
   // 3. gliding: no sneak, no push; sneak held, the wings drive on
   await run(`${O}tp TestRat 15303.5 180 15303.5 0 10`); await sleep(800);
   await tick({}, false, 4); A.write('entity_action', { entityId: A.eid, actionId: 6, jumpBoost: 0 }); await tick({}, false, 3);
-  ok('(gliding, as a client starts it)', /1b|true/.test(await run('execute if entity TestRat[predicate=bm:p2/ht_gliding]')) || /passed/i.test(await run('execute if entity @a[name=TestRat,predicate=bm:p2/ht_gliding]')),
+  ok('(gliding, as a client starts it)', /passed/i.test(await run('execute if entity @a[name=TestRat,predicate=bm:p2/ht_gliding]')),
      await run('execute if entity @a[name=TestRat,predicate=bm:p2/ht_gliding]'));
   vel.length = 0; await tick({}, false, 20); const calm = vel.length;
   vel.length = 0; await tick({ shift: true }, false, 20); const push = vel.length;

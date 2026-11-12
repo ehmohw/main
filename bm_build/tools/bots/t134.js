@@ -34,6 +34,7 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     await run('clear TestRat'); await run('effect clear TestRat');
   };
   await reset();
+  await run('gamemode survival TestRat');      // (3.1z: the stage - the den's guard and the seal pass over a creative player, and an earlier test can leave one)
   await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6'); await run('tag TestRat add bm.got_warp');
   const tough = async () => { await run('attribute TestRat minecraft:max_health base set 200'); await run('effect give TestRat minecraft:instant_health 1 20 true');
     await run('effect give TestRat minecraft:resistance 900 3 true'); };

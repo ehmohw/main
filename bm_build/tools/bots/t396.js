@@ -33,7 +33,8 @@ runT({ W: 'ferro', NAME: 'The Ferro', ab: 'fe', q: 'fq', pfx: 'p271', prefix: 'f
     ok('SPIKE BURST - a foe 1.5 off: hurt', await K.move('k2', [[0, 1.5]], 'bm.trpb', async () => (await K.hp('bm.trpb')) < 300, 8000));
     let z0 = 0;
     ok('MAGNETIC PULL - a foe 6 off: pulled in, hurt', await K.move('rc', [[0, 6]], 'bm.trpc', async () => { z0 = await num('@e[tag=bm.trpc,limit=1]', 'Pos[2]');
-      return (await K.hp('bm.trpc')) < 300 && Math.abs(z0 - Z) < 5; }, 8000), `z ${z0 - Z}`);
+      return (await K.hp('bm.trpc')) < 300 && Math.abs(z0 - Z) < 5; }, 8000), `z ${z0 - Z} hp ${await K.hp('bm.trpc')} fqa ${await score('bm.fqa', PET)} fqx ${await score('bm.fqx', PET)} fqrc ${await score('bm.fqrc', PET)} ` +
+      `ferro ${(await run(`data get entity ${PET} Pos`)).replace(/.*data: /, '')} foes ${(await run(`execute in minecraft:overworld if entity @e[type=#bm:hostile,distance=..10,x=${X},y=${Y},z=${Z}]`)).replace(/.*count: /i, '')}`);
     let gone = false;
     ok('ENGULF - a foe 2 off: engulfed (hidden, bm.fein) - and spat out, hurt', await K.move('gc', [[0, 2]], 'bm.trpd', async () => {
       if ((await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 1) gone = true; return gone && (await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 0 && (await K.hp('bm.trpd')) < 300; }, 9000));
@@ -41,8 +42,11 @@ runT({ W: 'ferro', NAME: 'The Ferro', ab: 'fe', q: 'fq', pfx: 'p271', prefix: 'f
     await K.home(); await run('advancement revoke TestRat only bm:ferro/learned/bender'); await run('advancement grant TestRat only bm:met/bender');
     await run('loot replace entity TestRat inventory.20 loot bm:items/bv_ball'); await K.summonAs('p195', 1.0); await sleep(1500);
     await run(`${O}tp @e[type=minecraft:wolf,tag=bm.bvpet] ${X + 1.5} ${Y + 1} ${Z}`); await run('data modify entity @e[type=minecraft:wolf,tag=bm.bvpet,limit=1] Sitting set value 1b');
-    ok('MIMICRY - Bender (met) within 6 for 3 s: learned for good', await wait(7000, async () => /true/.test(await run('execute if entity TestRat[advancements={bm:ferro/learned/bender=true}] run say true')) ||
-       /passed/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:ferro/learned/bender=true}]')), 300));
+    ok('MIMICRY - Bender (met) within 6 for 3 s: learned for good', await wait(7000, async () => /passed/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:ferro/learned/bender=true}]')), 300),
+       // (3.1z: the old first check, TestRat[...], was a parse error whose message quoted "say true" - it always passed)
+       `ferro ${await nbt(PET, 'Tags')} pid ${(await run(`scoreboard players get ${PET} bm.pid`)).replace(/.*has /, '')} at ${(await run(`data get entity ${PET} Pos`)).replace(/.*data: /, '')}; ` +
+       `fqn ${(await run(`scoreboard players get ${PET} bm.fqn`)).replace(/.*has /, '')} fqk ${(await run(`scoreboard players get ${PET} bm.fqk`)).replace(/.*has /, '')} met ${/passed/.test(await run('execute if entity @a[name=TestRat,advancements={bm:met/bender=true}]'))} ` +
+       `bender pid ${(await run('scoreboard players get @e[type=minecraft:wolf,tag=bm.bvpet,limit=1] bm.pid')).replace(/.*has /, '')} at ${(await run('data get entity @e[type=minecraft:wolf,tag=bm.bvpet,limit=1] Pos')).replace(/.*data: /, '')}`);
     await ctx.sneakMenu(0); await A.press(/Forms/);
     ok('...its menu -> Forms: Bender is there', A.buttons().some(b => /Bender/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
     await A.press(/Bender/); await sleep(2500);

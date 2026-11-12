@@ -141,9 +141,14 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     // (one that gets in anyway: risen out in the void and teleported aboard - it melts, rig and all)
     const far = [AO[0] + AS[0] + 400, 100, AO[2]];
     await run(`${E}forceload add ${far[0]} ${far[2]}`); await run(`${E}setblock ${far[0]} ${far[1] - 1} ${far[2]} minecraft:obsidian`); await sleep(1500);
+    // (3.1z: TestRat stands by it out there - a host with nobody within 128 despawns at once, as any husk does: "spawned 0" - and the
+    //  two come aboard in one tp, so it's never left alone between commands)
+    const aboard = ((await run(`${E}data get entity TestRat Pos`)).match(/-?[\d.]+(?=d)/g) || []).map(Number);
+    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await sleep(1500);
     await run(`execute in ${END} positioned ${far[0]}.5 ${far[1]} ${far[2]}.5 run function bm:p246/spawn`);
     const out1 = await count(END, `@e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2]`);
-    await run(`execute in ${END} as @e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2] at TestRat run tp @s ~ ~ ~`);
+    await run(`execute in ${END} run tag @e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2] add bm.t329m`); await run('tag TestRat add bm.t329m');
+    await run(`execute in ${END} run tp @e[tag=bm.t329m] ${aboard[0]} ${aboard[1]} ${aboard[2]}`); await run('tag TestRat remove bm.t329m');
     ok('armada: a Dread Mire teleported aboard melts away within ~2 s', out1 === 1 && await wait(3000, async () => (await mires(B)) === 0, 200), `spawned ${out1}`);
     const parts = +(((await run(`execute in ${END} if entity @e[type=minecraft:item_display,tag=bm.mr]`)).match(/count: (\d+)/i) || [0, 0])[1]);
     ok('armada: ...none of its parts left behind', parts === 0, String(parts));

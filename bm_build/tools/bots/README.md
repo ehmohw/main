@@ -353,6 +353,18 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - (3.1a) **A converted Piercing Blow waits for its follower to be free, and its follower's own moves yield once it's due** (`bm.prgo` 1): without the yield, a follower that chains its moves back to back (Mr. Capshun) was never free and the blow never came. Hold the follower's other moves (`bm.kcd1`, `bm.kcd2`, `bm.chcd`) when you time one (t397).
 - (3.1a) **The Frog and Donado have blow tags now** (`bm.fgme`, `bm.dnme`, put in atk.ME at build time) and a small move tick of their own (`p226/lite/frog`, `p226/lite/don`): their baked-pose rigs have no state machine, so the move holds `p63/<w>/anim` while it plays.
 - (3.1a) **The checkers don't look inside a particle's block state:** `particle minecraft:block{block_state:"minecraft:chain"}` passed all six and failed to load on the server (26.x calls it `iron_chain`). Read `tools/dev.sh`'s reload output for load errors.
+- (3.1z) **`TestRat[tag=...]` is not a selector** - a name takes no brackets. rcon answers with a parse error that quotes the
+  command (`...run say true<--[HERE]`), so `/true/.test(...)` always passes and `!/passed/.test(...)` always passes: t72, t100,
+  t154 and t396 carried such checks (t396's "learned for good" passed while the Ferro learned nothing). Use
+  `@a[name=TestRat,...]` and test for `passed`.
+- (3.1z) **Don't reuse a follower kit's score for your own bookkeeping:** the rig kit counts each move's cooldown down every tick
+  (`bm.<ab>k`, `bm.<ab>k2`, `bm.<ab>mc`, ...). The Ferro kept "the follower it's studying" in `bm.fqk` - its lash cooldown - so
+  the study reset every second and MIMICRY never learned anyone (now `bm.fqlk`).
+- (3.1z) **A test that walks into a place where a creative player is skipped stages survival first** (t134: the den's guard and
+  the seal pass over creative players; an earlier test had left TestRat in creative, and 16 checks failed at once).
+- (3.1z) **A Dread Mire's host can despawn like any husk** (it's `PersistenceRequired: 0`): left alone far off, it vanished and
+  its 23 parts stayed. Each puddle now takes its whole rig when no host of its `bm.mid` stands beside it (`p246/orphan`,
+  `p258/orphan`); t329 counts the parts left behind.
 
 ## Index
 

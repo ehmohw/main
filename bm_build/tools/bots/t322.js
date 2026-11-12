@@ -78,8 +78,9 @@ const CELL = { under: { 0: [2632, 84, -2417], 2: [2584, 84, -2441], 3: [2584, 84
   if (on('under')) {
     const C = CELL.under;
     await run(`${N}tp TestRat ${UO[0] - 40} 100 ${UO[2] - 40}`); await run(`${N}setblock ${UO[0] - 40} 98 ${UO[2] - 40} minecraft:obsidian`);
-    if ((await sc('#uver', 'bm.p2')) !== 7) await run('function bm:admin/under/place');
-    ok('the stage: the Undercrown placed', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 8, 2000));
+    const UV = 9;      // (phase237's UVER - 3.1z: it was 7 / 8 here, stale since 3.0g)
+    if ((await sc('#uver', 'bm.p2')) !== UV) await run('function bm:admin/under/place');
+    ok('the stage: the Undercrown placed', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === UV, 2000));
     await run(`${N}forceload add ${UO[0]} ${UO[2]} ${UO[0] + 223} ${UO[2] + 223}`); await sleep(4000);
     const outer = await pos(N, '@e[type=minecraft:marker,tag=bm.uouter,limit=1]');
     const gate = await pos(N, '@e[type=minecraft:marker,tag=bm.ugate,limit=1]');

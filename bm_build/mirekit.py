@@ -90,6 +90,12 @@ def watch(G, C):
     FOES, WFOES = C.FOES, C.WAKE_FOES
     snd = C.snd
     second.append(f'execute as @e[type=minecraft:husk,tag={C.HOST}] at @s run function bm:{P}/sec')
+    # (3.1z: a host left alone despawns like any husk - its 23 parts stayed behind, a puddle on the ground forever. Each puddle (always on
+    #  its host) whose host isn't beside it takes its whole rig, its home marker too)
+    second.append(f'execute as @e[type=minecraft:item_display,tag={C.R}_puddle] at @s run function bm:{P}/orphan')
+    fn(f'{P}/orphan', ['scoreboard players operation #me bm.mid = @s bm.mid', 'scoreboard players set #okf bm.rng 0',
+                       f'execute as @e[type=minecraft:husk,tag={C.HOST},distance=..8] if score @s bm.mid = #me bm.mid run scoreboard players set #okf bm.rng 1',
+                       f'execute if score #okf bm.rng matches 0 as @e[type=minecraft:item_display,tag={C.R}] if score @s bm.mid = #me bm.mid run kill @s'])
     fn(f'{P}/sec', [f'execute if entity @s[tag={C.TAME}] run return run function bm:{P}/t/sec',
                     f'execute if score {C.FELL} matches 1 unless score @s bm.ms matches 7 unless entity @s[tag=bm.svm] run return run function bm:{P}/melt',   # (3.1z: the Sovereign's own Mires stand in its rematch - they melted in a second, the attack fizzled)
                     # (3.0e: sent under the world - a wave's vanish, a sweep's - an invulnerable host would hang there with its rig: melted)

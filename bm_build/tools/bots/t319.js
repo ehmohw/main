@@ -106,8 +106,9 @@ const FLOOR = 100;
   if (on('gate')) {
     await run(`${N}tp TestRat ${UO[0] - 40} 100 ${UO[2] - 40}`); await run(`${N}setblock ${UO[0] - 40} 98 ${UO[2] - 40} minecraft:obsidian`);
     for (const b of ['snow', 'witch', 'shark']) await run(`scoreboard players set TestRat bm.dbwin_${b} 1`);
-    if ((await sc('#uver', 'bm.p2')) !== 7) await run('function bm:admin/under/place');
-    ok('the stage: the Undercrown placed (version 8: its Sentinels; 3.0g its lava lake)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === 8, 2000));
+    const UV = 9;      // (phase237's UVER - 3.1z: it had stayed at 8 here, so this stage waited out its 15 minutes)
+    if ((await sc('#uver', 'bm.p2')) !== UV) await run('function bm:admin/under/place');
+    ok('the stage: the Undercrown placed (its current version: its Sentinels, its lava lake)', await wait(900000, async () => (await sc('#uver', 'bm.p2')) === UV, 2000));
     const DG = '@e[type=minecraft:marker,tag=bm.dg,tag=bm.d_under,limit=1]';
     await run(`${N}forceload add ${UO[0] + 96} ${UO[2] + 104} ${UO[0] + 128} ${UO[2] + 136}`); await sleep(3000);
     ok('...its markers loaded (the dungeon, the Gate\'s puzzle)', await wait(90000, async () => (await cnt(N, DG)) === 1 &&

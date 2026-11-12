@@ -126,7 +126,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await sleep(3800);
   ok('...the prize: his scythe', (await items('demo_scythe')) === 1 && (await sc('TestRat', 'bm.dmsc')) === 1);
   ok('..."Reaper\'s Due"', /passed/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/demo_duel=true}]')));
-  ok('...and he goes home; the duel is over', (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity TestRat[tag=bm.dmduel]')));
+  ok('...and he goes home; the duel is over', (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.dmduel]')));
 
   // ---- again: a win, but only his respect
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p97/menu');
@@ -139,7 +139,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('scoreboard players set TestRat bm.act 9701'); await sleep(400); await run('scoreboard players set TestRat bm.dmd 2'); await sleep(500);
   await run(`execute as ${BOSS} run data merge entity @s {NoAI:1b}`);
   await run('damage TestRat 16 minecraft:generic'); await sleep(400);
-  ok('Down to three hearts: the duel is lost - he goes home', (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity TestRat[tag=bm.dmduel]')));
+  ok('Down to three hearts: the duel is lost - he goes home', (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.dmduel]')));
   ok('...and you get some healing', /regeneration/.test(await run('data get entity TestRat active_effects')));
   await run('effect give TestRat minecraft:instant_health 1 4 true');
   ok('...no cooldown: call him again straight away', await (async () => { await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p97/use'); await sleep(500); return (await cnt(W)) === 1; })());

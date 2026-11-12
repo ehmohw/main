@@ -99,8 +99,7 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   let got = 0; for (const c of ['crimson', 'gold', 'midnight', 'ocean', 'rose', 'verdant', 'pearl', 'ember']) if (await has('container.*', `*[custom_data~{bm:"skiff_escort_${c}"}]`)) got++;
   await sleep(500);
   ok('Reactor rewards: a colour you don\'t have yet, every time - eight wins, eight colours', got === 8, `${got}/8`);
-  ok('...collect them all: Squadron Leader', /true/.test(await run('execute if entity TestRat[advancements={bm:story/escort_all=true}] run say true')) ||
-     /passed|true/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/escort_all=true}]')));
+  ok('...collect them all: Squadron Leader', /passed|true/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/escort_all=true}]')));
   ok('The reactor win hands them out', /p72\/esk\/reward/.test(require('fs').readFileSync(BMB + 'out_p2/BlackMarket_DP/data/bm/function/p52/rx/win.mcfunction', 'utf8')));
   await run('clear TestRat'); await run('loot give TestRat loot bm:items/skiff_escort_crimson'); await run('scoreboard players reset TestRat bm.eskcd');
   await run('scoreboard players set #ec bm.rng 0'); await run('execute as TestRat at @s run function bm:p72/esk/use'); await sleep(1000);

@@ -378,8 +378,8 @@ def _forms_dp(G, X):
         print(f'ferro: no {side_p} yet (build the resource pack first) - its forms take their figures\' own sizes')
     import phase134 as P134
     G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.fqf dummy', 'scoreboard objectives add bm.fqa dummy', 'scoreboard objectives add bm.fqm dummy',
-                              'scoreboard objectives add bm.fqk dummy', 'scoreboard objectives add bm.fqn dummy', 'scoreboard objectives add bm.fqo dummy']
-    G.OBJECTIVES += ['bm.fqf', 'bm.fqa', 'bm.fqm', 'bm.fqk', 'bm.fqn', 'bm.fqo']
+                              'scoreboard objectives add bm.fqk dummy', 'scoreboard objectives add bm.fqlk dummy', 'scoreboard objectives add bm.fqn dummy', 'scoreboard objectives add bm.fqo dummy']
+    G.OBJECTIVES += ['bm.fqf', 'bm.fqa', 'bm.fqm', 'bm.fqk', 'bm.fqlk', 'bm.fqn', 'bm.fqo']
     table = []
     for i, w in enumerate(order, 1):
         iid = item_of[w]
@@ -415,11 +415,16 @@ def _forms_dp(G, X):
                                  tellraw('@s', [T('The Ferro: ', COL, bold=True), T(f'(a puff of beads) "...I can be {P125.WHO[w][0]} now. Want to see?" ', LINE),
                                                 T('(Its menu - Forms.)', 'dark_gray')])])
     X.second.append('execute as @e[type=minecraft:wolf,tag=bm.fepet,tag=!bm.ffpet,tag=!bm.fexf] at @s run function bm:p271/study')
-    fn('p271/study', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #k bm.rng 0'] +
-       [f'execute if score #k bm.rng matches 0 as @e[type=minecraft:{P125.WHO[w][3]},tag={P125.WHO[w][4]},tag=!bm.ffpet,distance=..6] if score @s bm.pid = #me bm.pid run scoreboard players set #k bm.rng {i}'
+    # (3.1z: the follower it's studying is bm.fqlk - it was bm.fqk, which its tick counts down as a move's cooldown, so the study
+    #  reset every second and MIMICRY never learned anyone. And only a follower its owner has met and it hasn't learned yet: the first
+    #  in the list within 6 won, so a learned one beside it kept it from learning anyone after it. Its own owner tag, bm.festu)
+    fn('p271/study', ['scoreboard players operation #me bm.pid = @s bm.pid', 'scoreboard players set #k bm.rng 0', 'execute on owner run tag @s add bm.festu'] +
+       [f'execute if score #k bm.rng matches 0 if entity @a[tag=bm.festu,advancements={{bm:ferro/learned/{w}=false,bm:met/{P220.MET_KEY.get(w, w)}=true}}] '
+        f'as @e[type=minecraft:{P125.WHO[w][3]},tag={P125.WHO[w][4]},tag=!bm.ffpet,distance=..6] if score @s bm.pid = #me bm.pid run scoreboard players set #k bm.rng {i}'
         for i, w in enumerate(order, 1)] +
-       ['execute if score #k bm.rng matches 0 run return run scoreboard players set @s bm.fqn 0',
-        'execute unless score @s bm.fqk = #k bm.rng run scoreboard players set @s bm.fqn 0', 'scoreboard players operation @s bm.fqk = #k bm.rng',
+       ['tag @a[tag=bm.festu] remove bm.festu',
+        'execute if score #k bm.rng matches 0 run return run scoreboard players set @s bm.fqn 0',
+        'execute unless score @s bm.fqlk = #k bm.rng run scoreboard players set @s bm.fqn 0', 'scoreboard players operation @s bm.fqlk = #k bm.rng',
         'scoreboard players add @s bm.fqn 1', 'execute if score @s bm.fqn matches 3 run function bm:p271/studied'])
     fn('p271/studied', ['particle minecraft:dust{color:[0.06,0.06,0.1],scale:1.0} ~ ~0.8 ~ 0.4 0.4 0.4 0 20', 'playsound minecraft:entity.slime.squish_small neutral @a[distance=..12] ~ ~ ~ 0.6 1.4'] +
        [f'execute if score #k bm.rng matches {i} on owner run function bm:p271/learn/i_{w}' for i, w in enumerate(order, 1)])

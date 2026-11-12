@@ -199,7 +199,8 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     ok('...it wears off ("You smell like yourself again"): and it fights you', await wait(3000, async () => !/bm\.hsc\b/.test(await run('tag TestRat list'))) &&
        await wait(9000, async () => [3, 4, 8].includes(await sc(BR, 'bm.ms')), 100));
     await clean(E, EX, EZ); await run('clear TestRat');
-    await give('brood_ichor', 16); await use(0, true);
+    await run(`${E}kill @e[type=#bm:hostile,tag=!bm.bmire,x=${EX},y=${Y},z=${EZ},distance=..48]`);         // (3.1z: the End's own, cleared before planting too -
+    await give('brood_ichor', 16); await use(0, true);                                                       //  one wandering in woke it before the clear)
     ok('16 Brood Ichor, sneak + used: a Brood Pod', await wait(2000, async () => (await has('brood_pod')) === 1 && (await has('brood_ichor')) === 0));
     await at(E, EX + 0.5, Y + 1, EZ - 4.5, 0, 60);
     await use(0, true);
@@ -207,6 +208,7 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     ok('...planted (sneak + use on a block): a Bound Brood-Mire takes root (bm.bxtame), the pod spent', await wait(2000, async () => (await cnt(T)) === 1) && (await has('brood_pod')) === 0);
     const tp = (await nbt(T, 'Pos')).match(/-?[\d.]+/g).map(Number);
     await run(`${E}kill @e[type=#bm:hostile,tag=!bm.bmire,x=${EX},y=${Y},z=${EZ},distance=..48]`);         // (the End's own, wandering in)
+    await wait(15000, async () => (await sc(T, 'bm.ms')) === 0, 500);    // (risen for one anyway: it sinks once they're gone)
     await at(E, tp[0], Y + 1, tp[2] - 6, 0, 0); await sleep(2500);
     ok('...it doesn\'t rise for its owner', (await sc(T, 'bm.ms')) === 0, `ms ${await sc(T, 'bm.ms')}; monsters near: ${(await run(`${E}execute as @e[type=#bm:hostile,x=${tp[0]},y=${tp[1]},z=${tp[2]},distance=..12] run data get entity @s id`)).slice(0, 160)}`);
     await run(`${E}summon minecraft:zombie ${tp[0] + 6} ${Y + 1} ${tp[2]} {NoAI:1b,PersistenceRequired:1b,Tags:["bm.seen","bm.bxz"],attributes:[{id:"minecraft:max_health",base:200}],Health:200f}`);

@@ -71,7 +71,9 @@ const N = 'execute in minecraft:the_nether run ';
     await run('clear TestRat'); await run('scoreboard players set TestRat bm.picd 0');   // (3.1z: the stage: rested - another test may have left him fainted)
     await at(sg[0] + 2, sg[1], sg[2]); await give('pi_cloche'); A.chats.length = 0; A.bars.length = 0; await use(0);
     ok('Pistachio called with his cloche', await wait(5000, async () => (await cnt('@e[tag=bm.pipet]')) >= 1), [...A.chats, ...A.bars].slice(-3).join(' | ').slice(0, 240));
-    ok('...the sigil wears his name', (await cnt(`@e[type=minecraft:text_display,tag=bm.usgt,x=${sg[0]},y=${sg[1]},z=${sg[2]},distance=..2]`)) === 1);
+    ok('...the sigil wears his name', await wait(3000, async () => (await cnt(`@e[type=minecraft:text_display,tag=bm.usgt,x=${sg[0]},y=${sg[1]},z=${sg[2]},distance=..2]`)) === 1),
+       `sigil at ${JSON.stringify(sg)}; labels within 8: ${await cnt(`@e[type=minecraft:text_display,tag=bm.usgt,x=${sg[0]},y=${sg[1]},z=${sg[2]},distance=..8]`)}, ` +
+       `marker tags ${(await run(`${N}data get entity @e[type=minecraft:marker,tag=bm.pet_sigil,tag=bm.pz1,limit=1] Tags`)).replace(/.*data: /, '').slice(0, 160)}`);
     await run(`${N}tp @e[tag=bm.pipet] ${sg[0]} ${sg[1]} ${sg[2]}`); await run(`${N}data merge entity @e[tag=bm.pipet,limit=1] {Sitting:1b}`);
     ok('...he stands on it: the trial solved, the hat-lock door opens', await wait(6000, async () => (await sc(DG, 'bm.pz')) >= 1), await run(`${N}scoreboard players get ${DG} bm.pz`));
     ok('...the gate parts', await wait(6000, async () => await block(g1[0], g1[1] + 3, g1[2], 'minecraft:light')));
@@ -147,7 +149,8 @@ const N = 'execute in minecraft:the_nether run ';
     await progress(17); await run('clear TestRat'); await run('tag TestRat remove bm.dfin'); await run('tag TestRat remove bm.svfirst'); await run('tag TestRat remove bm.svdone');
     await run('scoreboard players set #ufell bm.p2 0'); await run('scoreboard players set #dfell bm.cfg 0'); await run('scoreboard players set #ucol bm.p2 0');
     const th = await pos('@e[type=minecraft:marker,tag=bm.uthrone,limit=1]');
-    ok('the Sovereign kneels on its throne, dormant', await wait(15000, async () => (await cnt('@e[type=minecraft:husk,tag=bm.usov,tag=bm.svdorm]')) === 1));
+    ok('the Sovereign kneels on its throne, dormant', await wait(15000, async () => (await cnt('@e[type=minecraft:husk,tag=bm.usov,tag=bm.svdorm]')) === 1),
+       `throne ${JSON.stringify(th)}; sovereigns ${await cnt('@e[type=minecraft:husk,tag=bm.usov]')}: ${(await run(`${N}data get entity @e[type=minecraft:husk,tag=bm.usov,limit=1] Tags`)).replace(/.*data: /, '').slice(0, 160)}`);
     const ar = await pos('@e[type=minecraft:marker,tag=bm.arena,tag=bm.d_under,limit=1]');
     A.chats.length = 0;
     await at(ar[0], ar[1], ar[2] + 10);
