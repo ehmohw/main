@@ -21,6 +21,21 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1y: the heist sweep, closed
+
+- **The leader's choice really does go round the crew now.** 3.1w's fix for passing the choice on didn't work as meant. The game checks every raider before acting on any, so the "next in turn" always landed on the same raider. With three in the crew, the choice reached one of them and then stayed there, and the third never got it. The choice now goes to the next raider in turn, then the one after, then back round to the leader. Three regular players have played it through to check.
+- **The Coin Scramble crowns whoever grabbed the most.** Its winner was meant to be the raider with the most coins, but the same mistake made it the last raider in the list with any coins at all. With two or more in the crew, the prize could go to the wrong one.
+- **Behind the scenes:**
+  - **A new logic check** looks for this mistake (a running highest or lowest worked out over many players or entities in one line) everywhere in the pack. These two were the only places it occurred.
+  - **New tests, as players:**
+    - **t413:** three players and the leader's choice going round them.
+    - **t414:** Emma waits outside the vault and comes back after a trip to the Lounge.
+  - **Older tests made reliable:**
+    - **t217:** its "flaky" swinging-lamp hook was never lag. The hook lent back after the drop went into the pack, not the hotbar, so the test never threw it.
+    - **t65k:** the Volley Quiver check read an old arrow left in the ground instead of the volley's own.
+    - **t87:** the hidden vaults and the Gentry pass in full again (31/31).
+  - **@@STATUS@@**
+
 ## New in 3.1x: the last of the heist rooms swept
 
 - **More rooms look after the crew still crossing.** Like the crossing rooms fixed in 3.1w, these rooms stopped looking after the rest of the crew once someone finished:

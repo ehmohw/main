@@ -27,9 +27,9 @@ const res = [];
     for (const t of ['bm.gvp', 'bm.gvask', 'bm.gvnext', 'bm.gvoffer', 'bm.gvwaitd', 'bm.gvin', 'bm.gvskip']) await run(`tag ${n} remove ${t}`);
     await run(`execute as ${n} unless score @s bm.pid matches 1.. run function bm:p21/pid`);
     for (const o of ['bm.crew', 'bm.crewoff', 'bm.crewoff2', 'bm.crewoff3', 'bm.fcon', 'bm.fcon2', 'bm.gvhr']) await run(`scoreboard players set ${n} ${o} 0`);
-    for (let i = 0; i < 4; i++) await run(`loot give ${n} loot bm:items/token`);
   }
-  await run(`loot replace entity TestRat hotbar.0 loot bm:items/fixers_ledger`); await run('scoreboard players set TestRat bm.gvu 5');
+  await run(`loot replace entity TestRat hotbar.0 loot bm:items/fixers_ledger`); await run('scoreboard players set TestRat bm.gvu 5');   // (the Ledger first - then the Tokens, not over them)
+  for (const n of NAMES) for (let i = 0; i < 4; i++) await run(`loot give ${n} loot bm:items/token`);
   // (a party of three - the party system's own bookkeeping)
   for (const n of NAMES) await run(`scoreboard players operation ${n} bm.pty = TestRat bm.pid`);
   await sleep(1500); for (const n of NAMES) C[n].stand(); A.slot(0);
@@ -37,10 +37,16 @@ const res = [];
   ok('TestRat2 and TestRat3 are regular players', /unknown|incomplete/i.test(B.chats.join(' ')) && /unknown|incomplete/i.test(C3.chats.join(' ')));
 
   // ---- the heist, planned through the Ledger; the crew opt in if asked
-  await A.useWait(); await A.press(/Plan a Heist/); await sleep(800); await A.press(/Tier I\b(?!I)/); await sleep(300);
+  const lbls = X => X.buttons().map(b => b.label).join(' | ').slice(0, 300);
+  const opened = await A.useWait(); console.log(`   (ledger opened ${opened}: ${lbls(A)})`);
+  await A.press(/Plan a Heist/); await sleep(800); console.log(`   (after Plan a Heist: ${lbls(A)} | bar ${A.bars.slice(-1).join('')} | chat ${A.chats.slice(-2).join(' / ').slice(0, 200)})`);
+  await A.press(/Tier I\b(?!I)/); await sleep(300); console.log(`   (after Tier I: ${lbls(A)})`);
   for (const X of [B, C3]) X.dialogN.length = 0;
   await A.press(/^3\b|3 tries/i);
-  await sleep(4000); for (const X of [B, C3]) if (X.buttons().some(b => /I'm in|Join|Count me in/i.test(b.label))) await X.press(/I'm in|Join|Count me in/i);
+  await sleep(4000);
+  console.log(`   (after 3 tries - A: ${lbls(A)} | ${A.chats.slice(-3).join(' / ').slice(0, 300)})`);
+  for (const [nm, X] of [['B', B], ['C', C3]]) console.log(`   (${nm} sees: ${lbls(X)} | ${X.chats.slice(-2).join(' / ').slice(0, 200)})`);
+  for (const X of [B, C3]) if (X.buttons().some(b => /I'm in|Join|Count me in/i.test(b.label))) await X.press(/I'm in|Join|Count me in/i);
   const inV = await wait(60000, async () => { for (const n of NAMES) if (!(await tagged(n, 'bm.gvp')) || !/gutter/.test(await dim(n))) return false; return true; }, 500);
   if (!ok('all three led down into the vault', inV, (await Promise.all(NAMES.map(dim))).join(' '))) return done();
   await sleep(2500);
@@ -50,11 +56,16 @@ const res = [];
   await run(`execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_vault,scores={bm.gvi=${gi}},limit=1] at @s run function bm:p70/payout`);
   ok('won: the leader (TestRat) is asked', await wait(10000, async () => tagged('TestRat', 'bm.gvask')));
   const asker = async () => { for (const n of NAMES) if (await tagged(n, 'bm.gvask')) return n; return null; };
-  const runOut = async () => { await run(`scoreboard players set #dt${s} bm.gvdt 2`); await sleep(3000); return asker(); };
+  const runOut = async () => { const was = await asker(); await run(`scoreboard players set #dt${s} bm.gvdt 1`);
+    await wait(10000, async () => { const now = await asker(); return now && now !== was; }, 300); await sleep(500); return asker(); };
   const first = await runOut();
   ok('nobody chooses: the choice passes on to another raider', first && first !== 'TestRat', `${first}`);
   ok('...TestRat is told "Time\'s up"', A.chats.some(c => /Time's up/.test(c)));
+  const dump = async (w) => { const o = []; for (const n of NAMES) o.push(`${n}: pid ${await sc(n, 'bm.pid')} gvnx ${await sc(n, 'bm.gvnx')} ask ${await tagged(n, 'bm.gvask')} gvp ${await tagged(n, 'bm.gvp')} gvi ${await sc(n, 'bm.gvi')}`);
+    console.log(`   [${w}] ${o.join(' ; ')} ; #dt${s} ${(await run(`scoreboard players get #dt${s} bm.gvdt`)).replace(/.*has /, '')} #ld ${(await run(`scoreboard players get #ld${s} bm.gvld`)).replace(/.*has /, '')}`); };
+  await dump('after pass 1');
   const second = await runOut();
+  await dump('after pass 2');
   ok('...and again: to the third raider - not back to TestRat', second && second !== 'TestRat' && second !== first, `${first} -> ${second}`);
   const third = await runOut();
   ok('...and again: round to TestRat', third === 'TestRat', `${first} -> ${second} -> ${third}`);

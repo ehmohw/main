@@ -40,7 +40,8 @@ const res = [];
   A.cmd('trigger bm.act set 7601'); await sleep(1500); A.cmd('trigger bm.act set 7613');
   if (!ok('a job planned through the Ledger', await wait(40000, async () => passes('execute if entity @a[name=TestRat,tag=bm.gvp]'), 500))) return done();
   await sleep(3000);
-  ok('...Emma waits outside the vault (no contract)', (await passes('execute if entity @a[name=TestRat,tag=bm.ow_emma]')) && (await emma()) === 0);
+  ok('...Emma waits outside the vault (no contract)', await wait(12000, async () => (await passes('execute if entity @a[name=TestRat,tag=bm.ow_emma]')) && (await emma()) === 0, 400),
+     `tag ${await passes('execute if entity @a[name=TestRat,tag=bm.ow_emma]')}, out ${await emma()}`);
   // ---- won: "Go to the Lounge"
   const gi = await num('scoreboard players get TestRat bm.gvi');
   await run(`execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_vault,scores={bm.gvi=${gi}},limit=1] at @s run scoreboard players operation #gi bm.rng = @s bm.gvi`);

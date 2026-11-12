@@ -336,7 +336,7 @@ def generate(G):
                                                                                                     T(' s', 'yellow')])])
     fn('p85/scramble/end', ['kill @e[type=minecraft:item,tag=bm.gvscoin,distance=..24]', 'execute as @a[tag=bm.gvp,distance=..20] run function bm:p85/scramble/count',
                             'scoreboard players set #best bm.rng 0', 'scoreboard players set #c bm.rng 0',
-                            'execute as @a[tag=bm.gvp,distance=..20] if score @s bm.gvscs > #best bm.rng run scoreboard players operation #best bm.rng = @s bm.gvscs',
+                            'execute as @a[tag=bm.gvp,distance=..20] run scoreboard players operation #best bm.rng > @s bm.gvscs',   # (3.1y: the scoreboard's own maximum - the inline `if > #best` kept the last raider with any coins, not the most)
                             'execute as @a[tag=bm.gvp,distance=..20] run scoreboard players operation #c bm.rng += @s bm.gvscs', 'scoreboard players operation #c bm.rng /= #2 bm.rng',
                             'execute if score #c bm.rng matches 1.. run ' + inst('bm:p75/pot_add'),
                             'execute as @a[tag=bm.gvp,distance=..20] run ' + tellraw('@s', P + [T('You grabbed ', 'gray'), {'score': {'name': '@s', 'objective': 'bm.gvscs'}, 'color': 'white', 'bold': True},

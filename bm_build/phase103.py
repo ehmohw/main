@@ -179,8 +179,10 @@ def generate(G):
                                # (3.1w: round the crew in turn - the next pid up, wrapping round; it used to take the first in the list,
                                #  so two away raiders passed it back and forth and the third never got it)
                                'scoreboard players operation #cur bm.rng = @a[tag=bm.gvskip,limit=1] bm.pid', 'scoreboard players set #best bm.rng 2147483647',
-                               f'execute as {crew(s)} if score @s bm.pid > #cur bm.rng if score @s bm.pid < #best bm.rng run scoreboard players operation #best bm.rng = @s bm.pid',
-                               f'execute if score #best bm.rng matches 2147483647 as {crew(s)} if score @s bm.pid < #best bm.rng run scoreboard players operation #best bm.rng = @s bm.pid',
+                               # (3.1y: the scoreboard's own minimum (<) - `execute as @a if ... < #best run ... = @s` checks every raider
+                               #  before running any, so the running minimum written that way kept the last in the list, not the least)
+                               f'execute as {crew(s)} if score @s bm.pid > #cur bm.rng run scoreboard players operation #best bm.rng < @s bm.pid',
+                               f'execute if score #best bm.rng matches 2147483647 as {crew(s)} run scoreboard players operation #best bm.rng < @s bm.pid',
                                f'scoreboard players operation #ld{s} bm.gvld = #best bm.rng',
                                tellraw('@a[tag=bm.gvskip]', P + [T('Time\'s up - ', 'gray'), T('the choice passes to your crew.', GOLD)]),
                                'scoreboard players reset @a[tag=bm.gvskip] bm.gvnx', 'tag @a[tag=bm.gvskip] remove bm.gvask', 'tag @a[tag=bm.gvskip] remove bm.gvskip',

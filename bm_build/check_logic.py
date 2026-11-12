@@ -15,6 +15,9 @@ Run as: BM_OUT=out python3 check_logic.py   (0 errors expected)
 6b. (2.80h) p28/act reads the click (#act bm.pay = @s bm.act) before any line tests it.
 7. (2.80h) Macro lines: a line starting `$` must use at least one `$(name)`, or the function fails to load.
 9. (2.95d) Whole numbers: none past 2147483647 (a score holds 31 bits - a follower's bit 2^31 would not load).
+10. (3.1y) A running min/max over many entities written inline - `execute as @a[...] if score @s X > #m O run scoreboard
+   players operation #m O = @s X` - checks every entity before running for any, so #m ends as the LAST qualifying one, not
+   the greatest (the leader's choice and the Coin Scramble's winner). Use the scoreboard's own `#m O > @s X` (or `<`).
 8. (2.95d) Predicates: a `minecraft:time_check` names its world clock (26.3: "clock") - without one the whole pack fails to
    load, and the server with it (registry loading).
 """
@@ -163,6 +166,15 @@ for f in glob.glob(ROOT + '**/*.mcfunction', recursive=True):
         for m in _BIG.finditer(l):
             if int(m.group(1)) > 2147483647:
                 errs.append(f'{rel}:{i + 1}: {m.group(1)} is past what a score (or an int) holds - the function will not load'); break
+
+# 10. (3.1y) a running min/max written inline over many entities (execute checks them all before running any)
+_RUN = re.compile(r'^execute .*?\bas @[aen](?:\[(?P<sel>[^\]]*)\])? .*?if score @s \S+ [<>]=? (?P<h>#\S+) (?P<o>\S+) .*\brun scoreboard players operation (?P=h) (?P=o) = @s ')
+for f in glob.glob(ROOT + '**/*.mcfunction', recursive=True):
+    rel = f[len(ROOT):]
+    for i, l in enumerate(open(f)):
+        m = _RUN.match(l)
+        if m and 'limit=1' not in (m.group('sel') or ''):
+            errs.append(f'{rel}:{i + 1}: a running min/max over many entities written inline keeps the last one, not the extreme - use `{m.group("h")} {m.group("o")} > @s ...` (or <)')
 
 for e in errs: print('✗', e)
 print(f'logic lints: {len(errs)} errors')
