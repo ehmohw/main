@@ -484,8 +484,8 @@ def generate(G):
                              'scoreboard players operation @s bm.gvhu = @e[type=minecraft:marker,tag=bm.gvr_grapple,limit=1,sort=nearest] bm.gvx',
                              title('@s', 'actionbar', T('Down into the hay! Back to the start - and your hooks back.', 'red'))])
     # (3.1w: once it's beaten, a fall carries a straggler over to the far ledge - the way back is barred behind them)
-    fn('p115/grapple/over', ['execute if entity @s[tag=bm.grappling] run function bm:p21/grap/release',
-                             'execute at @e[type=minecraft:marker,tag=bm.gvr_grapple,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 4, 12) + ' -90 0',
+    fn('p115/grapple/over', ['execute if entity @s[tag=bm.grappling] run function bm:p21/grap/release',     # (x 23: the Chasm's and the Lamps' far ledge is one block deep)
+                             'execute at @e[type=minecraft:marker,tag=bm.gvr_grapple,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(23, 4, 12) + ' -90 0',
                              title('@s', 'actionbar', T('Into the hay - the crew hauls you over to the far ledge.', GOLD))])
     fn('p115/grapple/across', big('ACROSS!', 'The far ledge - the way on is open.', GOLD) + pot(4) + ['function bm:p70/solved'])
     G.FUNCS['p70/unraid'].append('scoreboard players reset @s bm.gvhu')

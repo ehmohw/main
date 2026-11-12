@@ -39,7 +39,7 @@ const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : null;
     await sleep(300);
     const beef = await items('minecraft:cooked_beef'), pw = await items('*[minecraft:custom_data~{bm:"paperweight"}]');
     ok(`A kit: ${beef} food and ${pw} paperweights`, beef === 32 && pw === 4);
-    await run('clear TestRat'); await run('execute as TestRat at @s run function bm:p104/resupply'); await sleep(200);
+    await run('clear TestRat'); await run('scoreboard players set TestRat bm.gvrole 2'); await run('execute as TestRat at @s run function bm:p104/resupply');   // (resupply hands out the kit of your role) await sleep(200);
     ok('Another job tops them back up to 32 and 4', (await items('minecraft:cooked_beef')) === 32 && (await items('*[minecraft:custom_data~{bm:"paperweight"}]')) === 4);
   }
 

@@ -36,18 +36,11 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('A second contract for Cecil isn\'t wasted', (await sc('bm.fcon')) === 1 && await num('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"fcontract_cecil"}] 0') === 1);
   await run('clear TestRat');
 
-  // ---- into the vault: the summoning items stay at the coat check (2.67); Cecil, signed, comes along by himself; Emma (no contract) doesn't
-  await run('scoreboard players set TestRat bm.crew 0'); await run('scoreboard players set TestRat bm.crewoff 0');
-  await run('loot give TestRat loot bm:items/cecil_gem'); await run('loot give TestRat loot bm:items/emma_ribbon');
-  await heist();
-  ok('The summoning items stay at the coat check (2.67)', !(await has('cecil_gem')) && !(await has('emma_ribbon')));
-  await sleep(3600);
-  ok('Under contract, Cecil comes along by himself', (await cnt('@e[type=wolf,tag=bm.cecilpet,distance=0..]')) === 1);
-  ok('Without one, Emma stays home', (await cnt('@e[type=cat,tag=bm.emmapet,distance=0..]')) === 0);
-  await run('scoreboard players set TestRat bm.fcon 3'); await sleep(3600);
-  ok('Sign hers: Emma comes too', (await cnt('@e[type=cat,tag=bm.emmapet,distance=0..]')) === 1);
+  // (3.1w: the vault steps - the summoning items at the coat check, a contracted Cecil coming in, Emma not - are t410's now, as a
+  //  player through the Ledger)
+  await run('scoreboard players set TestRat bm.emcd 0'); await run('execute as TestRat at @s run function bm:p57/try_summon'); await sleep(1500);
 
-  // ---- Emma's new outfits (in the vault: same rig as anywhere)
+  // ---- Emma's new outfits (out in the world: same rig as in the vault)
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p89/use/outfit1'); await sleep(400);
   const b1 = await model('body'), h1 = await model('head'), l1 = await model('legr'), a1 = await model('armr');
   ok('The Flower Top: body, head, arms and legs swap', /em_body_o1_m\d/.test(b1) && h1 === 'bm:em_head_o1' && l1 === 'bm:em_legr_o1' && a1 === 'bm:em_armr_o1', `${b1} ${h1} ${l1} ${a1}`);
@@ -69,8 +62,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('The Recruiter sells the raid contracts (from his book)', rc('fcontract_cecil') && rc('fcontract_frog') && rc('fcontract_killerwatt') && !(await sells('bm.gvrec', 'fcontract_cecil')));
   ok('...the Tailor, Emma\'s new outfits', tl('cos_outfit_1') && tl('cos_outfit_2'));
   ok('...and the wardrobe (ribbons, dresses, Celi, Zib, hidden ones too)', tl('cos_ribbon_1') && tl('cos_ribbon_6') && tl('cos_dress_5') && tl('cos_celi_4') && tl('cos_zib_3'));
-  ok('...the Recruiter, Pearlman\'s gems - but no Ethereal Gem (2.67: fuse the nine)', rc('gem_fire') && !rc('ethereal_gem') && !(await sells('bm.gvgt', 'ethereal_gem')));
-  await leave();
+  ok('...no elemental gems in the heist shop (3.0g) - and no Ethereal Gem (2.67: fuse the nine)', !rc('gem_fire') && !rc('ethereal_gem') && !(await sells('bm.gvgt', 'ethereal_gem')));
   for (const t of ['bm.cecilpet', 'bm.emmapet']) { await run(`execute in minecraft:overworld run kill @e[tag=${t}]`); await run(`execute in bm:gutter run kill @e[tag=${t},distance=0..]`); }
 
   // ---- the Frog with Mustache and Donado: their contracts call a vault hire. Yours (2.78: called with his Signet) waits outside
