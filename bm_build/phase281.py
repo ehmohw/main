@@ -17,8 +17,9 @@ from nbt import snbt, F, Int
 COL, GOLD = '#ffe9a8', '#ffd24a'
 IID = 'fifty_monument'
 TIERS = [  # (side, height of the quartz, how many dolls round it)
-    (5.0, 0.55, 26), (3.4, 0.55, 16), (1.8, 0.55, 8)]
-CAP = 0.08          # (the gold lip on each tier)
+    (5.0, 0.55, 28), (3.4, 0.55, 16), (1.8, 0.55, 6)]      # (3.1v render: eight on the top tier crowded the compass's stand)
+CAP = 0.08          # (the gold band round each tier's top)
+RIM = 0.12          # (how much of that band shows round the white top set into it)
 DOLL = 0.58         # (a doll's scale: about 0.58 blocks tall, standing on the lip)
 INSET = 0.36        # (how far in from a tier's edge the dolls stand)
 REACH = 2           # (the footprint: -2..2 round the block it stands on)
@@ -75,8 +76,10 @@ def generate(G):
     build, y = [], 0.0            # (run at the bottom of the block it stands in - the top of the one under it)
     tops = []
     for side, h, n in TIERS:
-        build += [block('minecraft:smooth_quartz', side, y, h), block('minecraft:gold_block', side + 0.1, y + h, CAP)]
-        y += h + CAP
+        # (white quartz, a gold band round its top edge, and a white top set into the band - not a whole gold slab)
+        build += [block('minecraft:smooth_quartz', side, y, h), block('minecraft:gold_block', side + 0.1, y + h, CAP),
+                  block('minecraft:smooth_quartz', side + 0.1 - 2 * RIM, y + h, CAP + 0.01)]
+        y += h + CAP + 0.01
         tops.append(y)
     build.append(block('minecraft:gold_block', 0.5, y, 0.35))         # (the compass's little stand)
     m = iter(models)

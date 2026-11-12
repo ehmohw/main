@@ -48,7 +48,7 @@ const res = [];
   ok('...the item is spent', (await has('fifty_monument')) === 0);
   const nd = await count(`@e[type=minecraft:item_display,tag=bm.f50d,${near}]`), nb = await count(`@e[type=minecraft:block_display,tag=bm.f50d,${near}]`);
   ok('...51 item displays (fifty dolls and the compass)', nd === 51, `${nd}`);
-  ok('...seven blocks (three tiers, three lips, the stand)', nb === 7, `${nb}`);
+  ok('...ten blocks (three tiers, their gold bands and white tops, the stand)', nb === 10, `${nb}`);
   ok('...a click box and a marker', (await count(`@e[type=minecraft:interaction,tag=bm.f50,${near}]`)) === 1 && (await count(`@e[type=minecraft:marker,tag=bm.f50m,${near}]`)) === 1);
   // every doll a different follower, every one facing out (from the monument's own centre: its marker)
   const mk = (await run(`data get entity @e[type=minecraft:marker,tag=bm.f50m,${near},limit=1] Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
