@@ -781,7 +781,9 @@ def generate(G):
     second.append('tag @a[tag=!bm.svmig] add bm.svmig')
 
     # ================================================================== THE FALL
-    fn('p238/fall', ['tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
+    # (3.1z: felled mid-turn (a phase's entrance), turn_tick went on adding to bm.svt beside the fall's own clock - two a tick, so half
+    #  the burn's exact beats never came: its head stayed whole (t316, now and then). The fall stops the turn and the intro)
+    fn('p238/fall', ['tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', 'tag @s remove bm.svintro', 'tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
                      'scoreboard players set @s bm.svx 9999', 'scoreboard players set @s bm.svt 0', 'function bm:p238/clear', 'bossbar set bm:usov value 0',
                      say(L.FIGHT['fall']), 'playsound minecraft:entity.wither.death hostile @a[distance=..96] ~ ~ ~ 1 0.5', f'execute as {AUD} at @s run function bm:p152/tick',
                      'execute at @s run summon minecraft:marker ~ ~12 ~ {Tags:["bm.svlook","bm.svcamm"]}',
