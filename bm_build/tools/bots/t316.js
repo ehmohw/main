@@ -211,7 +211,9 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...it crumbles part by part into ash (ash sprites), its chest gone while the helm still burns - the eye last', seen.ash && seen.headLast, JSON.stringify(seen));
     // (3.1z: unmade = scaled to nothing, or gone altogether - a killed part answered "No entity was found", and the check failed)
     ok('...it comes apart (its parts unmade)', await wait(5000, async () => { const r = await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`);
-      return /\[0\.0f, 0\.0f, 0\.0f\]/.test(r) || /No entity/.test(r); }, 250));
+      return /\[0\.0f, 0\.0f, 0\.0f\]/.test(r) || /No entity/.test(r); }, 250),
+       `head: ${(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`)).replace(/.*data: /, '').slice(0, 120)}; ` +
+       `heads ${await cnt('@e[type=minecraft:item_display,tag=bm.svr_head]')}`);
     ok('...a last flash: nothing left but ash and feathers of light drifting', seen.feather);
     ok('..."Rest now."', await wait(8000, async () => A.chats.some(c => /Rest now/.test(c))));
     ok('He rises and is gone; then the spoils', await wait(14000, async () => (await has('ukey_victor')) === 1) && (await cnt('@e[type=minecraft:item_display,tag=bm.dvn]')) === 0,
