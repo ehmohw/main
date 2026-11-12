@@ -29,6 +29,9 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   const reset = async () => {
+    // (3.1z: sent home as the game sends them - killed only, one came back on its own and the seal counted three at Leo's call)
+    await run('scoreboard players operation #me bm.pid = TestRat bm.pid');
+    for (const k of ['emma', 'leo', 'cecil']) await run(`execute as TestRat at @s run function bm:p98/home/${k}`);
     for (const t of ['bm.emmapet', 'bm.leopet', 'bm.cecilpet', 'bm.appet']) { await run(`${H}kill @e[tag=${t}]`); await run(`${O}kill @e[tag=${t}]`); }
     for (const o of ['bm.emcd', 'bm.lecd', 'bm.cpcd', 'bm.apcd', 'bm.apsd', 'bm.apk', 'bm.apcl']) await run(`scoreboard players set TestRat ${o} 0`);
     await run('clear TestRat'); await run('effect clear TestRat');
@@ -74,6 +77,8 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     ok('..."He rises only when one who has beaten the Hollow King comes back with Emma, Leo and Cecil"', /has beaten the Hollow King comes back/.test(A.bars.join(' ')), A.bars.slice(-1).join('').slice(0, 140));
     // (a conqueror - but without the three)
     await run('scoreboard players set TestRat bm.conq 6'); await run('scoreboard players set TestRat bm.conqb 6');
+    await run('scoreboard players operation #me bm.pid = TestRat bm.pid');     // (3.1z: sent home as the game does it - killed only, they came back)
+    for (const k of ['emma', 'leo', 'cecil']) await run(`execute as TestRat at @s run function bm:p98/home/${k}`);
     for (const t of ['bm.emmapet', 'bm.leopet', 'bm.cecilpet']) await run(`${H}kill @e[tag=${t}]`);
     await run('clear TestRat'); await sleep(2500);
     ok('a conqueror without Emma, Leo and Cecil: still nothing', !(await cnt(boss)));
@@ -107,7 +112,9 @@ const res = []; const ONLY = process.argv[2] ? new RegExp(process.argv[2]) : nul
     A.bars.length = 0; await sleep(1200);
     await use(A, 1);
     ok('Leo answers his crest', await wait(4000, async () => (await cnt('@e[type=minecraft:wolf,tag=bm.leopet]')) === 1));
-    ok('two of the three: one more', await wait(5000, async () => /two of the three/.test(A.bars.join(' '))), A.bars.slice(-3).join(' / ').slice(0, 200));
+    const dSeal = async t => { const q = await epos(`@e[tag=${t},limit=1]`); return q ? dist(q, SEAL).toFixed(1) : 'none'; };
+    ok('two of the three: one more', await wait(5000, async () => /two of the three/.test(A.bars.join(' '))), A.bars.slice(-3).join(' / ').slice(0, 200) +
+       ` | from the seal: emma ${await dSeal('bm.emmapet')} leo ${await dSeal('bm.leopet')} cecil ${await dSeal('bm.cecilpet')} rat ${dist(await epos('TestRat'), SEAL).toFixed(1)}`);
     A.chats.length = 0;
     await use(A, 2);
     ok('Cecil answers his gem', await wait(4000, async () => (await cnt('@e[type=minecraft:wolf,tag=bm.cecilpet]')) === 1));
