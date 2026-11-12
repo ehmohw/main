@@ -66,6 +66,9 @@ module.exports = async function run(C) {
   await at(X + 0.5, Y + 1, Z + 0.5, 0, 0);
 
   // ---------------------------------------------------------------- finding her/him (the follower's own steps; ends recruited, the item given)
+  if (process.env.DBG) { await run('execute as TestRat run function bm:p58/count'); console.log('   [followers out]', await run('scoreboard players get #fc bm.rng'),
+    await run('tag TestRat add dbgo'), await run('execute as @e[type=#minecraft:cat_food,limit=1] run say x').catch(() => ''),
+    ...(await Promise.all(['overworld', 'bm:gutter'].map(d => run(`execute in ${d.includes(':') ? d : 'minecraft:' + d} as @e[type=minecraft:wolf,x=0,y=0,z=0,distance=0..] on owner if entity @s[tag=dbgo] run tag @s list`)))), await run('tag TestRat remove dbgo')); }
   await C.encounter(ctx);
   ok(`...the encounter gone, and ${C.NAME} comes along (the rig, the player's own)`, (await cnt(ENC)) === 0 && await wait(4000, async () => (await cnt(PET)) === 1) &&
      (await score('bm.pid', PET)) === (await score('bm.pid')));
