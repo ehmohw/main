@@ -80,19 +80,24 @@ def reached(F, rows, R):
     return seen
 
 
+MAX_ROWS = 11      # (3.1u) what fits on screen at the usual GUI scale without scrolling
+
+
 def lint(dp):
-    """(3.0k) the proposal's rules, as warnings: a static dialog with more than 12 buttons, one with no way out (no exit and no
-    « button), a follower-menu verb without a tooltip - counts, and the worst offenders"""
+    """(3.0k) the proposal's rules, as warnings: a static dialog taller than MAX_ROWS rows of buttons, one with no way out
+    (no exit and no « button) - counts, and the worst offenders. (3.1u: rows, not buttons - Emma's 25-button wardrobe is
+    three columns, 9 rows; the old "more than 12 buttons" flagged 59 menus, nearly all 13-button wardrobes 7 rows tall)"""
     F, D = BT.load(dp)
-    big, noexit, notip = [], [], 0
+    tall, noexit = [], []
     for name, L in F.items():
         for l in L:
             if 'dialog show' not in l or 'multi_action' not in l: continue
-            n = len(BT.ACT.findall(l))
-            if n > 12 and '$(acts)' not in l: big.append((n, name))
+            n = len(BT.ACT.findall(l)); m = re.search(r'columns:(\d+)', l)
+            rows = -(-n // (int(m.group(1)) if m else 2))      # (2 columns unless it says)
+            if rows > MAX_ROWS and '$(acts)' not in l: tall.append((rows, name))
             if 'exit_action' not in l and '\u00ab' not in l and '«' not in l: noexit.append(name)
-    big.sort(reverse=True)
-    return dict(over_12=len(big), worst=[f'{n} {f}' for n, f in big[:5]], no_way_out=len(set(noexit)))
+    tall = sorted(set(tall), reverse=True)
+    return dict(too_tall=len(tall), worst=[f'{n} rows {f}' for n, f in tall[:5]], no_way_out=len(set(noexit)))
 
 
 def _scope(r):
