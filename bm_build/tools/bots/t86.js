@@ -70,6 +70,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     const C = 'TestRat Inventory[{components:{"minecraft:custom_data":{bm_haul:1b}}}].components."minecraft:container"';
     const tk = await run(`data get entity ${C}[{item:{components:{"minecraft:custom_data":{bm:"token"}}}}].item.count`);
     toks += /data: (\d+)/.test(tk) ? +tk.match(/data: (\d+)/)[1] : 0;
+    { const pk = await run('clear TestRat *[minecraft:custom_data~{bm:"token"}] 0'); toks += /Found (\d+)/.test(pk) ? +pk.match(/Found (\d+)/)[1] : 0; }   // (the fee back comes to the pockets now - Tokens pass the coat check; t104 plays it)
     meds += /data: \d/.test(await run(`data get entity ${C}[{item:{components:{"minecraft:custom_data":{bm:"medallion"}}}}].item.count`)) ? 1 : 0;
     tros += /data: \d/.test(await run(`data get entity ${C}[{item:{components:{"minecraft:custom_data":{bm:"trophy"}}}}].item.count`)) ? 1 : 0;
     let found = 0;
@@ -81,7 +82,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
     coin += (await num(`execute store result score #t bm.rng if data entity ${C}[{item:{components:{"minecraft:custom_data":{bm:"gutter_coin"}}}}]`)) >= 1 ? 1 : 0;
     // anything new in the pockets that isn't the crate or a kit loaner is a prize that escaped
     const strip = s => (s.match(/id: "[^"]+"/g) || []).length;
-    const extra = (await run('execute store result score #t bm.rng run clear TestRat *[!minecraft:custom_data~{bm_kit:1b},!minecraft:custom_data~{bm_haul:1b},!minecraft:custom_data~{bm:"fixers_ledger"},!minecraft:custom_data~{bm:"heist_plans"},!minecraft:custom_data~{bm:"locker_key"}] 0'));
+    const extra = (await run('execute store result score #t bm.rng run clear TestRat *[!minecraft:custom_data~{bm_kit:1b},!minecraft:custom_data~{bm_haul:1b},!minecraft:custom_data~{bm:"fixers_ledger"},!minecraft:custom_data~{bm:"heist_plans"},!minecraft:custom_data~{bm:"locker_key"},!minecraft:custom_data~{bm:"token"}] 0'));
     loose += /Found (\d+)/.test(extra) ? +extra.match(/Found (\d+)/)[1] : 0;
     await run('clear TestRat'); await run('execute as TestRat at @s run function bm:p70/leave'); await sleep(1500);
   }
@@ -96,7 +97,8 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await heist(7601); await begin(); await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); await payout();
   let o = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm_haul:1b}}}].components."minecraft:container"');
   const tok2 = async () => { const t = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm_haul:1b}}}].components."minecraft:container"[{item:{components:{"minecraft:custom_data":{bm:"token"}}}}].item.count'); return /data: (\d+)/.test(t) ? +t.match(/data: (\d+)/)[1] : 0; };
-  let tk2 = await tok2();
+  const pocketToks = async () => { const pk = await run('clear TestRat *[minecraft:custom_data~{bm:"token"}] 0'); return /Found (\d+)/.test(pk) ? +pk.match(/Found (\d+)/)[1] : 0; };
+  let tk2 = (await tok2()) + (await pocketToks());
   ok('Old "plain" setting: the fee back (2-3 Tokens) and Gutter Coins', tk2 >= 2 && tk2 <= 3 && /bm: "gutter_coin"/.test(o), `${tk2}`);
   ok('...and no vanilla supplies', !/minecraft:(oak_log|cobblestone|iron_ingot|coal|torch|stone_bricks|glass)"/.test(o), o.slice(0, 200));
   await run('clear TestRat'); await run('execute as TestRat at @s run function bm:p70/leave'); await sleep(1500);
@@ -105,7 +107,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   await run('scoreboard players set TestRat bm.gvth 3');
   await heist(7601); await begin(); await run('clear TestRat *[minecraft:custom_data~{bm:"token"}]'); await payout();
   o = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm_haul:1b}}}].components."minecraft:container"');
-  tk2 = await tok2();
+  tk2 = (await tok2()) + (await pocketToks());
   ok('Old "gutter" setting: the fee back, and coins', tk2 >= 2 && tk2 <= 3 && /bm: "(gutter_coin|copper_cog)"/.test(o), `${tk2}`);
   await run('clear TestRat'); await run('execute as TestRat at @s run function bm:p70/leave'); await sleep(1500);
 

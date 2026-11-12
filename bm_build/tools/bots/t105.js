@@ -26,7 +26,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
     await sleep(2500);
     await run(`execute in minecraft:overworld run tp TestRat ${X + 0.5} ${Y + 1} ${Z + 0.5}`); await run(`execute in minecraft:overworld run tp TestMouse ${X + 2.5} ${Y + 1} ${Z + 0.5}`); await sleep(800); };
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
-  await run('function bm:admin/heist_variants_never'); await run('function bm:admin/heist_boss_std');
+  await run('function bm:admin/heist_variants_never'); await run('function bm:admin/heist_boss_std'); await run('function bm:admin/plan_anywhere'); await run('function bm:admin/heist_hard_never');   // (3.1y: safe ground anywhere, the usual guardian - whatever the test before left)
   for (const p of ['TestRat', 'TestMouse']) {
     await run(`gamemode survival ${p}`); await run(`clear ${p}`); await run(`effect clear ${p}`);
     await run(`execute as ${p} unless score @s bm.pid matches 1.. run function bm:p21/pid`); await run(`execute as ${p} run function bm:p80/init_me`);
@@ -337,5 +337,6 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
 
   for (const p of ['TestRat', 'TestMouse']) await run(`scoreboard players reset ${p} bm.pty`);
   await run('tag @a remove bm.gvok');   // (the operator's pass that staged the vault)
+  await run('function bm:admin/plan_safe'); await run('function bm:admin/heist_hard_any'); await run('function bm:admin/heist_variants_off');
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })().catch(e => { console.log('ERR', e); process.exit(1); });
