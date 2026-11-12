@@ -193,9 +193,10 @@ const N = 'execute in minecraft:the_nether run ';
     const svt = async () => await sc(SOV, 'bm.svt');
     const bri = async (p) => +(((await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_${p},limit=1] brightness.block`)).match(/: (\d+)$/)) || [0, -1])[1];
     const seen = { hot: false, flame: false, char: false, ash: false, headLast: false, feather: false };
-    const t1 = Date.now();
+    const t1 = Date.now(); const trace = [];     // (3.1z: the head's scale round its fall at 392, with the animation state - it stayed whole now and then)
     while (Date.now() - t1 < 12000) {
       const t = await svt(); if (t < 0) break;
+      if (t >= 385 && t <= 430 && trace.length < 40) trace.push(`${t}:${(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale[0]`)).replace(/.*data: /, '')}/s${await sc(SOV, 'bm.svs')}f${await sc(SOV, 'bm.svf')}`);
       if (t >= 324 && t < 338 && (await bri('shinr')) === 15) seen.hot = true;
       if (t >= 324 && t < 392 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_hflame]')) > 0) seen.flame = true;
       if (t >= 340 && t < 360 && (await bri('shinr')) === 1) seen.char = true;
@@ -213,7 +214,7 @@ const N = 'execute in minecraft:the_nether run ';
     ok('...it comes apart (its parts unmade)', await wait(5000, async () => { const r = await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`);
       return /\[0\.0f, 0\.0f, 0\.0f\]/.test(r) || /No entity/.test(r); }, 250),
        `head: ${(await run(`${N}data get entity @e[type=minecraft:item_display,tag=bm.svr_head,limit=1] transformation.scale`)).replace(/.*data: /, '').slice(0, 120)}; ` +
-       `heads ${await cnt('@e[type=minecraft:item_display,tag=bm.svr_head]')}`);
+       `heads ${await cnt('@e[type=minecraft:item_display,tag=bm.svr_head]')}; trace ${trace.join(' ')}`);
     ok('...a last flash: nothing left but ash and feathers of light drifting', seen.feather);
     ok('..."Rest now."', await wait(8000, async () => A.chats.some(c => /Rest now/.test(c))));
     ok('He rises and is gone; then the spoils', await wait(14000, async () => (await has('ukey_victor')) === 1) && (await cnt('@e[type=minecraft:item_display,tag=bm.dvn]')) === 0,
