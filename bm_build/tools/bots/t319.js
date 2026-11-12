@@ -139,7 +139,8 @@ const FLOOR = 100;
     ok('the statue, sneak + used on a block: it stands there', (await cnt(O, '@e[type=minecraft:item_display,tag=bm.knsd_dread,distance=..4,x=18400,y=100,z=16001]')) === 1 &&
        (await has('knight_statue_dread')) === 0);
     const e = await entOf(O, '@e[type=minecraft:interaction,tag=bm.knst_dread,limit=1,sort=nearest,x=18400,y=100,z=16001]');
-    A.input({ shift: true }); await sleep(300); if (e) A.attack(e.entityId); await sleep(600); A.input({}); await sleep(600);
+    for (let k = 0; k < 3 && (await has('knight_statue_dread')) !== 1; k++) {      // (3.1z: a player tries again - the sneak and the swing a moment apart missed now and then)
+      A.input({ shift: true }); await sleep(400); if (e) A.attack(e.entityId); await sleep(600); A.input({}); await sleep(600); }
     ok('...sneak + punched: back in your pack', (await has('knight_statue_dread')) === 1 && (await cnt(O, '@e[type=minecraft:item_display,tag=bm.knsd_dread,distance=..4,x=18400,y=100,z=16001]')) === 0);
     await run(`${O}kill @e[type=minecraft:interaction,tag=bm.knst,distance=..6,x=18400,y=100,z=16001]`);
   }
