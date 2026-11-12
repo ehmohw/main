@@ -40,9 +40,11 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   const after = await run('data get entity TestRat Pos'); const bx = +before.match(/\[([-\d.]+)d/)[1], ax = +after.match(/\[([-\d.]+)d/)[1];
   ok('...never through the den\'s west wall', ax >= 0.9, `${bx} -> ${ax}`);
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run tp TestRat ~ ~ ~ -90 -5'); await sleep(200);
-  await run('execute as TestRat at @s run function bm:p77/kit/kit_volley_go'); await sleep(150);
+  await run('execute in bm:gutter run kill @e[type=arrow,x=0,y=60,z=0,dx=40,dy=20,dz=30]');   // (3.1y: no stale arrows lying about - the Motion read is the volley's own)
+  await run('execute as TestRat at @s run function bm:p77/kit/kit_volley_go');
+  const mo = await run('execute as TestRat at @s run data get entity @e[type=arrow,limit=1,sort=nearest,distance=..4] Motion');
+  await sleep(150);
   const arrows = await cnt('@e[type=arrow,x=0,y=60,z=0,dx=40,dy=20,dz=30]');
-  const mo = await run('execute in bm:gutter run data get entity @e[type=arrow,limit=1,sort=nearest,x=12,y=68,z=12] Motion');
   ok('Volley Quiver: five arrows, flying', arrows === 5 && /\[[1-3]\.\d+d/.test(mo), `${arrows} ${mo.replace(/.*data: /, '')}`);
   await run('execute in bm:gutter run kill @e[type=arrow]');
   await run('effect clear TestRat'); await run('effect give TestRat minecraft:poison 20 0'); await run('execute as TestRat at @s run function bm:p77/kit/kit_tidal_go');

@@ -61,17 +61,21 @@ const res = [];
   await run(`${G}execute as TestRat at @s run tag @e[type=minecraft:marker,tag=bm.gvswing,sort=nearest,limit=1] add t217sw`);
   const sw = `@e[type=minecraft:marker,tag=t217sw,limit=1]`;
   // (3.1v: the lamp swings - aimed where it was a moment ago, a throw can miss; a player throws again: up to three)
-  let swp, hung = false;
+  let swp, hung = false; const diag = [];
   for (let tr = 0; tr < 3 && !hung; tr++) {
     swp = (await run(`${G}data get entity ${sw} Pos`)).match(/\[(-?[\d.]+)d, (-?[\d.]+)d, (-?[\d.]+)d\]/).slice(1).map(Number);
     await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ facing ${swp[0]} ${swp[1] + 2.5} ${swp[2]}`); await sleep(500);
     src = -1; for (let i = 0; i < 9 && src < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} ${RH}`)) src = i;
+    if (src < 0) for (let i = 0; i < 27 && src < 0; i++) if (await passes(`execute if items entity TestRat inventory.${i} ${RH}`)) {   // (3.1y: in the pack - brought to the hotbar, as a player would)
+      await run(`item replace entity TestRat hotbar.8 from entity TestRat inventory.${i}`); await run(`item replace entity TestRat inventory.${i} with minecraft:air`); src = 8; }
     A.slot(src); await sleep(300); A.bars.length = 0;
+    const pre = `[try ${tr}: slot ${src}, gcd ${(await run('scoreboard players get TestRat bm.gcd')).replace(/.*has /, '')}, hk ${(await run('scoreboard players get TestRat bm.gvhk')).replace(/.*has /, '')}, hu ${(await run('scoreboard players get TestRat bm.gvhu')).replace(/.*has /, '')}]`;
     A.use(); await sleep(200); A.release();
+    diag.push(pre + ` grappling ${await passes('execute if entity @a[name=TestRat,tag=bm.grappling]')}`);
     hung = await wait(5000, async () => passes(`${G}execute as ${sw} at @s if entity @a[name=TestRat,distance=..4]`), 200);
     if (!hung) { A.input({ shift: true }); await sleep(400); A.input({}); await sleep(1500); }
   }
-  ok('the Swinging Lamps: TestRat hooks a lamp by its chain and is hung under it over the island', hung, A.bars.slice(-3).join(' | ') + ' ' + (await run('data get entity TestRat Pos')) + ' ' + swp.join(','));
+  ok('the Swinging Lamps: TestRat hooks a lamp by its chain and is hung under it over the island', hung, diag.join(' ') + ' ' + A.bars.slice(-3).join(' | ') + ' ' + (await run('data get entity TestRat Pos')) + ' ' + swp.join(','));
   // ---- leaving mid-puzzle, hook in hand, through the Ledger's own buttons: no room item comes home
   A.input({ shift: true }); await sleep(400); A.input({}); await sleep(1500);
   await run(`${G}execute as ${room} at @s run tp TestRat ~-10 ~ ~ -90 0`); await sleep(1500);
