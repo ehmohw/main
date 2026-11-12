@@ -32,6 +32,9 @@ const N = 'execute in minecraft:the_nether run ';
   const res = [];
   const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
+  const held = async (who = 'TestRat') => /bm\.svcam/.test(await run(`tag ${who} list`));
+  const locked = async (who = 'TestRat') => /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_slow]`)) || /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_jump]`));
+  const free = async (who = 'TestRat') => !(await held(who)) && !(await locked(who));
   const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => +((await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [0, -99])[1];
   const has = async (iid) => +(((await run(`clear TestRat *[minecraft:custom_data~{bm:"${iid}"}] 0`)).match(/Found (\d+)/) || [0, 0])[1]);
@@ -102,7 +105,7 @@ const N = 'execute in minecraft:the_nether run ';
       const me = await pos('@e[type=minecraft:player,name=TestRat,limit=1]');
       const want = look && me ? (Math.atan2(-(look[0] - me[0]), look[2] - me[2]) * 180 / Math.PI) : null;
       const dy = want == null || !pk ? 999 : Math.abs((((pk.yaw - want) % 360) + 540) % 360 - 180);
-      ok('...the camera held on it (turned to face it, looking up at its head)', dy < 15 && pk.pitch < -3, `yaw ${pk && pk.yaw.toFixed(1)} vs ${want && want.toFixed(1)}`);
+      ok('...the camera free (3.1f: never turned, slowed or slid)', !(await locked()), `yaw ${pk && pk.yaw.toFixed(1)}`);
       ok(`...its own music (${snd})`, A.sounds.slice(s0).some(s => s.name === `bm:music.${snd}`), A.sounds.slice(s0).filter(s => /music/.test(s.name)).map(s => s.name).join(','));
       ok(`...${dur} s: then it fights on, in phase ${ph === 2 ? 'II' : 'III'}`, await wait(dur * 1000 + 6000, async () => (await cnt(`@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=${ph}}]`)) === 1), `${((Date.now() - t0) / 1000).toFixed(1)} s`);
       ok('...its title shown', A.titles.some(t => title.test(t)), A.titles.slice(-3).join(' | '));
@@ -127,12 +130,14 @@ const N = 'execute in minecraft:the_nether run ';
     const menu = async () => { for (let k = 0; k < 3; k++) { const n0 = A.dialogN.length; A.input({ shift: true }); await sleep(250); A.use(); await sleep(400); A.release(); A.input({});
       if (await wait(3000, async () => A.dialogN.length > n0)) return; await sleep(1000); } };
     await sleep(2500); await menu(); await A.press(/Settings/); A.bars.length = 0;     // (3.0p: its Form button is on its ⚙ Settings page)
-    ok('its menu offers Unbound / Bound', A.buttons().some(b => /Unbound \/ Bound/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
-    await A.press(/Unbound \/ Bound/); await sleep(1500);
+    // (3.0p: the button is "Form: Bound / Armored / Broken / True" now - each press the next form: Armored, Broken, True, then Bound)
+    ok('its menu offers its forms (Form: Bound / Armored / Broken / True)', A.buttons().some(b => /Form: Bound/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 200));
+    await A.press(/Form: Bound/); await sleep(1500);
     ok('...not yet: it does not remember (felled only once)', A.bars.some(b => /does not remember/.test(b)) && (await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')) === 0);
     await run('tag TestRat add bm.xvunb');
-    await menu(); await A.press(/Settings/); await A.press(/Unbound \/ Bound/);
-    ok('felled twice: Unbound - the giant stands (19 parts, at the boss\'s scale)', await wait(3000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.xvu,x=${X},y=${Y},z=${Z},distance=..24]`)) === 19), `${await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')} parts`);
+    await run('scoreboard players set TestRat bm.xvub 0');
+    await menu(); await A.press(/Settings/); await A.press(/Form: Bound/);
+    ok('felled twice: Unbound (Armored, the first press) - the giant stands (19 parts, at the boss\'s scale)', await wait(3000, async () => (await cnt(`@e[type=minecraft:item_display,tag=bm.xvu,x=${X},y=${Y},z=${Z},distance=..24]`)) === 19), `${await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')} parts`);
     const hd = await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvu_head,limit=1] transformation.scale`);
     ok('...as vast as the boss (its head\'s scale)', +((hd.match(/\[(-?[\d.]+)f/) || [0, 0])[1]) > 3.5, hd.slice(-40));
     ok('...its small rig unseen', /0\.0f/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvp_head,limit=1] view_range`)));
@@ -141,7 +146,7 @@ const N = 'execute in minecraft:the_nether run ';
     const hp2 = (await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvu_body,limit=1] Pos`)).match(/\[(-?[\d.]+)d/);
     const wp = (await run(`${O}data get entity ${PET.slice(0, -1)},limit=1] Pos`)).match(/\[(-?[\d.]+)d/);
     ok('...where it goes, the giant goes', hp2 && wp && Math.abs(+hp2[1] - +wp[1]) < 3 && Math.abs(+wp[1] - X) > 3, hp2 && wp ? `giant ${(+hp2[1]).toFixed(1)}, it ${(+wp[1]).toFixed(1)}` : 'none');
-    await menu(); await A.press(/Settings/); await A.press(/Unbound \/ Bound/);
+    for (let k = 0; k < 3; k++) { await menu(); await A.press(/Settings/); await A.press(/Form: Bound/); await sleep(800); }   // (Broken, True, then Bound)
     ok('Bound again: the giant gone, its own rig back', await wait(3000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.xvu]')) === 0) &&
        /1\.6f/.test(await run(`${O}data get entity @e[type=minecraft:item_display,tag=bm.xvp_head,limit=1] view_range`)));
     await run(`${O}execute as ${PET} run function bm:p239/home`); await run('scoreboard players set TestRat bm.xvub 0');
@@ -181,7 +186,7 @@ const N = 'execute in minecraft:the_nether run ';
     ok('HE comes down: the Divine One\'s rig (18 parts)', await wait(6000, async () => (await cnt('@e[type=minecraft:item_display,tag=bm.dvn]')) === 18));
     ok('...His name, over everything', await wait(9000, async () => A.titles.some(t => /DIVINE ONE/.test(t))), A.titles.slice(-2).join(' | '));
     const rot = (await run('data get entity TestRat Rotation')).match(/\[(-?[\d.]+)f, (-?[\d.]+)f\]/);
-    ok('...every eye held on Him: looking up', rot && +rot[2] < -10, rot ? rot.slice(1).join(', ') : '');
+    ok('...the camera free while He speaks (3.1f)', !(await locked()), rot ? rot.slice(1).join(', ') : '');
     ok('He names it: "AUREL."', await wait(6000, async () => A.chats.some(c => /AUREL/.test(c))), A.chats.slice(-2).join(' | ').slice(0, 160));
     // (3.0d) it BURNS UP IN HOLY FIRE: sampled by its own clock (bm.svt) - ablaze from the feet (white-hot, flame sprites), charred,
     //  crumbled to nothing part by part, the helm last; then ash and feathers of light, and nothing left behind
@@ -214,9 +219,6 @@ const N = 'execute in minecraft:the_nether run ';
   }
 
   // ---- (3.0a) camera helpers: the lock (its tag, its own effects), and the gamemode
-  const held = async (who = 'TestRat') => /bm\.svcam/.test(await run(`tag ${who} list`));
-  const locked = async (who = 'TestRat') => /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_slow]`)) || /passed/.test(await run(`execute if entity @a[name=${who},predicate=bm:p238/cam_jump]`));
-  const free = async (who = 'TestRat') => !(await held(who)) && !(await locked(who));
   const gm = async (who = 'TestRat') => +(((await run(`data get entity ${who} playerGameType`)).match(/: (\d+)$/) || [0, -1])[1]);
   const dist = (a, b) => a && b ? Math.hypot(a[0] - b[0], a[2] - b[2]) : -1;
   const me = () => pos('@e[type=minecraft:player,name=TestRat,limit=1]');
@@ -318,8 +320,7 @@ const N = 'execute in minecraft:the_nether run ';
     await at(th[0], th[1], th[2] + 9);                     // (near enough the hall's centre to wake it - and right under its throne)
     ok('it wakes: the coming', await wait(5000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svintro]')) === 1));
     await sleep(2500);
-    ok('...the camera held (bm.svcam) and the forced zoom on (Slowness 255)', await held() && await locked());
-    ok('...one too near the throne has glided back, to see it from across the hall (14+)', dist(await me(), th) >= 13, `${dist(await me(), th).toFixed(1)} from the throne`);
+    ok('...kept unhurt (bm.svcam) - the camera free: no forced zoom, no glide (3.1f, the owner)', await held() && !(await locked()));
     ok('...no gamemode changed (Adventure, inside)', (await gm()) === 2);
     ok('the coming over: phase I', await wait(26000, async () => (await cnt('@e[tag=bm.usov,tag=bm.svlive,scores={bm.svph=1}]')) === 1));
     ok('...control back at once: no lock, no Slowness 255 / jump lock left', await wait(1500, free, 100));

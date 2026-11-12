@@ -10,6 +10,8 @@ const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const wait = async (ms, fn, step = 200) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
+  // (3.1z: an ordinary fight - hard mode off for the run: in a hard world a Hollow King conqueror wakes her at 175%, a hard replay)
+  const hard0 = +(((await run('scoreboard players get #hard bm.cfg')).match(/has (-?\d+)/) || [0, 0])[1]); await run('scoreboard players set #hard bm.cfg 0');
   const O = 'execute in minecraft:overworld run ';
   const cnt = async (sel) => { const m = (await run(`${O}execute if entity ${sel}`)).match(/count: (\d+)/i); return m ? +m[1] : 0; };
   const num = async (cmd) => { const r = await run(cmd); const m = r.match(/has (-?\d+) \[/) || r.match(/(-?\d+(?:\.\d+)?)[dfbsL]?\s*$/); return m ? +m[1] : NaN; };
@@ -86,5 +88,6 @@ const res = [];
   await run(`${O}kill @e[type=!minecraft:player,type=!minecraft:marker,${near}]`);
   await run('effect clear TestRat'); await run('clear TestRat');
   await run(`${O}forceload remove ${X - 96} ${Z - 96} ${X + 96} ${Z + 96}`);
+  await run(`scoreboard players set #hard bm.cfg ${hard0}`);
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

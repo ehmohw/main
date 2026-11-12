@@ -68,7 +68,8 @@ const N = 'execute in minecraft:the_nether run ';
     await progress(0);
     const sg = await pos('@e[type=minecraft:marker,tag=bm.pet_sigil,tag=bm.pz1,limit=1]');
     const g1 = await pos('@e[type=minecraft:marker,tag=bm.gate,tag=bm.g1,tag=bm.d_under,limit=1]');
-    await run('clear TestRat'); await at(sg[0] + 2, sg[1], sg[2]); await give('pi_cloche'); A.chats.length = 0; A.bars.length = 0; await use(0);
+    await run('clear TestRat'); await run('scoreboard players set TestRat bm.picd 0');   // (3.1z: the stage: rested - another test may have left him fainted)
+    await at(sg[0] + 2, sg[1], sg[2]); await give('pi_cloche'); A.chats.length = 0; A.bars.length = 0; await use(0);
     ok('Pistachio called with his cloche', await wait(5000, async () => (await cnt('@e[tag=bm.pipet]')) >= 1), [...A.chats, ...A.bars].slice(-3).join(' | ').slice(0, 240));
     ok('...the sigil wears his name', (await cnt(`@e[type=minecraft:text_display,tag=bm.usgt,x=${sg[0]},y=${sg[1]},z=${sg[2]},distance=..2]`)) === 1);
     await run(`${N}tp @e[tag=bm.pipet] ${sg[0]} ${sg[1]} ${sg[2]}`); await run(`${N}data merge entity @e[tag=bm.pipet,limit=1] {Sitting:1b}`);

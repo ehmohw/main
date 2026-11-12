@@ -211,7 +211,7 @@ const E = 'execute in minecraft:the_end run ';
 
   if (on('forms')) {
     await run('execute in minecraft:overworld run tp TestRat 18300 101 16000'); await run('execute in minecraft:overworld run fill 18290 100 15990 18310 100 16010 minecraft:stone');
-    await run('kill @e[type=minecraft:wolf,tag=bm.xbpet]'); await run('clear TestRat'); await run('tag TestRat remove bm.xbwar');
+    await run('kill @e[type=minecraft:wolf,tag=bm.xbpet]'); await sleep(1500); await run('clear TestRat'); await run('tag TestRat remove bm.xbwar');   // (3.1z: the faint lands a tick later - then the rest is cleared)
     await run('scoreboard players set TestRat bm.xbub 0'); await run('scoreboard players set TestRat bm.xbsz 0'); await run('scoreboard players set TestRat bm.xbcd 0'); await run('scoreboard players set #hard bm.cfg 1');
     await run('loot replace entity TestRat hotbar.0 loot bm:items/vexis_link'); await sleep(800);
     A.bars.length = 0; A.chats.length = 0; A.slot(0); await sleep(300); A.use(); await sleep(400); A.release();
