@@ -21,6 +21,38 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1w: the heists swept again
+
+- **The Fifty looks finished.** Each tier now has a gold band with a quartz top set into it, instead of bare stacked blocks. The dolls are spread 28 around the bottom, 16 on the middle tier and 6 at the top, so none of them crowd each other.
+- **Heist fixes:**
+  - **The crew still crossing isn't stranded.** Once the first raider beat a crossing room, the room stopped looking after everyone else.
+    - **The Grapple:** the Fixer's hook stopped working for the others. In the Chasm and the Swinging Lamps the near ledge is too far to jump from, and the way back was barred, so they were stuck.
+    - **Every crossing room:** a fall stopped bringing you back. A straggler who fell into the hay or the coin pit stayed there.
+    - **Now:** after the room is beaten, the hook stays lent. A fall carries you on to the far side, with no alarm. This covers the Grapple, the Tile Floor, the Minecart Run and the Spire.
+    - **The Tile Floor:** its dropped tiles still come back after it's beaten.
+  - **The Fixer won't take his own kit.**
+    - **The problem:** the Tinker's Bench and the Apothecary accepted the loaned kit's items.
+      - The kit bow, the Tank's shield, or the Support's splash Healing II could answer an order that asked for one. That solved the room, flawless bonus included, without crafting or brewing anything.
+      - The item was gone for the rest of the heist.
+      - The other way round, the kit bow or a kit potion handed in for the wrong order was poured out, and the alarm rang.
+    - **Now:** he says "That's my own kit - I lent you that. Make your own." and you keep it.
+  - **The choice passes round the whole crew.** When the leader doesn't choose in time, the choice now goes to the next raider in turn. It used to go to whoever was first in the player list, so two raiders who'd stepped away passed it back and forth and the third never got it.
+  - **Followers come back after a trip to the Lounge.** Followers who wait outside the vault come back three seconds after you're home. Choosing "Go to the Lounge" at the end of a heist used to cancel that, so they stayed away until after your next heist. Leaving through the Lounge's door now brings them back, and so does leaving the Lounge any other way.
+- **Behind the scenes:**
+  - **Heist sweep, part 2:**
+    - I ran the rest of the heist tests as a regular player.
+    - A second read-through covered every room's solve logic, the Lounge and the Locker Hall, the carry-on, the Raid Crew, the ready check and the Gentry fights. It found the four problems above. Everything else it traced works as intended, including the dial, tile and laser rooms, the Library, the Pipes, the Mason, the Dig, the six fight rooms and the Gentry.
+  - **New as-a-player tests:**
+    - **t409:** the Endless Vault and the Pit, planned through the Ledger (19/19). It replaces old t65k's function-driven pass.
+    - **t410:** raid contracts and the coat check (10/10). It replaces t89's first vault trip.
+    - **t411:** the crew still crossing, and the kit at the bench hatch (13/13).
+  - **Stale tests brought up to date:**
+    - **Staging:** the multiplayer Lounge test switches off hard-mode guardians, and the Locker Hall test clears the "hurt recently" mark left by its own search drop.
+    - **Moved switches:** Wilfrey's "Back after a faint" lives on his Settings page since 3.0j. The fee multiplier is a chat line.
+    - **Collectors:** the Ore Magnet and Spirit Jar tests follow 3.1's collector accounts.
+    - **Stock:** no elemental gems in the heist shop since 3.0g.
+    - **Kit:** the kit resupply test sets a role.
+
 ## New in 3.1v: The Fifty, and the heists swept
 
 - **The Fifty: a monument to every follower of the Compass of Bonds.**

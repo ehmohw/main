@@ -3,7 +3,7 @@
 //  - Cecil's Raid Contract, used as a real item (held, right-click): his bit signed, the contract used up; a second one isn't wasted;
 //  - a job planned through the Ledger's buttons carrying Cecil's gem and Emma's ribbon: both stay at the coat check;
 //  - under contract, Cecil comes into the vault by himself; Emma (no contract) stays home;
-//  - out through the den door's "Leave the heist?" -> "Leave now": the gem and the ribbon are handed back.
+//  - out through the den door (before BEGIN: at once, no question): the gem and the ribbon are handed back.
 const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
@@ -58,11 +58,8 @@ const res = [];
 
   // ---- out through the den door: the items handed back
   await run(`execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvr_lobby] ${MINE} at @s run tp TestRat ~ ~ ~`); await sleep(1000);
-  const n0 = A.dialogN.length;
   await run(`execute in bm:gutter as @e[type=minecraft:marker,tag=bm.exitm] at @s if entity @e[type=minecraft:marker,tag=bm.gvr_lobby,scores={bm.gvi=${GI}},distance=..60] run tp TestRat ~ ~ ~`);
-  ok('the den door: "Leave the heist?"', await wait(4000, async () => A.dialogN.length > n0));
-  const lv = await A.press(/Leave now/); await sleep(2500);
-  ok('..."Leave now": off the heist', !!lv && !(await passes('execute if entity @a[name=TestRat,tag=bm.gvp]')));
+  ok('the den door before BEGIN: out at once (it only asks once the job is under way)', await wait(6000, async () => !(await passes('execute if entity @a[name=TestRat,tag=bm.gvp]')), 300));
   ok('...and the gem and the ribbon are handed back', await wait(6000, async () => (await has('cecil_gem')) === 1 && (await has('emma_ribbon')) === 1, 400),
      `gem ${await has('cecil_gem')}, ribbon ${await has('emma_ribbon')}`);
   return done();

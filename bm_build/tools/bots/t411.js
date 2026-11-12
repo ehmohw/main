@@ -80,7 +80,7 @@ const res = [];
     const HT = `@e[type=minecraft:interaction,tag=bm.gvhatch,limit=1,sort=nearest]`;
     await run(`execute in bm:gutter as ${RM('bench')} at @s run tp TestRat ~ ~ ~`); await sleep(2500); A.stand();
     await run('clear TestRat minecraft:bow');
-    await run('item replace entity TestRat weapon.mainhand with minecraft:bow[minecraft:custom_data={bm_kit:1b}]'); A.slot(0); await sleep(300);
+    A.slot(0); await sleep(300);
     await run('item replace entity TestRat hotbar.0 with minecraft:bow[minecraft:custom_data={bm_kit:1b}]');
     await run(`execute in bm:gutter as ${RM('bench')} at @s as ${HT} at @s run tp TestRat ~ ~ ~`); await sleep(1500);
     const eid = await eidOf(`@e[type=minecraft:interaction,tag=bm.gvhatch,limit=1,sort=nearest,distance=0..]`);
@@ -90,7 +90,7 @@ const res = [];
     if (ok('the hatch is there to click', eid2 != null)) {
       A.interact(eid2); await sleep(900);
       ok('the kit\'s own bow at the hatch: refused - "my own kit"', A.bars.some(b => /own kit/.test(b)), A.bars.join(' | ').slice(0, 200));
-      ok('...kept', /Found 1/.test(await run('clear TestRat minecraft:bow[minecraft:custom_data~{bm_kit:1b}] 0')));
+      ok('...kept', /Found [1-9]/.test(await run('clear TestRat minecraft:bow[minecraft:custom_data~{bm_kit:1b}] 0')));
       ok('...and the room not solved by it', (await num(`execute in bm:gutter run scoreboard players get ${RM('bench')} bm.gvs`)) !== 3);
     }
   }

@@ -517,7 +517,7 @@ def generate(G):
                             'execute at @s run fill ~-1 ~-1 ~-1 ~1 ~-1 ~1 minecraft:polished_blackstone'])
     # (3.1w: beaten - the dropped tiles still come back, and the pit hauls a straggler to the far side, no alarm)
     fn('p70/r/tiles/after', ['execute as @e[type=marker,tag=bm.gvtile,tag=bm.gvdown,distance=..14] run function bm:p70/r/tiles/back',
-                             f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=17,dy=2.4,dz=22] run function bm:p70/r/tiles/over'])
+                             f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=17,dy=2.4,dz=22] at @s run function bm:p70/r/tiles/over'])
     fn('p70/r/tiles/over', ['execute at @e[type=marker,tag=bm.gvr_tiles,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 4, 12) + ' -90 0',
                             say('Into the coin pit - a rope hauls you over to the far side.', GOLD)])
     fn('p70/r/tiles/pit', ['scoreboard players set #add bm.rng 6', 'execute as @e[type=marker,tag=bm.gvr_tiles,distance=..20,sort=nearest,limit=1] at @s run function bm:p70/oops',

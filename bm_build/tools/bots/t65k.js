@@ -77,44 +77,6 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('Next heist: your hireling meets you in the den', (await cnt('@e[type=wolf,tag=bm.hire_turret]')) === 1);
   await run('execute as TestRat at @s run function bm:p77/hire/send_off'); await sleep(300);
   ok('Sneak + use: sent off duty', (await cnt('@e[type=wolf,tag=bm.hire]')) === 0 && (await num('scoreboard players get TestRat bm.gvhr')) === 0);
-  // ---- THE ENDLESS VAULT
-  await heist(7606);
-  ok('The Endless Vault: mode set, no vault at the end, three rooms ahead', (await ist('bm.gvmd')) === 2 && (await cnt('@e[type=marker,tag=bm.gvr_vault]')) === 0 &&
-     (await cnt('@e[type=marker,tag=bm.gvr,tag=!bm.gvr_lobby,tag=!bm.gvr_cache]')) === 3, `rooms ${await cnt('@e[type=marker,tag=bm.gvr,tag=!bm.gvr_lobby,tag=!bm.gvr_cache]')}`);
-  ok('...a cursor kept to build on', (await cnt('@e[type=marker,tag=bm.gvcurk]')) === 1);
-  await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run function bm:p70/begin');
-  for (let q = 1; q <= 3; q++) { await run(`execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=${q}},limit=1] at @s run scoreboard players operation #gi bm.rng = @s bm.gvi`);
-    await run(`execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=${q}},limit=1] at @s run function bm:p70/solved`); await sleep(3200); }
-  const nr = await cnt('@e[type=marker,tag=bm.gvr,tag=!bm.gvr_lobby,tag=!bm.gvr_cache]');
-  ok('Three rooms beaten: the vault builds on ahead (two more each time)', nr >= 5, `rooms ${nr}, cleared ${await ist('bm.gvxw')}`);
-  ok('...rooms cleared are counted', (await ist('bm.gvxw')) === 3);
-  // the fifth room is a Rats' Rest with the cash-out
-  for (let q = 4; q <= 5; q++) { await run(`execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=${q}},limit=1] at @s run scoreboard players operation #gi bm.rng = @s bm.gvi`);
-    await run(`execute in bm:gutter as @e[type=marker,tag=bm.gvr,scores={bm.gvq=${q}},limit=1] at @s run function bm:p70/solved`); await sleep(3200); }
-  ok('Room five is a Rats\' Rest', (await cnt('@e[type=marker,tag=bm.gvr_rest,scores={bm.gvq=5}]')) === 1, await run('execute in bm:gutter run data get entity @e[type=marker,tag=bm.gvr,scores={bm.gvq=5},limit=1] Tags'));
-  ok('...and the vault has gone deeper: tier II now', (await ist('bm.gvt')) >= 2, 'tier ' + await ist('bm.gvt'));
-  await run('clear TestRat');
-  await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_rest,scores={bm.gvq=5},limit=1] at @s run tp TestRat ~ ~ ~9'); await sleep(1500);
-  const haul = async () => { for (let i = 0; i < 12; i++) { if ((+(((await run('execute store result score #t bm.rng run clear TestRat minecraft:barrel[minecraft:custom_data~{bm_haul:1b}] 0')).match(/Found (\d+)/) || [0, 0])[1])) >= 1) return true; await sleep(500); } return false; };   // (counted, not read: the Haul's listing is longer than an RCON reply)
-  const inv = await haul();
-  ok('Cash out on the Rest\'s plate: paid (The Haul)', (await ist('bm.gvst')) === 4 && inv, `st ${await ist('bm.gvst')}`);
-  await sleep(10500);
-  ok('...and the Fixer pulls you out', !/bm:gutter/.test(await run('data get entity TestRat Dimension')));
-  // ---- THE PIT
-  await heist(7607);
-  ok('The Pit: an arena after the den', (await ist('bm.gvmd')) === 1 && (await cnt('@e[type=marker,tag=bm.gvr_arena]')) === 1);
-  await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run function bm:p70/begin');
-  await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_arena,limit=1] at @s run tp TestRat ~-10 ~ ~'); await sleep(6500);
-  const g1 = await cnt('@e[tag=bm.gvg]');
-  ok('Wave 1 pours in', g1 >= 3, 'guards ' + g1);
-  await run('execute in bm:gutter run kill @e[tag=bm.gvg]'); await sleep(1600);
-  ok('...cleared: a wave survived (one share)', (await ist('bm.gvxw')) === 1);
-  for (let w = 2; w <= 5; w++) { await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_arena,limit=1] run scoreboard players set @s bm.gvtm 239'); await sleep(1500);
-    if (w === 5) { const b = await cnt('@e[tag=bm.gvboss]'); ok('Wave 5: a guardian (no golden shell in the Pit)', b === 1); }
-    await run('execute in bm:gutter run kill @e[tag=bm.gvg]'); await run('execute in bm:gutter run kill @e[tag=bm.gvboss]'); await sleep(1600); }
-  ok('Five waves survived', (await ist('bm.gvxw')) === 5);
-  await run('clear TestRat');
-  await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_arena,limit=1] at @s run tp TestRat ~-15 ~ ~4'); await sleep(1200);
-  ok('The emerald plate between waves cashes out', (await ist('bm.gvst')) === 4 && await haul(), 'st ' + await ist('bm.gvst'));
-  await sleep(10500);
+  // (3.1w: the Endless Vault and the Pit are t409's now - as a player, planned through the Ledger)
+  await run('execute as @a[name=TestRat,tag=bm.gvp] at @s run function bm:p70/leave'); await sleep(1500);
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); A.end(); R.end(); process.exit(0); })();
