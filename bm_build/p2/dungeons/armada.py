@@ -1443,7 +1443,11 @@ def flag(k):
     for x in range(90, 101):
         for z in range(159, 174):
             if (x + z) % 4 == 0: s(x, 46, z, 'gold_block')
-    B.vault(99, 47, 166, 'west', 'akey_victor', 'bm:p2/armada/victor')
+    # (3.1z: the victor's vault stands out on the deck by the Hive Vault's door, at the arena's rim - every victor can reach it in the
+    #  three minutes before the Armada re-forms, or any time after. It used to wait inside the Hive Vault, behind six Hive Sigils
+    #  most victors never carry: their Victor's Keys opened nothing)
+    B.vault(76, W, 170, 'west', 'akey_victor', 'bm:p2/armada/victor')
+    k.sign(76, W, 172, 4, ['THE VICTOR\'S', 'VAULT', 'Your Victor\'s Key', 'opens it.'], color='lime', wall=False)
     for (x, z) in ((92, 160), (96, 160), (92, 172), (96, 172)):
         B.chest(x, 47, z, 'south' if z == 160 else 'north', loot='bm:p2/armada/hoard')
     for (x, z) in ((91, 162), (94, 171), (98, 161)):

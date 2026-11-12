@@ -288,26 +288,30 @@ def generate(G):
         nm, col, sub = L.GUARD[k]
         hp = GUARD_HP[k]
         fn(f'p241/guard/rise_{k}', [spawn, f'execute as @e[tag=bm.vb_{b},tag=!bm.aguard,distance=..16,sort=nearest,limit=1] at @s run function bm:p241/guard/init_{k}'])
-        fn(f'p241/guard/init_{k}', ['tag @s add bm.aguard', f'tag @s add bm.ag_{k}', 'tag @s add bm.vstay', f'attribute @s minecraft:max_health base set {hp}',
+        fn(f'p241/guard/init_{k}', ['tag @s add bm.aguard', f'tag @s add bm.ag_{k}', 'tag @s add bm.vstay', f'scoreboard players set #agup_{k} bm.p2 1', f'attribute @s minecraft:max_health base set {hp}',
                                     f'data modify entity @s Health set value {hp}.0f', f'data modify entity @s CustomName set value {snbt(T(nm, col, bold=True))}',
                                     'data modify entity @s DeathLootTable set value "bm:p241/guardian"',
                                     f'bossbar set bm:{b} name {snbt(T(nm, col, bold=True))}', f'bossbar set bm:{b} max {hp}',
                                     'particle minecraft:end_rod ~ ~2 ~ 1 1.5 1 0.08 80'])
     G.wjson('bm/advancement/p241/guard.json', {'criteria': {'kill': {'trigger': 'minecraft:player_killed_entity', 'conditions': {'entity': [
         {'condition': 'minecraft:entity_properties', 'entity': 'this', 'predicate': {'minecraft:nbt': '{Tags:["bm.aguard"]}'}}]}}}, 'rewards': {'function': 'bm:p241/guard/killed'}})
-    fn('p241/guard/killed', ['advancement revoke @s only bm:p241/guard',
-                             f'execute as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pzt_vboss,tag=bm.d_{d},distance=..96,sort=nearest,limit=1] at @s run function bm:p241/guard/won'])
+    # (3.1z: the trial whose own guardian rose and is gone - not the trial nearest the killer: the Brood's and the Forge's markers are
+    #  77 blocks apart, so an archer could solve the wrong one, and the right guardian rose again)
+    fn('p241/guard/killed', ['advancement revoke @s only bm:p241/guard'] +
+       [f'execute if score #agup_{k} bm.p2 matches 1 unless entity @e[tag=bm.ag_{k}] as @e[type=minecraft:marker,tag=bm.pz,tag=bm.pzt_vboss,tag=bm.pz{n},tag=bm.d_{d},distance=..400,limit=1] at @s run function bm:p241/guard/won'
+        for n, k in A.VBOSS.items()])
     fn('p241/guard/won', [f'execute if entity @s[tag=bm.pz{n}] run function bm:p241/guard/fell_{k}' for n, k in A.VBOSS.items()])
     for n, k in A.VBOSS.items():
         nm, col, _sub = L.GUARD[k]
         cid = A.CIPHER[k]
-        fn(f'p241/guard/fell_{k}', ['particle minecraft:explosion_emitter ~ ~2 ~ 1 1 1 0 2', 'playsound minecraft:entity.generic.explode hostile @a[distance=..64] ~ ~ ~ 2 0.6',
+        fn(f'p241/guard/fell_{k}', [f'scoreboard players set #agup_{k} bm.p2 0', 'particle minecraft:explosion_emitter ~ ~2 ~ 1 1 1 0 2', 'playsound minecraft:entity.generic.explode hostile @a[distance=..64] ~ ~ ~ 2 0.6',
                                     tellraw('@a[distance=..64]', [T(f'{nm} falls. ', col, bold=True), T('Something of the Admiral\'s was in it.', 'gray', italic=True)]),
                                     f'execute as @a[distance=..64,gamemode=!spectator] at @s run function bm:p241/guard/spoils_{k}',
                                     f'function bm:p2/{d}/pz{n}_solve'])
         fn(f'p241/guard/spoils_{k}', [f'execute unless items entity @s container.* {holds(cid)} run ' + give(cid), 'function bm:p241/key', give('star_core'),
                                       tellraw('@s', P + [T(L.ITEMS[cid.replace('cipher_', 'cipher_')][0], COL, bold=True), T(' - for the Flagship\'s Command Lock.', 'gray')])])
-    fn('p241/guard/gone', ['execute on passengers run kill @s', 'tp @s ~ -400 ~', 'kill @s'])
+    fn('p241/guard/gone', [f'execute if entity @s[tag=bm.ag_{k}] run scoreboard players set #agup_{k} bm.p2 0' for k in GUARD_SPAWN] +
+       ['execute on passengers run kill @s', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p241/key', [give('akey'), 'playsound minecraft:block.vault.insert_item player @s ~ ~ ~ 0.8 1.2'])
     G.wjson('bm/loot_table/p241/guardian.json', {'type': 'minecraft:entity', 'pools': [{'rolls': 1, 'entries': [G.loot_entry('xenite_red', G.uni(6, 12))]},
                                                                                       {'rolls': 1, 'entries': [G.loot_entry('power_cell')]}]})

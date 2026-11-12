@@ -454,7 +454,10 @@ def generate(G):
                              title('@a[distance=..96]', 'title', T('THE SUPERCHARGED OVERSEER', RED, bold=True))])
     for b, hp in (('warlord', 400), ('abductor', 320), ('overseer', 1200)):
         second += [f'execute store result bossbar bm:{b} value run data get entity @e[tag=bm.vb_{b},limit=1] Health',
-                   f'bossbar set bm:{b} max {hp}', f'execute if entity @e[tag=bm.vb_{b}] run bossbar set bm:{b} visible true',
+                   # (3.1z: the bar's top from the boss's own max health - the Armada's cipher guardians are tougher (520/640/900) and a
+                   #  fixed max showed the Brood's bar full until it lost 200, the Overseer's never above three quarters)
+                   f'execute if entity @e[tag=bm.vb_{b}] store result bossbar bm:{b} max run attribute @e[tag=bm.vb_{b},limit=1] minecraft:max_health get',
+                   f'execute if entity @e[tag=bm.vb_{b}] run bossbar set bm:{b} visible true',
                    f'execute unless entity @e[tag=bm.vb_{b}] run bossbar set bm:{b} visible false',
                    f'execute as @e[tag=bm.vb_{b},limit=1] at @s run bossbar set bm:{b} players @a[distance=..96]',
                    f'execute as @e[tag=bm.vb_{b}] at @s run function bm:p32/boss/{b}_tick']

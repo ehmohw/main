@@ -659,12 +659,15 @@ def generate(G):
                           'scoreboard players add @s bm.at 1',
                           f'execute if score @s bm.at matches {shut} run function bm:p237/eyes/twitch',
                           f'execute if score @s bm.at matches {twitch} run function bm:p237/eyes/open',
-                          f'execute if score @s bm.at matches {twitch}..{open_} run function bm:p237/eyes/watch',
+                          # (3.1z: marked when the eyes open, and again a moment later - a stride's carry-on, or a raider just onto the stair - then
+                          #  watched; they were marked at the twitch, so anyone still walking at the warning was caught the instant the eyes opened)
+                          f'execute if score @s bm.at matches {twitch + 3} as @a[{STAIR}] run function bm:p237/eyes/mark',
+                          f'execute if score @s bm.at matches {twitch + 4}..{open_} run function bm:p237/eyes/watch',
                           f'execute if score @s bm.at matches {open_}.. run function bm:p237/eyes/shut'])
     fn('p237/eyes/twitch', [f'execute as @a[{STAIR}] at @s run playsound minecraft:entity.warden.heartbeat hostile @s ~ ~ ~ 1 1.2',
                             title(f'@a[{STAIR}]', 'actionbar', T('The lids twitch...', COL, italic=True)),
-                            f'execute as @a[{STAIR}] run function bm:p237/eyes/mark'])
-    fn('p237/eyes/open', [f'execute as @e[type=minecraft:item_display,tag=bm.ueyed,{STAIR}] run data modify entity @s item.components."minecraft:item_model" set value "bm:ueye_open"',
+                            ])
+    fn('p237/eyes/open', [f'execute as @a[{STAIR}] run function bm:p237/eyes/mark',f'execute as @e[type=minecraft:item_display,tag=bm.ueyed,{STAIR}] run data modify entity @s item.components."minecraft:item_model" set value "bm:ueye_open"',
                           f'execute as @a[{STAIR}] at @s run playsound minecraft:entity.warden.nearby_closest hostile @s ~ ~ ~ 1 0.6',
                           title(f'@a[{STAIR}]', 'actionbar', T('THE EYES ARE OPEN. Do not move.', COL, bold=True)),
                           f'tag @a[{STAIR}] remove bm.ucaught'])

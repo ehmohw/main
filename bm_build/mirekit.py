@@ -91,7 +91,7 @@ def watch(G, C):
     snd = C.snd
     second.append(f'execute as @e[type=minecraft:husk,tag={C.HOST}] at @s run function bm:{P}/sec')
     fn(f'{P}/sec', [f'execute if entity @s[tag={C.TAME}] run return run function bm:{P}/t/sec',
-                    f'execute if score {C.FELL} matches 1 unless score @s bm.ms matches 7 run return run function bm:{P}/melt',
+                    f'execute if score {C.FELL} matches 1 unless score @s bm.ms matches 7 unless entity @s[tag=bm.svm] run return run function bm:{P}/melt',   # (3.1z: the Sovereign's own Mires stand in its rematch - they melted in a second, the attack fizzled)
                     # (3.0e: sent under the world - a wave's vanish, a sweep's - an invulnerable host would hang there with its rig: melted)
                     f'execute unless entity @s[y=-64,dy=4000] run return run function bm:{P}/melt'] + list(getattr(C, 'SEC_EXTRA', [])) +
        [f'execute if score @s bm.ms matches 0 run function bm:{P}/sec0',
