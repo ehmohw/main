@@ -267,6 +267,7 @@ PHASE2 = '--phase2' in sys.argv
 if PHASE2:
     import p2  # registers Phase 2 items on import
     R135.setup()  # 2.78: the weapons hung by sneak + drop (some are Phase 2 items)
+    import phase281 as R281   # 3.1v: The Fifty - a monument to every follower of the Compass (its item, before the Rat Pack lists items)
     import phase277 as R277   # 3.1: the Rat Pack (after every item is registered: it renames the wheel, lists what goes on it)
     import phase278 as R278   # 3.1: collector accounts - the Stone Collector and the Wood Box; the Jar and the Magnet reworked (after phase174)
 
@@ -1589,6 +1590,7 @@ def build(out_dir):
     if PHASE2: print('2.99a: the lockout - %d / %d boxes a second at most (the Undercrown / the Armada)' % R251.generate(sys.modules[__name__]))      # [lockout hook] (after phase237/241/245: it hooks their out, builds, solves and knights)
     if PHASE2: print('3.0a: no spawns in the deep - %d risers kept out of the boxes, %d mob rolls take a natural spawn there first' % R255.generate(sys.modules[__name__]))      # [no-spawn hook] (after phase237/241/246/181/32/82 and every mobs/init patch)
     if PHASE2: R253.generate(sys.modules[__name__])        # 3.0: the Loom Sanctuary (after every follower is registered: the compass counts them)
+    if PHASE2: print('3.1v: The Fifty - %d dolls on the monument' % R281.generate(sys.modules[__name__]))      # (after the Loom Sanctuary: the compass's fifty)
     print('2.85c: the Rat Race - %d jobs, %d prizes in the draw' % R183.generate(sys.modules[__name__]))
     print('2.85d: %d new fight rooms, the rats\' calls, the Forge/Garden coin' % R184.generate(sys.modules[__name__]))
     print('2.83b: %d more kinds the den sells, %d coat-check lines widened' % R175.generate(sys.modules[__name__]))
