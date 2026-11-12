@@ -89,7 +89,7 @@ const res = [];
   await A.walkTo(-248.5, -241.5); await sleep(2500); A.stand();
   const p2 = await pos();
   ok('...the hall\'s plate, a sigil and apple in hand: back in the den (not "only heist tools")', p2 && Math.abs(p2[0] - mp[0]) < 16 && Math.abs(p2[2] - mp[2]) < 16 && /bm\.gvp/.test(await tags()) &&
-     !A.chats.some(c => /Only heist tools/.test(c)), `${p2} | ${A.chats.slice(-1).join('').slice(0, 120)}`);
+     !A.chats.some(c => /Only heist tools/.test(c)), `${p2} | ${A.chats.slice(-1).join('').slice(0, 120)} | carrying: ${await (async () => { const v = await run('data get entity TestRat Inventory'); return [...v.matchAll(/id: "minecraft:(\w+)"/g)].map(m => m[1]).join(',') + ' :: ' + [...v.matchAll(/bm(?:_\w+)?: (?:"(\w+)"|1b)/g)].map(m => m[0]).join(','); })()}}`);
   ok('...still carrying both', (await cnt(fury)) >= 1 && (await cnt(gtApple)) >= 1);
 
   // ================================================================== 3. home, then the next heist's door
