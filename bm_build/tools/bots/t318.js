@@ -79,7 +79,7 @@ const E = 'execute in minecraft:the_end run ';
   if (on('void')) {
     const pad = W(166, 49, 206); await solved(1);
     await at(W(140, 50, 206)[0] + 0.5, W(140, 50, 206)[1], W(140, 50, 206)[2] + 0.5); await sleep(2500);
-    await run('effect clear TestRat minecraft:resistance'); await run('effect clear TestRat minecraft:absorption'); await run('effect give TestRat minecraft:hunger 30 255 true');   // (3.1z: an absorption left by another test soaked up the 6) await sleep(500); const h0 = await hp();
+    await run('effect clear TestRat minecraft:resistance'); await run('effect clear TestRat minecraft:absorption'); await run('effect give TestRat minecraft:hunger 30 255 true'); await sleep(500); const h0 = await hp();   // (3.1z: an absorption left by another test soaked up the 6)
     await run(`${E}tp TestRat ${OX + 166} ${OY - 20} ${OZ + 230}`);
     ok('fallen into the void: the tractor beam sets you back aboard', await wait(6000, async () => A.pos && A.pos.y > OY + 30, 200), A.pos && A.pos.y.toFixed(1));
     ok('...hurt by the drop', await wait(2000, async () => (await hp()) < h0, 100), `${h0} -> ${await hp()}`); await run('effect give TestRat minecraft:resistance infinite 3 true'); await run('effect clear TestRat minecraft:hunger');
