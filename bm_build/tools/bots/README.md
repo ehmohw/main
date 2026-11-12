@@ -365,6 +365,18 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - (3.1z) **A Dread Mire's host can despawn like any husk** (it's `PersistenceRequired: 0`): left alone far off, it vanished and
   its 23 parts stayed. Each puddle now takes its whole rig when no host of its `bm.mid` stands beside it (`p246/orphan`,
   `p258/orphan`); t329 counts the parts left behind.
+- (3.1z) **`"${z}.5"` is half a block the wrong way for a negative z:** -3328 becomes -3328.5, not -3327.5. Add the half as a
+  number (`${z + 0.5}`). t329's far Mire stood off its floor and settled into the void that way (the pack's own note on it: p241/void/to).
+- (3.1z) **`execute at @s` sets the rotation too.** Inside a function called `facing entity ...`, a later `execute at @s ... tp @s ^ ^ ^2`
+  goes by the entity's own facing: the Ferro's Magnetic Pull moved its foe 2 in and 2 straight back out. Use `positioned as @s`.
+- (3.1z) **`/debug function <name>` (run through `execute as ... at ... run`)** writes every command it ran, and what each said, to
+  `~/bm_srv/debug/` - it found the pull's round trip in one go.
+- (3.1z) **Never probe the server while a batch runs:** a probe that logs TestRat in kicks the test's own bot (t329's run went red).
+- (3.1z) **Making a thing "if none is near" when a player arrives can stack copies:** a chunk's blocks load before its entities, so
+  for a moment the old one isn't there to see. Apophiss's seal stood three deep in the test world; dedupe one by one
+  (`p131/seal/dedupe`, `p237/sigil/dedupe`).
+- (3.1z) **A follower killed with rcon can come back by itself** (the keep-up still thinks it's out): t134 sends Emma, Leo and Cecil
+  home with `p98/home/<kind>` (as TestRat, `#me bm.pid` set) before its kills.
 
 ## Index
 
