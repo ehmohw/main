@@ -14,6 +14,8 @@ const { bot, rcon, sleep } = require('./lib_resp');
 const res = [];
 (async () => { const R = await rcon(); const run = c => R.run(c);
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
+  // (3.1z: the Dread unfallen for the run - once the Sovereign falls no Dread Night begins, bell or no bell; put back after)
+  const dfell0 = +(((await run('scoreboard players get #dfell bm.cfg')).match(/has (-?\d+)/) || [0, 0])[1]); await run('scoreboard players set #dfell bm.cfg 0');
   const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => +(((await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/) || [0, NaN])[1]);
   const has = async id => { const m = (await run(`clear TestRat *[minecraft:custom_data~{bm:"${id}"}] 0`)).match(/Found (\d+)/); return m ? +m[1] : 0; };
@@ -214,5 +216,6 @@ const res = [];
   await run('time set 6000');
   await run(`${O}forceload remove ${X - 80} ${Z - 80} ${X + 80} ${Z + 80}`);
   const n = res.filter(Boolean).length; console.log(`\n${n}/${res.length} passed`);
+  await run(`scoreboard players set #dfell bm.cfg ${dfell0}`);
   A.end(); R.end(); process.exit(n === res.length ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -308,7 +308,7 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     ok('...Brood Mireling pressed: back (ml_body_c8)', /ml_body_c8$/.test(await model()), await model());
     // FULL-GROWN in the costume (Queen Ava's rank III staged)
     await run('scoreboard players set TestRat bm.hn_mireling 1555');
-    await sneakMenu(); await A.press(/Grown \/ Little/); await sleep(2500);
+    await sneakMenu(); await A.press(/Settings/); await A.press(/Grown \/ Little/); await sleep(2500);
     const GP = (p) => `@e[type=minecraft:item_display,tag=bm.mlu,tag=bm.mlu_${p},x=${OX},y=${Y},z=${OZ},distance=..30,limit=1]`;
     const gcount = async () => await cnt(`@e[type=minecraft:item_display,tag=bm.mlu,x=${OX},y=${Y},z=${OZ},distance=..30]`, O);
     ok('FULL-GROWN in the costume: the Brood-Mire\'s 26 parts (bx_head, its eyestalks)', (await gcount()) === 26 && /bm:bx_head$/.test(await model(GP('head'))) && /bm:bx_es1$/.test(await model(GP('es1'))), `${await gcount()} ${await model(GP('head'))}`);
@@ -316,7 +316,7 @@ const O = 'execute in minecraft:overworld run ', E = 'execute in minecraft:the_e
     ok('...the shiny look picked while grown: the giant swapped for the shiny\'s (bx_head_sh)', await wait(2500, async () => /bm:bx_head_sh$/.test(await model(GP('head')))), await model(GP('head')));
     await sneakMenu(); await A.press(/Wardrobe/); await A.press(/Blood-red veins/); await sleep(1500);
     ok('...its own look: the Dread Mire\'s 23 parts (mr_head)', await wait(2500, async () => (await gcount()) === 23 && /bm:mr_head$/.test(await model(GP('head')))), `${await gcount()} ${await model(GP('head'))}`);
-    await sneakMenu(); await A.press(/Grown \/ Little/); await sleep(1500);
+    await sneakMenu(); await A.press(/Settings/); await A.press(/Grown \/ Little/); await sleep(1500);
     ok('...Grown / Little again: little', await wait(2500, async () => (await gcount()) === 0));
     const pay = fs.readdirSync(`${DP}/p201/pay`).filter(f => /^mireling\d\.mcfunction$/.test(f)).map(f => fs.readFileSync(`${DP}/p201/pay/${f}`, 'utf8')).join('\n');
     ok('Queen Ava\'s honour for the Mireling takes 8 Brood Ichor in place of 8 Shadow Remnants (its rank\'s function)', /brood_ichor/.test(pay) && /shadow_remnant/.test(pay));
