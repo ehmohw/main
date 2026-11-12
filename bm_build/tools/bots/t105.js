@@ -163,7 +163,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   const nrc = await nOff('bm.gvrec');
   const RCD = require('path').join(__dirname, '..', '..', 'out_p2/BlackMarket_DP/data/bm/function/p137/rc');     // (2.78: his book - t145 plays it)
   const rcAll = require('fs').readdirSync(RCD).map(f => require('fs').readFileSync(`${RCD}/${f}`, 'utf8')).join('\n');
-  ok('The Recruiter: no trades - his book sells the contracts and the vault gems', nrc === 0 && ['fcontract_cecil', 'contract_medic', 'gem_fire'].every(i => rcAll.includes(`bm:"${i}"`)), `${nrc} trades`);
+  ok('The Recruiter: no trades - his book sells the contracts (no gems since 3.0g)', nrc === 0 && ['fcontract_cecil', 'contract_medic'].every(i => rcAll.includes(`bm:"${i}"`)) && !rcAll.includes('bm:"gem_fire"'), `${nrc} trades`);
   ok('The Tailor stands at the counter', /The Tailor/.test(await near('bm.gvtail', 'CustomName')));
   await run('tag TestRat add bm.gvok'); await run(`execute in bm:gutter run tp TestRat ${at(7, 4, 17).split(' ').map((v, i) => +v + (i === 1 ? 0 : 0.5)).join(' ')} 180 0`); await sleep(1500);
   await run('scoreboard players set TestRat bm.menu 0');
@@ -221,7 +221,7 @@ const res = []; const X = 16200, Y = 100, Z = 16000;
   await run('execute as TestRat at @s run function bm:p98/crew'); await sleep(200);
   const r0 = [await lbl(0, 0), await lbl(0, 2)], r1 = [await lbl(1, 0), await lbl(1, 2)];
   // (every follower has a row now: Cecil, at the back, is far down)
-  let cecilSt = ''; for (let i = 2; i < 24; i++) { if ((await lbl(i, 0)) === 'Cecil') { cecilSt = await lbl(i, 2); break; } }
+  let cecilSt = ''; for (let i = 2; i < 120; i++) { const l0 = await lbl(i, 0); if (l0 === 'Cecil') { cecilSt = await lbl(i, 2); break; } if (/found|No /.test(l0)) break; }   // (3.1x: every follower has a row - sixty and more)
   ok('The page: the ones in the vault first, in line order, each saying so', r0[0] === 'Emma' && r0[1] === 'IN THE VAULT' && r1[0] === 'Celi' && r1[1] === 'IN THE VAULT', `${r0} | ${r1}`);
   ok('...Cecil, at the back, says he\'s waiting (crew full)', /WAITING/.test(cecilSt), cecilSt);
   // (2.74: alone, THREE come along - Zib, next in line, took the third place when Cecil went to the back)
