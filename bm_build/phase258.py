@@ -87,6 +87,7 @@ class CFG:
                   *[f'execute if score @s bm.ms matches {r} unless entity @s[tag=bm.bxhalf] unless entity @s[tag=bm.bxtame] if score #h bm.rng matches ..{FLOOR + HP // 2} '
                     f'run function bm:{PFX}/brood' for r in ('2..5', '8')]]
     LING = f'execute as @e[type=minecraft:slime,tag=bm.bxling] if score @s bm.mid = #me bm.mid at @s run function bm:{PFX}/ling/pop'
+    OWN_ORPHAN = True                  # (3.1z: its own rig sweep below, p258/has + p258/orphan - mirekit's is skipped)
     MELT_EXTRA = [LING]
     DIE0_EXTRA = ['scoreboard players operation #me bm.mid = @s bm.mid', LING]
 

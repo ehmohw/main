@@ -140,7 +140,9 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     await run('clear TestRat *[minecraft:custom_data~{bm:"mire_heart"}]');
     // (one that gets in anyway: risen out in the void and teleported aboard - it melts, rig and all)
     const far = [AO[0] + AS[0] + 400, 100, AO[2]];
-    await run(`${E}forceload add ${far[0]} ${far[2]}`); await run(`${E}setblock ${far[0]} ${far[1] - 1} ${far[2]} minecraft:obsidian`); await sleep(1500);
+    await run(`${E}forceload add ${far[0]} ${far[2]}`);
+    // (3.1z: a forceload takes a moment - set too soon, the floor was "not loaded" and the Mire settled down into the void)
+    await wait(10000, async () => !/not loaded/i.test(await run(`${E}setblock ${far[0]} ${far[1] - 1} ${far[2]} minecraft:obsidian`)), 500);
     // (3.1z: TestRat stands by it out there - a host with nobody within 128 despawns at once, as any husk does: "spawned 0" - and the
     //  two come aboard in one tp, so it's never left alone between commands)
     const aboard = ((await run(`${E}data get entity TestRat Pos`)).match(/-?[\d.]+(?=d)/g) || []).map(Number);
