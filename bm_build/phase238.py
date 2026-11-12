@@ -419,7 +419,7 @@ def generate(G):
                     'execute if score @s bm.svg matches 30.. run function bm:p238/abandon',
                     'execute if score @s bm.svph matches 1 if entity @s[tag=bm.svlive] run function bm:p238/w/sec',
                     'execute if score @s bm.svph matches 3 if entity @s[tag=bm.svlive] run function bm:p238/isle/sec',
-                    'execute if score @s bm.svz matches 1.. run function bm:p238/frenzy_sec',
+                    'execute if score @s bm.svz matches 1.. if entity @s[tag=bm.svlive] run function bm:p238/frenzy_sec',   # (3.1z: only while it fights - see p238/fall)
                     f'execute unless entity @s[tag=bm.svground] unless score @s bm.svz matches -99..-1 run effect give @s minecraft:resistance infinite {RESIST} true'])
     fn('p238/abandon', [say(L.FIGHT['abandon']), 'function bm:p238/clear', 'function bm:p237/floor', 'function bm:p238/c/door_open',
                         'bossbar set bm:usov visible false', 'kill @e[type=minecraft:item_display,tag=bm.svr]', 'tp @s ~ -400 ~', 'kill @s'])
@@ -781,9 +781,10 @@ def generate(G):
     second.append('tag @a[tag=!bm.svmig] add bm.svmig')
 
     # ================================================================== THE FALL
-    # (3.1z: felled mid-turn (a phase's entrance), turn_tick went on adding to bm.svt beside the fall's own clock - two a tick, so half
-    #  the burn's exact beats never came: its head stayed whole (t316, now and then). The fall stops the turn and the intro)
-    fn('p238/fall', ['tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', 'tag @s remove bm.svintro', 'tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
+    # (3.1z: felled mid-frenzy, the frenzy's count ran on through the fall and "tired" it: back to its idle loop, which re-posed the whole
+    #  rig every 40 ticks - burnt parts back whole (t316, a trace: the head 0 at 392, whole at 393) - and "The eye shuts - strike it
+    #  now!" over the eradication. The fall ends the frenzy, and stops any turn or intro too)
+    fn('p238/fall', ['scoreboard players set @s bm.svz -8', 'tag @s remove bm.svturn', 'tag @s remove bm.svt1', 'tag @s remove bm.svt2', 'tag @s remove bm.svintro', 'tag @s remove bm.svlive', 'tag @s add bm.svfall', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.sva 11',
                      'scoreboard players set @s bm.svx 9999', 'scoreboard players set @s bm.svt 0', 'function bm:p238/clear', 'bossbar set bm:usov value 0',
                      say(L.FIGHT['fall']), 'playsound minecraft:entity.wither.death hostile @a[distance=..96] ~ ~ ~ 1 0.5', f'execute as {AUD} at @s run function bm:p152/tick',
                      'execute at @s run summon minecraft:marker ~ ~12 ~ {Tags:["bm.svlook","bm.svcamm"]}',
