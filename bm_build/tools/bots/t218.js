@@ -11,7 +11,7 @@ const res = [];
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); return !!p; };
   const tok = async () => { const o = await run('clear TestRat *[minecraft:custom_data~{bm:"token"}] 0'); return /No items/.test(o) ? 0 : +((o.match(/(\d+)/) || [0, 0])[1]); };
   const A = await bot('TestRat'); await sleep(2500); A.stand();
-  const seen = []; A.on('set_title_text', p => seen.push(JSON.stringify(p)));
+  const seen = []; A.on('system_chat', p => seen.push(JSON.stringify(p)));   // (3.1v: told in chat - a title over every win was too loud)
   A.chats.length = 0; A.cmd('gamemode creative'); await sleep(500);
   ok('TestRat is a regular player', /unknown|incomplete/i.test(A.chats.join(' ')));
   await run('execute in minecraft:overworld run tp TestRat 13000.5 120 13000.5'); await run('clear TestRat');
@@ -37,7 +37,7 @@ const res = [];
   const all = [3, 4, 5].reduce((a, t) => ({ m2: a.m2 + stats[t].m2, m3: a.m3 + stats[t].m3, m4: a.m4 + stats[t].m4, bad: a.bad + stats[t].bad }), { m2: 0, m3: 0, m4: 0, bad: 0 });
   ok('every hit pays exactly one, two or three extra fees (2x / 3x / 4x), and 4x is the rarest', all.bad === 0 && all.m4 < all.m2 && all.m4 < all.m3 && all.m4 > 0,
      `2x ${all.m2}, 3x ${all.m3}, 4x ${all.m4}, odd ${all.bad}`);
-  ok('...and TestRat sees the big "x YOUR FEE!" title', seen.some(s => /YOUR FEE/.test(s)), `${seen.length} titles`);
+  ok('...and TestRat is told "x YOUR FEE!" in chat', seen.some(s => /YOUR FEE/.test(s)), `${seen.length} chat lines`);
   // ---- the coins: 10 in the Haul (the stage), a Tier V win until the multiplier hits - extra coins match the multiplier
   const coin = '*[minecraft:custom_data~{bm:"gutter_coin"}]';
   const cnt = async (q) => { const o = await run(`clear TestRat ${q} 0`); return /No items/.test(o) ? 0 : +((o.match(/(\d+)/) || [0, 0])[1]); };

@@ -13,6 +13,7 @@ const res = [];
   const O = 'execute in minecraft:overworld run ';
   const HX = 13100, HY = 121, HZ = 13000;
   const A = await bot('TestRat'); await sleep(1500); const B = await bot('TestRat2'); await sleep(2500);
+  await run('function bm:admin/heist_hard_never');   // (3.1w: a Mire, Brood or Statue Knight guarding the vault isn't a bm.gvboss - the stage clears the usual guardian)
   const NAMES = ['TestRat', 'TestRat2']; const C = { TestRat: A, TestRat2: B };
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   await run(`${O}forceload add ${HX - 8} ${HZ - 8} ${HX + 8} ${HZ + 8}`);
@@ -143,5 +144,6 @@ const res = [];
   for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
   for (const n of NAMES) await run(`scoreboard players reset ${n} bm.pty`);
   const pp = res.filter(Boolean).length; console.log(`\n${pp}/${res.length} passed`);
+  await run('function bm:admin/heist_hard_any');
   A.end(); B.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });
