@@ -21,6 +21,23 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1z: the dungeons and bosses swept
+
+- **The Armada's Victor's Key opens something now.** Felling Admiral Vexis gives every victor a Victor's Key, but its vault stood inside the Hive Vault. That door opens only with six Hive Sigils, which most victors never carry, so the key opened nothing. The Victor's Vault now stands out on the deck, by the Hive Vault's door at the edge of the arena, so every victor can turn their key in before the fleet re-forms, or any time after. The Armada re-forms once in every world to move it, carrying out anyone aboard.
+- **The Stair of a Thousand Eyes is fair.** It took note of where you stood when the lids twitched, before the eyes opened. So if you were still walking when the warning came, you were caught the moment they opened, however still you then stood. A crewmate who stepped onto the stair just after the warning was caught too. Now it takes note when the eyes open, with a moment's grace to stop.
+- **No more doubled Statue Knights.** If a room's knights were woken and then left standing, and the room reset while nobody was near, the reset couldn't reach them. The next time the room was solved, two more woke beside them. A knight whose statue isn't awake now leaves on its own.
+- **Boss bars read true.** The Armada's Cipher guardians are tougher than their everyday cousins, but their bars used the everyday maximum. The Brood guardian's bar sat full until it had lost 200 health, and the Overseer's never showed more than three quarters. Each bar now uses its boss's own maximum health.
+- **The Dread Sovereign's Mires stand in a rematch.** Once the Sovereign had fallen, every Dread Mire melted. That included the ones the Sovereign itself raises in its last phase, so in a rematch that attack fizzled. Its own Mires now stand and fight.
+- **A Cipher guardian's fall counts for its own trial.** The kill went to whichever trial was nearest the killer. The Brood and Forge ships' trials are 77 blocks apart, so an archer could solve the wrong one, and the right guardian rose again.
+- **Behind the scenes:**
+  - **A read-through** covered the Undercrown and the Sovereign, the Armada and Vexis, the Statue Knights, the Mires, and the roaming and dungeon bosses.
+  - **The tests:** I ran the 24 dungeon and boss tests as a regular player. @@STATUS@@
+  - **Old tests updated:** several still expected things that have since changed on purpose:
+    - the locked camera, which has been free since 3.1f;
+    - the form buttons, which moved to each follower's Settings page;
+    - followers still resting from a faint left by an earlier test;
+    - hard mode or the Sovereign's fall left over from an earlier test.
+
 ## New in 3.1y: the heist sweep, closed
 
 - **The leader's choice really does go round the crew now.** 3.1w's fix for passing the choice on didn't work as meant. The game checks every raider before acting on any, so the "next in turn" always landed on the same raider. With three in the crew, the choice reached one of them and then stayed there, and the third never got it. The choice now goes to the next raider in turn, then the one after, then back round to the leader. Three regular players have played it through to check.
