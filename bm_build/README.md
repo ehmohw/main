@@ -34,7 +34,10 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
     - **t217:** its "flaky" swinging-lamp hook was never lag. The hook lent back after the drop went into the pack, not the hotbar, so the test never threw it.
     - **t65k:** the Volley Quiver check read an old arrow left in the ground instead of the volley's own.
     - **t87:** the hidden vaults and the Gentry pass in full again (31/31).
-  - **@@STATUS@@**
+  - **t86 and t105 brought up to date:**
+    - **t86:** the fee back now arrives in your pockets, as Tokens that pass the coat check, so it counts them there (t104 covers this as a player).
+    - **t105:** it now sets up its own switches, so it no longer depends on whatever the test before it left behind.
+  - **Where the sweep stands:** every heist bot test now passes. That's 46 tests, from the room puzzles to the payout, the Lounge and three-player crews. All the heist rooms and systems have had a read-through over the last four versions.
 
 ## New in 3.1x: the last of the heist rooms swept
 
