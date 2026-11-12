@@ -47,7 +47,8 @@ const res = [];
   show('office');
   const b0 = A.buttons();
   ok('Using the Ledger opens the Office', b0.length > 5, `${b0.length} buttons`);
-  ok('...and "Plan a Heist" heads it', b0.length && /Plan a Heist/.test(b0[0].label), b0[0] && b0[0].label);
+  const h0 = b0.filter(b => !/Rat Pack/.test(b.label));      // (3.1b: « Rat Pack heads every menu - then the Office's own buttons)
+  ok('...and "Plan a Heist" heads it (after « Rat Pack)', h0.length && /Plan a Heist/.test(h0[0].label), h0[0] && h0[0].label);
   ok('...and "The Fixer\'s Lounge" is on it', b0.some(b => /Fixer's Lounge/.test(b.label)));
 
   // ================================================================== 3. the Lounge button: hold still 3 seconds - in the lounge
@@ -184,6 +185,7 @@ const res = [];
   await run('clear TestRat'); await run('loot replace entity TestRat hotbar.1 loot bm:items/bankers_card'); for (let k = 0; k < 5; k++) await run('loot give TestRat loot bm:items/xenite_red');
   await run('scoreboard players set TestRat bm.bk_xr 0'); await run('scoreboard players set TestRat bm.bk_tok 3');
   A.slot(1); await sleep(300); await A.useWait();
+  await A.press(/^Currencies/); await sleep(400);                 // (3.1: the currencies have a page of their own)
   await A.press(/Red Xenite/);                                    // (2.80: the account page, then Red Xenite's own page)
   const bb = A.buttons(); const di = bb.findIndex(b => /Deposit all Red Xenite/.test(b.label));
   console.log('   [bank] ' + bb.map(b => `${b.label} <${b.command.replace('/trigger bm.act set ', '')}>`).join(' | '));
