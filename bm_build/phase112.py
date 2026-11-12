@@ -455,7 +455,7 @@ def generate(G):
        [f'execute if score #rc bm.rng matches {10 * t + j} as @a[tag=bm.gvp,distance=..30] run function bm:p112/bench/give{t}{j}' for t in range(1, 6) for j in range(len(RECIPES[t]))])
     fn('p112/bench/hatch', ['tag @s add bm.gvme2', 'execute on target run function bm:p112/bench/hand', 'tag @s remove bm.gvme2', 'data remove entity @s interaction'])
     fn('p112/bench/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_bench,distance=..16,sort=nearest,limit=1] run scoreboard players operation #rc bm.rng = @s bm.gvc',
-                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))   # (3.1w: the loaned kit never counts - nor gets poured out)] +
+                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))] +   # (3.1w: the loaned kit never counts - nor gets poured out)
        [f'execute if score #rc bm.rng matches {10 * t + j} if items entity @s weapon.mainhand minecraft:{rs[j][0]} run return run function bm:p112/bench/done'
         for t, rs in RECIPES.items() for j in range(len(rs))] +
        [title('@s', 'actionbar', T('"That\'s not what I asked for." (Hold it in your hand.)', 'red'))])

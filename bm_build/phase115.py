@@ -352,7 +352,7 @@ def generate(G):
        [crew_say('The Fixer\'s shelf: water, blaze powder for the stands, and a few ingredients.', GOLD, 30)])
     fn('p115/apoth/hatch', ['execute on target run function bm:p115/apoth/hand', 'data remove entity @s interaction'])
     fn('p115/apoth/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_apoth,distance=..16,sort=nearest,limit=1] run function bm:p115/apoth/rc',
-                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))   # (3.1w: the loaned kit never counts - nor gets poured out)] +
+                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))] +   # (3.1w: the loaned kit never counts - nor gets poured out)
        [f'execute if score #rv bm.rng matches {"abc".index(v)} if score #rc bm.rng matches {10 * t + j} if items entity @s weapon.mainhand {bottle(it, pid)} run return run function bm:p115/apoth/done'
         for v, t, j, it, pid in ALLV] +
        ['execute if items entity @s weapon.mainhand #bm:p115/potions run return run function bm:p115/apoth/wrong',
