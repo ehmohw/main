@@ -83,9 +83,11 @@ const res = [];
   const mb = A.buttons().map(b => b.label).join(' | ');
   ok('the magnet right-clicked: its account - Raw & ingots holds the iron, Auto-collect on', /Raw/.test(mb) && /3/.test(mb) && /Auto-collect.*on/i.test(mb), mb.slice(0, 260));
   d0 = A.dialogN.length; await A.press(/Raw/); await wait(3000, async () => A.dialogN.length > d0);
-  d0 = A.dialogN.length; await A.press(/Raw Iron/); await wait(3000, async () => A.dialogN.length > d0);
+  const catB = A.buttons().map(b => b.label).join(' | ');
+  d0 = A.dialogN.length; await A.press(/raw.?iron/i); await wait(3000, async () => A.dialogN.length > d0);
+  const kindB = A.buttons().map(b => b.label).join(' | ');
   await A.press(/Take all/); await sleep(1200);
-  ok('...Raw Iron › Take all: the three are back in the pack', (await hasV('minecraft:raw_iron')) === 3, `${await hasV('minecraft:raw_iron')}`);
+  ok('...Raw Iron › Take all: the three are back in the pack', (await hasV('minecraft:raw_iron')) === 3, `${await hasV('minecraft:raw_iron')} | ${catB.slice(0, 120)} || ${kindB.slice(0, 120)}`);
   await run(`${O}kill @e[type=minecraft:item,x=${X},y=${Y},z=${Z},distance=..30]`); await run('clear TestRat'); await run(`data remove storage bm:cb p${pid}`);
 
   // ================================================================== A FLOOR DISPLAY CASE, solid

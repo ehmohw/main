@@ -38,6 +38,7 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
 
   // (3.1w: the vault steps - the summoning items at the coat check, a contracted Cecil coming in, Emma not - are t410's now, as a
   //  player through the Ledger)
+  await run('tag TestRat remove bm.emkw_o');   // (the stage: her KillerWatt look off - another test's)
   await run('scoreboard players set TestRat bm.emcd 0'); await run('execute as TestRat at @s run function bm:p57/try_summon'); await sleep(1500);
 
   // ---- Emma's new outfits (out in the world: same rig as in the vault)
@@ -46,7 +47,8 @@ const res = []; const X = 16000, Y = 100, Z = 16000;
   ok('The Flower Top: body, head, arms and legs swap', /em_body_o1_m\d/.test(b1) && h1 === 'bm:em_head_o1' && l1 === 'bm:em_legr_o1' && a1 === 'bm:em_armr_o1', `${b1} ${h1} ${l1} ${a1}`);
   await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p89/use/outfit2'); await sleep(400);
   ok('The Cozy Sweater', /em_body_o2_m\d/.test(await model('body')) && (await model('head')) === 'bm:em_head_o2' && (await model('legl')) === 'bm:em_legl_o2');
-  await run('scoreboard players set TestRat bm.coso 0'); await run('execute as TestRat at @s run function bm:p78/emma_now'); await sleep(400);
+  await run('scoreboard players set TestRat bm.coso 0'); await run('execute as TestRat at @s run function bm:p78/emma_now');
+  for (let k = 0; k < 20 && (await model('legr')) === '?'; k++) await sleep(250);   // (she's called back in her dress: the rig re-made)
   ok('Back to her dress: her own legs and head again', (await model('legr')) === 'bm:em_legr' && /^bm:em_head(_r\d)?(_x[a-z]+)?$/.test(await model('head')) && !/_o\d/.test(await model('body')), `${await model('body')} ${await model('head')} ${await model('legr')}`);
   await run('scoreboard players set TestRat bm.coso 1'); await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p78/use/dress2');
   ok('Putting on a dress puts the outfit away', (await sc('bm.coso')) === 0);
