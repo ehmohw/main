@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1u: the Treasurer's Scepter's Coin Storm works
+
+- **The Treasurer's Scepter casts its Coin Storm.** Right-clicking it did nothing at all. It's a carrot on a stick underneath, and a carrot on a stick only counts as "used" while you ride a pig, so the pack never saw the click. Its right-click now reaches the pack the same way the Ray Gun's and the Grappling Hook's do. Gold rains on every monster within 6 blocks (12 damage, flung up), every 20 seconds. Scepters you already have work as they are (item version 50).
+- **Behind the scenes:**
+  - The item sweep can now set up what an item needs, as a regular player on a stone floor: a monster that can't walk, 4 blocks ahead (`STAGE=mob`); a wall 3 blocks ahead (`wall`); looking down at the floor (`floor`); a sneak (`sneak`); or several at once (`wall+sneak`). It also counts blocks changed nearby and whether the monster was hurt, frozen or moved.
+  - Every item the plain sweep couldn't confirm was run through each setup. All of them work, apart from the scepter (now fixed). The Blue Marlin only mounts on a wall while you sneak, as its tooltip says.
+  - The menu check now measures how tall a menu is, not how many buttons it has. It used to flag 59 menus, nearly all of them 13-button wardrobes only 7 rows tall. Emma's 25-button wardrobe is three columns, 9 rows. No menu is taller than 11 rows, which fits on screen without scrolling.
+
 ## New in 3.1t: tooltips that fit, and Cecil's robes speak up
 
 - **Long tooltip lines are wrapped.** 181 lore lines across the pack ran past 64 characters, so their tooltips stretched far across the screen. Each is now split at about 52 characters, and a "· " list line never starts a wrapped line on its own. Items you already have pick up the tidier tooltips on their own (item version 49).

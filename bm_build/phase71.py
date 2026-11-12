@@ -95,8 +95,9 @@ item('gutter_cutlass', 'minecraft:diamond_sword', "Gutter King's Cutlass", '#ff8
      model='bm:gutter_cutlass', stack=1, cat='weapon', tier=3, comps=dict(UNBR, **{'minecraft:attribute_modifiers': wpn(8, 1.6), 'minecraft:enchantments': {'minecraft:sweeping_edge': 3}}))
 item('treasurers_scepter', 'minecraft:carrot_on_a_stick', "The Treasurer's Scepter", GOLD, ['The vault\'s own sceptre. It rattles with coin.', ('Use: COIN STORM - gold rains on every', 'blue'),
                                                                                          ('monster within 6 (12 damage, flung up).', 'blue'), ('Every 20 seconds.', 'gray')],
-     model='bm:treasurers_scepter', stack=1, cat='weapon', tier=3, bold=True, comps=dict(UNBR, **hold('none')))
-HOLD['treasurers_scepter'] = 'bm:p71/scepter'
+     model='bm:treasurers_scepter', stack=1, cat='weapon', tier=3, bold=True, comps=dict(UNBR))
+# (3.1u: a carrot on a stick never starts "using" off a pig, so a hold advancement never fired - the Coin Storm went off for
+#  nobody. It goes through the carrot-on-a-stick router like the Ray Gun's, in generate)
 
 # ---------------------------------------------------------------- together
 item('bond_sigil', TOTEM, 'Bond Sigil', '#ff9ad8', ['A gold sigil, warm when a friend is near.', ('Near someone carrying a sigil from the same', 'blue'),
@@ -279,13 +280,14 @@ def generate(G):
                             'execute if score #r bm.rng matches ..15 run loot give @s loot bm:items/gutter_coin',
                             'execute if score #r bm.rng matches ..15 run playsound minecraft:entity.experience_orb.pickup player @s ~ ~ ~ 0.8 0.6'])
     # the scepter: COIN STORM
-    fn('p71/scepter', ['execute if score @s bm.gvsc matches 1.. run return run ' + say('The scepter is still counting its coins.', GOLD),
-                       'scoreboard players set @s bm.gvsc 20', 'tag @s add bm.gvatk',
+    G.FUNCS['p21/grap/use'][1:1] = ['execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm:"treasurers_scepter"}] run return run function bm:p71/scepter']
+    # (its own cooldown, bm.gvfl: bm.gvsc is the Gambler's Coin's)
+    fn('p71/scepter', ['execute if score @s bm.gvfl matches 1.. run return run ' + say('The scepter is still counting its coins.', GOLD),
+                       'scoreboard players set @s bm.gvfl 20', 'tag @s add bm.gvatk',
                        f'execute as @e[{mob},distance=..6] at @s run function bm:p71/storm1', 'tag @s remove bm.gvatk',
                        'particle minecraft:wax_on ~ ~4 ~ 4 0.5 4 0 120', 'particle minecraft:item{item:"minecraft:gold_nugget"} ~ ~5 ~ 4 0.5 4 0 80',
                        'playsound minecraft:block.chain.break player @a[distance=..24] ~ ~ ~ 1 0.6', 'playsound minecraft:entity.experience_orb.pickup player @a[distance=..24] ~ ~ ~ 1 0.5',
                        say('COIN STORM!', GOLD)])
-    G.FUNCS['p71/scepter'] = [l.replace('bm.gvsc matches 1..', 'bm.gvfl matches 1..').replace('set @s bm.gvsc 20', 'set @s bm.gvfl 20') for l in G.FUNCS['p71/scepter']]
     fn('p71/storm1', ['damage @s 12 minecraft:magic by @a[tag=bm.gvatk,limit=1]', 'effect give @s[tag=!bm.boss,tag=!bm.vboss,tag=!bm.gvboss] minecraft:levitation 1 4',
                       'particle minecraft:item{item:"minecraft:gold_ingot"} ~ ~2 ~ 0.3 1 0.3 0.1 10'])
     second.append('scoreboard players remove @a[scores={bm.gvfl=1..}] bm.gvfl 1')
