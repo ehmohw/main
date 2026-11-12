@@ -110,6 +110,7 @@ const E = 'execute in minecraft:the_end run ';
 
   if (on('reactor')) {
     await solved(13);
+    await run('effect give TestRat minecraft:resistance 120 4 true');   // (3.1z: the stage - the troopers that beam in killed the bot now and then: it woke far off and the reactor doused)
     const core = W(56, 48, 25); await at(core[0] + 0.5, core[1], core[2] - 4.5, 0, 0);
     ok('Dreadnought A\'s reactor ignites as you walk in: four conduits', await wait(6000, async () => (await cnt('@e[type=minecraft:interaction,tag=bm.arhit]')) === 4));
     for (const [dx, dz] of [[5, 0], [-5, 0], [0, 5], [0, -5]]) {
