@@ -498,7 +498,7 @@ def generate(G):
             [f'execute if score #r bm.rng matches {r} as @e[type=marker,tag=bm.gvt{c}{r},distance=..14] run scoreboard players set @s bm.gvsafe 1' for r in range(5)]
             for c in range(6)), []) +
        [f'summon minecraft:text_display {rel(1, 7, 12)} {{billboard:"vertical",Tags:["bm.gvprop"],text:[{{text:"THE TILE FLOOR\\n",color:"gold",bold:true}},{{text:"Only one way holds. The button shows it - once for free.",color:"gray"}}],transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[0.6f,0.6f,0.6f]}}}}'])
-    fn('p70/r/tiles/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
+    fn('p70/r/tiles/tick', ['execute if score @s bm.gvs matches 3 run function bm:p70/r/tiles/after', 'execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                             f'execute if block {rel(1, 5, 9)} minecraft:pale_oak_button[powered=true] unless entity @s[tag=bm.gvlatch] run function bm:p70/r/tiles/peek',
                             f'execute unless block {rel(1, 5, 9)} minecraft:pale_oak_button[powered=true] run tag @s remove bm.gvlatch',
                             'execute if score @s bm.gvpk matches 1.. run scoreboard players remove @s bm.gvpk 1',
@@ -515,6 +515,11 @@ def generate(G):
                             'execute as @e[type=marker,tag=bm.gvr_tiles,distance=..14,sort=nearest,limit=1] run tag @s add bm.gvtilef'])
     fn('p70/r/tiles/back', ['scoreboard players remove @s bm.gvsafe 1', 'execute if score @s bm.gvsafe matches 1.. run return 0', 'scoreboard players set @s bm.gvsafe 0', 'tag @s remove bm.gvdown',
                             'execute at @s run fill ~-1 ~-1 ~-1 ~1 ~-1 ~1 minecraft:polished_blackstone'])
+    # (3.1w: beaten - the dropped tiles still come back, and the pit hauls a straggler to the far side, no alarm)
+    fn('p70/r/tiles/after', ['execute as @e[type=marker,tag=bm.gvtile,tag=bm.gvdown,distance=..14] run function bm:p70/r/tiles/back',
+                             f'execute positioned {rel(3, 0, 1)} positioned ~-0.5 ~-0.5 ~-0.5 as @a[tag=bm.gvp,dx=17,dy=2.4,dz=22] run function bm:p70/r/tiles/over'])
+    fn('p70/r/tiles/over', ['execute at @e[type=marker,tag=bm.gvr_tiles,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 4, 12) + ' -90 0',
+                            say('Into the coin pit - a rope hauls you over to the far side.', GOLD)])
     fn('p70/r/tiles/pit', ['scoreboard players set #add bm.rng 6', 'execute as @e[type=marker,tag=bm.gvr_tiles,distance=..20,sort=nearest,limit=1] at @s run function bm:p70/oops',
                            'execute at @e[type=marker,tag=bm.gvr_tiles,distance=..20,sort=nearest,limit=1] run tp @s ' + rel(1, 4, 12) + ' -90 0',
                            'playsound minecraft:entity.player.splash player @a[distance=..16] ~ ~ ~ 1 1', say('Into the coin pit! A rope hauls you back to the start.', 'red')])

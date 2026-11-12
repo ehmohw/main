@@ -415,7 +415,8 @@ def generate(G):
     fn('p112/spire/init', ['function bm:p70/ctx',
                            label(relf(sx + 0.5, st + 1.6, sz + 0.5), T('CHECKPOINT', GOLD, bold=True), 0.5),
                            sign(rel(2, 7.5, 12), 'THE SPIRE', 'Up round the pillar to the top - one block at a time. Touch the gold CHECKPOINT and a fall brings you back to it.')])
-    fn('p112/spire/tick', ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
+    fn('p112/spire/tick', [f'execute if score @s bm.gvs matches 3 positioned {relf(3.6, 3.5, 0.6)} as @a[tag=bm.gvp,dx=20,dy=0.1,dz=22.8] at @s run function bm:p112/spire/over',
+                           'execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                            'execute if score @s bm.gvtm matches 3000 run scoreboard players set @s bm.gvf 1',
                            'scoreboard players operation #me bm.rng = @s bm.gvq',
                            f'execute positioned {relf(sx + 0.5, st + 1, sz + 0.5)} as @a[tag=bm.gvp,distance=..0.9] unless score @s bm.gvcpk = #me bm.rng at @s run function bm:p112/spire/cp',
@@ -427,6 +428,8 @@ def generate(G):
                            relf(sx + 0.5, st + 1, sz + 0.5),
                            'execute at @e[type=minecraft:marker,tag=bm.gvr_spire,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(2, 4, 12) + ' -90 0',
                            title('@s', 'actionbar', T('Down into the hay! Back to the start.', 'red'))])
+    fn('p112/spire/over', ['execute at @e[type=minecraft:marker,tag=bm.gvr_spire,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(25, SPIRE_EXIT, 12) + ' -90 0',   # (3.1w: after the top's reached)
+                           title('@s', 'actionbar', T('Into the hay - the crew hauls you up to the way on.', GOLD))])
     fn('p112/spire/open', [f'fill {rel(24, SPIRE_EXIT, 11)} {rel(24, SPIRE_EXIT + 3, 13)} minecraft:air replace minecraft:iron_bars',
                            'execute as @e[type=minecraft:marker,tag=bm.gvcp] if score @s bm.gvi = #gi bm.rng run tp @s ' + rel(25, SPIRE_EXIT, 12) + ' -90 0'])
 
@@ -451,7 +454,8 @@ def generate(G):
     fn('p112/bench/start', ['scoreboard players set @s bm.gvs 1', 'scoreboard players operation #rc bm.rng = @s bm.gvc'] +
        [f'execute if score #rc bm.rng matches {10 * t + j} as @a[tag=bm.gvp,distance=..30] run function bm:p112/bench/give{t}{j}' for t in range(1, 6) for j in range(len(RECIPES[t]))])
     fn('p112/bench/hatch', ['tag @s add bm.gvme2', 'execute on target run function bm:p112/bench/hand', 'tag @s remove bm.gvme2', 'data remove entity @s interaction'])
-    fn('p112/bench/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_bench,distance=..16,sort=nearest,limit=1] run scoreboard players operation #rc bm.rng = @s bm.gvc'] +
+    fn('p112/bench/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_bench,distance=..16,sort=nearest,limit=1] run scoreboard players operation #rc bm.rng = @s bm.gvc',
+                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))   # (3.1w: the loaned kit never counts - nor gets poured out)] +
        [f'execute if score #rc bm.rng matches {10 * t + j} if items entity @s weapon.mainhand minecraft:{rs[j][0]} run return run function bm:p112/bench/done'
         for t, rs in RECIPES.items() for j in range(len(rs))] +
        [title('@s', 'actionbar', T('"That\'s not what I asked for." (Hold it in your hand.)', 'red'))])

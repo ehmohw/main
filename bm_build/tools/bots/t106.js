@@ -61,7 +61,7 @@ const res = []; const X = 16600, Y = 100, Z = 16400;
   if (lm) { const lx = +lm[1], lz = +lm[3];
     await run(`forceload add ${lx} ${lz}`); await run(`tp TestRat ${lx + 0.5} 200 ${lz + 0.5}`); await sleep(4000);
     let fy = null; for (let y = 190; y >= -50 && fy === null; y -= 2) if (/passed/.test(await run(`execute positioned ${lx} ${y} ${lz} if predicate bm:p103/boss_dungeon`))) fy = y;
-    if (fy !== null) { await run(`tp TestRat ${lx + 0.5} ${fy} ${lz + 0.5}`); await sleep(500); ground(true); await sleep(200); await trip();
+    if (fy !== null) { await run(`tp TestRat ${lx + 0.5} ${fy} ${lz + 0.5}`); await sleep(500); await run('scoreboard players set TestRat bm.lkht 0'); ground(true);   // (the stage: the search's drop from y200 hurt it) await sleep(200); await trip();
       ok('...and inside a real one (the Brood\'s), the hold starts', said(/Hold still/), `at ${lx} ${fy} ${lz}: ` + A.chats.slice(-1).join('')); await home(); }
     else console.log('SKIP  (no Brood piece found under the located start)');
     await run('tag TestRat remove bm.adv'); await run('gamemode survival TestRat'); await run(`forceload remove ${lx} ${lz}`); await home();

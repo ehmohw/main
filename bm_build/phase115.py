@@ -351,7 +351,8 @@ def generate(G):
        [f'execute if score @s bm.gvvar matches {"abc".index(v)} if score #rc bm.rng matches {10 * t + j} as {crew} run function bm:p115/apoth/g{v}{t}{j}' for v, t, j, it, pid in ALLV] +
        [crew_say('The Fixer\'s shelf: water, blaze powder for the stands, and a few ingredients.', GOLD, 30)])
     fn('p115/apoth/hatch', ['execute on target run function bm:p115/apoth/hand', 'data remove entity @s interaction'])
-    fn('p115/apoth/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_apoth,distance=..16,sort=nearest,limit=1] run function bm:p115/apoth/rc'] +
+    fn('p115/apoth/hand', ['execute as @e[type=minecraft:marker,tag=bm.gvr_apoth,distance=..16,sort=nearest,limit=1] run function bm:p115/apoth/rc',
+                         'execute if items entity @s weapon.mainhand *[minecraft:custom_data~{bm_kit:1b}] run return run ' + title('@s', 'actionbar', T('"That\'s my own kit - I lent you that. Make your own." (Kit stays yours.)', 'red'))   # (3.1w: the loaned kit never counts - nor gets poured out)] +
        [f'execute if score #rv bm.rng matches {"abc".index(v)} if score #rc bm.rng matches {10 * t + j} if items entity @s weapon.mainhand {bottle(it, pid)} run return run function bm:p115/apoth/done'
         for v, t, j, it, pid in ALLV] +
        ['execute if items entity @s weapon.mainhand #bm:p115/potions run return run function bm:p115/apoth/wrong',
@@ -458,7 +459,8 @@ def generate(G):
     box = f'positioned {relf(0.6, 3.5, 0.6)} as @a[tag=bm.gvp,dx=22.8,dy=12,dz=22.8]'
     fn('p115/grapple/tick', ['execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
                              'scoreboard players set #hb bm.rng 0', 'execute if score @s bm.gvvar matches 2 run scoreboard players set #hb bm.rng 1',
-                             f'execute unless score @s bm.gvs matches 3 {box} at @s run function bm:p115/grapple/me',
+                             f'execute {box} at @s run function bm:p115/grapple/me',       # (3.1w: the hook stays lent after the solve - for the crew still crossing)
+                             f'execute if score @s bm.gvs matches 3 positioned {relf(3.6, -2, 0.6)} as @a[tag=bm.gvp,dx=19,dy=4,dz=22.8] at @s run function bm:p115/grapple/over',
                              'execute if score @s bm.gvs matches 3 run return 0',
                              'execute if score @s bm.gvtm matches 3000 run scoreboard players set @s bm.gvf 1',
                              'scoreboard players operation #ph bm.rng = @s bm.gvtm', 'scoreboard players operation #ph bm.rng %= #48 bm.rng'] + swing +
@@ -481,6 +483,10 @@ def generate(G):
                              'execute at @e[type=minecraft:marker,tag=bm.gvr_grapple,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(2, 4, 12) + ' -90 0',
                              'scoreboard players operation @s bm.gvhu = @e[type=minecraft:marker,tag=bm.gvr_grapple,limit=1,sort=nearest] bm.gvx',
                              title('@s', 'actionbar', T('Down into the hay! Back to the start - and your hooks back.', 'red'))])
+    # (3.1w: once it's beaten, a fall carries a straggler over to the far ledge - the way back is barred behind them)
+    fn('p115/grapple/over', ['execute if entity @s[tag=bm.grappling] run function bm:p21/grap/release',
+                             'execute at @e[type=minecraft:marker,tag=bm.gvr_grapple,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 4, 12) + ' -90 0',
+                             title('@s', 'actionbar', T('Into the hay - the crew hauls you over to the far ledge.', GOLD))])
     fn('p115/grapple/across', big('ACROSS!', 'The far ledge - the way on is open.', GOLD) + pot(4) + ['function bm:p70/solved'])
     G.FUNCS['p70/unraid'].append('scoreboard players reset @s bm.gvhu')
 
@@ -521,7 +527,8 @@ def generate(G):
     fn('p115/minecart/cart', ['kill @e[type=minecraft:minecart,tag=bm.gvcart,distance=..20]',
                               f'summon minecraft:minecart {relf(3.5, 4.1, 12.5)} {{Tags:["bm.gvprop","bm.gvcart"],Rotation:[-90f,0f]}}'])
     riding = '@a[tag=bm.gvp,distance=..24,predicate=bm:p21/riding]'
-    mtick = ['execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
+    mtick = [f'execute if score @s bm.gvs matches 3 positioned {relf(4, 0.5, 0.6)} as @a[tag=bm.gvp,dx=17,dy=2,dz=22.8] at @s run function bm:p115/minecart/over',
+             'execute if score @s bm.gvs matches 3 run return 0', 'execute if score @s bm.gvs matches 0 run scoreboard players set @s bm.gvs 1',
              f'execute if score @s bm.gvvar matches 0 positioned {relf(0.6, 3.9, 9.6)} as @a[tag=bm.gvp,dx=3,dy=2,dz=4.8] unless items entity @s container.* minecraft:bow run function bm:p115/minecart/bow',
              # (off: someone in the cart at the station)
              f'execute if score @s bm.gvs matches 1 positioned {relf(3.5, 4, 12.5)} if entity @e[type=minecraft:minecart,tag=bm.gvcart,distance=..1.2] as @e[type=minecraft:minecart,tag=bm.gvcart,distance=..1.2,limit=1] on passengers if entity @s[type=minecraft:player] at @s run function bm:p115/minecart/go_as',
@@ -544,6 +551,9 @@ def generate(G):
                               'execute at @e[type=minecraft:marker,tag=bm.gvr_minecart,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(2, 5, 12) + ' -90 0',
                               title('@s', 'actionbar', T('Off the rails and into the hay! Back to the station.', 'red')),
                               'execute as @e[type=minecraft:marker,tag=bm.gvr_minecart,distance=..30,sort=nearest,limit=1] at @s run function bm:p115/minecart/reset'])
+    fn('p115/minecart/over', ['execute on vehicle run kill @s', 'ride @s dismount',     # (3.1w: after the run's won - no carts left; a fall carries you to the gold station)
+                              'execute at @e[type=minecraft:marker,tag=bm.gvr_minecart,distance=..30,sort=nearest,limit=1] run tp @s ' + rel(22, 5, 12) + ' -90 0',
+                              title('@s', 'actionbar', T('Into the hay - the crew hauls you along to the gold station.', GOLD))])
     fn('p115/minecart/reset', ['scoreboard players set @s bm.gvs 1', 'scoreboard players set @s bm.gvy3 0', 'scoreboard players set @s bm.gvw 0',
                                'execute if score @s bm.gvvar matches 0 run function bm:p115/minecart/targets', 'function bm:p115/minecart/cart'])
     fn('p115/minecart/targets', [f'setblock {rel(x, y, z)} minecraft:target' for x, y, z in PD.TARGETS_A])

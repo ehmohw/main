@@ -173,7 +173,8 @@ def generate(G):
     ur = G.FUNCS['p70/unraid']
     k = ur.index('execute at @s run function bm:p72/bag/restore')
     ur[k] = 'execute unless entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore'
-    G.FUNCS['p121/back'] += ['execute if entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore', 'tag @s remove bm.lgbag']
+    G.FUNCS['p121/back'] += ['execute if entity @s[tag=bm.lgbag] at @s run function bm:p72/bag/restore', 'tag @s remove bm.lgbag',
+                             'scoreboard players set @s bm.owt 3']    # (3.1w: the followers who waited outside the vault come back - the heist's own way home armed it, the Lounge reset it)
     G.FUNCS['p72/bag/check'].insert(0, 'tag @s remove bm.lgbag')      # (a heist from the Lounge: its own way home gives the gear back)
 
     # ================================================================== 2.80: THE COAT CHECK AT THE LOUNGE'S DOOR
@@ -208,7 +209,7 @@ def generate(G):
     fn('p121/rest', [f'effect give @a[dx={dx},dy={dy},dz={dz}] minecraft:regeneration 3 1 true', f'effect give @a[dx={dx},dy={dy},dz={dz}] minecraft:saturation 2 0 true'])
     # out any other way than the door (a death, a teleport): the gear comes back in the overworld, within a second
     second.append('execute as @a[tag=bm.lgbag,tag=!bm.gvp] at @s unless dimension bm:gutter run function bm:p121/bag_home')
-    fn('p121/bag_home', ['tag @s remove bm.lgbag', 'function bm:p72/bag/restore'])
+    fn('p121/bag_home', ['tag @s remove bm.lgbag', 'function bm:p72/bag/restore', 'scoreboard players set @s bm.owt 3'])
     # A heist planned from the lounge: what you picked up in there that isn't heist gear (shopping, your lockers) waits with
     # the Fixer and comes back with your gear at home; the way home is where you came into the lounge from (it used to be
     # whatever an earlier heist had left, or the world's spawn), and your respawn point is saved, as from anywhere else.

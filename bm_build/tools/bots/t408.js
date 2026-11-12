@@ -75,7 +75,7 @@ const res = [];
 
   async function done() {
     for (let s = 0; s < 8; s++) await run(`function bm:p70/s${s}/clean`);
-    await run('function bm:admin/rooms_any'); await run('function bm:admin/plan_safe'); await run('clear TestRat'); await run('effect clear TestRat');
+    await run('function bm:admin/rooms_any'); await run('function bm:admin/plan_safe'); await run('function bm:admin/heist_variants_off'); await run('clear TestRat'); await run('effect clear TestRat');
     await run('execute as @a[name=TestRat,tag=bm.gvp] at @s run function bm:p70/home');
     await run('execute in minecraft:overworld run tp TestRat 13000.5 120 13000.5');
     const n = res.filter(Boolean).length; console.log(`${n}/${res.length} passed`);
