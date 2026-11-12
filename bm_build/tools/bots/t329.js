@@ -143,11 +143,12 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     await run(`${E}forceload add ${far[0]} ${far[2]}`);
     // (3.1z: a forceload takes a moment - set too soon, the floor was "not loaded" and the Mire settled down into the void)
     await wait(10000, async () => !/not loaded/i.test(await run(`${E}setblock ${far[0]} ${far[1] - 1} ${far[2]} minecraft:obsidian`)), 500);
+    // (3.1z: "${z}.5" on a negative z is half a block the wrong way - the Mire stood off its floor and settled into the void: numbers)
     // (3.1z: TestRat stands by it out there - a host with nobody within 128 despawns at once, as any husk does: "spawned 0" - and the
     //  two come aboard in one tp, so it's never left alone between commands)
     const aboard = ((await run(`${E}data get entity TestRat Pos`)).match(/-?[\d.]+(?=d)/g) || []).map(Number);
-    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await sleep(1500);
-    await run(`execute in ${END} positioned ${far[0]}.5 ${far[1]} ${far[2]}.5 run function bm:p246/spawn`);
+    await run(`${E}tp TestRat ${far[0] + 6.5} ${far[1]} ${far[2] + 0.5}`); await sleep(1500);
+    await run(`execute in ${END} positioned ${far[0] + 0.5} ${far[1]} ${far[2] + 0.5} run function bm:p246/spawn`);
     const out1 = await count(END, `@e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2]`);
     await run(`execute in ${END} run tag @e[type=minecraft:husk,tag=bm.mire,x=${far[0]},y=${far[1]},z=${far[2]},distance=..2] add bm.t329m`); await run('tag TestRat add bm.t329m');
     await run(`execute in ${END} run tp @e[tag=bm.t329m] ${aboard[0]} ${aboard[1]} ${aboard[2]}`); await run('tag TestRat remove bm.t329m');
@@ -159,8 +160,8 @@ const box = (o, s) => `x=${o[0]},y=${o[1]},z=${o[2]},dx=${s[0] - 1},dy=${s[1] - 
     // (a closed obsidian room: the End's open sky is too bright for a Mire - p246/dark wants light 4 or less)
     const ROOM = `${far[0] - 3} ${far[1] - 1} ${far[2] - 3} ${far[0] + 9} ${far[1] + 3} ${far[2] + 3}`;
     await run(`${E}fill ${ROOM} minecraft:obsidian hollow`);
-    await run(`${E}tp TestRat ${far[0] + 6}.5 ${far[1]} ${far[2]}.5`); await sleep(2500);
-    await run(`${E}summon minecraft:zombie ${far[0]}.5 ${far[1]} ${far[2]}.5 {NoAI:1b,Silent:1b,Tags:["bm.seen","bm.t329r"]}`);
+    await run(`${E}tp TestRat ${far[0] + 6.5} ${far[1]} ${far[2] + 0.5}`); await sleep(2500);
+    await run(`${E}summon minecraft:zombie ${far[0] + 0.5} ${far[1]} ${far[2] + 0.5} {NoAI:1b,Silent:1b,Tags:["bm.seen","bm.t329r"]}`);
     const FB = `x=${far[0] - 3},y=${far[1] - 2},z=${far[2] - 3},dx=6,dy=5,dz=6`;
     let n = 0;
     for (; n < 3000 && (await count(END, `@e[type=minecraft:husk,tag=bm.mire,${FB}]`)) === 0; n++) {
