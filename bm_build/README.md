@@ -21,6 +21,23 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.1x: the last of the heist rooms swept
+
+- **More rooms look after the crew still crossing.** Like the crossing rooms fixed in 3.1w, these rooms stopped looking after the rest of the crew once someone finished:
+  - **The Crumbling Rafters (all three kinds):** the beams that had given way never came back, and a fall into the hay left you stuck below the ledges. Now, once the room is beaten, the beams come back (the Blinking Beams stop blinking and stay solid). A fall carries you to the far ledge, with no alarm.
+  - **The Falling Stair:** the steps that had dropped stayed gone, leaving a crewmate partway up with no way to the top. Once the stair is beaten, they come back.
+  - **The Sky Isles:** after the last guard fell, a slip off the narrow bridges on the way out stranded you in the hay or knocked you out in the void. Now it carries you to the island by the exit.
+- **The Lying Coffers say whose left.** "Somewhere to my left" was meant as your left as you face the row, but it read as the coffer's own left. Half of the puzzles had a different answer, or none, when read that way. The clues now say "left of me, as you face us".
+- **No double counts.**
+  - **The Signal Lamps:** two buttons pressed in the same moment could count the second press after the room was already beaten. That paid the room twice, or set off a wrong-note alarm and re-armed a finished room. A press now counts only while it's your turn.
+  - **The Shell Game:** two chests opened in the same moment were both judged, the second against the next round's gold. Now one pick counts at a time.
+- **The Bell Tower wants a raider on its plate.** An arrow lobbed onto the landing plate used to beat the tower without the climb. Now someone has to stand on it.
+- **Behind the scenes:**
+  - **A third read-through:** it covered the rooms left over: the Combination Room, the Weighing Room, the Coffers, the Signal Lamps, the Lamp Floor, the Tumbler Lock, the Bell Tower, the Rafters, the Sky Isles, the Strongroom Siege and the hidden vault. It found the problems above; everything else checked out.
+  - **New test:** t412 covers the Rafters, the Bell Tower plate and the Isles as a player (12/12).
+  - **The Mimic's test now passes 54/54.** Its Disguise and stash steps were tripped by the test's own leftover practice monsters and their dropped loot, not by the Mimic.
+  - **Older tests updated:** the Rat Pack (the Escort's launch is on its Partners page), the Bell Tower (a raider stands on the plate), and t105's two-player heist flow.
+
 ## New in 3.1w: the heists swept again
 
 - **The Fifty looks finished.** Each tier now has a gold band with a quartz top set into it, instead of bare stacked blocks. The dolls are spread 28 around the bottom, 16 on the middle tier and 6 at the top, so none of them crowd each other.

@@ -51,18 +51,18 @@ const res = [];
   await run('item replace entity TestRat weapon.offhand with minecraft:paper'); await run('loot replace entity TestRat weapon.offhand loot bm:items/skiff_escort_crimson');
   const pid = (await run('scoreboard players get TestRat bm.pid')).match(/has (\d+)/);
   A.chats.length = 0; await use('partner_wheel');
-  ok('A Skiff Escort held in the off hand, the wheel used: it goes on the wheel', (await has('skiff_escort_crimson')) === 0 && A.chats.some(c => /Partner Wheel/.test(c)),
+  ok('A Skiff Escort held in the off hand, the Rat Pack used: it goes on the Pack', (await has('skiff_escort_crimson')) === 0 && A.chats.some(c => /Rat Pack/.test(c)),   // (3.1: the Partner Wheel is the Rat Pack)
      A.chats.slice(-1).join(''));
   const esc = async () => cnt(OW, `@e[type=minecraft:bat,tag=bm.eskhost,x=${X},y=${Y},z=${Z},distance=..12]`);
-  await use('partner_wheel'); await sleep(500);
-  ok('The wheel\'s menu offers to launch it', A.buttons().some(b => /Launch your/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+  await use('partner_wheel'); await sleep(500); await A.press(/Partners/); await sleep(500);
+  ok('The Pack\'s Partners page offers to launch it', A.buttons().some(b => /Launch your/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
   await A.press(/Launch your/); await sleep(1500);
   ok('...Launch pressed: the escort flies at TestRat\'s shoulder', await wait(3000, async () => (await esc()) === 1),
      `${A.bars.slice(-2).join(' | ')} ${A.chats.slice(-1).join('')} cd ${await run('scoreboard players get TestRat bm.eskcd')} esc ${await run('scoreboard players get TestRat bm.pwesc')}`);
-  await sleep(1200); await use('partner_wheel'); await sleep(500);
+  await sleep(1200); await use('partner_wheel'); await sleep(500); await A.press(/Partners/); await sleep(500);
   await A.press(/Send your Skiff Escort home/); await sleep(1500);
   ok('...Send home pressed: it flies home', await wait(3000, async () => (await esc()) === 0));
-  await sleep(1200); await use('partner_wheel'); await sleep(500);
+  await sleep(1200); await use('partner_wheel'); await sleep(500); await A.press(/Partners/); await sleep(500);
   await A.press(/Take the escort back/); await sleep(2000);
   ok('...Take it back pressed: the crimson beacon is TestRat\'s again', await wait(4000, async () => (await has('skiff_escort_crimson')) === 1));
 

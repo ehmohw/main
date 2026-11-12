@@ -181,7 +181,7 @@ const res = [];
     const gone = /passed/.test(await at('climb', q, `execute if block ${rel(3, 4, 7)} minecraft:air if block ${rel(21, 12, 7)} minecraft:air`));
     let jumps = true; for (let i = 1; i < POSTS.length; i++) { const [a, b] = [POSTS[i - 1], POSTS[i]]; const dist = Math.hypot(a[0] - b[0], a[1] - b[1]); if (b[2] - a[2] > 1 || dist > 3.2) jumps = false; }
     ok('...eleven single posts, room to stand on each, every jump at most one up and three across; the old steps gone', posts === 11 && gone && jumps, `${posts} posts, old gone ${gone}`);
-    await at('climb', q, `summon minecraft:item ${relf(21.5, 14.1, 12.5)} {Item:{id:"minecraft:cobblestone",count:1},PickupDelay:32767s}`); await sleep(800);
+    await at('climb', q, `tp TestRat ${relf(21.5, 14, 12.5)}`); await sleep(1200);   // (3.1x: a raider on the plate - an item or an arrow no longer counts)
     ok('...the landing\'s plate at the top: open', (await sc('climb', q, 'bm.gvs')) === 3);
 
     await heist('climb', 'c'); await begin();
@@ -193,7 +193,7 @@ const res = [];
     await at('climb', q, `tp TestRat ${rel(2, 4, 12)}`); await sleep(4000);
     const back = /passed/.test(await at('climb', q, `execute unless block ${rel(6, 6, 20)} minecraft:air`));
     ok('...stand on a step: it gives way a moment later, and comes back', there && fell && back, `${there} ${fell} ${back}`);
-    await at('climb', q, `summon minecraft:item ${relf(21.5, 14.1, 12.5)} {Item:{id:"minecraft:cobblestone",count:1},PickupDelay:32767s}`); await sleep(800);
+    await at('climb', q, `tp TestRat ${relf(21.5, 14, 12.5)}`); await sleep(1200);   // (3.1x: a raider on the plate - an item or an arrow no longer counts)
     ok('...the plate at the top: open', (await sc('climb', q, 'bm.gvs')) === 3);
   }
 
