@@ -37,7 +37,8 @@ runT({ W: 'ferro', NAME: 'The Ferro', ab: 'fe', q: 'fq', pfx: 'p271', prefix: 'f
       `ferro ${(await run(`data get entity ${PET} Pos`)).replace(/.*data: /, '')} foes ${(await run(`execute in minecraft:overworld if entity @e[type=#bm:hostile,distance=..10,x=${X},y=${Y},z=${Z}]`)).replace(/.*count: /i, '')}`);
     let gone = false;
     ok('ENGULF - a foe 2 off: engulfed (hidden, bm.fein) - and spat out, hurt', await K.move('gc', [[0, 2]], 'bm.trpd', async () => {
-      if ((await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 1) gone = true; return gone && (await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 0 && (await K.hp('bm.trpd')) < 300; }, 9000));
+      if ((await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 1) gone = true; return gone && (await cnt('@e[tag=bm.trpd,tag=bm.fein]')) === 0 && (await K.hp('bm.trpd')) < 300; }, 9000),
+      `gone ${gone} hp ${await K.hp('bm.trpd')} fqa ${await score('bm.fqa', PET)} fqx ${await score('bm.fqx', PET)} fqgc ${await score('bm.fqgc', PET)} tags ${await nbt('@e[tag=bm.trpd,limit=1]', 'Tags')}`);
     // MIMICRY: Bender met and out beside it for 3 s - learned; then Forms -> Bender, and back
     await K.home(); await run('advancement revoke TestRat only bm:ferro/learned/bender'); await run('advancement grant TestRat only bm:met/bender');
     await run('loot replace entity TestRat inventory.20 loot bm:items/bv_ball'); await K.summonAs('p195', 1.0); await sleep(1500);
