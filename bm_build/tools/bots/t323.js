@@ -75,11 +75,11 @@ runT({ W: 'mireling', NAME: 'The Mireling', ab: 'ml', q: 'mj', pfx: 'p252', pref
     const SMALL = '@e[type=minecraft:item_display,tag=bm.mlp_pet,tag=bm.mlp_head,limit=1]';
     await run('scoreboard players set TestRat bm.mlub 0'); await run('scoreboard players set TestRat bm.hn_mireling 1444');
     await ctx.at(X + 0.5, Y + 1, Z - 1.5, 0, 10);
-    ok('the menu: a Grown / Little button', await sneakMenu(0) && A.buttons().some(b => /Grown \/ Little/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+    ok('the menu: a Grown / Little button (on its ⚙ Settings page, 3.0j)', await sneakMenu(0) && !!(await A.press(/Settings/)) && A.buttons().some(b => /Grown \/ Little/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
     A.bars.length = 0; await A.press(/Grown \/ Little/); await sleep(1200);
     ok('...below Queen Ava\'s rank III: refused - "Honoured by Queen Ava to rank III, it grows"', A.bars.some(b => /rank III/.test(b)) && (await cnt(GR)) === 0, A.bars.slice(-1).join(''));
     await run('scoreboard players set TestRat bm.hn_mireling 1555');
-    await sneakMenu(0); A.bars.length = 0; await A.press(/Grown \/ Little/);
+    await sneakMenu(0); await A.press(/Settings/); A.bars.length = 0; await A.press(/Grown \/ Little/);
     ok('...at rank III (V, V, V): FULL-GROWN - the grown Mire\'s 23 parts at its side', await wait(4000, async () => (await cnt(GR)) === 23), `${await cnt(GR)} parts`);
     ok('...the little rig hidden (view_range 0)', /^0(\.0)?f?$/.test((await ctx.nbt(SMALL, 'view_range')).trim()), await ctx.nbt(SMALL, 'view_range'));
     ok('...and it says so', A.bars.some(b => /FULL-GROWN/.test(b)), A.bars.slice(-1).join(''));
@@ -87,7 +87,7 @@ runT({ W: 'mireling', NAME: 'The Mireling', ab: 'ml', q: 'mj', pfx: 'p252', pref
     await K.move('mc', [[2, 0]], 'bm.trpc', async () => (await K.hp('bm.trpc')) < 300);
     ok('...grown, it still fights (its lash)', (await K.hp('bm.trpc')) < 300);
     await K.home(); await ctx.at(X + 0.5, Y + 1, Z - 1.5, 0, 10);
-    await sneakMenu(0); A.bars.length = 0; await A.press(/Grown \/ Little/);
+    await sneakMenu(0); await A.press(/Settings/); A.bars.length = 0; await A.press(/Grown \/ Little/);
     ok('pressed again: little again - the grown rig gone, the little one shown', await wait(4000, async () => (await cnt(GR)) === 0) &&
        /1\.6/.test(await ctx.nbt(SMALL, 'view_range')), await ctx.nbt(SMALL, 'view_range'));
     await run('scoreboard players set TestRat bm.hn_mireling 0'); await run('scoreboard players set TestRat bm.mlub 0');

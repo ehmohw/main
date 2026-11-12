@@ -170,11 +170,19 @@ def generate(G):
                         'execute as @e[type=minecraft:husk,tag=bm.khost] if score @s bm.kid = #me bm.kid at @s run function bm:p245/gone',
                         'scoreboard players set @s bm.kst 0'])
     fn(f'{PFX}/gone', ['tp @s ~ -400 ~', 'kill @s'])
+    fn(f'{PFX}/orphan', ['scoreboard players operation #okid bm.rng = @s bm.kid', 'scoreboard players set #okf bm.rng 0',
+                         'execute as @e[type=minecraft:marker,tag=bm.kstat,distance=..96,scores={bm.kst=2..4}] if score @s bm.kid = #okid bm.rng run scoreboard players set #okf bm.rng 1',
+                         f'execute if score #okf bm.rng matches 0 run function bm:{PFX}/gone'])
 
     # ================================================================== each tick, each knight awake
     tick.append(f'execute as @e[type=minecraft:husk,tag=bm.khost] at @s run function bm:{PFX}/tick')
     fn(f'{PFX}/tick', ['scoreboard players add @s bm.kt 1', 'tag @s add bm.kme', f'function bm:{PFX}/mine',
                        f'execute if entity @s[tag=bm.khome] run return run function bm:{PFX}/h/tick',      # (3.0: a statue woken at home - its own)
+                       # (3.1z: once a second, a dungeon knight whose statue isn't awake goes - a reset or a rebuild that ran with its chunk
+                       #  unloaded left its host alive, and the room's next solve woke two more beside it)
+                       'scoreboard players operation #ok bm.rng = @s bm.kt', 'scoreboard players operation #ok bm.rng %= #20 bm.rng',
+                       f'execute if score #ok bm.rng matches 0 run function bm:{PFX}/orphan',
+                       f'execute unless entity @s run return 0',
                        f'execute if score @s bm.ks matches 1..4 store result score #h bm.rng run data get entity @s Health',
                        f'execute if score @s bm.ks matches 1..4 if score #h bm.rng matches ..{FLOOR} run function bm:{PFX}/fall0',
                        f'execute if score @s bm.ks matches 0 run function bm:{PFX}/s/wake',
