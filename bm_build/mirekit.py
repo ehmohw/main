@@ -76,8 +76,10 @@ def runtime(G, C):
     fn(f'{P}/spawn1', ([] if not cap else __import__('hitcap').arm(cap)) + [f'execute at @s run function bm:{P}/settle', 'scoreboard players operation @s bm.mid = #mid bm.mid', 'scoreboard players set @s bm.ms 0', 'scoreboard players set @s bm.mt 0',
                        'execute store result entity @s Rotation[0] float 1 run random value 0..359',
                        f'execute at @s rotated as @s rotated ~ 0 run function bm:{P}/rig',
-                       f'scoreboard players operation @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] bm.mid = @s bm.mid',
-                       f'tag @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] remove {C.NEWP}',
+                       # (3.1z: "at @s" - after the settle it stands lower than where it was made, and its parts were summoned there:
+                       #  looked for round the old spot, a Mire made in mid-air left all 23 without its bm.mid - nothing ever took them)
+                       f'execute at @s run scoreboard players operation @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] bm.mid = @s bm.mid',
+                       f'execute at @s run tag @e[type=minecraft:item_display,tag={C.NEWP},distance=..1] remove {C.NEWP}',
                        f'function bm:{P}/mine', f'execute at @s rotated as @s rotated ~ 0 run function bm:{P}/place', f'function bm:{P}/stash', f'function bm:{P}/pose/dormant',
                        'tag @e[type=minecraft:item_display,tag=bm.msel] remove bm.msel', f'tag @s remove {C.NEWH}'])
 
@@ -92,6 +94,10 @@ def watch(G, C):
     second.append(f'execute as @e[type=minecraft:husk,tag={C.HOST}] at @s run function bm:{P}/sec')
     # (3.1z: a host left alone despawns like any husk - its 23 parts stayed behind, a puddle on the ground forever. Each puddle (always on
     #  its host) whose host isn't beside it takes its whole rig, its home marker too)
+    #  And a rig that never got its bm.mid (made in mid-air before 3.1z: see spawn1) - no host can ever claim it: a puddle without
+    #  one takes the parts round it that have none (every kind, the Brood-Mire's too)
+    second.append(f'execute as @e[type=minecraft:item_display,tag={C.R}_puddle] unless score @s bm.mid matches -2147483648.. at @s run function bm:{P}/nomid')
+    fn(f'{P}/nomid', [f'execute as @e[type=minecraft:item_display,tag={C.R},distance=..8] unless score @s bm.mid matches -2147483648.. run kill @s'])
     #  (a kind with a sweep of its own - the Brood-Mire's, phase258 - sets OWN_ORPHAN; this one's function would be overwritten by it)
     if not getattr(C, 'OWN_ORPHAN', False):
       second.append(f'execute as @e[type=minecraft:item_display,tag={C.R}_puddle] at @s run function bm:{P}/orphan')
