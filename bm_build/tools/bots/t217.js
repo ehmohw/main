@@ -73,6 +73,7 @@ const res = [];
   const had = await hooks();
   let lg = -1; for (let i = 0; i < 9 && lg < 0; i++) if (await passes(`execute if items entity TestRat hotbar.${i} *[minecraft:custom_data~{bm:"fixers_ledger"}]`)) lg = i;
   A.slot(lg); await sleep(300); await A.useWait(); await sleep(600);
+  if (!A.buttons().some(b => /Leave the heist/i.test(b.label))) console.log('   [ledger]', lg, A.buttons().map(b => b.label).join(' | ').slice(0, 300), '| riding', await run('execute as TestRat on vehicle run data get entity @s id'));
   const l1 = await A.press(/Leave the heist/i); await sleep(1200);
   const l2 = A.buttons().length ? await A.press(/Leave|Yes|Go home|Head home|Confirm/i) : true; await sleep(4000);
   const out = !(await passes('execute if entity @a[name=TestRat,tag=bm.gvp]'));
