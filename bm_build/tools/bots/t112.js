@@ -82,8 +82,10 @@ const res = [];
   if (want('mason')) {
     await heist('mason', 'a', 1); await begin();
     let Q = await qs('mason'); let q = Q[0]; await go('mason', q, 8, 12); await sleep(600);
+    for (let k = 0; k < 16 && !/concrete/.test(await run('data get entity TestRat Inventory')); k++) await sleep(250);   // (3.1y: handed out a moment after you walk in - under lag, more than 600 ms)
     const inv = await run('data get entity TestRat Inventory');
-    ok('Walk in: coloured blocks that only go down on lodestone', /concrete/.test(inv) && /can_place_on/.test(inv), inv.slice(0, 200));
+    ok('Walk in: coloured blocks that only go down on lodestone', /concrete/.test(inv) && /can_place_on/.test(inv),
+       `rooms ${Q} - gvs ${await sc('mason', q, 'bm.gvs')} var ${await sc('mason', q, 'bm.gvvar')} gvp ${/passed/.test(await run('execute if entity @a[name=TestRat,tag=bm.gvp]'))} | ${inv.slice(0, 120)}`);
     const p = await sc('mason', q, 'bm.gvc');
     const want_ = [...fnText(`p112/mason/chk${p}`).matchAll(/unless block (~\S* ~\S* ~\S*) minecraft:(\w+_concrete)/g)].map(m => [m[1], m[2]]);
     // place one with the bot: on the lodestone - yes; on the floor - no

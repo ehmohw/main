@@ -37,7 +37,10 @@ Without the resource pack, the tokens, keys, hats and rats show as missing textu
   - **t86 and t105 brought up to date:**
     - **t86:** the fee back now arrives in your pockets, as Tokens that pass the coat check, so it counts them there (t104 covers this as a player).
     - **t105:** it now sets up its own switches, so it no longer depends on whatever the test before it left behind.
-  - **Where the sweep stands:** every heist bot test now passes. That's 46 tests, from the room puzzles to the payout, the Lounge and three-player crews. All the heist rooms and systems have had a read-through over the last four versions.
+  - **Where the sweep stands:**
+    - **Tests:** every heist bot test passed in its latest full run. That's 59 tests, from the room puzzles to the payout, the Lounge and three-player crews.
+    - **One known intermittent failure:** t112's Mason's Plan walk-in check twice found no blocks handed out in a full run, then passed in full (44/44). The cause isn't found yet. The test now reports the room's state when it misses.
+    - **Code:** all the heist rooms and systems have had a read-through over the last four versions.
 
 ## New in 3.1x: the last of the heist rooms swept
 

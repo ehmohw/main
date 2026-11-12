@@ -446,7 +446,7 @@ and function calls. The ones known to be stale (wholly or in part) are marked.
 | `t109.js` | 2.68 follow-ups: Locker Key in the gutter only, Office leave button, Boomer filing, den NPC dedupe, door in the doorway, |
 | `t110.js` | 2.69 (I): the Combination Room, the Weighing Room, the Gauntlet and the Tile Floor in their B and C variants; the tile seam |
 | `t111.js` | 2.69 (II): the Dial Lock, the Three Coffers, the Signal Lamps, the Lamp Floor, the Tumbler Lock, the Bell Tower and the |
-| `t112.js` | 2.69 new rooms: the Sky Isles, the Spire, the Tinker's Bench, the Mason's Plan, the Dig; Block Party, Red Light Green Light, Memory Match |
+| `t112.js` | 2.69 new rooms: the Sky Isles, the Spire, the Tinker's Bench, the Mason's Plan, the Dig; Block Party, Red Light Green Light, Memory Match (3.1y: the Mason's walk-in check is intermittent in full runs - twice no blocks, then 44/44; it prints the room's state when it misses) |
 | `t113.js` | 2.70: the throne rooms (gold, diamond, netherite - and their odds) and Prime fights |
 | `t114.js` | 2.71: the B and C versions of the Spire, the Tinker's Bench, the Mason's Plan and the Dig (2.82b: the Mosaic is retired - the Mason's Plan steps cover its other variant. 2.83a: in the Sculptor Dig, the bot climbs the step-up beside the calcite cube and chisels its top-middle block from the ledge.) |
 | `t115a.js` | 2.72 (I): the Library (2.82: three shelves of twelve, all in reach without a jump), the Pipes, the Apothecary, the Grapple, the Minecart Run - three ways each |
