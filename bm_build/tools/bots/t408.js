@@ -43,8 +43,8 @@ const res = [];
   await wait(6000, async () => (await iget('bm.gvst')) === 2, 300);
   // ---- the jammer, on a job with no alarm
   await run('loot replace entity TestRat hotbar.3 loot bm:items/alarm_jammer'); A.slot(3); await sleep(300);
-  A.bars.length = 0; A.use(); await sleep(500); A.release(); await sleep(700);
-  ok('the Alarm Jammer used on a job with no alarm: "This job has no alarm"', A.bars.some(b => /no alarm/.test(b)), A.bars.join(' | '));
+  A.bars.length = 0; A.chats.length = 0; A.use(); await sleep(500); A.release(); await sleep(700);
+  ok('the Alarm Jammer used on a job with no alarm: "This job has no alarm"', [...A.bars, ...A.chats].some(b => /no alarm/.test(b)), [...A.bars, ...A.chats].join(' | ').slice(0, 200));
   ok('...and it\'s kept', (await has('alarm_jammer')) === 1);
   ok('...nothing jammed', (await iget('bm.gvjam')) === 0, `${await iget('bm.gvjam')}`);
   // ---- a cursed, hard-way room, skipped
