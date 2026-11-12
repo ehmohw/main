@@ -64,7 +64,7 @@ const res = [];
   await sleep(1200);
   let n0 = A.dialogN.length; await use(1, true); await wait(3000, async () => A.dialogN.length > n0);
   const labels = A.buttons().map(b => b.label).join(' | ');
-  ok('sneak + click: his menu - Call him over, Send him home, Wardrobe', /Call him over/.test(labels) && /Send him home/.test(labels) && /Wardrobe/.test(labels), labels);
+  ok('sneak + click: his menu - Call him over, Send him home, Wardrobe', /Call (him|Wilfrey) over/.test(labels) && /Send him home/.test(labels) && /Wardrobe/.test(labels), labels);
   await A.press(/Send him home/); await sleep(2500);
   ok('...Send him home: he fades', (await cnt(wil)) === 0);
   await use(1); await sleep(1500);
@@ -74,11 +74,11 @@ const res = [];
   ok('knocked out: his rest is 2 minutes', await wait(8000, async () => { const v = await sc('bm.wlcd'); return v > 100 && v <= 120; }), `${await sc('bm.wlcd')}`);
   await run('scoreboard players set TestRat bm.wlcd 2');
   ok('...and when it\'s over, he comes back by himself', await wait(8000, async () => (await cnt(wil)) === 1));
-  // switched off on his wardrobe page
+  // switched off on his Settings page (3.0j: the switches moved off the wardrobe, phase260)
   await sleep(1000); n0 = A.dialogN.length; await use(1, true); await wait(3000, async () => A.dialogN.length > n0);
-  n0 = A.dialogN.length; await A.press(/Wardrobe/); await wait(3000, async () => A.dialogN.length > n0);
+  n0 = A.dialogN.length; await A.press(/Settings/); await wait(3000, async () => A.dialogN.length > n0);
   const wl = A.buttons().map(b => b.label).join(' | ');
-  ok('his wardrobe page: "Back after a faint  on"', /Back after a faint\s+on/.test(wl), wl.slice(0, 300));
+  ok('his Settings page: "Back after a faint  on"', /Back after a faint\s+on/.test(wl), wl.slice(0, 300));
   await A.press(/Back after a faint/); await sleep(1500);
   ok('...pressed: off', (await sc('bm.arof')) > 0 && A.buttons().some(b => /Back after a faint\s+off/.test(b.label)));
   await run(`${O}tp ${wil} ~ -300 ~`); await run(`${O}kill ${wil}`);
