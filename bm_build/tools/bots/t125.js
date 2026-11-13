@@ -166,9 +166,11 @@ const X = 19000, Y = 120, Z = 19000;
     for (let i = 0; i < 20 && !/passed/.test(await run(`execute as ${W} if predicate bm:p39/on_ground`)); i++) await sleep(100);   // (the ridden hop is a high one: down first)
     A.input({ jump: true }); await sleep(120); A.input({}); await sleep(160); A.input({ jump: true }); await sleep(250); A.input({});
     await sleep(300);
-    ok('Jump again in mid-air: he takes off and flies', /bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && /1b/.test(await run(`data get entity ${W} NoGravity`)));
+    ok('Jump again in mid-air: he takes off and flies', /bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && /1b/.test(await run(`data get entity ${W} NoGravity`)),
+       `kw ${/passed/.test(await run(`execute if entity ${W}`))} at ${(await run(`data get entity ${W} Pos`)).replace(/.*data: /, '')}; riding ${await riding()}; tags ${(await run(`data get entity ${W} Tags`)).replace(/.*data: /, '').slice(0, 120)}`);
     await run('rotate TestRat -90 70'); await sleep(4000);
-    ok('Look down to the ground: he lands and walks again', !/bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && !/1b/.test(await run(`data get entity ${W} NoGravity`)), (await run(`data get entity ${W} Tags`)).slice(-80));
+    // (3.2a: he has to be there - "No entity was found" has no bm.kxfly in it either, and the check passed with him gone)
+    ok('Look down to the ground: he lands and walks again', /passed/.test(await run(`execute if entity ${W}`)) && !/bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && !/1b/.test(await run(`data get entity ${W} NoGravity`)), (await run(`data get entity ${W} Tags`)).slice(-80));
     // a wall ahead: he climbs it
     const wx = Math.floor(await num(`data get entity ${W} Pos[0]`)) + 3;
     await run(`fill ${wx} ${Y} ${Z - 3} ${wx} ${Y + 3} ${Z + 3} minecraft:stone`); await run('rotate TestRat -90 0');
