@@ -62,15 +62,15 @@ const res = [];
                                      ['creeper', 'a vanilla creeper', null], ['creeper', 'a Blood Moon creeper', 'mobs/blood/creeper'], ['creeper', 'a Champion creeper', 'mobs/champion/creeper'],
                                      ['creeper', 'an Elite creeper', 'mobs/elite/creeper']]) {
     await clear();
-    await run(`${O}summon minecraft:${kind} ${X + 30.5} ${Y} ${Z + 3.5} {Tags:["t193","bm.seen"],PersistenceRequired:1b,Fuse:32767s}`);
+    // (3.2a: 15 blocks off, inside a plain one's 16 - since 3.0e a tiered spider or creeper sees only a little further than its plain kind, not 30)
+    await run(`${O}summon minecraft:${kind} ${X + 15.5} ${Y} ${Z + 3.5} {Tags:["t193","bm.seen"],PersistenceRequired:1b,Fuse:32767s}`);
     const Sp = `@e[type=minecraft:${kind},tag=t193,limit=1,${at}]`;
     if (make) await run(`${O}execute as ${Sp} at @s run function bm:${make}`);
-    else await run(`${O}attribute ${Sp} minecraft:follow_range base set 40`);          // (the plain one: noticing you from 30 blocks, as the tiered ones do)
     await run(`${O}kill @e[tag=bm.minion,${at}]`); await run(`${O}kill @e[type=!minecraft:${kind},type=!minecraft:player,${at}]`);
     await run(`${O}data merge entity ${Sp} {Fuse:32767s}`);                             // (no blast mid-measure)
     let t0 = 0, x0 = 0, t1 = 0, x1 = 0; const s0 = Date.now();
     while (Date.now() - s0 < 15000) { const x = await xOf(Sp), t = Date.now();
-      if (!t0 && x < X + 28) { t0 = t; x0 = x; } if (t0 && (x < X + 6 || t - t0 > 4000)) { t1 = t; x1 = x; break; } await sleep(100); }
+      if (!t0 && x < X + 14) { t0 = t; x0 = x; } if (t0 && (x < X + 5 || t - t0 > 4000)) { t1 = t; x1 = x; break; } await sleep(100); }
     const v = t1 > t0 && t0 ? (x0 - x1) / ((t1 - t0) / 1000) : 0;
     if (!make) { console.log(`   (${label}: ${v.toFixed(2)} blocks/s)`); if (kind === 'creeper') vc = v; }
     else if (kind === 'creeper') ok(`${label} runs at a plain creeper's pace (no speed boost: you can get clear)`, v > 0.5 && v <= vc * 1.12 + 0.15, `${v.toFixed(2)} blocks/s (vanilla ${vc.toFixed(2)})`);
