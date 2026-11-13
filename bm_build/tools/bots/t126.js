@@ -139,7 +139,8 @@ const X = 19000, Y = 120, Z = 19000;
     }
     ok('Every Vorn Trooper drops 1-2 Red Xenite', each, `${red} over 6`);
     const surge = F('p32/inv/surge');
-    ok('Invasion nights: a roll a second at 1 in 5, up to 8 Vorn about', /random value 1\.\.5/.test(surge) && /matches 8\.\. run return 0/.test(surge));
+    // (3.2a: phase174 made them harder and better paid - 1 in 3, up to 12; this still expected 2.75c's 1 in 5, up to 8)
+    ok('Invasion nights: a roll a second at 1 in 3, up to 12 Vorn about', /random value 1\.\.3/.test(surge) && /matches 12\.\. run return 0/.test(surge));
   }
 
   if (want('cecil')) {
