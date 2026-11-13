@@ -27,6 +27,7 @@ const res = []; const X = 19300, Y = 120, Z = 19000;
   const PX = X + 32;
   await run(`fill ${PX - 6} ${Y - 6} ${Z - 6} ${PX + 6} ${Y - 1} ${Z + 6} minecraft:stone`); await run(`fill ${PX - 5} ${Y - 5} ${Z - 5} ${PX + 5} ${Y - 1} ${Z + 5} minecraft:water`);
   await run(`fill ${PX - 6} ${Y} ${Z - 6} ${PX + 6} ${Y + 8} ${Z + 6} minecraft:air`); await run(`fill ${PX} ${Y - 5} ${Z} ${PX} ${Y - 1} ${Z} minecraft:stone`);
+  await require('./stage').sendAllHome(run);      // (3.2a: the stage - none of TestRat's followers left out to fill the limit)
   await run('time set day'); await run('weather clear'); await run('gamerule spawn_mobs false'); await run('gamerule advance_weather false');
   for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.zibpet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.cecilpet', 'wolf,tag=bm.leopet', 'wolf,tag=bm.dmpet', 'vindicator,tag=bm.dmboss'])
     await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);

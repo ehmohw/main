@@ -6,9 +6,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('attribute TestRat minecraft:max_health base set 20');
   // (3.1z: the stage - every follower of TestRat's sent home, as the game does it: one left out by the test before (t72) filled the limit
   //  with Cecil and KillerWatt, and Democratus was sent home himself halfway through)
-  await run('scoreboard players operation #me bm.pid = TestRat bm.pid');
-  for (const f of require('fs').readdirSync(require('path').join(__dirname, '..', '..', 'out_p2/BlackMarket_DP/data/bm/function/p98/home')))
-    await run(`execute as TestRat at @s run function bm:p98/home/${f.replace(/\.mcfunction$/, '')}`);   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
+  await require('./stage').sendAllHome(run);   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
   const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
