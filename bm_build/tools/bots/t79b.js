@@ -81,8 +81,8 @@ const res = []; const X = 18000, Y = 120, Z = 18000;
   // ---- the leap: up and down on a foe a little way off
   await run(`tp ${W} ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await zombie(7.5, 0.5); await sleep(200);
   await run(`execute as ${W} run scoreboard players set @s bm.kxatk 5`); await run(`execute as ${W} run scoreboard players set @s bm.kxt 0`); await sleep(500);
-  const ly = (await pos(W))[1];
-  await sleep(2600);
+  let ly = (await pos(W))[1];                                                       // (3.2a: his highest point over the leap - one look at 0.5s could catch the wind-up)
+  for (let i = 0; i < 26; i++) { await sleep(100); ly = Math.max(ly, (await pos(W))[1]); }
   const lp = await pos(W); const zh = await run('data get entity @e[type=zombie,tag=bm.t79z,limit=1] Health');
   ok('THE LEAP: up, over, and down on it', ly > Y + 0.8 && lp[0] > X + 3 && (!/\d/.test(zh.replace(/.*data: /, '')) || +zh.match(/([\d.]+)f/)[1] < 20),
      `air y ${ly.toFixed(1)} land x ${lp[0].toFixed(1)} zombie ${zh.replace(/.*data: /, '')}`);

@@ -97,6 +97,9 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   const f1 = await cmd('type=item_display,tag=bm.lp_head,tag=!bm.leencp');
   ok('...his face: serious in a fight (or blinking)', /serious|blink|hurt/.test(f1), f1);
   // the throw at range
+  // (3.2a: his specials held off for the throw - one mid-check blocks it (bm.ksg) and hurts the zombie its own way)
+  for (const o of ['bm.kcd1', 'bm.kcd2', 'bm.kcd3']) await run(`scoreboard players set @e[type=wolf,tag=bm.leopet] ${o} 2000`);
+  for (let i = 0; i < 20 && (await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.ksg')) >= 1; i++) await sleep(200);
   await run(`tp @e[type=zombie,tag=bm.t96z] ${X + 0.5} ${Y} ${Z + 10.5}`); await run('scoreboard players set @e[type=wolf,tag=bm.leopet] bm.let 0'); await run('scoreboard players set @e[type=wolf,tag=bm.leopet] bm.lem 0');
   let thrown = false; for (let i = 0; i < 12 && !thrown; i++) { await sleep(150); thrown = (await cnt('@e[type=item_display,tag=bm.letr]')) > 0; }
   await sleep(1500);
@@ -107,7 +110,9 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run('effect give TestRat minecraft:instant_health 1 5 true'); await sleep(300); await run('effect clear TestRat');
   await run('data merge entity @e[type=wolf,tag=bm.leopet,limit=1] {NoAI:0b}');
   await run(`tp @e[type=zombie,tag=bm.t96z] ${X + 0.5} ${Y} ${Z + 16.5}`); await run('scoreboard players set @e[type=wolf,tag=bm.leopet] bm.leg 0');
-  await run('damage TestRat 17 minecraft:generic');       // (his steadfast Resistance takes a fifth off: about 4 hearts left)
+  // (3.2a: down to about 3 hearts of HIS max - TestRat keeps lasting max-health gifts, so a flat 17 left him at 17 of 28)
+  const mh = +(((await run('attribute TestRat minecraft:max_health get')).match(/is (-?[\d.]+)/) || [])[1]);
+  await run(`damage TestRat ${Math.max(1, Math.round(((isNaN(mh) ? 20 : mh) - 6) / 0.8))} minecraft:generic`);       // (his steadfast Resistance takes a fifth off)
   for (let i = 0; i < 15 && !((await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')) >= 25); i++) await sleep(200);
   const gres = await run('data get entity TestRat active_effects[{id:"minecraft:resistance"}].amplifier');
   const gdbg = `hp ${await fl('data get entity TestRat Health')} leg ${await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')} z ${await cnt('@e[type=zombie,tag=bm.t96z]')} eff ${(await run('data get entity TestRat active_effects')).slice(-150)}`;
@@ -244,10 +249,12 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run('item replace entity TestRat weapon.mainhand with air'); await run(`loot replace entity TestRat weapon.mainhand loot bm:items/gem_${gemIds[0]}`);
   await run(`clear TestRat *[minecraft:custom_data~{bm:"gem_${gemIds[0]}"}] 1`); await run(`loot replace entity TestRat weapon.mainhand loot bm:items/gem_${gemIds[0]}`);
   await run('advancement revoke TestRat only bm:story/ethereal_gem');
+  const held = []; for (const k of gemIds) held.push(`${k}:${await inv('gem_' + k)}`);       // (3.2a: which ones he holds, if it doesn't fuse)
+  A.input({}); await sleep(150);
   await run('scoreboard players set TestRat bm.gmcd 0'); await run(`execute as TestRat at @s run function bm:p60/gem/use_${gemIds[0]}`); await sleep(4200);
   const left = await inv('gem_' + gemIds[1]);
   ok('All nine in your hands, use one: they rise, fuse - the Ethereal Gem, and "Nine Made One"', left === 0 && (await inv('ethereal_gem')) === 1 && (await adv('ethereal_gem')),
-     `left ${left}, gem ${await inv('ethereal_gem')}, adv ${await adv('ethereal_gem')}`);
+     `left ${left}, gem ${await inv('ethereal_gem')}, adv ${await adv('ethereal_gem')}; held ${held.join(' ')}; sneak ${/passed/.test(await run('execute as TestRat if predicate bm:p20/sneaking'))}`);
   // one a heist: the coat check keeps the rest
   await run('clear TestRat'); await run('loot give TestRat loot bm:items/ethereal_gem'); await run('loot give TestRat loot bm:items/ethereal_gem');
   await run('scoreboard players set TestRat bm.gvrun 99001'); await run('scoreboard players reset #eth0 bm.gvrun');
