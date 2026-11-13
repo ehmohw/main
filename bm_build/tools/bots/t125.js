@@ -164,8 +164,13 @@ const X = 19000, Y = 120, Z = 19000;
     A.input({ jump: true }); for (let i = 0; i < 6; i++) { await sleep(50); top = Math.max(top, await wy()); } A.input({}); await sleep(900);
     ok(`Jump: he hops (${y0.toFixed(2)} -> ${top.toFixed(2)})`, top > y0 + 0.4);
     for (let i = 0; i < 20 && !/passed/.test(await run(`execute as ${W} if predicate bm:p39/on_ground`)); i++) await sleep(100);   // (the ridden hop is a high one: down first)
-    A.input({ jump: true }); await sleep(120); A.input({}); await sleep(160); A.input({ jump: true }); await sleep(250); A.input({});
-    await sleep(300);
+    const trace = [];                                                                // (DBG=1: where he is, tick by tick, through the take-off)
+    const snap = async (lbl) => { if (!process.env.DBG) return; trace.push(`${lbl} n=${await cnt('@e[tag=bm.kxpet]')} ` +
+      (await run(`data get entity @e[tag=bm.kxpet,limit=1] Pos`)).replace(/.*data: /, '') + ' ' + (await run(`data get entity @e[tag=bm.kxpet,limit=1] Tags`)).replace(/.*data: /, '').slice(0, 200)); };
+    await snap('pre');
+    A.input({ jump: true }); await sleep(120); A.input({}); await snap('hop'); await sleep(160); A.input({ jump: true }); await sleep(250); A.input({});
+    for (let i = 0; i < 6; i++) { await snap('t' + i); await sleep(50); }
+    if (process.env.DBG) console.log(trace.join('\n'));
     ok('Jump again in mid-air: he takes off and flies', /bm.kxfly/.test(await run(`data get entity ${W} Tags`)) && /1b/.test(await run(`data get entity ${W} NoGravity`)),
        `kw ${/passed/.test(await run(`execute if entity ${W}`))} at ${(await run(`data get entity ${W} Pos`)).replace(/.*data: /, '')}; riding ${await riding()}; tags ${(await run(`data get entity ${W} Tags`)).replace(/.*data: /, '').slice(0, 120)}`);
     await run('rotate TestRat -90 70'); await sleep(4000);

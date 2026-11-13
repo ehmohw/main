@@ -41,7 +41,9 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   ok('Seawatch fort: walls, the gate, the watchtower fire and banner, the chest', (await blk(-4, 1, -4, 'minecraft:stone_bricks')) && (await blk(0, 0, 4, 'minecraft:air')) &&
      (await blk(-3, 6, -3, 'minecraft:campfire')) && (await blk(-4, 7, -4, 'minecraft:blue_banner')) && (await blk(3, 0, -3, 'minecraft:chest')) && (await cnt('@e[type=marker,tag=bm.lefort]')) === 1);
   await sleep(2400);
-  ok('Leo is home: his rig (7 parts) and his hitbox at the fort', (await cnt('@e[type=interaction,tag=bm.leenc]')) === 1 && (await cnt('@e[type=item_display,tag=bm.leencp]')) === 7);
+  for (let i = 0; i < 25 && !((await cnt('@e[type=interaction,tag=bm.leenc]')) === 1 && (await cnt('@e[type=item_display,tag=bm.leencp]')) === 7); i++) await sleep(200);
+  ok('Leo is home: his rig (7 parts) and his hitbox at the fort', (await cnt('@e[type=interaction,tag=bm.leenc]')) === 1 && (await cnt('@e[type=item_display,tag=bm.leencp]')) === 7,
+     `box ${await cnt('@e[type=interaction,tag=bm.leenc]')} parts ${await cnt('@e[type=item_display,tag=bm.leencp]')} out ${await cnt('@e[type=wolf,tag=bm.leopet]')}`);
   const U = (await run('data get entity TestRat UUID')).replace(/^.*data: /, '').trim();
   const click = async () => { await run(`data merge entity @e[type=interaction,tag=bm.leenc,limit=1] {interaction:{timestamp:1L,player:${U}}}`); await sleep(500); };
   A.chats.length = 0; await click();
@@ -112,7 +114,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run(`tp @e[type=zombie,tag=bm.t96z] ${X + 0.5} ${Y} ${Z + 16.5}`); await run('scoreboard players set @e[type=wolf,tag=bm.leopet] bm.leg 0');
   // (3.2a: down to about 3 hearts of HIS max - TestRat keeps lasting max-health gifts, so a flat 17 left him at 17 of 28)
   // (a few small hits, not one big one: a single 28 could kill him outright)
-  for (let i = 0; i < 20; i++) { const hp = await fl('data get entity TestRat Health'); if (!(hp > 7)) break; await run(`damage TestRat ${Math.min(4, Math.max(1, Math.floor(hp - 6)))} minecraft:generic`); await sleep(600); }
+  // (stop once at or under his 8: he guards then, and one more hit would spend the absorption he gives)
+  for (let i = 0; i < 20; i++) { const hp = await fl('data get entity TestRat Health'); if (!(hp > 8)) break; await run(`damage TestRat ${Math.min(4, Math.max(1, Math.ceil(hp - 5)))} minecraft:generic`); await sleep(600); }
   for (let i = 0; i < 15 && !((await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')) >= 25); i++) await sleep(200);
   const gres = await run('data get entity TestRat active_effects[{id:"minecraft:resistance"}].amplifier');
   const gdbg = `hp ${await fl('data get entity TestRat Health')} leg ${await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')} z ${await cnt('@e[type=zombie,tag=bm.t96z]')} eff ${(await run('data get entity TestRat active_effects')).slice(-150)}`;
