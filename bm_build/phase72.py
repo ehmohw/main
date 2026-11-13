@@ -14,7 +14,7 @@ SKIFF ESCORTS (beat a Vorn Dreadnought's reactor on an invasion night)
 - Everyone near when the reactor goes offline gets a Skiff Escort beacon - a colour they don't have yet, while any are
   left. Eight colours; collect them all for "Squadron Leader". Use it: a little skiff flies at your shoulder and
   lasers monsters within 16 (5 damage a second). It can't be ridden or painted. Only 16 health - archers, blazes,
-  witches and Vorn troopers take shots at it - and if it's shot down, 5 minutes. Not a follower (no limit).
+  witches and Vorn troopers take shots at it - and if it's shot down, a minute (5 before 2.94). Not a follower (no limit).
 THE VAULT'S COAT CHECK AND LOANER KITS (phase70)
 - Going in, the Fixer checks your gear at the door: everything goes into safekeeping, except heist tools (Smoke Bombs,
   lockpicks, the Cracking Rig, the Cipher Monocle, the Thief's Cowl, the Smuggler's Boots, Gutter Coins, Clockwork bits,
@@ -67,7 +67,7 @@ for i, c in enumerate(ART.ESCORT_COLS):
     item(f'skiff_escort_{c}', TOTEM, f'Skiff Escort: {nm}', col,
          ['A pocket-sized Vorn Skiff, reprogrammed.', ('Use: it flies at your shoulder and lasers', 'blue'), ('monsters within 16 blocks (5 damage).', 'blue'),
           ('Use again, or sneak + use: it flies home.', 'blue'), ("It can't be ridden, and won't take paint -", 'gray'), (f"it's {nm}, and that's that.", 'gray'),
-          ("Fragile: if it's shot down, 5 minutes.", 'gray'), ('Eight colours to collect.', 'light_purple')],
+          ("Fragile: if it's shot down, a minute's repairs.", 'gray'), ('Eight colours to collect.', 'light_purple')],      # (3.1z: it said 5 minutes; a minute since 2.94)
          model=f'bm:skiff_escort_{c}', stack=1, cat='alien', glint=True, comps=hold('none'))
     HOLD[f'skiff_escort_{c}'] = f'bm:p72/esk/use_{i}'
 

@@ -3,8 +3,14 @@
 const { bot, rcon, sleep } = require('./lib');
 const res = []; const X = 19100, Y = 120, Z = 19000;
 (async () => { const R = await rcon(); const run = c => R.run(c); const A = await bot('TestRat'); await sleep(2500);
-  await run('attribute TestRat minecraft:max_health base set 20');   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
+  await run('attribute TestRat minecraft:max_health base set 20');
+  // (3.1z: the stage - every follower of TestRat's sent home, as the game does it: one left out by the test before (t72) filled the limit
+  //  with Cecil and KillerWatt, and Democratus was sent home himself halfway through)
+  await run('scoreboard players operation #me bm.pid = TestRat bm.pid');
+  for (const f of require('fs').readdirSync(require('path').join(__dirname, '..', '..', 'out_p2/BlackMarket_DP/data/bm/function/p98/home')))
+    await run(`execute as TestRat at @s run function bm:p98/home/${f.replace(/\.mcfunction$/, '')}`);   // (3.1z: the stage - a test that died mid-way (t134's 200) left it raised)
   const ok = (n, p, d = '') => { res.push(!!p); console.log((p ? 'PASS ' : 'FAIL ') + n + (d ? '  -- ' + d : '')); };
+  const wait = async (ms, fn, step = 250) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await fn()) return true; await sleep(step); } return false; };
   const sc = async (who, o) => { const m = (await run(`scoreboard players get ${who} ${o}`)).match(/has (-?\d+)/); return m ? +m[1] : NaN; };
   const cnt = async sel => { const o = await run(`execute store result score #t bm.rng if entity ${sel}`); return /failed/i.test(o) ? 0 : +((o.match(/(\d+)/g) || [0]).pop()); };
   const hpOf = async sel => { const m = (await run(`data get entity ${sel} Health`)).match(/([\d.]+)f/); return m ? +m[1] : NaN; };
@@ -105,7 +111,8 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run(`tp ${W} ${X + 3.5} ${Y} ${Z + 0.5}`); await sleep(1300);
   let hit = null; for (let i = 0; i < 15 && !hit; i++) { hit = await eidOf('@e[type=interaction,tag=bm.dmhit,limit=1]'); if (!hit) await sleep(200); }   // (the client has to know the box first)
   A.interact(hit); await sleep(500);
-  ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && (await sc(W, 'bm.dms')) === 4, `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')}`);
+  // (3.1z: a blow of his still under way from the fight before (state 21) finishes first - then the rig sits)
+  ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && await wait(5000, async () => (await sc(W, 'bm.dms')) === 4, 200), `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')}`);
   await run(`execute as ${W} run data merge entity @s {Sitting:0b}`);
 
   // ---- his challenge: the duel (at full health: he won't duel anyone at five hearts or less, 2.80b)
@@ -140,8 +147,11 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('scoreboard players set TestRat bm.act 9701'); await sleep(400); await run('scoreboard players set TestRat bm.dmd 2'); await sleep(500);
   await run(`execute as ${BOSS} run data merge entity @s {NoAI:1b}`);
   await run('damage TestRat 16 minecraft:generic'); await sleep(400);
-  ok('Down to three hearts: the duel is lost - he goes home', (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.dmduel]')));
-  ok('...and you get some healing', /regeneration/.test(await run('data get entity TestRat active_effects')));
+  const hpL = (await run('data get entity TestRat Health')).replace(/.*data: /, '');
+  ok('Down to three hearts: the duel is lost - he goes home', await wait(4000, async () => (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.dmduel]')), 200),
+     `health after the blow ${hpL}; armour ${(await run('attribute TestRat minecraft:armor get')).replace(/.*is /, '')}; boss ${await cnt(BOSS)}; dmd ${await sc('TestRat', 'bm.dmd')}`);
+  ok('...and you get some healing', /regeneration/.test(await run('data get entity TestRat active_effects')),
+     `effects ${(await run('data get entity TestRat active_effects')).replace(/.*data: /, '').slice(0, 160)}; health ${(await run('data get entity TestRat Health')).replace(/.*data: /, '')}`);
   await run('effect give TestRat minecraft:instant_health 1 4 true');
   ok('...no cooldown: call him again straight away', await (async () => { await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p97/use'); await sleep(500); return (await cnt(W)) === 1; })());
 

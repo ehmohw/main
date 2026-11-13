@@ -120,7 +120,8 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
   ok('...archers take shots at it (16 health - fragile)', eh1 < 16 || (await cnt('@e[type=bat,tag=bm.eskhost]')) === 0, `escort ${eh1}/16`);
   await run('kill @e[tag=bm.t72t]');
   await run(`kill ${eh}`); await sleep(2500);
-  ok('Shot down: 5 minutes of repairs', (await sc('TestRat', 'bm.eskcd')) >= 115 && (await cnt('@e[tag=bm.eskd]')) === 0 && A.chats.some(c => /shot down/.test(c)));
+  ok('Shot down: a minute of repairs (2.94)', (await sc('TestRat', 'bm.eskcd')) >= 55 && (await cnt('@e[tag=bm.eskd]')) === 0 && A.chats.some(c => /shot down/.test(c)),
+     `cd ${await sc('TestRat', 'bm.eskcd')}, parts ${await cnt('@e[tag=bm.eskd]')}, chat ${A.chats.slice(-2).join(' | ').slice(0, 160)}`);
   await run('execute as TestRat at @s run function bm:p72/esk/use'); await sleep(300);
   ok('...and it won\'t launch before then', (await cnt('@e[type=bat,tag=bm.eskhost]')) === 0 && A.bars.slice(-3).some(b => /patched up/.test(b)));
   await run('scoreboard players reset TestRat bm.eskcd');
@@ -140,15 +141,18 @@ const rel = (x, y, z) => `~${x - 12} ~${y - 4} ~${z - 12}`;
      !(await has('armor.head', 'minecraft:iron_helmet')) && !(await has('weapon.offhand', 'minecraft:shield')));
   ok('...but heist tools come along (the Smoke Bomb)', await has('container.*', '*[custom_data~{bm:"smoke_bomb"}]'));
   await run('execute in bm:gutter as @e[type=minecraft:marker,tag=bm.gvinst] run scoreboard players set @s bm.gvmod 0'); await run('attribute TestRat minecraft:max_health modifier remove bm:gv_glass'); await sleep(1100);
+  // (3.1z: against the bot's own max health - earlier tests leave it lasting hearts (bm:hearts, bm:starheart), and 20 isn't a given)
+  const mh = async () => +(((await run('attribute TestRat minecraft:max_health get')).match(/is ([\d.]+)/) || [0, NaN])[1]);
+  const mh0 = await mh();
   await click('@e[type=interaction,tag=bm.gvk1,limit=1]'); await sleep(400);
   ok('Take the TANK rack: Juggernaut armour on, sword and shield, +8 health', await has('armor.chest', '*[custom_data~{bm:"juggernaut_chestplate_1"}]') &&
      await has('container.*', '*[custom_data~{bm:"kokiri_sword"}]') && await has('weapon.offhand', '*[custom_data~{bm:"hylian_shield"}]') &&
-     /3[0-6]\.0/.test(await run('attribute TestRat minecraft:max_health get')), await run('attribute TestRat minecraft:max_health get'));
+     (await mh()) - mh0 >= 8 && (await mh()) - mh0 <= 16, `${mh0} -> ${await mh()}`);
   ok('...every piece marked as a loaner', await has('armor.chest', '*[custom_data~{bm_kit:1b}]'));
   await click('@e[type=interaction,tag=bm.gvk4,limit=1]'); await sleep(400);
   ok('Change your mind (before the heist begins): SUPPORT instead - the tank kit is gone', await has('armor.head', '*[custom_data~{bm:"tidecaller_helmet_1"}]') &&
      !(await has('container.*', '*[custom_data~{bm:"kokiri_sword"}]')) && await has('container.*', '*[custom_data~{bm:"staff_of_sparks"}]') &&
-     /20|21|22/.test(await run('attribute TestRat minecraft:max_health get')), await run('attribute TestRat minecraft:max_health get'));
+     Math.abs((await mh()) - mh0) <= 2, `${mh0} -> ${await mh()}`);
   ok('The heist sheet carries a Fixer\'s contract', /CONTRACT/.test(await run('execute in bm:gutter run data get entity @e[type=text_display,tag=bm.gvsheet,limit=1] text')));
   await run('execute in bm:gutter as @e[type=marker,tag=bm.gvr_lobby,limit=1] at @s run setblock ' + rel(23, 5, 15) + ' minecraft:pale_oak_button[face=wall,facing=west,powered=true]'); await sleep(600);
   await click('@e[type=interaction,tag=bm.gvk2,limit=1]'); await sleep(300);
