@@ -388,6 +388,11 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
   another `rc.js`, without end. About 250 of them piled up behind each sweep's `gamerule ... true` and the kernel OOM-killed the server
   (that was "the server is sometimes killed from outside"). If the server dies mid-sweep, look at `dmesg | grep -i killed` and
   `pgrep -fc rc.js` first.
+- (3.2a) **Send followers home, don't drop them in the void:** `tp @s ~ -400 ~` on a follower can lose the race. It may be fetched
+  back to its owner before the void kills it, and then stand next to the next section's freshly summoned one. In t125 that meant two
+  KillerWatts, with `limit=1` watching the wrong one. Use `require('./stage').sendAllHome(run)` (the game's own send-home) for
+  followers. The void drop is still fine for bosses and plain mobs. (18 older tests still drop followers this way; they pass, but
+  if one shows a phantom duplicate, this is why.)
 
 ## Index
 
