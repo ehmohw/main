@@ -51,7 +51,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run('item replace entity TestRat weapon.mainhand with minecraft:iron_sword'); await sleep(300); await click(); await sleep(600);
   const w1 = await cnt('@e[type=drowned,tag=bm.lefoe]');
   ok('A sword raised: DEFEND THE FORT - wave 1 of the drowned (4), in turtle shells', (await num('scoreboard players get @e[type=interaction,tag=bm.leenc,limit=1] bm.lew')) === 1 && w1 === 4 &&
-     /turtle_helmet/.test(await run('data get entity @e[type=drowned,tag=bm.lefoe,limit=1] equipment.head.id')), `wave ${w1}`);
+     /turtle_helmet/.test(await run('data get entity @e[type=drowned,tag=bm.lefoe,limit=1] equipment.head.id')),
+     `wave ${w1} lew ${await num('scoreboard players get @e[type=interaction,tag=bm.leenc,limit=1] bm.lew')} head ${(await run('data get entity @e[type=drowned,tag=bm.lefoe,limit=1] equipment.head.id')).replace(/.*data: /, '')}`);
   // Leo fights at his gate: a drowned brought to him gets hurt
   await run('tag @e[type=drowned,tag=bm.lefoe,limit=1] add bm.t96d'); await run(`tp @e[type=drowned,tag=bm.t96d] ${X + 0.5} ${Y} ${Z + 2.0}`); await run('data merge entity @e[type=drowned,tag=bm.t96d,limit=1] {NoAI:1b}');
   const h0 = await fl('data get entity @e[type=drowned,tag=bm.t96d,limit=1] Health'); await sleep(1800);

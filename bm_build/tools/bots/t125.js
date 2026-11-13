@@ -16,9 +16,13 @@ const X = 19000, Y = 120, Z = 19000;
   const field = async () => {
     await run(`forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
     await run(`fill ${X - 30} ${Y - 1} ${Z - 30} ${X + 30} ${Y - 1} ${Z + 30} minecraft:grass_block`); await run(`fill ${X - 30} ${Y} ${Z - 30} ${X + 30} ${Y + 20} ${Z + 30} minecraft:air`);
-    for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.dmpet', 'wolf,tag=bm.leopet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.cecilpet', 'giant,tag=bm.salboss', 'vindicator,tag=bm.dmboss'])
-      await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
-    await sleep(1500);
+    // (3.2a: followers sent home the game's way - one dropped to y -400 could be fetched back to its owner before the void took it,
+    //  and stood beside the next section's new one: two KillerWatts, the test watching the wrong one)
+    await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
+    await require('./stage').sendAllHome(run);
+    for (const k of ['giant,tag=bm.salboss', 'vindicator,tag=bm.dmboss']) await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
+    for (let i = 0; i < 15 && (await cnt('@e[tag=bm.kxpet]')) + (await cnt('@e[tag=bm.emmapet]')) + (await cnt('@e[tag=bm.dmpet]')) + (await cnt('@e[tag=bm.leopet]')) > 0; i++) await sleep(200);
+    await sleep(800);
     for (const o of ['bm.emcd', 'bm.kxcd', 'bm.dmcd', 'bm.lecd', 'bm.cecd', 'bm.cpcd']) await run(`scoreboard players set TestRat ${o} 0`);
     await run('tag TestRat remove bm.dmduel'); await run('scoreboard players set TestRat bm.dmd 0');     // (a duel's countdown left running by an earlier run)
     await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('gamemode survival TestRat'); await run('effect clear TestRat'); await run('clear TestRat');
