@@ -15,6 +15,9 @@ const PENDING = path.join(__dirname, '.chunks_pending.json');
 const readPending = () => { try { return JSON.parse(fs.readFileSync(PENDING, 'utf8')); } catch (e) { return []; } };
 let flushed = false;
 const held = new Map();             // "dim|cx|cz" -> [dim, cx, cz]
+// (3.2a) The same for game rules: the first time a test sets one, its value as found is remembered and put back at exit (t100 and
+// six more turned spawn_mobs off and never on - harmless while their old camelCase names failed, not once they were fixed).
+const rules = new Map();            // name -> value as found
 let hooked = false;
 
 const dimOf = (cmd) => (cmd.match(/(?:^|\s)in\s+([a-z0-9_.-]+:[a-z0-9_/.-]+)/) || [0, 'minecraft:overworld'])[1];
@@ -27,7 +30,8 @@ function area(cmd) {
   return cs;
 }
 function release() {
-  if (!held.size) return;
+  const ruleCmds = [...rules.entries()].map(([n, v]) => `gamerule ${n} ${v}`); rules.clear();
+  if (!held.size && !ruleCmds.length) return;
   // one command per run of chunks along x (same dimension, same z)
   const rows = {}; for (const [d, cx, cz] of held.values()) (rows[`${d}|${cz}`] = rows[`${d}|${cz}`] || []).push(cx);
   const cmds = [];
@@ -36,7 +40,7 @@ function release() {
     for (let i = 0; i < xs.length;) { let j = i; while (j + 1 < xs.length && xs[j + 1] === xs[j] + 1) j++;
       cmds.push(`execute in ${d} run forceload remove ${xs[i] * 16} ${cz * 16} ${xs[j] * 16} ${cz * 16}`); i = j + 1; }
   }
-  held.clear();
+  held.clear(); cmds.push(...ruleCmds);
   const r = spawnSync(process.execPath, [path.join(__dirname, 'rc.js'), ...cmds], { timeout: 30000, stdio: 'ignore' });
   if (r.status !== 0) {             // (the server didn't answer: kept for the next test)
     try { fs.writeFileSync(PENDING, JSON.stringify([...new Set([...readPending(), ...cmds])])); } catch (e) {}
@@ -59,6 +63,11 @@ function hook() {
 // send: (command) => Promise<reply>. Returns the reply to cmd itself.
 async function wrap(cmd, send) {
   if (!flushed) await flush(send);
+  const g = typeof cmd === 'string' && cmd.trim().match(/^gamerule ([a-z0-9_:]+) (\S+)$/);
+  if (g && !rules.has(g[1])) {
+    const was = ((await send(`gamerule ${g[1]}`)).match(/currently set to:? ?(\S+)/) || [])[1];
+    if (was !== undefined) { rules.set(g[1], was); hook(); }
+  }
   if (typeof cmd !== 'string' || !/(^|\s)forceload add\s/.test(cmd)) return send(cmd);
   const d = dimOf(cmd), cs = area(cmd.trim());
   if (!cs) { console.log('chunks.js: a forceload add it cannot read - not released at exit: ' + cmd); return send(cmd); }

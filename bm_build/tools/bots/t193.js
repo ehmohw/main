@@ -19,7 +19,7 @@ const res = [];
   await run(`${O}fill ${X - 4} ${Y - 1} ${Z - 2} ${X + LEN + 4} ${Y - 1} ${Z + 8} minecraft:stone`);
   await run(`${O}fill ${X - 4} ${Y} ${Z - 2} ${X + LEN + 4} ${Y + 6} ${Z + 8} minecraft:air`);
   await run(`${O}fill ${X - 4} ${Y} ${Z - 3} ${X + LEN + 4} ${Y + 3} ${Z - 3} minecraft:glass`); await run(`${O}fill ${X - 4} ${Y} ${Z + 9} ${X + LEN + 4} ${Y + 3} ${Z + 9} minecraft:glass`);
-  await run('time set 18000'); await run('weather clear'); await run('gamerule doMobSpawning false');
+  await run('time set 18000'); await run('weather clear'); await run('gamerule spawn_mobs false');
   await run('gamemode survival TestRat'); await run('effect give TestRat minecraft:resistance 600 4 true'); await run('effect give TestRat minecraft:regeneration 600 4 true');
   await run(`${O}tp TestRat ${X + 0.5} ${Y} ${Z + 3.5} -90 0`); await sleep(800); A.stand();
   const clear = async () => { await run(`${O}kill @e[type=!minecraft:player,${at}]`); await sleep(300); };
@@ -108,7 +108,7 @@ const res = [];
        `full sets ${g.full}, bare ${g.bare}/${g.pieces}, Protection points ${g.epf.toFixed(1)} a mob (was ${label === 'Champions' ? 20 : 16})`);
   }
 
-  await clear(); await run('gamerule doMobSpawning true'); await run('time set 1000'); await run('effect clear TestRat');
+  await clear(); await run('gamerule spawn_mobs true'); await run('time set 1000'); await run('effect clear TestRat');
   await run(`${O}forceload remove ${X - 8} ${Z - 8} ${X + LEN + 8} ${Z + 14}`);
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`); A.end(); R.end(); process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

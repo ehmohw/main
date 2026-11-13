@@ -29,7 +29,7 @@ const res = [];
   await run(`${O}fill ${X - 8} ${Y - 1} ${Z - 8} ${X + 8} ${Y - 1} ${Z + 8} minecraft:stone`); await run(`${O}fill ${X - 8} ${Y} ${Z - 8} ${X + 8} ${Y + 30} ${Z + 8} minecraft:air`);
   await run(`${O}tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('effect give TestRat minecraft:resistance 900 4 true'); await run('effect give TestRat minecraft:saturation 900 0 true');
-  await run('gamerule doDaylightCycle false'); await run('weather clear');
+  await run('gamerule advance_time false'); await run('weather clear');
   for (const [k, v] of [['#forced', 0], ['#lucky', 0], ['#ivn', 0]]) await run(`scoreboard players set ${k} bm.bm ${v}`);
   await morning();
   await sleep(1500); A.stand();
@@ -98,7 +98,7 @@ const res = [];
   ok('...every Vorn with them - troopers, saucers and the beasts', (await cnt(`@e[tag=bm.vorn,${near}]`)) === 0, `${before} -> ${await cnt(`@e[tag=bm.vorn,${near}]`)}`);
 
   // ---- the clock back to day, the platform tidied
-  await goto(1000); await run('gamerule doDaylightCycle true');
+  await goto(1000); await run('gamerule advance_time true');
   await run(`${O}kill @e[tag=bm.vorn,${near}]`); await run(`${O}kill @e[type=minecraft:item,${near}]`);
   await run('clear TestRat'); await run(`${O}forceload remove ${X - 16} ${Z - 16} ${X + 16} ${Z + 16}`);
   console.log(`\n${res.filter(Boolean).length}/${res.length} passed`);

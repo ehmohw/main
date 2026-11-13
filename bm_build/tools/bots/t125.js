@@ -26,7 +26,7 @@ const X = 19000, Y = 120, Z = 19000;
     await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await run('weather clear'); await run('time set day');
     await sleep(500);
   };
-  await run('gamerule doMobSpawning false');
+  await run('gamerule spawn_mobs false');
 
   if (want('disc')) {
     for (const k of ['big_score', 'invasion', 'lucky', 'market', 'hollow']) {

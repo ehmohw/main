@@ -24,7 +24,7 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
     for (const t of ['bm.emp', 'bm.cep', 'bm.zbr', 'bm.lep', 'bm.cpet', 'bm.kxp']) await run(`kill @e[type=item_display,tag=${t}]`); await sleep(400); };
   await run(`forceload add ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
   await run(`fill ${X - 30} ${Y - 2} ${Z - 30} ${X + 30} ${Y - 1} ${Z + 30} minecraft:stone`); await run(`fill ${X - 30} ${Y} ${Z - 30} ${X + 30} ${Y + 10} ${Z + 30} minecraft:air`);
-  await run('weather clear'); await run('time set day'); await run('gamerule doMobSpawning false');
+  await run('weather clear'); await run('time set day'); await run('gamerule spawn_mobs false');
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 12.5} 180 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('effect give TestRat minecraft:resistance 600 4 true'); await run('effect give TestRat minecraft:saturation 600 4 true');
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');
@@ -259,7 +259,7 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   ok('...they\'re in your coat-check bag for when you leave', (bag.match(/ethereal_gem/g) || []).length >= 2, bag.slice(0, 160));
   await run(`data remove storage bm:gv bag.p${pid}`); await run('clear TestRat');
 
-  await run('gamerule doMobSpawning true'); await run(`forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
+  await run('gamerule spawn_mobs true'); await run(`forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
   await run('scoreboard players set TestRat bm.arof 0');
   console.log(`${res.filter(x => x).length}/${res.length} passed`); process.exit(0);
 })();

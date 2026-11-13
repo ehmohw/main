@@ -209,11 +209,7 @@ def sig(G, pfx, *, kid=1, tick_fn, state_fn, anim_fn, s_obj, place_fn, col, trig
                 lines.append(f'execute if score @s bm.ksg matches {t} run {c}')
     for a, t in arr.items():
         fn(f'{pfx}/k/at{a}', [f'scoreboard players set @s bm.ksg {t}'])
-    # (3.1z: held for a dash (1000) with no dash running - its foe died or vanished on the way, and k/stop ended the dash - the special
-    #  ends as it would: it waited for an arrival that never came, the follower stuck in its special for good (t100: Democratus never
-    #  sat again, state 21))
-    fn(f'{pfx}/sg/{kid}/tick', list(each) + [f'execute if score @s bm.ksg matches 1000 unless score @s bm.kd matches 1.. run return run function bm:{pfx}/sg/{kid}/end',
-                                             'execute if score @s bm.ksg matches 1000 run return 0', 'scoreboard players add @s bm.ksg 1'] + lines +
+    fn(f'{pfx}/sg/{kid}/tick', list(each) + ['execute if score @s bm.ksg matches 1000 run return 0', 'scoreboard players add @s bm.ksg 1'] + lines +
        [f'execute if score @s bm.ksg matches {end}.. run function bm:{pfx}/sg/{kid}/end'])
     fn(f'{pfx}/sg/{kid}/end', ['scoreboard players set @s bm.ksg 0', 'scoreboard players set @s bm.ksw 0', f'scoreboard players set @s bm.kcd{kid} {cd}',
                                'data merge entity @s {NoGravity:0b}'])

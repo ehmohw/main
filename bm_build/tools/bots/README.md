@@ -377,6 +377,12 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
   (`p131/seal/dedupe`, `p237/sigil/dedupe`).
 - (3.1z) **A follower killed with rcon can come back by itself** (the keep-up still thinks it's out): t134 sends Emma, Leo and Cecil
   home with `p98/home/<kind>` (as TestRat, `#me bm.pid` set) before its kills.
+- (3.2a) **26.3's game rules are snake_case:** `gamerule doMobSpawning false` is a syntax error that rcon reports and the test
+  never reads - monsters kept spawning in twelve tests that meant to stop them. `spawn_mobs`, `advance_time`, `advance_weather`,
+  `keep_inventory`, `mob_griefing`, `immediate_respawn`. And chunks.js now puts back every game rule a test set, at exit, as it found it.
+- (3.2a) **TestRat isn't a fresh player:** earlier tests leave lasting max-health upgrades (`bm:hearts`, `bm:starheart`, +4 each) and
+  followers out. Measure against its own max health; send followers home (`p98/home/<kind>` as TestRat, `#me bm.pid` set) first.
+- (3.2a) **A follower mid-special (state 21) lets a right-click pass:** clear the monsters near it and wait for `bm.ksg` 0 first.
 
 ## Index
 

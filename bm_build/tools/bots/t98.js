@@ -9,7 +9,7 @@ const res = []; const X = 19200, Y = 110, Z = 19200;
   const inv = async iid => { const v = await num(`execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"${iid}"}] 0`); return isNaN(v) ? 0 : v; };
   await run(`forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
   await run(`fill ${X - 40} ${Y - 2} ${Z - 40} ${X + 40} ${Y - 1} ${Z + 40} minecraft:stone`); await run(`fill ${X - 40} ${Y} ${Z - 40} ${X + 40} ${Y + 30} ${Z + 40} minecraft:air`);
-  await run('weather clear'); await run('time set day'); await run('gamerule doMobSpawning false');
+  await run('weather clear'); await run('time set day'); await run('gamerule spawn_mobs false');
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} 0 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('effect give TestRat resistance 600 4 true'); await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await sleep(800);
 
@@ -61,6 +61,6 @@ const res = []; const X = 19200, Y = 110, Z = 19200;
   const comp = await run('data get entity TestRat Inventory[{components:{"minecraft:custom_data":{bm:"ethereal_tendrils"}}}].components');
   ok('...worn in the chest slot, with their own power (the ethereal tendrils enchantment)', /equippable/.test(comp) && /kw_tendrils_eth/.test(comp), comp.slice(0, 160));
   await run('kill @e[type=item_display,tag=bm.eshr]'); await run('kill @e[type=interaction,tag=bm.eshr_hit]'); await run('clear TestRat');
-  await run('gamerule doMobSpawning true'); await run(`forceload remove ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
+  await run('gamerule spawn_mobs true'); await run(`forceload remove ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`);
   console.log(`${res.filter(x => x).length}/${res.length} passed`); process.exit(0);
 })();

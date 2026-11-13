@@ -12,7 +12,7 @@ const res = []; const X = 18000, Y = 120, Z = 18000;
   const clearMobs = async () => { await run(`kill @e[type=zombie,tag=bm.t79z]`); await run(`kill @e[type=#bm:hostile,x=${X - 40},y=${Y - 20},z=${Z - 40},dx=80,dy=60,dz=80,tag=!bm.npc]`); };
   await run(`forceload add ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
   await run(`fill ${X - 24} ${Y - 1} ${Z - 24} ${X + 24} ${Y - 1} ${Z + 24} minecraft:stone`); await run(`fill ${X - 24} ${Y} ${Z - 24} ${X + 24} ${Y + 12} ${Z + 24} minecraft:air`);
-  await run('weather clear'); await run('time set day'); await run('gamerule doMobSpawning false');
+  await run('weather clear'); await run('time set day'); await run('gamerule spawn_mobs false');
   for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.zibpet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.cecilpet', 'wolf,tag=bm.leopet', 'wolf,tag=bm.dmpet']) await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 0.5} -90 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect clear TestRat');
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid');

@@ -31,7 +31,7 @@ async function arena() {
   await run(`fill ${X - 30} ${Y - 1} ${Z - 30} ${X + 30} ${Y - 1} ${Z + 30} minecraft:stone`);
   for (let y = Y; y <= Y + 14; y += 7) await run(`fill ${X - 30} ${y} ${Z - 30} ${X + 30} ${Math.min(y + 6, Y + 14)} ${Z + 30} minecraft:air`);
   for (let y = Y - 20; y <= Y - 2; y += 7) await run(`fill ${X - 30} ${y} ${Z - 30} ${X + 30} ${Math.min(y + 6, Y - 2)} ${Z + 30} minecraft:stone`);
-  await run('weather clear'); await run('time set 6000'); await run('gamerule doDaylightCycle false').catch(() => {});
+  await run('weather clear'); await run('time set 6000'); await run('gamerule advance_time false').catch(() => {});
   await run('difficulty normal'); await sleep(500);
 }
 

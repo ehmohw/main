@@ -13,7 +13,7 @@ const res = []; const X = 19000, Y = 120, Z = 19000;
   const riding = async () => /passed/i.test(await run(`execute as TestRat on vehicle if entity @s[tag=bm.kxpet]`));
   await run(`forceload add ${X - 32} ${Z - 32} ${X + 32} ${Z + 32}`);
   await run(`fill ${X - 24} ${Y - 1} ${Z - 24} ${X + 24} ${Y - 1} ${Z + 24} minecraft:stone`); await run(`fill ${X - 24} ${Y} ${Z - 24} ${X + 24} ${Y + 16} ${Z + 24} minecraft:air`);
-  await run('weather clear'); await run('time set day'); await run('gamerule doMobSpawning false');
+  await run('weather clear'); await run('time set day'); await run('gamerule spawn_mobs false');
   for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.zibpet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.cecilpet', 'husk,tag=bm.kxboss'])
     await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
   await run(`kill @e[type=#bm:hostile,x=${X - 40},y=${Y - 20},z=${Z - 40},dx=80,dy=60,dz=80,tag=!bm.npc]`);

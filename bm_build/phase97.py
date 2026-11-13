@@ -226,7 +226,9 @@ def generate(G):
                     f'if score @s bm.dmch matches 5.. if entity @e[{foe},distance=..6] run function bm:p97/reap_go',
                     f'execute unless score @s bm.dmk matches 1.. unless score @s bm.dmm matches 1.. unless score @s bm.dmsl matches 1.. unless data entity @s {{Sitting:1b}} '
                     f'if entity @e[{foe},distance=..3.8] run function bm:p97/swing_go',
-                    'function bm:p97/state', 'function bm:p97/frame',
+                    # (3.1z: the attack kit guards p97/frame - the function that also stores bm.dms - with "dms 21: return": once a special set 21,
+                    #  nothing set it back, and his own animations (walk, sit, idle) never came again after his first special. Let go here)
+                    'function bm:p97/state', 'execute unless score #st bm.rng matches 21 if score @s bm.dms matches 21 run scoreboard players set @s bm.dms -1', 'function bm:p97/frame',
                     'execute on owner run tag @s add bm.dmown',
                     # facing: in a fight his foe (spinning: round and round); sitting, arriving, idle: you; moving: where he's going
                     'execute if score @s bm.dms matches 8 if score @s bm.dmf matches ..30 run function bm:p97/spin',
@@ -635,7 +637,7 @@ def generate(G):
                          f'execute unless entity @s[tag=bm.dmyield] if score #h bm.rng matches ..{DUEL_YIELD} run function bm:p97/duel/win',
                          'execute if score @s bm.dmdb matches 1.. run scoreboard players remove @s bm.dmdb 1',
                          'execute unless entity @s[tag=bm.dmyield] unless score @s bm.dmk matches 1.. unless score @s bm.dmdb matches 1.. unless entity @a[tag=bm.dmfoe,scores={bm.dmd=1..}] run function bm:p97/duel/mind',
-                         'function bm:p97/duel/state', 'function bm:p97/frame',
+                         'function bm:p97/duel/state', 'execute unless score #st bm.rng matches 21 if score @s bm.dms matches 21 run scoreboard players set @s bm.dms -1', 'function bm:p97/frame',
                          'execute if score @s bm.dms matches 8 if score @s bm.dmf matches ..30 run function bm:p97/spin',
                          'execute unless score @s bm.dms matches 8 if entity @a[tag=bm.dmfoe] facing entity @a[tag=bm.dmfoe,limit=1] feet rotated ~ 0 run function bm:p97/place',
                          'execute if score @s bm.dms matches 8 unless score @s bm.dmf matches ..30 facing entity @a[tag=bm.dmfoe,limit=1] feet rotated ~ 0 run function bm:p97/place',

@@ -25,7 +25,7 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run(`forceload add ${X - 48} ${Z - 48} ${X + 48} ${Z + 48}`); await sleep(1500);
   await run(`fill ${X - 40} ${Y - 1} ${Z - 40} ${X + 40} ${Y - 1} ${Z + 40} minecraft:stone`); await run(`fill ${X - 40} ${Y} ${Z - 40} ${X + 40} ${Y + 20} ${Z + 40} minecraft:air`);
   for (const t of ['creeper', 'zombie', 'skeleton', 'spider', 'cave_spider', 'husk', 'stray', 'bogged', 'drowned', 'witch', 'enderman', 'slime', 'phantom', 'zombie_villager', 'pillager', 'breeze']) await run(`execute positioned ${X} ${Y} ${Z} run tp @e[type=minecraft:${t},distance=..64] ~ -400 ~`);   // (a stray mob would be fought - the field is cleared)
-  await run('time set day'); await run('gamerule doMobSpawning false'); await run("gamerule advance_weather false");
+  await run('time set day'); await run('gamerule spawn_mobs false'); await run("gamerule advance_weather false");
   for (const k of ['cat,tag=bm.emmapet', 'wolf,tag=bm.celipet', 'wolf,tag=bm.zibpet', 'wolf,tag=bm.kxpet', 'wolf,tag=bm.cecilpet', 'wolf,tag=bm.leopet', 'wolf,tag=bm.dmpet', 'vindicator,tag=bm.dmboss'])
     await run(`execute as @e[type=${k}] run tp @s ~ -400 ~`);
   await run('kill @e[type=interaction,tag=bm.dmenc]'); await run('kill @e[type=item_display,tag=bm.dmp]');
@@ -92,7 +92,8 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('execute as TestRat at @s run function bm:p46/pet/use'); await sleep(2400);
   ok('With Cecil: Old Rivals - you hit harder', /strength/.test(await run('data get entity TestRat active_effects')));
   ok('...Cecil is tougher', /resistance/.test(await run('data get entity @e[type=wolf,tag=bm.cecilpet,limit=1] active_effects')));
-  ok('...and Democratus charges twice as fast', (await cnt('@e[type=wolf,tag=bm.dmpet,tag=bm.dmdc]')) === 1);
+  ok('...and Democratus charges twice as fast', (await cnt('@e[type=wolf,tag=bm.dmpet,tag=bm.dmdc]')) === 1,
+     `demo ${await cnt(W)}, dmcd ${await sc('TestRat', 'bm.dmcd')}, health ${(await run(`data get entity ${W} Health`)).replace(/.*data: /, '')}; chat ${A.chats.slice(-4).join(' | ').slice(0, 300)}`);
   ok('..."Old Rivals" (once)', /passed/i.test(await run('execute if entity @a[name=TestRat,advancements={bm:story/demo_cecil=true}]')));
   await run('execute as @e[type=wolf,tag=bm.cecilpet] run tp @s ~ -400 ~'); await sleep(200);
 
@@ -105,14 +106,19 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   ok('...KillerWatt is tougher and charges faster', /resistance/.test(await run('data get entity @e[type=wolf,tag=bm.kxpet,limit=1] active_effects')) &&
      (await sc('@e[type=wolf,tag=bm.kxpet,limit=1]', 'bm.kxch')) > ch0, `${ch0} -> ${await sc('@e[type=wolf,tag=bm.kxpet,limit=1]', 'bm.kxch')}`);
   ok('...and Democratus regenerates', /regeneration/.test(await run(`data get entity ${W} active_effects`)));
+  const dmBefore = `${await cnt(W)} at ${(await run(`data get entity ${W} Pos`)).replace(/.*data: /, '')} vehicle ${/Vehicle|RootVehicle/.test(await run(`data get entity ${W}`))}`;
   await run('execute as @e[type=wolf,tag=bm.kxpet] run tp @s ~ -400 ~'); await sleep(300);
+  console.log(`   (Democratus before the KillerWatt send-off: ${dmBefore}; after: ${await cnt(W)} at ${(await run(`data get entity ${W} Pos`)).replace(/.*data: /, '')})`);
 
   // ---- right-click him: sit / stand
+  // (3.1z: the stage - the fight's monsters cleared and his special let finish: a click mid-special is let pass)
+  await run('execute at TestRat as @e[type=#bm:hostile,tag=!bm.npc,distance=..40] run tp @s ~ -400 ~');   // (the storm's own spawns too)
+  await wait(6000, async () => (await sc(W, 'bm.ksg')) <= 0, 250);
   await run(`tp ${W} ${X + 3.5} ${Y} ${Z + 0.5}`); await sleep(1300);
   let hit = null; for (let i = 0; i < 15 && !hit; i++) { hit = await eidOf('@e[type=interaction,tag=bm.dmhit,limit=1]'); if (!hit) await sleep(200); }   // (the client has to know the box first)
   A.interact(hit); await sleep(500);
   // (3.1z: a blow of his still under way from the fight before (state 21) finishes first - then the rig sits)
-  ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && await wait(5000, async () => (await sc(W, 'bm.dms')) === 4, 200), `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')}`);
+  ok('Right-click him: he sits (and his rig sits too)', /1b/.test(await run(`data get entity ${W} Sitting`)) && await wait(5000, async () => (await sc(W, 'bm.dms')) === 4, 200), `${await run(`data get entity ${W} Sitting`)} st ${await sc(W, 'bm.dms')} ksg ${await sc(W, 'bm.ksg')} ksw ${await sc(W, 'bm.ksw')} kd ${await sc(W, 'bm.kd')} prgo ${await sc(W, 'bm.prgo')}`);
   await run(`execute as ${W} run data merge entity @s {Sitting:0b}`);
 
   // ---- his challenge: the duel (at full health: he won't duel anyone at five hearts or less, 2.80b)
@@ -146,7 +152,9 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run('effect clear TestRat'); await run('scoreboard players set TestRat bm.gvhc 0'); await run('execute as TestRat at @s run function bm:p97/menu');
   await run('scoreboard players set TestRat bm.act 9701'); await sleep(400); await run('scoreboard players set TestRat bm.dmd 2'); await sleep(500);
   await run(`execute as ${BOSS} run data merge entity @s {NoAI:1b}`);
-  await run('damage TestRat 16 minecraft:generic'); await sleep(400);
+  // (3.1z: down to 4 from wherever it stands - lasting hearts from earlier tests (bm:hearts, bm:starheart) put max health past 20)
+  { const hNow = +(((await run('data get entity TestRat Health')).match(/([\d.]+)f/)) || [0, 20])[1]; await run(`damage TestRat ${Math.max(1, Math.ceil(hNow - 4))} minecraft:generic`); }
+  await sleep(400);
   const hpL = (await run('data get entity TestRat Health')).replace(/.*data: /, '');
   ok('Down to three hearts: the duel is lost - he goes home', await wait(4000, async () => (await cnt(BOSS)) === 0 && !/passed/i.test(await run('execute if entity @a[name=TestRat,tag=bm.dmduel]')), 200),
      `health after the blow ${hpL}; armour ${(await run('attribute TestRat minecraft:armor get')).replace(/.*is /, '')}; boss ${await cnt(BOSS)}; dmd ${await sc('TestRat', 'bm.dmd')}`);
@@ -180,6 +188,6 @@ const res = []; const X = 19100, Y = 120, Z = 19000;
   await run(`kill ${W}`); await sleep(800);
   ok('If he falls: his rig crackles away, and the seal rests 2 minutes', (await sc('TestRat', 'bm.dmcd')) >= 110 && (await cnt('@e[type=item_display,tag=bm.dmp,tag=!bm.dmencp,tag=!bm.dmbp,tag=!bm.dmfade]')) === 0,
      `cd ${await sc('TestRat', 'bm.dmcd')}`);
-  await run('scoreboard players set TestRat bm.dmcd 0'); await run('weather clear'); await run("gamerule advance_weather true");
+  await run('scoreboard players set TestRat bm.dmcd 0'); await run('weather clear'); await run("gamerule advance_weather true"); await run('gamerule spawn_mobs true');
   console.log(`${res.filter(Boolean).length}/${res.length} passed`); process.exit(0);
 })().catch(e => { console.log('ERR', e); process.exit(1); });

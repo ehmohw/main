@@ -7,7 +7,7 @@ const res = []; const X = 18800, Y = 110, Z = 18800;
   const cnt = async sel => { const o = await run(`execute store result score #t bm.rng if entity ${sel}`); return /failed/i.test(o) ? 0 : +((o.match(/(\d+)/g) || [0]).pop()); };
   await run(`forceload add ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
   await run(`fill ${X - 30} ${Y - 2} ${Z - 30} ${X + 30} ${Y - 1} ${Z + 30} minecraft:stone`); await run(`fill ${X - 30} ${Y} ${Z - 30} ${X + 30} ${Y + 20} ${Z + 30} minecraft:air`);
-  await run('weather clear'); await run('time set day'); await run('gamerule doMobSpawning false');
+  await run('weather clear'); await run('time set day'); await run('gamerule spawn_mobs false');
   await run(`tp TestRat ${X + 0.5} ${Y} ${Z + 6.5} 180 0`); await run('gamemode survival TestRat'); await run('clear TestRat'); await run('effect give TestRat resistance 300 4 true');
   await run('execute as TestRat unless score @s bm.pid matches 1.. run function bm:p21/pid'); await run('scoreboard players reset TestRat bm.lecd');
   await run('execute as @e[type=wolf,tag=bm.leopet] run tp @s ~ -400 ~'); await run('kill @e[type=item_display,tag=bm.lep]'); await run('kill @e[type=interaction,tag=bm.lehit]');
@@ -59,6 +59,6 @@ const res = []; const X = 18800, Y = 110, Z = 18800;
   await run('execute as @e[tag=bm.salboss] at @s run tp @s ~ -400 ~'); await run('kill @e[tag=bm.salboss]'); await run('kill @e[type=item_display,tag=bm.salp]');
   if (isNaN(forced)) await run('scoreboard players reset #forced bm.bm'); else await run(`scoreboard players set #forced bm.bm ${forced}`);
 
-  await run('gamerule doMobSpawning true'); await run(`forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
+  await run('gamerule spawn_mobs true'); await run(`forceload remove ${X - 40} ${Z - 40} ${X + 40} ${Z + 40}`);
   console.log(`${res.filter(x => x).length}/${res.length} passed`); process.exit(0);
 })();

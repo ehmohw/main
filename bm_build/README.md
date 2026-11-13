@@ -21,6 +21,18 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.2a: Democratus finds his feet again, and the last loose tests
+
+- **Democratus goes back to himself after a special move.** Once he had used his Storm Reap or his Piercing Blow, his model stayed in the move's state for good: no walking, no idle, and right-clicking him to sit left him standing as he was. The attack kit pauses a follower's own animation while a special plays, and for Democratus that pause sat on the very function that would have ended it. His animation now resumes as soon as the move is over.
+- **The Skiff Escort's description tells the truth.** It said a shot-down escort needs five minutes of repairs; since 2.94 it has been one minute.
+- **Behind the scenes:**
+  - **Apophiss's test (t134) passes in full, 98/98, twice:** his den, the seal, his coming, both phases of the fight, his defeat and the sealing scene. Run on its own, it needed no game change; in the 3.1z sweep, what earlier tests left behind threw it off.
+  - **t72 and t100 pass in full** (48/48, and 41/41 three runs in a row):
+    - **t100** sends every follower home before it starts, lets Democratus finish a special move before it asks him to sit, and brings the player down to three hearts from whatever health they have.
+    - **t72** measures the heist kits' extra health against the player's own, since earlier tests leave lasting heart upgrades behind. It also expects the escort's one-minute repairs.
+  - **Twelve tests used game rule names that Minecraft 26.3 no longer accepts** (`doMobSpawning`, `doDaylightCycle`). The command failed quietly, so monsters kept spawning in tests that meant to stop them. That is the likeliest reason Democratus sometimes took heavy damage and vanished mid-test in t100; with the rule working, it passed three runs in a row. They use the new names (`spawn_mobs`, `advance_time`) now.
+  - **A test can't leave a game rule changed any more.** Whatever rule a test sets is put back as it was when the test ends, even if it crashes, the same way the chunks it force-loads are released.
+
 ## New in 3.1z: the dungeons and bosses swept
 
 - **The Armada's Victor's Key opens something now.** Felling Admiral Vexis gives every victor a Victor's Key, but its vault stood inside the Hive Vault. That door opens only with six Hive Sigils, which most victors never carry, so the key opened nothing. The Victor's Vault now stands out on the deck, by the Hive Vault's door at the edge of the arena, so every victor can turn their key in before the fleet re-forms, or any time after. The Armada re-forms once in every world to move it, carrying out anyone aboard.
