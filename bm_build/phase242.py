@@ -49,6 +49,15 @@ HX, HY, HZ = W(*AR['helm'])                    # (walk y)
 WIN = AR['window']                             # bearing of the window (x=cos, z=sin)
 WX, WZ = CX + 0.5 + 34 * math.cos(math.radians(WIN)), CZ + 0.5 + 34 * math.sin(math.radians(WIN))     # (a point beyond the glass)
 YAW_HELM = (WIN + 90) % 360                    # (at the helm it faces away from the window: down the bridge)
+# (3.2b, the owner: "it can be left in an inconvenient spot, and it's unclear why") - at the end of phase I the broken warframe
+# limps off to a BERTH at one side of the hall (the nearer of two, square to the window: out of the star's view and off the
+# floor's middle; between the pylons, which stand at the window's +-45/+-135), by way of a point nearer the middle when it's far
+# (so it never walks through a pylon), and kneels there facing in. Its wreck then sputters, blows, and burns there.
+BERTH_R, BERTH_WP, BERTH_DIRECT = 22, 9, 14
+_at = lambda r, b: (round(CX + 0.5 + r * math.cos(math.radians(b)), 2), round(CZ + 0.5 + r * math.sin(math.radians(b)), 2))
+BERTHS = [(_at(BERTH_R, WIN + sd * 90), _at(BERTH_WP, WIN + sd * 90)) for sd in (1, -1)]
+RT_STEP, RT_MAX = 0.3, 200                      # (its limp: blocks a tick; the most it's given, ticks, before it kneels where it is)
+WRECK_BLOW = 260                                # (the wreck's sputtering, ticks - 13 s - then it blows, and burns)
 _box = lambda r, up: f'x={CX - r},y={CY - 10},z={CZ - r},dx={2 * r},dy={up},dz={2 * r}'
 FIGHT = f'@a[{_box(32, 40)},gamemode=!spectator,gamemode=!creative]'
 AUD = f'@a[{_box(40, 50)}]'
@@ -75,7 +84,7 @@ P152.THEMES.update({26: ('vexis1', 120), 27: ('vexis2', 120), 28: ('vexis3', 120
                     32: ('vexis_unlink', 30)})
 _H = 'type=minecraft:husk,tag=bm.avx'
 P152.WHO_LATE += [(26, f'{_H},tag=bm.vxlive,scores={{bm.vxph=1}}'), (27, f'{_H},tag=bm.vxlive,scores={{bm.vxph=2}}'), (28, f'{_H},tag=bm.vxlive,scores={{bm.vxph=3}}'),
-                  (30, f'{_H},tag=bm.vxturn,tag=bm.vxt1'), (31, f'{_H},tag=bm.vxturn,tag=bm.vxt2'), (29, f'{_H},tag=bm.vxintro'), (32, f'{_H},tag=bm.vxfall')]
+                  (26, f'{_H},tag=bm.vxretreat'), (30, f'{_H},tag=bm.vxturn,tag=bm.vxt1'), (31, f'{_H},tag=bm.vxturn,tag=bm.vxt2'), (29, f'{_H},tag=bm.vxintro'), (32, f'{_H},tag=bm.vxfall')]
 
 # ---- (2.99) THE MOTHERSHIP: the Admiral's own skiff. Its fall (the first time) gives THE ADMIRAL'S COMMAND MODULE - an UPGRADE:
 # used with a Vorn Skiff Key in your pack (the six parts still to be gathered, phase35), the key becomes the Mothership Key. The
@@ -171,7 +180,7 @@ def generate(G):
     fn, title, tellraw, give, wjson = G.fn, G.title, G.tellraw, G.give, G.wjson
     tick, fast, second = G.FUNCS['tick'], G.FUNCS['loop/fast'], G.FUNCS['loop/second']
     P = G.PREFIX
-    objs = ['bm.vxph', 'bm.vxa', 'bm.vxx', 'bm.vxf', 'bm.vxs', 'bm.vxt', 'bm.vxg', 'bm.vxz', 'bm.vxwin', 'bm.vxhp', 'bm.vxp', 'bm.vxsc', 'bm.vxjc'] + \
+    objs = ['bm.vxph', 'bm.vxa', 'bm.vxx', 'bm.vxf', 'bm.vxs', 'bm.vxt', 'bm.vxg', 'bm.vxz', 'bm.vxwin', 'bm.vxhp', 'bm.vxp', 'bm.vxsc', 'bm.vxjc', 'bm.vxwt', 'bm.vxdm'] + \
            [f'bm.vxk{s}' for s in STATES]
     G.FUNCS['load'][-1:-1] = [f'scoreboard objectives add {o} dummy' for o in objs] + [
         f'bossbar add bm:vexis {snbt(T(L.VX, COL, bold=True))}', 'bossbar set bm:vexis color green', 'bossbar set bm:vexis style notched_10']
@@ -207,7 +216,7 @@ def generate(G):
     fn('p242/rig', rig + ['tag @e[tag=bm.vxnew] remove bm.vxnew'])
     fn('p242/dormant', ['scoreboard players set @s bm.vxph 1', 'scoreboard players set @s bm.vxa 20', 'scoreboard players set @s bm.vxx 0',
                         'scoreboard players set @s bm.vxs -1', 'scoreboard players set @s bm.vxf 0', 'scoreboard players set @s bm.vxg 0',
-                        'tag @s add bm.vxdorm', 'tag @s remove bm.vxlive', 'data modify entity @s Invulnerable set value 1b', 'data modify entity @s NoGravity set value 0b',
+                        'tag @s add bm.vxdorm', 'tag @s remove bm.vxlive', 'tag @s remove bm.vxretreat', 'scoreboard players set @s bm.vxdm 0', 'data modify entity @s Invulnerable set value 1b', 'data modify entity @s NoGravity set value 0b',
                         f'attribute @s minecraft:scale base set {HOST["warframe"]}',
                         f'execute rotated {YAW_HELM:.1f} 0 run tp @s {HX + 0.5} {HY} {HZ + 0.5} {YAW_HELM:.1f} 0', f'execute rotated {YAW_HELM:.1f} 0 run function bm:p242/place/warframe',
                         f'function bm:p242/pose/warframe/{pp("warframe", "dormant")}'])
@@ -227,7 +236,9 @@ def generate(G):
                      'execute if score @s bm.vxx matches 1.. run scoreboard players remove @s bm.vxx 1'] +
        [f'execute if score @s bm.vxk{s} matches 1.. run scoreboard players remove @s bm.vxk{s} 1' for s in STATES] +
        ['execute if entity @s[tag=bm.vxlive] if entity @a[tag=bm.vxtgt] run function bm:p242/mind'] + form_of('beats') +
-       ['execute if entity @s[tag=bm.vxturn] run function bm:p242/turn_tick',
+       ['execute if entity @s[tag=bm.vxretreat] run function bm:p242/rt/tick',
+        'execute if score @s bm.vxph matches 1 if score @s bm.vxdm matches 1.. unless entity @s[tag=bm.vxdorm] run function bm:p242/dmg/fx',
+        'execute if entity @s[tag=bm.vxturn] run function bm:p242/turn_tick',
         'execute if entity @s[tag=bm.vxfall] run function bm:p242/falling',
         'function bm:p242/state',
         'execute if score #st bm.rng = @s bm.vxs run scoreboard players add @s bm.vxf 1',
@@ -361,14 +372,15 @@ def generate(G):
                     f'execute if entity {FIGHT} run scoreboard players set @s bm.vxg 0', f'execute unless entity {FIGHT} run scoreboard players add @s bm.vxg 1',
                     'execute if score @s bm.vxg matches 30.. run return run function bm:p242/abandon',
                     'execute if score @s bm.vxph matches 1 if entity @s[tag=bm.vxlive] run function bm:p242/pyl/sec',
+                    'execute if score @s bm.vxph matches 1 if entity @s[tag=bm.vxlive] run function bm:p242/dmg/lvl',
                     'execute if score @s bm.vxz matches 1.. run function bm:p242/frenzy_sec',
                     f'execute unless score @s bm.vxph matches 1 unless score @s bm.vxz matches -99..-1 run effect give @s minecraft:resistance infinite {RESIST} true'])
-    fn('p242/abandon', [say(L.FIGHT['abandon']), 'function bm:p242/clear', 'function bm:p242/c/door_open', 'function bm:p242/pyl/clear',
+    fn('p242/abandon', [say(L.FIGHT['abandon']), 'function bm:p242/clear', 'function bm:p242/c/door_open', 'function bm:p242/pyl/clear', 'kill @e[type=minecraft:marker,tag=bm.vxwreck]',
                         'bossbar set bm:vexis visible false', 'kill @e[type=minecraft:item_display,tag=bm.vxr]', 'kill @e[type=minecraft:item_display,tag=bm.vxw]',
                         'kill @e[type=minecraft:marker,tag=bm.vxlook]', 'tp @s ~ -400 ~', 'kill @s'])
     fn('p242/clear', ['kill @e[tag=bm.vxk]', 'kill @e[type=minecraft:marker,tag=bm.vxfx]', 'function bm:p242/a/clone_end', 'tag @a remove bm.vximp'])
     G.FUNCS['admin/uninstall'][0:0] = ['kill @e[tag=bm.avx]', 'kill @e[tag=bm.vxr]', 'kill @e[tag=bm.vxw]', 'kill @e[tag=bm.vxc]', 'kill @e[tag=bm.vxcl]',
-                                       'kill @e[tag=bm.vxfx]', 'kill @e[tag=bm.vxpy]', 'kill @e[tag=bm.vxlook]', 'bossbar remove bm:vexis']
+                                       'kill @e[tag=bm.vxfx]', 'kill @e[tag=bm.vxwreck]', 'kill @e[tag=bm.vxpy]', 'kill @e[tag=bm.vxlook]', 'bossbar remove bm:vexis']
 
     # ================================================================== THE SHIELD PYLONS (phase I)
     crys = lambda lit: {'Tags': ['bm.vxpy', 'bm.vxpyd'], 'item': {'id': 'minecraft:paper', 'count': Int(1), 'components': {'minecraft:item_model': 'bm:vx_pylon' if lit else 'bm:vx_pylon_off'}},
@@ -415,8 +427,10 @@ def generate(G):
 
     # ================================================================== THE TURNS
     fn('p242/floor_hit', ['execute if score @s bm.vxph matches 3 run return run function bm:p242/fall',
-                          'tag @s remove bm.vxlive', 'tag @s add bm.vxturn', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.vxt 0',
-                          'scoreboard players set @s bm.vxa 22', 'function bm:p242/clear',
+                          'tag @s remove bm.vxlive', 'data modify entity @s Invulnerable set value 1b', 'scoreboard players set @s bm.vxt 0', 'function bm:p242/clear',
+                          'bossbar set bm:vexis color purple',
+                          'execute if score @s bm.vxph matches 1 run return run function bm:p242/rt/start', 'function bm:p242/turn_go'])
+    fn('p242/turn_go', ['tag @s add bm.vxturn', 'scoreboard players set @s bm.vxt 0', 'scoreboard players set @s bm.vxa 22',
                           f'execute if score @s bm.vxph matches 1 run scoreboard players set @s bm.vxx {ENT[1] + 4}', f'execute if score @s bm.vxph matches 2 run scoreboard players set @s bm.vxx {ENT[2] + 4}',
                           'execute if score @s bm.vxph matches 1 run tag @s add bm.vxt1', 'execute if score @s bm.vxph matches 2 run tag @s add bm.vxt2',
                           'kill @e[type=minecraft:marker,tag=bm.vxlook]', 'execute at @s run summon minecraft:marker ~ ~7.5 ~ {Tags:["bm.vxlook"]}',
@@ -430,9 +444,10 @@ def generate(G):
     # (the warframe's wreck: its shell left kneeling where it fell - cover in the later phases)
     wreck = [f'summon minecraft:item_display ~ ~ ~ {RF.part_nbt(A, p, ["bm.vxw", f"bm.vxw_{p}"], SCALE["warframe"], model=A.model_name(p, A.BOSS_POSES["warframe"][pp("warframe", "dormant", "stagger")]), extra=dict(view_range=F(5.0), brightness={"block": Int(6), "sky": Int(6)}))}'
              for p in A.PARTS]
-    fn('p242/wreck', wreck + ['execute rotated ~ 0 run function bm:p242/wreck_place', 'summon minecraft:marker ~ ~ ~ {Tags:["bm.vxfx","bm.vxwreck"]}'])
+    fn('p242/wreck', wreck + ['execute rotated ~ 0 run function bm:p242/wreck_place', 'kill @e[type=minecraft:marker,tag=bm.vxwreck]',
+                              'summon minecraft:marker ~ ~ ~ {Tags:["bm.vxwreck"]}', 'scoreboard players set @e[type=minecraft:marker,tag=bm.vxwreck] bm.vxwt 0'])
     fn('p242/wreck_place', RF.place(A, SCALE['warframe'] / 16, wsel))
-    tick.append('execute as @e[type=minecraft:marker,tag=bm.vxwreck] at @s if predicate bm:p238/third run particle minecraft:smoke ~ ~6 ~ 1 2 1 0.02 2 force')
+    tick.append('execute as @e[type=minecraft:marker,tag=bm.vxwreck] at @s run function bm:p242/wk/tick')
     turn1 = ([at(1, say(L.FIGHT['turn1'])), at(1, snd('entity.iron_golem.death', 2, 0.4)), at(1, snd('block.anvil.destroy', 2, 0.5)),
               at(1, 'function bm:p242/pose/warframe/' + pp('warframe', 'stagger', 'roar')),
               at(1, title(AUD, 'actionbar', T('The warframe staggers. Its cockpit is cracking.', '#9adf8a', italic=True)))] +
@@ -481,6 +496,123 @@ def generate(G):
               at('1..290', 'function bm:p242/c/look'), at(ENT[2] - 1, 'function bm:p242/turned')])
     fn('p242/turn_tick', ['scoreboard players add @s bm.vxt 1', 'execute if entity @s[tag=bm.vxt1] run return run function bm:p242/turn1', 'execute if entity @s[tag=bm.vxt2] run function bm:p242/turn2'])
     fn('p242/turn1', turn1); fn('p242/turn2', turn2)
+
+    # ---- (3.2b) THE LIMP: phase I spent, the warframe reels and limps off to its berth (the nearer side of the hall), sparking and
+    #      smoking, its guns silent; there it kneels, facing in, and the turn plays (the cockpit blows; Vexis climbs out)
+    fn('p242/rt/start', ['tag @s add bm.vxretreat', 'scoreboard players set @s bm.vxa 1', 'scoreboard players set @s bm.vxx 9999', 'scoreboard players set @s bm.vxdm 4'] +
+       [f'summon minecraft:marker {bx} {CY + 1} {bz} {{Tags:["bm.vxfx","bm.vxberth","bm.vxb{k}"]}}' for k, ((bx, bz), _w) in enumerate(BERTHS)] +
+       ['execute as @e[type=minecraft:marker,tag=bm.vxberth,sort=nearest,limit=1] run tag @s add bm.vxbgo', 'kill @e[type=minecraft:marker,tag=bm.vxberth,tag=!bm.vxbgo]'] +
+       [f'execute if entity @e[type=minecraft:marker,tag=bm.vxb{k},tag=bm.vxbgo] unless entity @e[type=minecraft:marker,tag=bm.vxbgo,distance=..{BERTH_DIRECT}] '
+        f'run summon minecraft:marker {wx} {CY + 1} {wz} {{Tags:["bm.vxfx","bm.vxwp"]}}' for k, (_b, (wx, wz)) in enumerate(BERTHS)] +
+       [snd('entity.iron_golem.damage', 2, 0.4), snd('block.anvil.land', 1.5, 0.5), f'particle minecraft:electric_spark ~ ~6 ~ 2 3 2 0.4 120 force {AUD}',
+        title(AUD, 'actionbar', T('The warframe reels, sparking - it limps aside, its guns silent.', '#9adf8a', italic=True)),
+        f'execute as {AUD} at @s run function bm:p152/tick'])
+    fn('p242/rt/tick', ['scoreboard players add @s bm.vxt 1', 'function bm:p242/c/look',
+                        f'execute if score @s bm.vxt matches {RT_MAX}.. run return run function bm:p242/rt/arrive',
+                        'execute if entity @e[type=minecraft:marker,tag=bm.vxwp,distance=..0.8] run kill @e[type=minecraft:marker,tag=bm.vxwp]',
+                        'execute if entity @e[type=minecraft:marker,tag=bm.vxwp] run return run function bm:p242/rt/to_wp',
+                        'execute if entity @e[type=minecraft:marker,tag=bm.vxbgo,distance=..0.45] run return run function bm:p242/rt/arrive',
+                        f'execute facing entity @e[type=minecraft:marker,tag=bm.vxbgo,limit=1] feet rotated ~ 0 run tp @s ^ ^ ^{RT_STEP} ~ ~',
+                        'function bm:p242/rt/limp'])
+    fn('p242/rt/to_wp', [f'execute facing entity @e[type=minecraft:marker,tag=bm.vxwp,limit=1] feet rotated ~ 0 run tp @s ^ ^ ^{RT_STEP} ~ ~', 'function bm:p242/rt/limp'])
+    fn('p242/rt/limp', ['execute if score @s bm.vxf matches 0 run function bm:p242/a/footfall', 'execute if score @s bm.vxf matches 12 run function bm:p242/a/footfall',
+                        'execute if score @s bm.vxf matches 6 run playsound minecraft:block.chain.break hostile @a[distance=..40] ~ ~ ~ 1.2 0.5',
+                        'execute if score @s bm.vxf matches 18 run playsound minecraft:entity.iron_golem.damage hostile @a[distance=..40] ~ ~ ~ 0.8 0.5'])
+    fn('p242/rt/arrive', ['execute as @e[type=minecraft:marker,tag=bm.vxbgo,distance=..2] at @s run tp @e[type=minecraft:husk,tag=bm.avx,limit=1] ~ ~ ~',
+                          'kill @e[type=minecraft:marker,tag=bm.vxberth]', 'kill @e[type=minecraft:marker,tag=bm.vxwp]',
+                          f'execute at @s facing {CX + 0.5} {CY + 1} {CZ + 0.5} rotated ~ 0 run tp @s ~ ~ ~ ~ ~',
+                          'tag @s remove bm.vxretreat', 'function bm:p242/turn_go'])
+
+    # ---- (3.2b) THE DAMAGE IT SHOWS: from half its first pool, sparks, then flame and smoke, more and more (bm.vxdm 1-4: 50/35/20/10 %)
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #100 bm.rng 100']
+    fn('p242/dmg/lvl', ['scoreboard players set @s bm.vxdm 0', 'execute unless score @s bm.vxhp matches 1.. run return 0',
+                        'scoreboard players operation #r bm.rng = #hp bm.rng', 'scoreboard players operation #r bm.rng *= #100 bm.rng',
+                        'scoreboard players operation #r bm.rng /= @s bm.vxhp',
+                        'execute if score #r bm.rng matches ..50 run scoreboard players set @s bm.vxdm 1', 'execute if score #r bm.rng matches ..35 run scoreboard players set @s bm.vxdm 2',
+                        'execute if score #r bm.rng matches ..20 run scoreboard players set @s bm.vxdm 3', 'execute if score #r bm.rng matches ..10 run scoreboard players set @s bm.vxdm 4'])
+    # (its body, ~12 tall: the cockpit, the reactor, the shoulders, the knees - local to its facing)
+    SPOT = [('^ ^7.6 ^0.8', 0.4), ('^ ^5.0 ^0.6', 0.6), ('^2.7 ^7.0 ^', 0.4), ('^-2.7 ^7.0 ^', 0.4), ('^1.3 ^2.4 ^0.4', 0.3), ('^-1.3 ^2.4 ^0.4', 0.3)]
+    dfx = ['execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g2 bm.rng = #g bm.rng',
+           'scoreboard players operation #g bm.rng %= #60 bm.rng']
+    for k, (pt, r) in enumerate(SPOT):
+        # sparks: one spot in turn every few ticks at level 1, every tick by level 3; a big crackle now and then
+        dfx += [f'execute if score #g bm.rng matches {k * 10}..{k * 10 + 1} rotated as @s rotated ~ 0 run particle minecraft:electric_spark {pt} {r} {r} {r} 0.25 6 force {AUD}',
+                f'execute if score @s bm.vxdm matches 3.. if score #g bm.rng matches {k * 10 + 5} rotated as @s rotated ~ 0 run particle minecraft:electric_spark {pt} {r} {r} {r} 0.4 14 force {AUD}']
+    dfx += [  # (level 1: a wisp of smoke from the cockpit; sparks)
+            f'execute rotated as @s rotated ~ 0 if predicate bm:p238/third run particle minecraft:smoke ^ ^7.6 ^0.6 0.4 0.3 0.4 0.02 2 force {AUD}',
+            'execute if score #g bm.rng matches 0 run playsound minecraft:block.redstone_torch.burnout hostile @a[distance=..40] ~ ~6 ~ 0.7 0.6',
+            # (level 2: the reactor smokes, a shoulder catches)
+            f'execute if score @s bm.vxdm matches 2.. rotated as @s rotated ~ 0 run particle minecraft:large_smoke ^ ^5.2 ^0.5 0.5 0.4 0.5 0.02 1 force {AUD}',
+            f'execute if score @s bm.vxdm matches 2.. rotated as @s rotated ~ 0 run particle minecraft:flame ^2.7 ^7.0 ^ 0.3 0.3 0.3 0.01 1 force {AUD}',
+            'execute if score @s bm.vxdm matches 2.. if score #g bm.rng matches 30 run playsound minecraft:block.fire.ambient hostile @a[distance=..40] ~ ~6 ~ 1.2 0.7',
+            # (level 3: fire in both shoulders and the reactor, a column of smoke, sparks raining, lava spitting)
+            f'execute if score @s bm.vxdm matches 3.. rotated as @s rotated ~ 0 run particle minecraft:flame ^-2.7 ^7.0 ^ 0.3 0.3 0.3 0.01 1 force {AUD}',
+            f'execute if score @s bm.vxdm matches 3.. rotated as @s rotated ~ 0 run particle minecraft:flame ^ ^5.0 ^0.7 0.4 0.4 0.4 0.01 2 force {AUD}',
+            f'execute if score @s bm.vxdm matches 3.. if score #g bm.rng matches 0..59 rotated as @s rotated ~ 0 if predicate bm:p238/third run particle minecraft:lava ^ ^5.5 ^0.6 0.6 0.6 0.6 0 1 force {AUD}',
+            'scoreboard players operation #g2 bm.rng %= #4 bm.rng',
+            f'execute if score @s bm.vxdm matches 3.. if score #g2 bm.rng matches 0 rotated as @s rotated ~ 0 run particle minecraft:campfire_cosy_smoke ^ ^8 ^0.4 0.4 0.2 0.4 0.01 1 force {AUD}',
+            'execute if score @s bm.vxdm matches 3.. if score #g bm.rng matches 15 run playsound minecraft:entity.blaze.burn hostile @a[distance=..40] ~ ~6 ~ 1 0.5',
+            # (level 4: ablaze - flame from every joint, black smoke pouring, the frame groaning)
+            f'execute if score @s bm.vxdm matches 4 rotated as @s rotated ~ 0 run particle minecraft:flame ^ ^7.6 ^0.9 0.5 0.4 0.5 0.02 3 force {AUD}',
+            f'execute if score @s bm.vxdm matches 4 rotated as @s rotated ~ 0 run particle minecraft:flame ^1.3 ^2.4 ^0.4 0.3 0.4 0.3 0.01 1 force {AUD}',
+            f'execute if score @s bm.vxdm matches 4 rotated as @s rotated ~ 0 run particle minecraft:large_smoke ^ ^8 ^0.4 0.8 0.4 0.8 0.03 3 force {AUD}',
+            f'execute if score @s bm.vxdm matches 4 if score #g2 bm.rng matches 2 rotated as @s rotated ~ 0 run particle minecraft:campfire_signal_smoke ^ ^8.5 ^0.3 0.3 0.1 0.3 0.01 1 force {AUD}',
+            'execute if score @s bm.vxdm matches 4 if score #g bm.rng matches 45 run playsound minecraft:entity.iron_golem.damage hostile @a[distance=..40] ~ ~6 ~ 1 0.4']
+    fn('p242/dmg/fx', dfx)
+    G.FUNCS['load'][-1:-1] = ['scoreboard players set #4 bm.rng 4']
+
+    # ---- (3.2b) THE WRECK: left kneeling at its berth, it sputters - sparks and fire, more and more (13 s) - then BLOWS (not much:
+    #      a burst, a bang, nothing hurt), and burns: flame in its joints, a column of smoke, sparks now and then, to the fight's end -
+    #      when it goes up for good (the Unlinking's nova, p242/wk/end)
+    fn('p242/wk/tick', ['scoreboard players add @s bm.vxwt 1', f'execute if score @s bm.vxwt matches 1000000.. run scoreboard players set @s bm.vxwt {WRECK_BLOW + 1}',
+                        'execute store result score #g bm.rng run time query gametime', 'scoreboard players operation #g2 bm.rng = #g bm.rng',
+                        'scoreboard players operation #g bm.rng %= #60 bm.rng', 'scoreboard players operation #g2 bm.rng %= #4 bm.rng',
+                        f'execute if score @s bm.vxwt matches ..{WRECK_BLOW - 1} run return run function bm:p242/wk/sputter',
+                        f'execute if score @s bm.vxwt matches {WRECK_BLOW} run function bm:p242/wk/blast',
+                        'function bm:p242/wk/burn'])
+    fn('p242/wk/sputter', [  # (a third: sparks; two thirds: and flames; the last: and smoke billowing, the sparks a storm)
+        f'particle minecraft:electric_spark ~ ~6 ~ 1.6 2 1.6 0.2 2 force {AUD}',
+        f'execute if predicate bm:p238/third run particle minecraft:smoke ~ ~6.5 ~ 0.8 0.6 0.8 0.02 3 force {AUD}',
+        f'execute if score #g bm.rng matches 0 run particle minecraft:electric_spark ~ ~7 ~ 1 1 1 0.5 40 force {AUD}',
+        'execute if score #g bm.rng matches 0 run playsound minecraft:block.redstone_torch.burnout hostile @a[distance=..48] ~ ~6 ~ 1.2 0.6',
+        f'execute if score @s bm.vxwt matches 80.. run particle minecraft:flame ~ ~5 ~ 0.8 1.2 0.8 0.01 2 force {AUD}',
+        f'execute if score @s bm.vxwt matches 80.. if score #g bm.rng matches 30 run particle minecraft:electric_spark ~ ~4 ~ 1.4 1.4 1.4 0.5 50 force {AUD}',
+        'execute if score @s bm.vxwt matches 80.. if score #g bm.rng matches 30 run playsound minecraft:entity.iron_golem.damage hostile @a[distance=..48] ~ ~5 ~ 1 0.6',
+        'execute if score @s bm.vxwt matches 80.. if score #g bm.rng matches 20 run playsound minecraft:block.fire.ambient hostile @a[distance=..48] ~ ~5 ~ 1.5 0.8',
+        f'execute if score @s bm.vxwt matches 170.. run particle minecraft:flame ~ ~6.5 ~ 1 1 1 0.02 3 force {AUD}',
+        f'execute if score @s bm.vxwt matches 170.. run particle minecraft:large_smoke ~ ~7 ~ 1 0.6 1 0.03 2 force {AUD}',
+        f'execute if score @s bm.vxwt matches 170.. run particle minecraft:electric_spark ~ ~5 ~ 2 2.5 2 0.4 4 force {AUD}',
+        f'execute if score @s bm.vxwt matches 170.. if predicate bm:p238/third run particle minecraft:lava ~ ~5 ~ 1 1 1 0 1 force {AUD}',
+        'execute if score @s bm.vxwt matches 170.. if score #g bm.rng matches 10 run playsound minecraft:entity.blaze.burn hostile @a[distance=..48] ~ ~5 ~ 1.4 0.6',
+        # (the last two seconds: a rising whine, the frame shuddering)
+        f'execute if score @s bm.vxwt matches {WRECK_BLOW - 40}.. run particle minecraft:electric_spark ~ ~6 ~ 2.2 3 2.2 0.6 12 force {AUD}',
+        f'execute if score @s bm.vxwt matches {WRECK_BLOW - 40} run playsound minecraft:block.beacon.deactivate hostile @a[distance=..48] ~ ~6 ~ 2 0.5',
+        f'execute if score @s bm.vxwt matches {WRECK_BLOW - 40} run playsound minecraft:entity.creeper.primed hostile @a[distance=..48] ~ ~6 ~ 2 0.5',
+        f'execute if score @s bm.vxwt matches {WRECK_BLOW - 20} run playsound minecraft:entity.creeper.primed hostile @a[distance=..48] ~ ~6 ~ 2 0.7'])
+    fn('p242/wk/blast', [f'particle minecraft:explosion_emitter ~ ~5 ~ 0.6 1 0.6 0 1 force {AUD}', f'particle minecraft:explosion ~ ~6 ~ 1.5 2 1.5 0 10 force {AUD}',
+                         f'particle minecraft:flame ~ ~5 ~ 0.6 1 0.6 0.25 120 force {AUD}', f'particle minecraft:lava ~ ~6 ~ 1 1 1 0 30 force {AUD}',
+                         f'particle minecraft:large_smoke ~ ~6 ~ 1.5 1.5 1.5 0.08 80 force {AUD}', f'particle minecraft:electric_spark ~ ~6 ~ 1.5 2 1.5 0.8 120 force {AUD}',
+                         f'particle minecraft:block{{block_state:"minecraft:polished_deepslate"}} ~ ~5 ~ 1.5 1.5 1.5 0 120 force {AUD}',
+                         f'particle minecraft:flash{{color:[1.0,0.55,0.2,1.0]}} ~ ~6 ~ 0 0 0 0 1 force {AUD}',
+                         'playsound minecraft:entity.generic.explode hostile @a[distance=..64] ~ ~5 ~ 3 0.7', 'playsound minecraft:block.anvil.destroy hostile @a[distance=..64] ~ ~5 ~ 2 0.5',
+                         'playsound minecraft:entity.blaze.shoot hostile @a[distance=..64] ~ ~5 ~ 2 0.5',
+                         f'execute as @a[distance=..14,gamemode=!spectator] at @s run particle minecraft:block{{block_state:"minecraft:polished_deepslate"}} ~ ~0.2 ~ 1.2 0.1 1.2 0 14'])
+    fn('p242/wk/burn', [f'particle minecraft:flame ~0.9 ~3.2 ~0.4 0.25 0.35 0.25 0.01 1 force {AUD}', f'particle minecraft:flame ~-1.1 ~5.4 ~-0.3 0.3 0.4 0.3 0.01 1 force {AUD}',
+                        f'particle minecraft:flame ~0.3 ~6.8 ~0.6 0.3 0.3 0.3 0.01 1 force {AUD}',
+                        f'execute if predicate bm:p238/third run particle minecraft:large_smoke ~ ~6.5 ~ 0.9 0.5 0.9 0.03 1 force {AUD}',
+                        f'execute if score #g2 bm.rng matches 0 run particle minecraft:campfire_cosy_smoke ~ ~7.5 ~ 0.5 0.2 0.5 0.01 1 force {AUD}',
+                        f'execute if score #g bm.rng matches 0..1 run particle minecraft:electric_spark ~ ~5 ~ 1.5 2 1.5 0.4 25 force {AUD}',
+                        'execute if score #g bm.rng matches 0 run playsound minecraft:block.redstone_torch.burnout hostile @a[distance=..40] ~ ~5 ~ 1 0.6',
+                        f'execute if score #g bm.rng matches 20 run particle minecraft:lava ~ ~5.5 ~ 0.8 0.8 0.8 0 3 force {AUD}',
+                        'execute if score #g bm.rng matches 40 run playsound minecraft:block.fire.ambient hostile @a[distance=..40] ~ ~4 ~ 1.4 0.7'])
+    fn('p242/wk/end', [f'particle minecraft:explosion_emitter ~ ~4 ~ 1.2 1.5 1.2 0 3 force {AUD}', f'particle minecraft:explosion ~ ~5 ~ 2 2.5 2 0 16 force {AUD}',
+                       f'particle minecraft:flame ~ ~4 ~ 1 1.5 1 0.3 200 force {AUD}', f'particle minecraft:large_smoke ~ ~5 ~ 2 2 2 0.1 120 force {AUD}',
+                       f'particle minecraft:lava ~ ~5 ~ 1.5 1.5 1.5 0 50 force {AUD}', f'particle minecraft:electric_spark ~ ~5 ~ 2 2.5 2 1 160 force {AUD}',
+                       f'particle minecraft:block{{block_state:"minecraft:polished_deepslate"}} ~ ~4 ~ 2 2 2 0 220 force {AUD}',
+                       f'particle minecraft:flash{{color:[1.0,0.55,0.2,1.0]}} ~ ~5 ~ 0 0 0 0 1 force {AUD}',
+                       'playsound minecraft:entity.generic.explode hostile @a[distance=..96] ~ ~4 ~ 4 0.5', 'playsound minecraft:entity.dragon_fireball.explode hostile @a[distance=..96] ~ ~4 ~ 3 0.6',
+                       'playsound minecraft:block.anvil.destroy hostile @a[distance=..96] ~ ~4 ~ 3 0.4',
+                       'kill @e[type=minecraft:item_display,tag=bm.vxw]', 'kill @s'])
     fn('p242/turned', ['tag @s remove bm.vxturn', 'tag @s remove bm.vxt1', 'tag @s remove bm.vxt2', 'kill @e[type=minecraft:marker,tag=bm.vxlook]', 'tag @s add bm.vxlive',
                        'data modify entity @s Invulnerable set value 0b', 'scoreboard players set @s bm.vxa 0',
                        'scoreboard players set @s bm.vxx 10', 'function bm:p242/fill', 'bossbar set bm:vexis color green', 'function bm:p242/pyl/clear',
@@ -718,6 +850,7 @@ def generate(G):
                      at(t, snd('block.amethyst_block.break', 1.4, 1.0 + 0.04 * (t - 532)))]
         t += 1
     stardust += [at(552, f'kill @e[type=minecraft:item_display,tag=bm.vxr]'),
+                 at(552, 'execute as @e[type=minecraft:marker,tag=bm.vxwreck] at @s run function bm:p242/wk/end'),     # (3.2b: its wreck goes up with it)
                  at(552, f'particle minecraft:flash{{color:[0.85,0.92,1.0,1.0]}} ~ ~1.6 ~ 0 0 0 0 1 force {AUD}'),
                  at(552, f'particle minecraft:end_rod ~ ~1.6 ~ 0.3 0.3 0.3 0.35 80 force {AUD}'),
                  at(552, f'particle minecraft:firework ~ ~1.6 ~ 0.4 0.4 0.4 0.3 60 force {AUD}'),

@@ -21,6 +21,14 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.2b: Admiral Vexis's warframe goes down fighting
+
+- **The broken warframe no longer kneels wherever it happened to stop.** When its first health pool runs out, the warframe reels and limps off to one side of the bridge, its guns silent, round the shield pylons and never through them. It goes to whichever side is nearer, square to the great window: off the middle of the floor and out of your view of the star. There it kneels, facing into the room, and the rest of the change plays as before: the cockpit blows and Vexis climbs out.
+- **You can see the warframe breaking down.** From half its first health pool it starts to spark and smoke, and the closer it gets to the end, the worse it gets: then flame in its shoulders and chest, a column of smoke, lava spitting from its joints, and at the very end black smoke pouring out while the frame groans.
+- **The wreck sputters, blows and burns.** Once Vexis has climbed out, the empty shell sputters for about 13 seconds, with sparks and fire building and a rising whine. Then it blows: a burst of flame, debris and a bang, though nobody is hurt. After that it burns for the rest of the fight, with flames in its joints, a column of smoke and sparks now and then. When Vexis bursts into star dust at the very end, the wreck goes up in one last explosion and is gone.
+- **Fixed: the wreck stopped counting as cover in the last phase.** The cleanup at the end of the second phase removed the wreck's hidden marker along with the other effects. From then on the wreck gave off no smoke, and it no longer shielded you from the star-flares, even though the game tells you to hide behind it. It now stays in place until the fight ends.
+- **Behind the scenes:** the Vexis fight test (t318) plays all of this as a regular player and checks it: no sparks above half health, sparks at half and flames near the end, the warframe walking to its berth (14 steps, never within 8 blocks of a pylon) and ending 22 blocks from the middle, the wreck sputtering, blowing and burning, still there in the third phase, and gone at the end.
+
 ## New in 3.2a: Democratus finds his feet again, and the last loose tests
 
 - **Democratus goes back to himself after a special move.** Once he had used his Storm Reap or his Piercing Blow, his model stayed in the move's state for good: no walking, no idle, and right-clicking him to sit left him standing as he was. The attack kit pauses a follower's own animation while a special plays, and for Democratus that pause sat on the very function that would have ended it. His animation now resumes as soon as the move is over.

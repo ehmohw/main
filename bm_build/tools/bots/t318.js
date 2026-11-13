@@ -163,14 +163,47 @@ const E = 'execute in minecraft:the_end run ';
     await run(`${E}execute as @e[type=minecraft:marker,tag=bm.apylon] run scoreboard players set @s bm.vxp 4`); await sleep(1300);
     await hit('@e[type=minecraft:interaction,tag=bm.vxpyi,limit=1,sort=nearest]'); await sleep(700);
     ok('...struck while it glows: it overloads', (await cnt('@e[type=minecraft:marker,tag=bm.apylon,tag=bm.vxpl]')) === 3);
-    // (its pool to its edge: the turn to the Hive-Link)
+    // (3.2b: the damage it shows - from half its first pool, sparks; near its end, ablaze (bm.vxdm 1-4))
+    const pool = await sc(VX, 'bm.vxhp');
+    ok('above half its first pool: no sparks yet', (await sc(VX, 'bm.vxdm')) <= 0, `dm ${await sc(VX, 'bm.vxdm')}`);
+    await run(`${E}execute as ${VX} run data modify entity @s Health set value ${100 + Math.floor(pool * 0.45)}f`);
+    ok('...at half: it sparks and smokes (3.2b)', await wait(3000, async () => (await sc(VX, 'bm.vxdm')) >= 1), `dm ${await sc(VX, 'bm.vxdm')} pool ${pool}`);
+    await run(`${E}execute as ${VX} run data modify entity @s Health set value ${100 + Math.floor(pool * 0.08)}f`);
+    ok('...near its end: ablaze (level 4)', await wait(3000, async () => (await sc(VX, 'bm.vxdm')) === 4), `dm ${await sc(VX, 'bm.vxdm')}`);
+    // (it stands at the window's side of the floor, so its berth is a walk away - round the pylons, not through them)
+    const pyls = [];
+    const pyAll = (await run(`${E}execute as @e[type=minecraft:interaction,tag=bm.vxpyi] run data get entity @s Pos`)).match(/\[-?[\d.]+d, -?[\d.]+d, -?[\d.]+d\]/g) || [];
+    for (const q of pyAll) pyls.push(q.slice(1, -1).split(', ').map(v => parseFloat(v)));
+    // (its pool to its edge: the turn to the Hive-Link - from the window's side of the middle, a walk from either berth)
+    const vy = (await pos(VX))[1];
+    await run(`${E}tp ${VX} 2621.5 ${vy} -3155.4`); await sleep(300);
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 101f`); await sleep(400); await hit(VX); await sleep(600);
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);
-    ok('its first pool spent: the turn - the cockpit blows, the wreck kneels', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxturn]`)) === 1));
+    ok('its first pool spent: it reels and LIMPS ASIDE (3.2b), its guns silent', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxretreat]`)) === 1));
+    const BERTHS = [[2627.06, -3131.0], [2597.94, -3164.0]], CTR = [2612.5, -3147.5];
+    let near = 1e9, steps = 0, last = null;
+    const tLimp = Date.now();
+    while (Date.now() - tLimp < 12000 && (await cnt(`${VX.slice(0, -1)},tag=bm.vxretreat]`)) === 1) {
+      const p = await pos(VX); if (p) { for (const q of pyls) near = Math.min(near, Math.hypot(p[0] - q[0], p[2] - q[2])); if (last && Math.hypot(p[0] - last[0], p[2] - last[2]) > 0.2) steps++; last = p; }
+      await sleep(250);
+    }
+    const pk = await pos(VX); const dB = pk ? Math.min(...BERTHS.map(b => Math.hypot(pk[0] - b[0], pk[2] - b[1]))) : NaN;
+    const dC = pk ? Math.hypot(pk[0] - CTR[0], pk[2] - CTR[1]) : NaN;
+    ok('...walking there (not a jump), round the pylons - never through one', steps >= 4 && near > 2.2, `steps ${steps}, nearest pylon ${near.toFixed(1)} (${pyls.length} pylons)`);
+    ok('...to a berth at the side of the hall: off the middle, out of the window\'s view', dB < 1.2 && dC > 19, `berth ${dB.toFixed(2)} off, ${dC.toFixed(1)} from the middle`);
+    ok('...there it kneels: the turn - the cockpit blows', await wait(3000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxturn]`)) === 1));
+    ok('...the wreck left behind at its berth', await wait(9000, async () => (await cnt('@e[type=minecraft:marker,tag=bm.vxwreck]')) === 1, 300) &&
+       (await cnt('@e[type=minecraft:item_display,tag=bm.vxw]')) === 20);
+    const wk = await pos('@e[type=minecraft:marker,tag=bm.vxwreck,limit=1]');
+    ok('...where it knelt', !!wk && Math.min(...BERTHS.map(b => Math.hypot(wk[0] - b[0], wk[2] - b[1]))) < 1.5);
+    ok('...sputtering, sparks and fire (its clock running) - then it BLOWS, and burns on', await wait(16000, async () => (await sc('@e[type=minecraft:marker,tag=bm.vxwreck,limit=1]', 'bm.vxwt')) > 262, 500),
+       `wt ${await sc('@e[type=minecraft:marker,tag=bm.vxwreck,limit=1]', 'bm.vxwt')}`);
     ok('...and THE HIVE-LINK (phase II): the wreck left behind', await wait(20000, async () => (await sc(VX, 'bm.vxph')) === 2 && (await cnt(`${VX.slice(0, -1)},tag=bm.vxlive]`)) === 1, 500) &&
        (await cnt('@e[type=minecraft:item_display,tag=bm.vxw]')) === 20);
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);
     ok('its second pool spent: STARFIRE (phase III)', await wait(22000, async () => (await sc(VX, 'bm.vxph')) === 3 && (await cnt(`${VX.slice(0, -1)},tag=bm.vxlive]`)) === 1, 500));
+    // (3.2b: the second turn's clear-up used to take the wreck's marker - no smoke, and no shelter behind it from the star-flares)
+    ok('...the wreck still burning there - and still cover from the flares', (await cnt('@e[type=minecraft:marker,tag=bm.vxwreck]')) === 1 && (await cnt('@e[type=minecraft:item_display,tag=bm.vxw]')) === 20);
     await run('clear TestRat'); await run('tag TestRat remove bm.vxfirst'); await run('scoreboard players set TestRat bm.vxwin 0');
     await run(`${E}execute as ${VX} run data modify entity @s Health set value 100f`);
     ok('its last pool spent: THE UNLINKING', await wait(4000, async () => (await cnt(`${VX.slice(0, -1)},tag=bm.vxfall]`)) === 1));
@@ -186,7 +219,8 @@ const E = 'execute in minecraft:the_end run ';
       }
       if (t >= 534 && t < 556 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_star]')) > 0) seen.star = true;
       if (t >= 553 && t < 575) { if ((await cnt('@e[type=minecraft:item_display,tag=bm.dfx_nova]')) > 0) seen.nova = true;
-        if ((await cnt('@e[type=minecraft:item_display,tag=bm.vxr]')) === 0) seen.gone = true; }
+        if ((await cnt('@e[type=minecraft:item_display,tag=bm.vxr]')) === 0) seen.gone = true;
+        if ((await cnt('@e[type=minecraft:item_display,tag=bm.vxw]')) === 0 && (await cnt('@e[type=minecraft:marker,tag=bm.vxwreck]')) === 0) seen.wreck = true; }
       if (t >= 560 && (await cnt('@e[type=minecraft:item_display,tag=bm.dfx_dust]')) > 0) { seen.dust = true; break; }
       await sleep(t < 470 ? 500 : 80);
     }
@@ -194,6 +228,7 @@ const E = 'execute in minecraft:the_end run ';
     ok('...glowing seams cracking over it (seam sprites)', seen.seam);
     ok('...part by part it bursts into star dust (star sprites spiralling out)', seen.star);
     ok('...a nova: a ring of star dust flung out; nothing of its rig left', seen.nova && seen.gone);
+    ok('...and its wreck goes up with it (3.2b): nothing of the warframe left either', !!seen.wreck);
     ok('...the dust drifting, twinkling out', seen.dust);
     ok('...30 s later: the Severed Link, its record, a Victor\'s Key', await wait(36000, async () => (await has('vexis_link')) === 1, 1000) && (await has('music_disc_vexis')) === 1 && (await has('akey_victor')) >= 1);
     ok('...the invasion nights are over (#vfell)', (await sc('#vfell', 'bm.cfg')) === 1);
