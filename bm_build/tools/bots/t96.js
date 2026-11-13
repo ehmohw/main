@@ -111,8 +111,8 @@ const res = []; const X = 18400, Y = 110, Z = 18400;
   await run('data merge entity @e[type=wolf,tag=bm.leopet,limit=1] {NoAI:0b}');
   await run(`tp @e[type=zombie,tag=bm.t96z] ${X + 0.5} ${Y} ${Z + 16.5}`); await run('scoreboard players set @e[type=wolf,tag=bm.leopet] bm.leg 0');
   // (3.2a: down to about 3 hearts of HIS max - TestRat keeps lasting max-health gifts, so a flat 17 left him at 17 of 28)
-  const mh = +(((await run('attribute TestRat minecraft:max_health get')).match(/is (-?[\d.]+)/) || [])[1]);
-  await run(`damage TestRat ${Math.max(1, Math.round(((isNaN(mh) ? 20 : mh) - 6) / 0.8))} minecraft:generic`);       // (his steadfast Resistance takes a fifth off)
+  // (a few small hits, not one big one: a single 28 could kill him outright)
+  for (let i = 0; i < 20; i++) { const hp = await fl('data get entity TestRat Health'); if (!(hp > 7)) break; await run(`damage TestRat ${Math.min(4, Math.max(1, Math.floor(hp - 6)))} minecraft:generic`); await sleep(600); }
   for (let i = 0; i < 15 && !((await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')) >= 25); i++) await sleep(200);
   const gres = await run('data get entity TestRat active_effects[{id:"minecraft:resistance"}].amplifier');
   const gdbg = `hp ${await fl('data get entity TestRat Health')} leg ${await num('scoreboard players get @e[type=wolf,tag=bm.leopet,limit=1] bm.leg')} z ${await cnt('@e[type=zombie,tag=bm.t96z]')} eff ${(await run('data get entity TestRat active_effects')).slice(-150)}`;
