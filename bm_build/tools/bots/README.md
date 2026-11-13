@@ -383,6 +383,11 @@ it: `chunks.js`, which both rcon helpers (`lib.js`, `lib_resp.js`) send every co
 - (3.2a) **TestRat isn't a fresh player:** earlier tests leave lasting max-health upgrades (`bm:hearts`, `bm:starheart`, +4 each) and
   followers out. Measure against its own max health; send followers home (`p98/home/<kind>` as TestRat, `#me bm.pid` set) first.
 - (3.2a) **A follower mid-special (state 21) lets a right-click pass:** clear the monsters near it and wait for `bm.ksg` 0 first.
+- (3.2a) **rc.js never remembers anything:** `chunks.js` puts back the forceloads and game rules a test changed, through `rc.js` at exit.
+  When `rc.js` went through the same bookkeeping, the rule it put back was remembered and put back again at its own exit, through
+  another `rc.js`, without end. About 250 of them piled up behind each sweep's `gamerule ... true` and the kernel OOM-killed the server
+  (that was "the server is sometimes killed from outside"). If the server dies mid-sweep, look at `dmesg | grep -i killed` and
+  `pgrep -fc rc.js` first.
 
 ## Index
 

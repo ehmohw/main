@@ -61,7 +61,11 @@ function hook() {
   for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(sig, () => process.exit(130));
 }
 // send: (command) => Promise<reply>. Returns the reply to cmd itself.
+// (3.2a) rc.js is how these are put back: it only passes its commands on. Remembering them there made a chain - a game rule it put
+// back was remembered and put back again at its own exit, through another rc.js, without end (hundreds of them; the server OOM-killed).
+const PLAIN = path.basename((require.main && require.main.filename) || '') === 'rc.js';
 async function wrap(cmd, send) {
+  if (PLAIN) return send(cmd);
   if (!flushed) await flush(send);
   const g = typeof cmd === 'string' && cmd.trim().match(/^gamerule ([a-z0-9_:]+) (\S+)$/);
   if (g && !rules.has(g[1])) {
