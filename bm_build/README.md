@@ -21,6 +21,11 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.2c: relics and keys from older versions come off the Rat Pack again
+
+- **Fixed: "That one wouldn't come off" for everything an older version put on your Rat Pack.** When the Pack hands an item back, it checks that the item really reached you before letting go of its copy. That check also required the item to carry the row's own internal ID, and items stored by an older version can carry an older one. So after updating, those relics and keys were refused every time and stayed on the Pack. The check now accepts whatever is actually stored, so they come off as normal. Nothing was lost: they were safe on the Pack the whole time.
+- **Behind the scenes:** a new test (t415) puts a Heartstone on the Pack under an old ID, as an older world would have it, and takes it back as a regular player through Relics › Materials: it comes off into the pockets and its row goes.
+
 ## New in 3.2b: Admiral Vexis's warframe goes down fighting
 
 - **The broken warframe no longer kneels wherever it happened to stop.** When its first health pool runs out, the warframe reels and limps off to one side of the bridge, its guns silent, round the shield pylons and never through them. It goes to whichever side is nearer, square to the great window: off the middle of the floor and out of your view of the star. There it kneels, facing into the room, and the rest of the change plays as before: the cockpit blows and Vexis climbs out.
