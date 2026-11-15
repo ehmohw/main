@@ -36,6 +36,13 @@ const res = [];
   A.chats.length = 0; await A.press(/Heartstone/); await sleep(1200);
   ok('an old-format stack of 3 Heartstones: it comes off (no "wouldn\'t come off")', !A.chats.some(c => /wouldn't come off/.test(c)) && A.chats.some(c => /comes off/.test(c)), A.chats.slice(-2).join(' / '));
   ok('...all 3, into your pockets', /Found 3/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"heartstone"}] 0')));
+  // an elemental gem, the same way (a stack of 4 Fire Gems, old format)
+  await run(`data modify storage bm:pw p${pid}.rq_gem_fire set value {id:"minecraft:emerald",Count:4b,tag:{bm:"gem_fire"}}`);
+  await run('scoreboard players set TestRat bm.rq_gem_fire 4');
+  await sleep(800); await openP(); await sleep(300); await A.press(/Relics/); await A.press(/Materials/); await sleep(400);
+  A.chats.length = 0; await A.press(/Fire/); await sleep(1200);
+  ok('an old-format stack of 4 Fire Gems: it comes off', !A.chats.some(c => /wouldn't come off/.test(c)) && A.chats.some(c => /comes off/.test(c)), A.chats.slice(-2).join(' / '));
+  ok('...all 4 Fire Gems, into your pockets', /Found 4/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"gem_fire"}] 0')));
   await run(`data modify storage bm:pw p${pid}.rq_ring_burrows2 set value {id:"minecraft:compass",Count:1b,tag:{bm:"ring_burrows",bm_rid:77}}`);
   await run('scoreboard players set TestRat bm.rq_ring_burrows2 1');
   await sleep(800); await openP(); await sleep(300); await A.press(/Pocket/); await sleep(600);

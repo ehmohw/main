@@ -496,6 +496,7 @@ def generate(G):
         'data modify entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] Owner set from entity @s UUID',
         # (3.2c: any item at all counts - what an older version stored can carry an older id, and was refused for good)
         '$execute unless items entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] contents *[minecraft:custom_data~{bm:"$(id)"}] unless items entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5,sort=nearest,limit=1] contents * run kill @e[type=minecraft:item,tag=bm.rqout]',
+        'data modify storage bm:rp t.iid set from storage bm:rp t.id',
         'execute unless entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5] run function bm:p277/s/rebuild_drop with storage bm:rp t',
         'execute unless entity @e[type=minecraft:item,tag=bm.rqout,distance=..1.5] run return run function bm:p277/s/give_fail',
         'tag @e[type=minecraft:item,tag=bm.rqout] remove bm.rqout', '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
@@ -503,6 +504,7 @@ def generate(G):
                            '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item set from storage bm:pw p$(pid).r$(k)',
                            # (3.2d: an item an older version stored, in a format today's game can't read, comes out as nothing - rebuilt
                            #  fresh from its own loot table, with the stored count and custom data: a ring keeps its number, so its burrows)
+                           'data modify storage bm:rp t.iid set from storage bm:rp t.id',
                            'execute unless items entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents * run function bm:p277/s/rebuild with storage bm:rp t',
                            # (an old-format copy can also come out as the bare base item - none of our data on it: rebuilt too, unless it
                            #  carries a pack id at all - then it's the real thing under an older id, kept as it is)
@@ -513,13 +515,13 @@ def generate(G):
                            # (only once it's really in your hands is the Pack's copy let go - else kept, and you're told)
                            'execute unless score #rqg bm.rng matches 1 run return run function bm:p277/s/give_fail',
                            '$data remove storage bm:pw p$(pid).r$(k)', 'return 1'])
-    fn('p277/s/rebuild', ['$loot replace entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents loot bm:items/$(id)',
+    fn('p277/s/rebuild', ['$loot replace entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents loot bm:items/$(iid)',
                           '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data" merge from storage bm:pw p$(pid).r$(k).components."minecraft:custom_data"',
                           '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.components."minecraft:custom_data" merge from storage bm:pw p$(pid).r$(k).tag',
                           '$execute if data storage bm:pw p$(pid).r$(k).count run data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.count set from storage bm:pw p$(pid).r$(k).count',
                           '$execute if data storage bm:pw p$(pid).r$(k).Count run data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.count set from storage bm:pw p$(pid).r$(k).Count'])
-    fn('p277/s/rebuild_drop', ['$loot spawn ~ ~0.4 ~ loot bm:items/$(id)',
-                               '$tag @e[type=minecraft:item,distance=..1.5,sort=nearest,limit=1,nbt={Item:{components:{"minecraft:custom_data":{bm:"$(id)"}}}}] add bm.rqout',
+    fn('p277/s/rebuild_drop', ['$loot spawn ~ ~0.4 ~ loot bm:items/$(iid)',
+                               '$tag @e[type=minecraft:item,distance=..1.5,sort=nearest,limit=1,nbt={Item:{components:{"minecraft:custom_data":{bm:"$(iid)"}}}}] add bm.rqout',
                                '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data" merge from storage bm:pw p$(pid).r$(k).components."minecraft:custom_data"',
                                '$data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data" merge from storage bm:pw p$(pid).r$(k).tag',
                                '$execute if data storage bm:pw p$(pid).r$(k).count run data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.count set from storage bm:pw p$(pid).r$(k).count',
