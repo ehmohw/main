@@ -35,17 +35,25 @@ const res = [];
   await openP(); await A.press(/Relics/); await A.press(/Materials/); await sleep(400);
   A.chats.length = 0; await A.press(/Heartstone/); await sleep(1200);
   ok('an old-format stack of 3 Heartstones: it comes off (no "wouldn\'t come off")', !A.chats.some(c => /wouldn't come off/.test(c)) && A.chats.some(c => /comes off/.test(c)), A.chats.slice(-2).join(' / '));
-  ok('...all 3, into your pockets', /Found 3/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"heartstone"}] 0')));
+  ok('...all 3, into your pockets - made fresh, today\'s version (bmv 50)', /Found 3/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"heartstone",bmv:50}] 0')));
   // an elemental gem, the same way (a stack of 4 Fire Gems, old format)
   await run(`data modify storage bm:pw p${pid}.rq_gem_fire set value {id:"minecraft:emerald",Count:4b,tag:{bm:"gem_fire"}}`);
   await run('scoreboard players set TestRat bm.rq_gem_fire 4');
   await sleep(800); await openP(); await sleep(300); await A.press(/Relics/); await A.press(/Materials/); await sleep(400);
   A.chats.length = 0; await A.press(/Fire/); await sleep(1200);
   ok('an old-format stack of 4 Fire Gems: it comes off', !A.chats.some(c => /wouldn't come off/.test(c)) && A.chats.some(c => /comes off/.test(c)), A.chats.slice(-2).join(' / '));
-  ok('...all 4 Fire Gems, into your pockets', /Found 4/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"gem_fire"}] 0')));
+  ok('...all 4 Fire Gems, into your pockets - made fresh', /Found 4/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"gem_fire",bmv:50}] 0')));
+  // (3.2d, the owner's way: keys and materials kept as a number - a key whose stored copy is junk still comes back, 2 of them, fresh)
+  await run(`data modify storage bm:pw p${pid}.rq_vkey_frost set value {id:"minecraft:stone",Count:1b}`);
+  await run('scoreboard players set TestRat bm.rq_vkey_frost 2');
+  await A.press(/« Relics/); await sleep(400); await A.press(/« Rat Pack/); await sleep(400); await A.press(/Keyring/); await sleep(500);
+  A.chats.length = 0; await A.press(/Rime Key/); await sleep(1200);
+  ok('a key whose stored copy is junk (stone): taken back, 2 fresh Rime Keys', /Found 2/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"vkey_frost",bmv:50}] 0')) &&
+     !/Found/.test(await run('execute store result score #t bm.rng run clear TestRat minecraft:stone 0')), A.chats.slice(-2).join(' / '));
+  await A.press(/« Rat Pack/); await sleep(400); await A.press(/Relics/); await sleep(400);
   await run(`data modify storage bm:pw p${pid}.rq_ring_burrows2 set value {id:"minecraft:compass",Count:1b,tag:{bm:"ring_burrows",bm_rid:77}}`);
   await run('scoreboard players set TestRat bm.rq_ring_burrows2 1');
-  await sleep(800); await openP(); await sleep(300); await A.press(/Pocket/); await sleep(600);
+  await A.press(/« Relics/); await sleep(400); await A.press(/« Rat Pack/); await sleep(400); await A.press(/Pocket/); await sleep(600);   // (back through the pages - a use with a page open doesn't reopen the front)
   const ringRow = A.buttons().find(b => /Ring of Ten Burrows 2/.test(b.label));
   ok('an old-format Ring of Ten Burrows 2 on the Pocket page', !!ringRow, A.buttons().map(b => b.label).join(' | '));
   if (!/Take back/.test(A.buttons().map(b => b.label).join(' '))) { const sw = A.buttons().find(b => /Press to:/.test(b.label)); if (sw) { await A.press(/Press to:/); await sleep(400); } }

@@ -528,6 +528,12 @@ def generate(G):
                                '$execute if data storage bm:pw p$(pid).r$(k).Count run data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.count set from storage bm:pw p$(pid).r$(k).Count',
                                'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Item.components."minecraft:custom_data".bm_rpno set value 1b',
                                'data modify entity @e[type=minecraft:item,tag=bm.rqout,limit=1] Owner set from entity @s UUID'])
+    fn('p277/s/fresh', ['function bm:p277/sw/holder',
+                        '$loot replace entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents loot bm:items/$(iid)',
+                        '$data modify entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item.count set value $(n)',
+                        'execute unless items entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents * run return fail',
+                        '$data modify storage bm:pw p$(pid).r$(k) set from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item',
+                        'data remove entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] item', 'function bm:p277/sw/done'])
     fn('p277/s/give_fail', [tellraw('@s', PRE + [T('That one wouldn\'t come off - it stays safe on your Rat Pack. ', '#ff8a8a'), T('(Tell the Fixer: /function bm:admin/rp_dump lists what the Pack holds.)', 'gray')]),
                             'return fail'])
     fn('p277/s/give_slot', ['$item replace entity @s container.$(s) from entity @e[type=minecraft:item_display,tag=bm.rqhold,limit=1] contents',
@@ -623,7 +629,11 @@ def generate(G):
                  pid, 'execute store result score #rqg bm.rng run function bm:p277/s/givehb with storage bm:rp t',
                  f'execute if score #rqg bm.rng matches 0 run {give("bm_handbook")}', 'scoreboard players set @s bm.pwhb 0', 'tag @s remove bm.pw_hb']
         else:
-            o = [f'execute unless score @s {O} matches 1.. run return run function bm:p28/stale'] + setk + \
+            # (3.2d, the owner: materials and keys kept as a NUMBER - taken back, they're made fresh from today's loot table, as many as
+            #  the row counts; the copy an older version stored is never read)
+            fresh = ([f'execute store result storage bm:rp t.n int 1 run scoreboard players get @s {O}', f'data modify storage bm:rp t.iid set value "{e["real"]}"',
+                      'function bm:p277/s/fresh with storage bm:rp t'] if e['cat'] in ('keys', 'rmat') else [])
+            o = [f'execute unless score @s {O} matches 1.. run return run function bm:p28/stale'] + setk + fresh + \
                 ['execute store result score #rqg bm.rng run function bm:p277/s/give with storage bm:rp t',
                  'execute unless score #rqg bm.rng matches 1..2 run return 0',       # (3.1a: it didn't come off - the row and the Pack's copy stay)
                  f'scoreboard players set @s {O} 0', f'tag @s remove {T_}']
