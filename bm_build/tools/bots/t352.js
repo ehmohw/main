@@ -116,10 +116,13 @@ const X = 21520, Y = 100, Z = 16400;
     ok('a husk near: his Cosmic Appraisal strikes it (18)', h1 <= h0 - 15, `husk ${h1}`);
     await run(`${O}kill @e[type=minecraft:husk,tag=t352]`);
     // (the heart: the Soul Broker - and the gem comes back)
+    const free = []; for (let i = 0; i < 36; i++) if (i !== 2 && !/passed/i.test(await run(`execute if items entity TestRat container.${i} *`))) free.push(i);
+    for (const i of free) await run(`item replace entity TestRat container.${i} with minecraft:cobblestone 64`);   // (3.2e: every other slot full - the gem must still come back to you)
     A.slot(2); await sleep(400); await click(); await sleep(800);
-    ok('the Wraithfire Heart handed over: bm.pmef 12, SOUL BROKER models - and the gem back in your pocket',
+    ok('the Wraithfire Heart handed over (every other slot full): bm.pmef 12, SOUL BROKER models - and the gem back in your pocket',
        (await sc('TestRat', 'bm.pmef')) === 12 && (await has('ethereal_gem')) === 1 && await wait(2000, async () => /pmr_body_w$/.test(await model())),
        `pmef ${await sc('TestRat', 'bm.pmef')} gems ${await has('ethereal_gem')} model ${await model()}`);
+    await run('clear TestRat minecraft:cobblestone');
     await sleep(2300); n0 = A.dialogN.length; await use(0, true); await wait(3000, async () => A.dialogN.length > n0);
     n0 = A.dialogN.length; await A.press(/Wardrobe/); await wait(3000, async () => A.dialogN.length > n0);
     n0 = A.dialogN.length; await A.press(/Give back the gem/); await wait(3000, async () => A.dialogN.length > n0);

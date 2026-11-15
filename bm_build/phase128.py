@@ -456,11 +456,12 @@ def forms(G, sel_pet, pmsay):
         fn(f'p128/fm/give{n}', ['scoreboard players operation #me bm.pid = @s bm.pid',
                                 f'execute if score @s bm.pmef matches {n + 10} run return run ' + pmsay(VOICE['again']),
                                 f'execute if score @s bm.pmef matches {n} run return run function bm:p128/fm/show{n}',
+                                # (3.2e: the new one out of your hand FIRST, so a full inventory has the slot it leaves for the old one)
+                                'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand bm:p2/consume_one',
                                 f'execute if score @s bm.pmef matches {m} run loot give @s loot bm:items/{oiid}',
                                 f'execute if score @s bm.pmef matches {m + 10} run loot give @s loot bm:items/{oiid}',
                                 f'execute if score @s bm.pmef matches {m} run ' + tellraw('@s', [T(f'Pearlman gives you back the {oinm}.', 'gray')]),
                                 f'execute if score @s bm.pmef matches {m + 10} run ' + tellraw('@s', [T(f'Pearlman gives you back the {oinm}.', 'gray')]),
-                                'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand bm:p2/consume_one',
                                 f'scoreboard players set @s bm.pmef {n + 10}',
                                 tellraw('@s', G.PREFIX + [T(f'Pearlman keeps the {inm}: ', 'gray'), T(form, c, bold=True),
                                                           T(' (his wardrobe - sneak + use his card - turns it on or off, and gives it back).', 'dark_gray')]),

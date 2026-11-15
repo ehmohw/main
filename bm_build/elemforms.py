@@ -725,11 +725,12 @@ def _one(G, k, holds, F, foe):
         fn(f'{p}/give{n}', ['scoreboard players operation #me bm.pid = @s bm.pid',
                             f'execute if score @s {o} matches {n + 10} run return run ' + say(V['again']),
                             f'execute if score @s {o} matches {n} run return run function bm:{p}/show{n}',
+                            # (3.2e: the new one out of your hand FIRST, so a full inventory has the slot it leaves for the old one)
+                            'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand bm:p2/consume_one',
                             f'execute if score @s {o} matches {m} run loot give @s loot bm:items/{oiid}',
                             f'execute if score @s {o} matches {m + 10} run loot give @s loot bm:items/{oiid}',
                             f'execute if score @s {o} matches {m} run ' + tellraw('@s', [T(f'{nm} gives you back the {oinm}.', 'gray')]),
                             f'execute if score @s {o} matches {m + 10} run ' + tellraw('@s', [T(f'{nm} gives you back the {oinm}.', 'gray')]),
-                            'execute unless entity @s[gamemode=creative] run item modify entity @s weapon.mainhand bm:p2/consume_one',
                             f'scoreboard players set @s {o} {n + 10}',
                             tellraw('@s', G.PREFIX + [T(f'{nm} keeps the {inm}: ', 'gray'), T(form, c, bold=True),
                                                       T(f' ({POSS[_pron(k)]} wardrobe - sneak + use {ITEMS[D["item"]]["name"]} - turns it on or off, and gives it back).', 'dark_gray')]),

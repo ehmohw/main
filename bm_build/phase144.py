@@ -13,7 +13,7 @@ whole hide); taking the gem out puts the colour back.
 EMMA AND THE WRAITHFIRE HEART: while she holds one (given to her: bm.emwf on you), her support form's blessings come at
 level II - whichever form she's in, and whether or not her Wraithfire Form is switched on (that only decides the soul-fire
 look and the flying). Importing does nothing; generate(G) runs after phase138."""
-from items import T
+from items import T, ITEMS
 import apophiss_art as A, rigfol as RF
 import phase99 as P99
 from apophiss_art import qs
@@ -52,8 +52,10 @@ def generate(G):
         'execute if predicate bm:p20/sneaking unless items entity @s weapon.mainhand * if score @s bm.apel matches 10.. run return run function bm:p144/take']
     give_back = [f'execute if score @s bm.apel matches {n} run loot give @s loot bm:items/{it}' for n, (it, *_r) in FORMS.items()]
     for n, (it, name, col, what) in FORMS.items():
-        fn(f'p144/give_{n}', [f'execute if score @s bm.apel matches {n} run return run ' + apsay('I already burn with that one. Greedy, are we?')] + [l for l in give_back if f'matches {n} ' not in l] + [
-            'item modify entity @s weapon.mainhand bm:p2/consume_one', f'scoreboard players set @s bm.apel {n}',
+        fn(f'p144/give_{n}', [f'execute if score @s bm.apel matches {n} run return run ' + apsay('I already burn with that one. Greedy, are we?')] + [
+            'item modify entity @s weapon.mainhand bm:p2/consume_one'] + [l for l in give_back if f'matches {n} ' not in l] + [   # (3.2e: out of your hand first)
+            *[f'execute if score @s bm.apel matches {m} run ' + G.tellraw('@s', [T(f'Apophiss gives you back the {ITEMS[FORMS[m][0]]["name"]}.', 'gray')]) for m in FORMS if m != n],
+            f'scoreboard players set @s bm.apel {n}',
             'scoreboard players operation #me bm.pid = @s bm.pid', f'{pet} at @s run function bm:p144/look',
             f'{pet} at @s run function bm:p144/burst_{n}',
             title('@s', 'actionbar', [T('Apophiss takes it in - ', GRN), T(name, col, bold=True), T(': ' + what, 'gray')]),

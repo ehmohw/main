@@ -57,8 +57,12 @@ const res = [];
   await run(`${O}tp ${pet} ${X + 0.5} ${Y + 1} ${Z + 3.5}`); await run(`${O}data modify entity ${pet} Sitting set value 1b`); await sleep(1500);
   // ---- the Wraithfire Heart (the gem comes back)
   await run('loot replace entity TestRat hotbar.2 loot bm:items/wraithfire_heart'); A.bars.length = 0;
+  // (3.2e: every other slot full - the gem must still come back to you, not fall at your feet)
+  { const free = []; for (let i = 0; i < 36; i++) if (i !== 2 && !/passed/i.test(await run(`execute if items entity TestRat container.${i} *`))) free.push(i);
+    for (const i of free) await run(`item replace entity TestRat container.${i} with minecraft:cobblestone 64`); }
   await click(2);
-  ok('the Wraithfire Heart: he takes it, and gives the Ethereal Gem back', (await has('wraithfire_heart')) === 0 && (await has('ethereal_gem')) === 1);
+  ok('the Wraithfire Heart (every other slot full): he takes it, and gives the Ethereal Gem back into your pocket', (await has('wraithfire_heart')) === 0 && (await has('ethereal_gem')) === 1);
+  await run('clear TestRat minecraft:cobblestone');
   ok('...WRAITHFIRE FORM: soul-blue scales, wings still out', /_wf$/.test(await model('body')) && /_wf$/.test(await model('tail1')) && (await wscale()) > 1,
      `${await model('body')} wing ${await wscale()}`);
   ok('...fire won\'t touch him', await wait(2500, async () => /fire_resistance/.test(await nbt(pet, 'active_effects'))));
