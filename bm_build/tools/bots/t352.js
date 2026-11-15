@@ -100,10 +100,10 @@ const X = 21520, Y = 100, Z = 16400;
        `pmef ${await sc('TestRat', 'bm.pmef')} gems ${await has('ethereal_gem')}`);
     ok('...GEM APPRAISER OF THE COSMOS: his parts in their Ethereal models', await wait(2000, async () => /pmr_body_e$/.test(await model()) && /pmr_hat_e$/.test(await model('hat'))), await model());
     ok('...and he didn\'t sit down for it', !/1b/.test(await run(`${O}data get entity ${CAT} Sitting`)));
-    // (his wardrobe: sneak + use the card -> Wardrobe -> Joke form)
+    // (3.0i moved the form switch and the give-back to his ⚙ Settings: sneak + use the card -> Settings -> Joke form)
     await sleep(2300); let n0 = A.dialogN.length; await use(0, true); await wait(3000, async () => A.dialogN.length > n0);
-    n0 = A.dialogN.length; await A.press(/Wardrobe/); await wait(3000, async () => A.dialogN.length > n0);
-    ok('his wardrobe lists the row: "Joke form  Cosmic: on"', A.buttons().some(b => /Joke form.*Cosmic: on/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 300));
+    n0 = A.dialogN.length; await A.press(/Settings/); await wait(3000, async () => A.dialogN.length > n0);
+    ok('his ⚙ Settings list the row: "Joke form"', A.buttons().some(b => /Joke form/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 300));
     n0 = A.dialogN.length; await A.press(/Joke form/); await wait(3000, async () => A.dialogN.length > n0);
     ok('...pressed: off - his own models (bm.pmef 1)', (await sc('TestRat', 'bm.pmef')) === 1 && await wait(2000, async () => /pmr_body$/.test(await model())), await model());
     await sleep(1200); n0 = A.dialogN.length; await A.press(/Joke form/); await wait(3000, async () => A.dialogN.length > n0);
@@ -124,7 +124,7 @@ const X = 21520, Y = 100, Z = 16400;
        `pmef ${await sc('TestRat', 'bm.pmef')} gems ${await has('ethereal_gem')} model ${await model()}`);
     await run('clear TestRat minecraft:cobblestone');
     await sleep(2300); n0 = A.dialogN.length; await use(0, true); await wait(3000, async () => A.dialogN.length > n0);
-    n0 = A.dialogN.length; await A.press(/Wardrobe/); await wait(3000, async () => A.dialogN.length > n0);
+    n0 = A.dialogN.length; await A.press(/Settings/); await wait(3000, async () => A.dialogN.length > n0);
     n0 = A.dialogN.length; await A.press(/Give back the gem/); await wait(3000, async () => A.dialogN.length > n0);
     ok('"Give back the gem / heart": the heart back, bm.pmef 0, his own models', (await sc('TestRat', 'bm.pmef')) === 0 && (await has('wraithfire_heart')) === 1 &&
        await wait(2000, async () => /pmr_body$/.test(await model())), `pmef ${await sc('TestRat', 'bm.pmef')} hearts ${await has('wraithfire_heart')} model ${await model()}`);
