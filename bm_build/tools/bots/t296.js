@@ -128,17 +128,25 @@ runT({ W: 'gem', NAME: 'The Gem of Creativity', ab: 'cg', q: 'cq', pfx: 'p231', 
     await calm(); await zom(1.6, 2, 'bm.trpe'); await run(`${O}tp ${PET} ${X + 0.5} ${Y + 1} ${Z + 2.3}`); await run(`${O}tp @e[tag=bm.trpe] ${X + 1.9} ${Y + 1} ${Z + 2.3}`); await cd('mc', 0);
     ok('...its PRISM in the form hits harder (7, not 5)', await wait(5000, async () => (await hp('bm.trpe')) < 300) && (await hp('bm.trpe')) <= 294, String(await hp('bm.trpe')));
     await run(`${O}kill @e[tag=bm.trpz]`); await calm(); await sleep(1500);
-    ok('the menu, while it holds one: Ethereal Form: on / off, Take back the Ethereal Gem', await sneakMenu(0) &&
-       A.buttons().some(b => /Ethereal Form: on \/ off/.test(b.label)) && A.buttons().some(b => /Take back the Ethereal Gem/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
-    await A.press(/Ethereal Form: on \/ off/); await sleep(1200);
+    // (3.0i moved the form switch and the take-back to its ⚙ Settings page)
+    const settings = async () => { await sneakMenu(0); await A.press(/Settings/); await sleep(400); return true; };
+    ok('its ⚙ Settings, while it holds one: the form on / off, and take it back', await settings() &&
+       A.buttons().some(b => /Ethereal \/ Wraithfire form/.test(b.label)) && A.buttons().some(b => /Take back the gem \/ heart/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
+    await A.press(/Ethereal \/ Wraithfire form/); await sleep(1200);
     ok('...Ethereal Form: off - its own models again (the gem kept)', (await score('bm.cgfo')) === 0 && (await score('bm.cgel')) === 10 && (await all('')).ok, (await all('')).m);
-    await sneakMenu(0); await A.press(/Ethereal Form: on \/ off/); await sleep(1200);
+    await settings(); await A.press(/Ethereal \/ Wraithfire form/); await sleep(1200);
     ok('...and on - the Ethereal twins', (await score('bm.cgfo')) === 1 && (await all('_e')).ok, (await all('_e')).m);
     await sneakMenu(0); await A.click(/Send .* home/); await sleep(1200); await use(0); await wait(4000, async () => (await cnt(PET)) === 1); await sleep(1500);
     ok('...sent home and called again: still Ethereal', (await cnt(PET)) === 1 && (await all('_e')).ok, (await all('_e')).m);
     await run('loot replace entity TestRat hotbar.5 loot bm:items/wraithfire_heart'); A.chats.length = 0;
-    ok('handed a Wraithfire Heart: it keeps that one, and gives the Ethereal Gem back (one at a time)',
-       await click(5) && (await score('bm.cgel')) === 11 && (await has('wraithfire_heart')) === 0 && (await has('ethereal_gem')) === 1, `cgel ${await score('bm.cgel')}`);
+    // (3.2e, the owner: "it takes the heart without returning the gem" - with every other slot full, the gem it gave back fell at your
+    //  feet, unsaid: the heart leaves your hand first now, and the gem goes into the slot it left)
+    const free = []; for (let i = 0; i < 36; i++) if (i !== 5 && !/passed/i.test(await run(`execute if items entity TestRat container.${i} *`))) free.push(i);
+    for (const i of free) await run(`item replace entity TestRat container.${i} with minecraft:cobblestone 64`);
+    ok('handed a Wraithfire Heart (every other slot full): it keeps that one, and the Ethereal Gem comes back INTO YOUR HAND, told so',
+       await click(5) && (await score('bm.cgel')) === 11 && (await has('wraithfire_heart')) === 0 && (await has('ethereal_gem')) === 1 && A.chats.some(c => /hands you back the Ethereal Gem/.test(c)),
+       `cgel ${await score('bm.cgel')} gem ${await has('ethereal_gem')} | ${A.chats.slice(-2).join(' / ')}`);
+    await run('clear TestRat minecraft:cobblestone');
     ok('...the Wraithfire twins - smoke and soul fire, wings of flame', await wait(4000, async () => (await all('_w')).ok), (await all('_w')).m);
     await sleep(1500); await run('clear TestRat *[minecraft:custom_data~{bm:"ethereal_gem"}]');
     ok('sneak + right-click it empty-handed: the heart back, its own self again',

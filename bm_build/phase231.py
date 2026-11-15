@@ -627,8 +627,12 @@ def _forms(G, X):
                   T('and wings of wraith fire unfold behind it. ', '#5ae0ff', italic=True), T('\\o/', '#ffffff', bold=True)]}
     for n, (it, nm, col, sfx) in GIVE.items():
         fn(f'p231/eth/give_{n}', [f'execute if score @s bm.cgel matches {n} run return run ' + csay('(the Gem already holds one, and hums at this one too: <3)'),
-                                  *[l for l in give_back if f'matches {n} ' not in l],
+                                  # (3.2e: the new one taken from your hand FIRST, so the slot it leaves can take the old one - with a full
+                                  #  inventory the old one used to land at your feet, unsaid, easy to walk away from)
                                   'item modify entity @s weapon.mainhand bm:p2/consume_one',
+                                  *[l for l in give_back if f'matches {n} ' not in l],
+                                  *[tellraw('@s', [T(f'It hands you back the {ITEMS[GIVE[m][0]]["name"]}.', 'gray')]).replace('tellraw', f'execute if score @s bm.cgel matches {m} run tellraw', 1)
+                                    for m in GIVE if m != n],
                                   f'scoreboard players set @s bm.cgel {n}', 'scoreboard players set @s bm.cgfo 1',
                                   'scoreboard players set @e[type=minecraft:wolf,tag=bm.cgclk] bm.cgrs 1',
                                   tellraw('@s', WORDS[n]),
