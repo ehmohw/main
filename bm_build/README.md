@@ -21,6 +21,16 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.2e: form items always come back, and Nullify stops shaking the screen
+
+- **Fixed: handing a follower the other form item could lose the one it held.** Give a Wraithfire Heart to a follower holding an Ethereal Gem (or the other way round), and it handed the old item back *before* taking the new one from your hand. With a full inventory there was no room, so the old item dropped at your feet with no message. Now the new item leaves your hand first, and the old one goes into the slot it leaves. This was wrong for every follower with both forms: the Gem of Creativity, Bender, Mr. Capshun, Celi, Democratus, Donado, the Eraser, the Keeper of Bonds, the Arachno-Lantern, Leo, the Bound Sovereign, Pearlman and Apophiss. Each one now tells you it gave the item back.
+- **Nullify no longer jerks your view in and out.** It strips every blessing, and Speed is the one that changes your field of view. A follower or gear that re-grants Speed every second made the screen zoom in and out all through a boss fight. Now Speed is left on and its boost cancelled, so you walk at normal speed and the view holds still. Strength, Regeneration and every other blessing are still stripped.
+- **Behind the scenes:**
+  - The Gem (t296), Pearlman (t352) and Apophiss (t159) tests hand over the Wraithfire Heart with every other inventory slot full.
+  - A build scan confirms no follower's hand-over gives back before taking.
+  - New test t416 Nullifies the player while Speed is re-granted every second: Speed never drops off and walking speed holds at normal.
+  - t296 and t352 look for the form switch on ⚙ Settings, where it moved in 3.0i.
+
 ## New in 3.2d: keys and materials can't get stuck on the Rat Pack any more
 
 - **Keys and materials are kept as a number.** That covers the Keyring, plus everything on Relics › Materials: Heartstones, Fallen Stars, the hearts and stars, Power Cells, the nine elemental gems, Tide Scales, the six Essences and the skiff parts. Taking them back makes fresh items from the current version, as many as the row counts. The copy saved on the Pack is never read, so no future update can trap them again. Whatever was already on your Pack is counted, so you get the full stack back.

@@ -105,7 +105,7 @@ const X = 21520, Y = 100, Z = 16400;
     n0 = A.dialogN.length; await A.press(/Settings/); await wait(3000, async () => A.dialogN.length > n0);
     ok('his ⚙ Settings list the row: "Joke form"', A.buttons().some(b => /Joke form/.test(b.label)), A.buttons().map(b => b.label).join(' | ').slice(0, 300));
     n0 = A.dialogN.length; await A.press(/Joke form/); await wait(3000, async () => A.dialogN.length > n0);
-    ok('...pressed: off - his own models (bm.pmef 1)', (await sc('TestRat', 'bm.pmef')) === 1 && await wait(2000, async () => /pmr_body$/.test(await model())), await model());
+    ok('...pressed: off - his own models (bm.pmef 1)', (await sc('TestRat', 'bm.pmef')) === 1 && await wait(2000, async () => /pmr_body(_c\d+)?$/.test(await model())), await model());
     await sleep(1200); n0 = A.dialogN.length; await A.press(/Joke form/); await wait(3000, async () => A.dialogN.length > n0);
     ok('...pressed again: on (bm.pmef 11, the Ethereal models)', (await sc('TestRat', 'bm.pmef')) === 11 && await wait(2000, async () => /pmr_body_e$/.test(await model())), await model());
     A.cmd('trigger bm.act set 2'); await sleep(500);
@@ -118,6 +118,7 @@ const X = 21520, Y = 100, Z = 16400;
     // (the heart: the Soul Broker - and the gem comes back)
     const free = []; for (let i = 0; i < 36; i++) if (i !== 2 && !/passed/i.test(await run(`execute if items entity TestRat container.${i} *`))) free.push(i);
     for (const i of free) await run(`item replace entity TestRat container.${i} with minecraft:cobblestone 64`);   // (3.2e: every other slot full - the gem must still come back to you)
+    await run('dialog clear TestRat'); await sleep(300);      // (his Settings page closed - as Esc would)
     A.slot(2); await sleep(400); await click(); await sleep(800);
     ok('the Wraithfire Heart handed over (every other slot full): bm.pmef 12, SOUL BROKER models - and the gem back in your pocket',
        (await sc('TestRat', 'bm.pmef')) === 12 && (await has('ethereal_gem')) === 1 && await wait(2000, async () => /pmr_body_w$/.test(await model())),
@@ -127,7 +128,7 @@ const X = 21520, Y = 100, Z = 16400;
     n0 = A.dialogN.length; await A.press(/Settings/); await wait(3000, async () => A.dialogN.length > n0);
     n0 = A.dialogN.length; await A.press(/Give back the gem/); await wait(3000, async () => A.dialogN.length > n0);
     ok('"Give back the gem / heart": the heart back, bm.pmef 0, his own models', (await sc('TestRat', 'bm.pmef')) === 0 && (await has('wraithfire_heart')) === 1 &&
-       await wait(2000, async () => /pmr_body$/.test(await model())), `pmef ${await sc('TestRat', 'bm.pmef')} hearts ${await has('wraithfire_heart')} model ${await model()}`);
+       await wait(2000, async () => /pmr_body(_c\d+)?$/.test(await model())), `pmef ${await sc('TestRat', 'bm.pmef')} hearts ${await has('wraithfire_heart')} model ${await model()}`);
     A.cmd('trigger bm.act set 2'); await sleep(500);
   }
 
