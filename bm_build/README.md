@@ -21,6 +21,13 @@ New structures only generate in **chunks that haven't been explored yet**. Fly o
 
 Without the resource pack, the tokens, keys, hats and rats show as missing textures. Everything still works.
 
+## New in 3.2d: keys and materials can't get stuck on the Rat Pack any more
+
+- **Keys and materials are kept as a number.** That covers the Keyring, plus everything on Relics › Materials: Heartstones, Fallen Stars, the hearts and stars, Power Cells, the nine elemental gems, Tide Scales, the six Essences and the skiff parts. Taking them back makes fresh items from the current version, as many as the row counts. The copy saved on the Pack is never read, so no future update can trap them again. Whatever was already on your Pack is counted, so you get the full stack back.
+- **Fixed: "That one wouldn't come off" for Heartstones, elemental gems and Rings of Ten Burrows saved by a much older version.** Those were saved in an item format the current game can no longer read, so the hand-back got nothing back and refused. For everything that still keeps its own copy (weapons, armour, rings, tools), a copy that can't be read is now rebuilt from the item itself, keeping its count and its own data. A Ring of Ten Burrows keeps its number, and so its burrows.
+- **Weapons and armour are unchanged:** they still keep their exact copy, so enchantments, wear and trims come back as they were.
+- **Behind the scenes:** t415 now plays all of this as a regular player: a Heartstone under an old ID, a stack of 3 Heartstones and of 4 Fire Gems saved in the old format, a Rime Key whose saved copy is pure junk (2 fresh keys come back), and an old-format Ring of Ten Burrows 2 that comes back with its number.
+
 ## New in 3.2c: relics and keys from older versions come off the Rat Pack again
 
 - **Fixed: "That one wouldn't come off" for everything an older version put on your Rat Pack.** When the Pack hands an item back, it checks that the item really reached you before letting go of its copy. That check also required the item to carry the row's own internal ID, and items stored by an older version can carry an older one. So after updating, those relics and keys were refused every time and stayed on the Pack. The check now accepts whatever is actually stored, so they come off as normal. Nothing was lost: they were safe on the Pack the whole time.

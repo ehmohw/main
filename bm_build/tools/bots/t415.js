@@ -25,7 +25,7 @@ const res = [];
   ok('Relics › Materials lists the old Heartstone', A.buttons().some(b => /Heartstone/.test(b.label)), A.buttons().map(b => b.label).join(' | '));
   A.chats.length = 0; await A.press(/Heartstone/); await sleep(1200);
   ok('pressed: it comes off the Pack (no "wouldn\'t come off")', !A.chats.some(c => /wouldn't come off/.test(c)) && A.chats.some(c => /comes off your Rat Pack/.test(c)), A.chats.slice(-2).join(' / '));
-  ok('...into your pockets', /Found 1/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"heartstone_v1"}] 0')));
+  ok('...into your pockets - made fresh under today\'s id (3.2d: materials are kept as a number)', /Found 1/.test(await run('execute store result score #t bm.rng run clear TestRat *[minecraft:custom_data~{bm:"heartstone",bmv:50}] 0')));
   ok('...and off the Pack: its row and its stored copy gone', /has 0/.test(await run('scoreboard players get TestRat bm.rq_heartstone')) && /Found no/.test(await run(`data get storage bm:pw p${pid}.rq_heartstone`)));
   // (3.2d) stored in an OLDER FORMAT - before item components (Count, tag): today's game can't build an item from it at all, so
   // it came out as nothing and was refused. Rebuilt from its own loot table, with its count and its custom data (a ring's number).
