@@ -48,7 +48,25 @@ def generate(G):
                    'execute unless score @s bm.nul >= #nd bm.rng run scoreboard players operation @s bm.nul = #nd bm.rng'])
     fn('p280/start', ['title @s times 4 30 10', title('@s', 'title', T('')), title('@s', 'subtitle', T('NULLIFIED - your blessings are gone', COL, bold=True)),
                       'playsound minecraft:block.beacon.deactivate player @s ~ ~ ~ 1 0.5', 'playsound minecraft:entity.wither.ambient player @s ~ ~ ~ 0.5 1.6'])
-    fn('p280/tick', [f'effect clear @s minecraft:{e}' for e in POS if e != 'resistance'] +
+    # (3.2e, the owner: "the player's screen can constantly jerk in and out ... the speed buffs are constantly being granted and
+    #  cleared" - Speed is the one blessing that moves the camera (its FOV): a follower or gear grants it every second, this cleared it
+    #  every tick. Speed is left on now and its push taken away instead - a movement-speed modifier that exactly cancels its level
+    #  (Speed is +20% a level, multiplied: x 1/(1 + 0.2 (a+1))) - so you walk at your own pace, and the view holds still. The modifier
+    #  is changed only when the level does (bm.nulsp: the level it cancels, +1; 0 none).)
+    MAXA = 4
+    for a in range(MAXA + 1):
+        wjson(f'bm/predicate/p280/spd{a}.json', {'condition': 'minecraft:entity_properties', 'entity': 'this',
+                                                'predicate': {'minecraft:effects': {'minecraft:speed': {'amplifier': ({'min': a, 'max': a} if a < MAXA else {'min': a})}}}})
+    G.FUNCS['load'][-1:-1] = ['scoreboard objectives add bm.nulsp dummy']; G.OBJECTIVES.append('bm.nulsp')
+    fn('p280/spd', ['scoreboard players set #sa bm.rng 0'] + [f'execute if predicate bm:p280/spd{a} run scoreboard players set #sa bm.rng {a + 1}' for a in range(MAXA + 1)] +
+       ['execute if score #sa bm.rng = @s bm.nulsp run return 0',
+        'attribute @s minecraft:movement_speed modifier remove bm:nul_speed', 'scoreboard players operation @s bm.nulsp = #sa bm.rng'] +
+       [f'execute if score #sa bm.rng matches {a + 1} run attribute @s minecraft:movement_speed modifier add bm:nul_speed {1 / (1 + 0.2 * (a + 1)) - 1:.6f} add_multiplied_total'
+        for a in range(MAXA + 1)])
+    fn('p280/spd_off', ['attribute @s minecraft:movement_speed modifier remove bm:nul_speed', 'scoreboard players set @s bm.nulsp 0'])
+    # (never left behind: anyone not Nullified who still carries it - a death, a logout mid-way - loses it within the second)
+    G.FUNCS['loop/second'].append('execute as @a[scores={bm.nulsp=1..}] unless score @s bm.nul matches 1.. run function bm:p280/spd_off')
+    fn('p280/tick', [f'effect clear @s minecraft:{e}' for e in POS if e not in ('resistance', 'speed')] + ['function bm:p280/spd'] +
        ['execute unless predicate bm:p280/shield run effect clear @s minecraft:resistance',
         'scoreboard players remove @s bm.nul 1',
         'scoreboard players operation #nq bm.rng = @s bm.nul', 'scoreboard players operation #nq bm.rng %= #20 bm.rng',
@@ -58,7 +76,7 @@ def generate(G):
     fn('p280/bar', ['scoreboard players operation #ns bm.rng = @s bm.nul', 'scoreboard players operation #ns bm.rng /= #20 bm.rng',
                     title('@s', 'actionbar', [T('NULLIFIED ', COL, bold=True), T('- no blessing takes for ', 'gray'),
                                              {'score': {'name': '#ns', 'objective': 'bm.rng'}, 'color': 'white'}, T(' s', 'gray')])])
-    fn('p280/end', ['scoreboard players reset @s bm.nul', title('@s', 'actionbar', T('Your strength returns.', '#c8a8ff', italic=True)),
+    fn('p280/end', ['scoreboard players reset @s bm.nul', 'function bm:p280/spd_off', title('@s', 'actionbar', T('Your strength returns.', '#c8a8ff', italic=True)),
                     'playsound minecraft:block.beacon.activate player @s ~ ~ ~ 0.8 1.4'])
     F['tick'].append('execute as @a[scores={bm.nul=1..}] at @s run function bm:p280/tick')
 
