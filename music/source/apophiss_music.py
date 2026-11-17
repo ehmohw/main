@@ -1,5 +1,5 @@
 """APOPHISS - battle theme for the climax of Story One. Trumpets lead. No snake music: no exotic scales, no snake-charmer
-reeds - an orchestral battle march in G minor, 152 BPM, 76 bars = 120 s loop.
+reeds - a heavy, hard-fought orchestral battle in G minor, 132 BPM, 66 bars = 120 s loop.
 
 Instruments: trumpets (lead and harmony), French horns, trombones, timpani, military snare, a string section in driving
 straight sixteenths (spiccato - deliberately unlike Democratus's triplet gallop), choir, cymbals.
@@ -22,10 +22,18 @@ from gv_music import Track, riser, tom, T, bp, R, env
 from boss_music import crash, mel, bars_of
 from sovereign_music import boom, render, _guarded, seeded
 from armada_music import M, esnare, sub808, addc
-from divine_music import trumpet, horns, bones, choir
+from divine_music import horns, bones, choir
 from killerwatt_music import violin_line
+from armada_music import horn
 
-BPM, BARS = 152, 76
+
+def trumpet(x, d, amp=1.0):
+    """a trumpet with only a small scoop into the note (the stock one bends up half a semitone, which reads as sour)"""
+    s = horn([x], d, 1.0, bright=4400, close=900, swell=0.025, vib=5.2, scoop=0.12, q=1.2)
+    s = s + bp(s, 1100, 2600, 1) * 0.5
+    return amp * s / 1.35
+
+BPM, BARS = 132, 66
 
 THEME = mel('G4:1 D5:1.5 C5:.5 Bb4:.5 A4:.5 Bb4:1 G4:1 D5:2 Eb5:1.5 D5:.5 C5:1 Bb4:1 A4:3 D4:1 '
             'G4:1 D5:1.5 C5:.5 Bb4:.5 C5:.5 D5:1 G5:1 F5:1 Eb5:1 D5:1 C5:1 Bb4:1 A4:1 G4:2 F#4:2')
@@ -33,8 +41,8 @@ STAND = mel('Bb4:2 C5:2 D5:3 Bb4:1 C5:2 D5:2 Eb5:4 F5:2 Eb5:2 D5:2 C5:2 Bb4:2 C5
 CALL = mel('G4:.5 G4:.5 D5:1 G5:2')                       # 1 bar
 ANSWER = mel('F5:.5 Eb5:.5 D5:1 A4:2')
 assert bars_of(THEME) == 8 and bars_of(STAND) == 8 and bars_of(CALL) == 1
-P_THEME = [('G', 'm'), ('G', 'm'), ('Eb', 'M'), ('D', 'M'), ('G', 'm'), ('Eb', 'M'), ('C', 'm'), ('D', 'M')]
-P_STAND = [('Eb', 'M'), ('Bb', 'M'), ('C', 'm'), ('Eb', 'M'), ('F', 'M'), ('Bb', 'M'), ('Eb', 'M'), ('D', 'M')]
+P_THEME = [('G', 'm'), ('G', 'm'), ('Eb', 'M'), ('D', 'M'), ('G', 'm'), ('C', 'm'), ('C', 'm'), ('D', 'M')]
+P_STAND = [('Eb', 'M'), ('G', 'm'), ('C', 'm'), ('C', 'm'), ('Bb', 'M'), ('G', 'm'), ('Eb', 'M'), ('D', 'M')]
 P_CALL = [('G', 'm'), ('G', 'm'), ('Eb', 'M'), ('D', 'M')] * 2
 
 
@@ -62,7 +70,7 @@ def timp(m, amp=1.0, roll=False):
 
 def strings(tr, bar, r, q, k, amp=0.07, pat='drive'):
     """the string section in sixteenths: root-root-fifth-root, octave leaps on the strong beats"""
-    c = chord(r, q, k, 3)
+    c = chord(r, q, k, 2)
     if pat == 'drive':
         fig = [c[0], c[0], c[2], c[0], c[0] + 12, c[0], c[2], c[0]] * 2
     else:                                                     # 'low': cellos, eighths
@@ -75,22 +83,18 @@ def strings(tr, bar, r, q, k, amp=0.07, pat='drive'):
 
 def drums(tr, bar, style, amp=1.0, root=None):
     t = tr.at(bar); bt = tr.beat
-    if style == 'march':
-        tr.add(timp(root, 0.35 * amp), t, 0, 1, 0.3); tr.add(timp(root + 7 - 12, 0.28 * amp), t + 2 * bt, 0, 1, 0.3)
-        for x in (1, 3): tr.add(esnare(0.5 * amp, 180), t + x * bt, 0.05, 1, 0.35)
-        for x in (1.75, 3.5, 3.75): tr.add(esnare(0.22 * amp, 200), t + x * bt, 0.05, 1, 0.3)
-        tr.add(boom(0.2 * amp, 70, 30, 1.0), t, 0, 1, 0.3)
-    elif style == 'battle':
-        for x in (0, 0.75, 1.5, 2, 2.75, 3.5):
-            tr.add(timp(root if x in (0, 2) else root + 7 - 12, 0.3 * amp), t + x * bt, 0, 1, 0.3)
-        for x in (1, 3): tr.add(esnare(0.6 * amp, 180), t + x * bt, 0.05, 1, 0.35)
-        for i in range(8): tr.add(esnare(0.12 * amp, 220), t + (i * 0.5 + 0.25) * bt, 0.1, 1, 0.25)
-        tr.add(boom(0.26 * amp, 70, 28, 1.2), t, 0, 1, 0.3)
+    if style in ('march', 'battle'):
+        hits = (0, 1.5, 2.5) if style == 'march' else (0, 0.75, 1.5, 2.5, 3.25)
+        for x in hits: tr.add(timp(root if x in (0, 2.5) else root - 5, 0.34 * amp), t + x * bt, 0, 1, 0.35)
+        tr.add(boom(0.3 * amp, 65, 26, 1.6), t, 0, 1, 0.3)
+        if style == 'battle': tr.add(boom(0.2 * amp, 65, 26, 1.2), t + 2.5 * bt, 0, 1, 0.3)
+        tr.add(esnare(0.55 * amp, 140), t + 2 * bt, 0.05, 1, 0.55)
+        tr.add(tom(55, 0.22 * amp, 5, 0.4), t + 3.5 * bt, -0.3, 1, 0.35)
     elif style == 'low':
-        tr.add(timp(root, 0.32 * amp), t, 0, 1, 0.35); tr.add(timp(root, 0.2 * amp), t + 2.5 * bt, 0, 1, 0.35)
+        tr.add(timp(root, 0.32 * amp), t, 0, 1, 0.4); tr.add(timp(root, 0.2 * amp), t + 2.5 * bt, 0, 1, 0.4)
     elif style == 'roll':
-        for i in range(16): tr.add(esnare((0.08 + 0.025 * i) * amp, 200), t + i * 0.25 * bt, 0.05, 1, 0.3)
-        for i in range(8): tr.add(timp(root, (0.1 + 0.03 * i) * amp, True), t + i * 0.5 * bt, 0, 1, 0.3)
+        for i in range(16): tr.add(timp(root, (0.08 + 0.02 * i) * amp, True), t + i * 0.25 * bt, 0, 1, 0.35)
+        tr.add(boom(0.35 * amp, 60, 24, 2.0), t + 3.75 * bt, 0, 1, 0.3)
 
 
 def brass_bed(tr, bar, r, q, k, amp=1.0, hold=2):
@@ -106,7 +110,7 @@ def trp(tr, t0, notes, k=0, amp=0.17, pan=0.1, harm=False):
         for x, d in notes:
             if x is None: h.append((None, d)); continue
             m = M(x); pc = (m - M('G4')) % 12
-            h.append((m - (4 if pc in (3, 8, 10) else 3) + k, d))
+            h.append((m - (4 if pc in (0, 2, 7, 11) else 3) + k, d))
         line(tr, t0, h, lambda x, d: trumpet(x, d * 0.95, amp * 0.75), -pan, 0.45)
 
 
@@ -121,7 +125,7 @@ def compose():
     assert round(tr.seconds) == 120
     bl = tr.beat * 4
     plan = [('call', P_CALL, 0), ('theme', P_THEME, 0), ('theme2', P_THEME, 0), ('stand', P_STAND, 0), ('cost', P_THEME, 0),
-            ('rally', P_CALL, 0), ('theme2', P_THEME, 2), ('stand', P_STAND, 2), ('all', P_THEME, 0)]
+            ('rally', P_CALL, 0), ('stand', P_STAND, 0), ('all', P_THEME, 0)]
     for s, (kind, prog, k) in enumerate(plan):
         base = s * 8; t0 = tr.at(base)
         tr.add(crash(0.4 if kind != 'cost' else 0.2, 3.0), t0, 0.3, 1, 0.6)
@@ -137,7 +141,7 @@ def compose():
             strings(tr, bar, r, q, k, 0.075)
             if b % 2 == 0: brass_bed(tr, bar, r, q, k)
             if kind in ('theme2', 'all') and b % 2 == 0:
-                tr.add(choir([x + 12 for x in chord(r, q, k, 3)], bl * 2, 0.07, 0.3, 'a'), tr.at(bar), 0, 1, 0.7)
+                tr.add(choir([x + 12 for x in chord(r, q, k, 3)], bl * 2, 0.07, 0.4, 'u'), tr.at(bar), 0, 1, 0.7)
             if kind in ('all', 'stand') or b % 4 == 0: tr.add(crash(0.14), tr.at(bar), (-0.3, 0.3)[b % 2], 1, 0.5)
         if kind == 'call':
             for b in (0, 2, 4, 6):
@@ -145,7 +149,8 @@ def compose():
                 trp(tr, tr.at(base + b + 1), ANSWER, -12, 0.12, -0.2) if b < 6 else None
                 if b == 6: line(tr, tr.at(base + 7), shift(ANSWER, -12), lambda x, d: horns([x], d, 0.15), -0.2, 0.5)
         if kind == 'theme':
-            trp(tr, t0, THEME, 0, 0.18)
+            trp(tr, t0, THEME, 0, 0.17)
+            line(tr, t0, shift(THEME, -12), lambda x, d: bones([x], d, 0.12), -0.2, 0.45)
         if kind == 'theme2':
             trp(tr, t0, THEME, k, 0.18, harm=True)
             line(tr, t0, shift(THEME, k - 12), lambda x, d: horns([x], d, 0.12), -0.15, 0.5)
@@ -154,26 +159,27 @@ def compose():
             line(tr, t0, shift(STAND, k), lambda x, d: choir([x], d, 0.05, 0.15, 'a'), 0, 0.7)
             for b in range(8):
                 r, q = P_STAND[b]; stabs(tr, base + b, r, q, k, 0.14 if k else 0.12)
-            if k: trp(tr, t0, STAND, k + 12, 0.15, 0.2)            # the second time, trumpets soaring an octave up
+            if s > 3: trp(tr, t0, STAND, 12, 0.13, 0.2)            # the second time, trumpets soaring an octave up
         if kind == 'cost':
             line(tr, tr.at(base + 2), shift(THEME[:9], 0), lambda x, d: trumpet(x, d * 0.95, 0.13), 0.25, 0.75)
         if kind == 'rally':
             for i, b in enumerate(range(8)):
-                trp(tr, tr.at(base + b), CALL, (0, 2, 3, 5, 7, 8, 10, 12)[i] - 5, 0.16, (-0.3, 0.3)[i % 2])
+                trp(tr, tr.at(base + b), CALL, chord(*P_CALL[b], 0, 4)[0] - M('G4') - (12 if b < 4 else 0), 0.16, (-0.3, 0.3)[i % 2])
             tr.add(riser(bl * 4, 0.12), tr.at(base + 4), 0, 1, 0.4)
         if kind == 'all':
             trp(tr, t0, THEME, 0, 0.19, harm=True)
             trp(tr, t0, THEME, 12, 0.1, 0.3)
             line(tr, t0, shift(THEME, -12), lambda x, d: horns([x, x - 12], d, 0.15), -0.15, 0.5)
-    base = 72                                                  # THE CALL, hammered
-    for b in range(4):
-        r, q = P_CALL[b]; root = chord(r, q, 0, 2)[0]
-        drums(tr, base + b, 'roll' if b == 3 else 'battle', 1.1, root)
+    base = 64                                                  # THE CALL, hammered - 2 bars
+    for b in range(2):
+        r, q = P_CALL[b + 2]; root = chord(r, q, 0, 2)[0]
+        drums(tr, base + b, 'roll' if b == 1 else 'battle', 1.1, root)
         strings(tr, base + b, r, q, 0, 0.08); brass_bed(tr, base + b, r, q, 0, 1.1, 1)
-        stabs(tr, base + b, r, q, 0, 0.15, (0, 0.5, 1, 2, 2.5, 3) if b < 3 else (0,))
+        stabs(tr, base + b, r, q, 0, 0.14, (0, 1.5, 3) if b == 0 else (0,))
     tr.add(crash(0.45, 3.0), tr.at(base), 0.3, 1, 0.55)
-    for b in (0, 1, 2): trp(tr, tr.at(base + b), CALL, 0, 0.2, harm=True)
-    tr.add(riser(bl * 2, 0.13), tr.at(base + 2), 0, 1, 0.4)
+    trp(tr, tr.at(base), CALL, -4, 0.19, harm=True)
+    trp(tr, tr.at(base + 1), CALL, -5, 0.19, harm=True)
+    tr.add(riser(bl * 2, 0.12), tr.at(base), 0, 1, 0.4)
     return tr
 
 
