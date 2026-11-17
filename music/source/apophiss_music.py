@@ -1,7 +1,7 @@
-"""APOPHISS - battle theme for the climax of Story One. Trumpets lead. No snake music: no exotic scales, no snake-charmer
+"""APOPHISS - battle theme for the climax of Story One. The pipe organ leads. No snake music: no exotic scales, no snake-charmer
 reeds - a heavy, hard-fought orchestral battle in G minor, 132 BPM, 66 bars = 120 s loop.
 
-Instruments: trumpets (lead and harmony), French horns, trombones, timpani, military snare, a string section in driving
+Instruments: pipe organ (lead, harmony, chords and pedal), French horns, trombones, timpani, military snare, a string section in driving
 straight sixteenths (spiccato - deliberately unlike Democratus's triplet gallop), choir, cymbals.
 
   0 THE CALL    timpani, the strings start, the trumpets' call and its answer
@@ -27,11 +27,30 @@ from killerwatt_music import violin_line
 from armada_music import horn
 
 
+RANKS = ((0.5, 0.55), (1, 1.0), (2, 0.7), (3, 0.35), (4, 0.4), (6, 0.12), (8, 0.15))   # 16', 8', 4', 2 2/3', 2', 1 1/3', 1'
+
+
+def organ(notes, d, amp=1.0, ranks=RANKS, chiff=0.25):
+    """a pipe organ: stacked ranks of pipes (each a slightly detuned pair), a breathy chiff as each pipe speaks, wind
+    pressure flutter, a short release"""
+    if not isinstance(notes, (list, tuple)): notes = [notes]
+    dur = d + 0.15; t = T(dur); n = len(t); s = np.zeros(n)
+    for x in notes:
+        f = hz(M(x) if isinstance(x, str) else x)
+        for r, g in ranks:
+            fr = f * r
+            if fr > 8000: continue
+            for det in (-0.0009, 0.0011):
+                s += g * np.sin(2 * np.pi * fr * (1 + det) * t + R.r() * 6.28)
+    s /= len(notes) * len(ranks)
+    s *= 1 + 0.01 * np.sin(2 * np.pi * 5.5 * t)
+    s += chiff * bp(R.noise(n), 1200, 5000) * np.exp(-t * 30) / max(1, len(notes))
+    return amp * 1.8 * s * env(n, 0.03, 0, 1, 0.12)
+
+
 def trumpet(x, d, amp=1.0):
-    """a trumpet with only a small scoop into the note (the stock one bends up half a semitone, which reads as sour)"""
-    s = horn([x], d, 1.0, bright=4400, close=900, swell=0.025, vib=5.2, scoop=0.12, q=1.2)
-    s = s + bp(s, 1100, 2600, 1) * 0.5
-    return amp * s / 1.35
+    """(the lead voice is now the organ, full registration)"""
+    return organ([x], d * 1.02, amp)
 
 BPM, BARS = 132, 66
 
@@ -99,7 +118,8 @@ def drums(tr, bar, style, amp=1.0, root=None):
 
 def brass_bed(tr, bar, r, q, k, amp=1.0, hold=2):
     c = chord(r, q, k, 3)
-    tr.add(bones([c[0] - 12, c[0], c[2]], tr.beat * 4 * hold * 0.95, 0.1 * amp), tr.at(bar), -0.2, 1, 0.45)
+    tr.add(organ([c[0], c[1], c[2], c[0] + 12], tr.beat * 4 * hold * 0.97, 0.09 * amp, ((1, 1.0), (2, 0.6), (4, 0.3)), 0.1), tr.at(bar), 0.15, 1, 0.55)
+    tr.add(organ([c[0] - 12], tr.beat * 4 * hold * 0.97, 0.1 * amp, ((0.5, 1.0), (1, 0.6), (2, 0.25)), 0.05), tr.at(bar), 0, 1, 0.4)
     tr.add(sub808(c[0] - 12, tr.beat * 4 * 0.98, 0.16 * amp), tr.at(bar), 0, 1, 0.05)
 
 
